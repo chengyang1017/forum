@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "448948961427",
+    "project_id": "forum-3b899",
+    "storage_bucket": "forum-3b899.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:448948961427:android:f4c40027f9b9dea04fcd66",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgLSUjROM9FIATCIgJLffUZa78Vos_z38"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
