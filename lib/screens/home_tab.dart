@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'feed_screen.dart';
-import 'login_screen.dart';
-import 'profile_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeTab extends StatelessWidget {
+  const HomeTab({super.key});
 
-  final List<Map<String, dynamic>> categories = const [
+  static const List<Map<String, dynamic>> categories = [
     {"name": "语言学习", "icon": Icons.language},
     {"name": "编程开发", "icon": Icons.code},
     {"name": "AI", "icon": Icons.smart_toy},
@@ -20,16 +18,9 @@ class HomeScreen extends StatelessWidget {
     {"name": "交友", "icon": Icons.people},
     {"name": "旅行", "icon": Icons.flight},
     {"name": "闲聊", "icon": Icons.chat},
+    {"name": "爱情", "icon": Icons.favorite_border},
+    {"name": "美食", "icon": Icons.restaurant},
   ];
-
-  void logout(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-      (route) => false,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,23 +28,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("论坛分类"),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProfileScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => logout(context),
-          ),
-        ],
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: GridView.builder(
@@ -62,16 +37,20 @@ class HomeScreen extends StatelessWidget {
             crossAxisCount: 3,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
+            childAspectRatio: 0.9,
           ),
           itemBuilder: (context, index) {
             final c = categories[index];
 
             return InkWell(
+              borderRadius: BorderRadius.circular(16),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => FeedScreen(category: c["name"]),
+                    builder: (_) => FeedScreen(
+                      category: c["name"],
+                    ),
                   ),
                 );
               },
@@ -79,14 +58,26 @@ class HomeScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.blue.shade200),
+                  border: Border.all(
+                    color: Colors.blue.shade200,
+                  ),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(c["icon"], color: Colors.blue, size: 40),
+                    Icon(
+                      c["icon"],
+                      size: 42,
+                      color: Colors.blue,
+                    ),
                     const SizedBox(height: 10),
-                    Text(c["name"]),
+                    Text(
+                      c["name"],
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ),
               ),

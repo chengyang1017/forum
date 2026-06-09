@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../admin/admin_dashboard.dart';
-import '../screens/home_screen.dart';
+import '../screens/home_tab.dart';
 
 class AuthService {
   static Future<void> loginAndRoute(
@@ -52,7 +52,7 @@ class AuthService {
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const HomeTab ()),
       );
     }
   }
