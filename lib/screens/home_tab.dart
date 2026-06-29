@@ -20,7 +20,7 @@ class HomeTab extends StatelessWidget {
     {"name": "闲聊", "icon": Icons.chat},
     {"name": "爱情", "icon": Icons.favorite_border},
     {"name": "美食", "icon": Icons.restaurant},
-    {"name": "zh123", "icon": Icons.collaboration},
+    {"name": "123456", "icon": Icons.collaboration},
 
   ];
 
