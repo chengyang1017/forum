@@ -21,7 +21,7 @@ class HomeTab extends StatelessWidget {
     {"name": "爱情", "icon": Icons.favorite_border},
     {"name": "美食", "icon": Icons.restaurant},
     {"name": "123456", "icon": Icons.collaboration},
-123123123123123123123
+Это последняя версия кода.
   ];
 
   @override
