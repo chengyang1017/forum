@@ -22,6 +22,7 @@ class HomeTab extends StatelessWidget {
     {"name": "美食", "icon": Icons.restaurant},
     {"name": "123456", "icon": Icons.collaboration},
 Это последняя версия кода.
+Đây là mã nguồn mới nhất.
   ];
 
   @override
