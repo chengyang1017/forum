@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+    
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -42,6 +43,14 @@ dependencies:
   share_plus: ^10.0.0
   cached_network_image: ^3.3.1
   shared_preferences: ^2.2.0
+  provider: ^6.1.5+1
+  lpinyin: ^2.0.3
+  pinyin: ^3.3.0
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+  json_annotation: ^4.12.0   # 注解，用于生成序列化代码
+  app_links: ^7.2.1
 
 dev_dependencies:
   flutter_test:
@@ -54,6 +63,8 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
+  build_runner: ^2.4.0
+  json_serializable: ^6.7.0  # 自动生成 fromJson / toJson
   
 
 
@@ -67,6 +78,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+    - assets/l10n/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -84,18 +97,11 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
+  fonts:
+    - family: NomNaTong
+      fonts:
+        - asset: assets/fonts/NomNaTong-Regular.ttf
+  
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 

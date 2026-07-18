@@ -1,0 +1,107 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class PostModel {
+  final String id;
+  final String? userId; // Firestore 字段: uid
+  final String? title;
+  final String? content;
+  final String? category;
+  final String? languageCode;
+  final List<String>? imageUrls;
+  final List<String>? likes;
+  final int likeCount;
+  final int commentCount;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  PostModel({
+    required this.id,
+    this.userId,
+    this.title,
+    this.content,
+    this.category,
+    this.languageCode,
+    this.imageUrls,
+    this.likes,
+    this.likeCount = 0,
+    this.commentCount = 0,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  factory PostModel.fromJson(Map<String, dynamic> json) {
+  return PostModel(
+    id: json['id']?.toString() ?? '',
+    userId: json['uid']?.toString() ?? json['userId']?.toString(),
+
+    title: json['title']?.toString() ?? '',
+    content: json['content']?.toString() ?? '',
+
+    category: json['category']?.toString(),
+    languageCode: json['languageCode']?.toString(),
+    imageUrls: (json['images'] as List<dynamic>?)
+        ?.map((e) => e.toString())
+        .toList(),
+    likes: (json['likes'] as List<dynamic>?)
+        ?.map((e) => e.toString())
+        .toList(),
+    likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
+    commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
+    createdAt: _toDateTime(json['timestamp'] ?? json['createdAt']),
+    updatedAt: _toDateTime(json['updatedAt']),
+  );
+}
+
+  Map<String, dynamic> toJson() {
+    return {
+      'uid': userId,
+      'title': title,
+      'content': content,
+      'category': category,
+      'languageCode': languageCode,
+      'images': imageUrls,
+      'likes': likes,
+      'likeCount': likeCount,
+      'commentCount': commentCount,
+      'timestamp': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
+      'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
+    }..removeWhere((key, value) => value == null);
+  }
+
+  PostModel copyWith({
+    String? id,
+    String? userId,
+    String? title,
+    String? content,
+    String? category,
+    String? languageCode,
+    List<String>? imageUrls,
+    List<String>? likes,
+    int? likeCount,
+    int? commentCount,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return PostModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      category: category ?? this.category,
+      languageCode: languageCode ?? this.languageCode,
+      imageUrls: imageUrls ?? this.imageUrls,
+      likes: likes ?? this.likes,
+      likeCount: likeCount ?? this.likeCount,
+      commentCount: commentCount ?? this.commentCount,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  static DateTime? _toDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    return null;
+  }
+}
