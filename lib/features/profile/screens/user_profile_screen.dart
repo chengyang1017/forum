@@ -11,6 +11,8 @@ import '../../../shared/services/friend_service.dart';
 import '../../auth/providers/auth_provider.dart' as authProv;
 import '../../chat/screens/chat_screen.dart';
 import '../widgets/profile_post_sliver_list.dart';
+import '../../notes/screens/user_notes_screen.dart';
+import '../widgets/profile_language_section.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final String uid;
@@ -251,9 +253,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     child: _buildBioTagsSection(bio: bio, tags: tags),
                   ),
                 if (languages.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: _buildLanguageSection(languages),
-                  ),
+  SliverToBoxAdapter(
+    child: ProfileLanguageSection(
+      languages: languages,
+      l10n: l10n,
+
+      // 其他用户主页只能查看
+      onTap: null,
+    ),
+  ),
+                  if (_currentUserId != null && !isMe)
+  SliverToBoxAdapter(
+    child: _buildSharedNotesEntry(
+      displayName: displayName,
+    ),
+  ),
                 SliverToBoxAdapter(
                   child: Container(
                     margin: EdgeInsets.zero,
@@ -514,6 +528,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       ),
     );
   }
+  
 
   Widget _buildLanguageSection(List<Map<String, dynamic>> languages) {
     return Container(
@@ -611,6 +626,59 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       ),
     );
   }
+
+  Widget _buildSharedNotesEntry({
+  required String displayName,
+}) {
+  final theme = Theme.of(context);
+
+  return Container(
+    margin: const EdgeInsets.only(
+      top: 10,
+    ),
+    color: Colors.white,
+    child: ListTile(
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 8,
+      ),
+      leading: CircleAvatar(
+        backgroundColor:
+            theme.colorScheme.primaryContainer,
+        child: Icon(
+          Icons.note_alt_outlined,
+          color: theme.colorScheme.primary,
+        ),
+      ),
+      title: const Text(
+        '共同笔记',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Text(
+        '查看与 $displayName 共享的笔记',
+      ),
+      trailing: const Icon(
+        Icons.chevron_right,
+      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) {
+              return UserNotesScreen(
+                otherUserId: widget.uid,
+                otherUserName: displayName,
+              );
+            },
+          ),
+        );
+      },
+    ),
+  );
+}
 
   Widget _buildStatItem(String label, String count) {
     return Column(

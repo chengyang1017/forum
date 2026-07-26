@@ -17,6 +17,7 @@ import '../widgets/profile_language_section.dart';
 import '../../../shared/widgets/post_item_card.dart';
 import '../widgets/tag_editor_sheet.dart';
 import 'settings_screen.dart';
+import '../../notes/screens/all_notes_screen.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -514,6 +515,57 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   onTap: _editLanguages,
                 ),
               ),
+              
+              //笔记
+              SliverToBoxAdapter(
+  child: Container(
+    margin: const EdgeInsets.only(
+      top: 10,
+    ),
+    color: Colors.white,
+    child: ListTile(
+      contentPadding:
+          const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 8,
+      ),
+      leading: CircleAvatar(
+        backgroundColor: Theme.of(context)
+            .colorScheme
+            .primaryContainer,
+        child: Icon(
+          Icons.note_alt_outlined,
+          color: Theme.of(context)
+              .colorScheme
+              .primary,
+        ),
+      ),
+      title: const Text(
+        '我的笔记',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: const Text(
+        '查看和管理所有共享笔记',
+      ),
+      trailing: const Icon(
+        Icons.chevron_right,
+      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) {
+              return const AllNotesScreen();
+            },
+          ),
+        );
+      },
+    ),
+  ),
+),
 
               // ====================================================
               // 我的帖子标题

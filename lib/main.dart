@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 
 // ========== 屏幕 ==========
 import 'features/auth/screens/login_screen.dart';
@@ -16,27 +17,42 @@ import 'config/l10n/localizations_delegate.dart';
 import 'shared/providers/app_language.dart';
 
 // ========== Provider（功能模块） ==========
-import 'features/auth/providers/auth_provider.dart' as authProv;
-import 'features/chat/providers/chat_provider.dart' as chatProv;
-import 'features/social/providers/friend_provider.dart' as friendProv;
-import 'features/feed/providers/feed_provider.dart' as feedProv;
-import 'features/discover/providers/discover_provider.dart' as discoverProv;
-import 'features/feed/providers/post_provider.dart' as postProv;
+import 'features/auth/providers/auth_provider.dart'
+    as authProv;
+import 'features/chat/providers/chat_provider.dart'
+    as chatProv;
+import 'features/social/providers/friend_provider.dart'
+    as friendProv;
+import 'features/feed/providers/feed_provider.dart'
+    as feedProv;
+import 'features/discover/providers/discover_provider.dart'
+    as discoverProv;
+import 'features/feed/providers/post_provider.dart'
+    as postProv;
+
 import 'shared/services/deep_link_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp();
+
   DeepLinkService.instance.start();
+
   runApp(const MyApp());
 }
 
 // ============================================================
 // 根 Widget
 // ============================================================
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
-  static const Locale chunomLocale = Locale.fromSubtags(
+class MyApp extends StatelessWidget {
+  const MyApp({
+    super.key,
+  });
+
+  static const Locale chunomLocale =
+      Locale.fromSubtags(
     languageCode: 'vi',
     scriptCode: 'Nom',
   );
@@ -46,21 +62,46 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         // ----- 全局状态 -----
-        ChangeNotifierProvider(create: (_) => AppLanguage()),
+        ChangeNotifierProvider(
+          create: (_) => AppLanguage(),
+        ),
 
         // ----- 功能模块 Provider -----
-        ChangeNotifierProvider(create: (_) => authProv.AuthProvider()),
-        ChangeNotifierProvider(create: (_) => chatProv.ChatProvider()),
-        ChangeNotifierProvider(create: (_) => friendProv.FriendProvider()),
-        ChangeNotifierProvider(create: (_) => discoverProv.DiscoverProvider()),
-        ChangeNotifierProvider(create: (_) => feedProv.FeedProvider()),
-        ChangeNotifierProvider(create: (_) => postProv.PostProvider()),
+        ChangeNotifierProvider(
+          create: (_) =>
+              authProv.AuthProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              chatProv.ChatProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              friendProv.FriendProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              discoverProv.DiscoverProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              feedProv.FeedProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              postProv.PostProvider(),
+        ),
       ],
       child: Consumer<AppLanguage>(
-        builder: (context, appLanguage, child) {
+        builder: (
+          context,
+          appLanguage,
+          child,
+        ) {
           return MaterialApp(
             navigatorKey: rootNavigatorKey,
-            debugShowCheckedModeBanner: false,
+            debugShowCheckedModeBanner:
+                false,
             title: '论坛App',
 
             // 当前语言
@@ -76,7 +117,7 @@ class MyApp extends StatelessWidget {
               Locale('vi'),
               Locale('th'),
 
-              /// 喃字：标准写法
+              // 喃字
               Locale.fromSubtags(
                 languageCode: 'vi',
                 scriptCode: 'Hani',
@@ -86,31 +127,54 @@ class MyApp extends StatelessWidget {
             // 本地化 delegate
             localizationsDelegates: const [
               AppLocalizationsDelegate(),
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
+
+              GlobalMaterialLocalizations
+                  .delegate,
+              GlobalWidgetsLocalizations
+                  .delegate,
+              GlobalCupertinoLocalizations
+                  .delegate,
+
+              // Flutter Quill 本地化
+              FlutterQuillLocalizations
+                  .delegate,
             ],
 
-            // 关键：优先匹配 scriptCode，避免 vi_Nom 被自动变成普通 vi
-            localeResolutionCallback: (locale, supportedLocales) {
-  if (locale == null) return const Locale('zh');
+            // 优先匹配 scriptCode
+            localeResolutionCallback: (
+              locale,
+              supportedLocales,
+            ) {
+              if (locale == null) {
+                return const Locale('zh');
+              }
 
-  for (final supportedLocale in supportedLocales) {
-    if (supportedLocale.languageCode == locale.languageCode &&
-        supportedLocale.scriptCode == locale.scriptCode) {
-      return supportedLocale;
-    }
-  }
+              for (final supportedLocale
+                  in supportedLocales) {
+                if (supportedLocale
+                            .languageCode ==
+                        locale.languageCode &&
+                    supportedLocale
+                            .scriptCode ==
+                        locale.scriptCode) {
+                  return supportedLocale;
+                }
+              }
 
-  for (final supportedLocale in supportedLocales) {
-    if (supportedLocale.languageCode == locale.languageCode &&
-        supportedLocale.scriptCode == null) {
-      return supportedLocale;
-    }
-  }
+              for (final supportedLocale
+                  in supportedLocales) {
+                if (supportedLocale
+                            .languageCode ==
+                        locale.languageCode &&
+                    supportedLocale
+                            .scriptCode ==
+                        null) {
+                  return supportedLocale;
+                }
+              }
 
-  return const Locale('zh');
-},
+              return const Locale('zh');
+            },
 
             theme: ThemeData(
               useMaterial3: true,
@@ -119,18 +183,33 @@ class MyApp extends StatelessWidget {
             ),
 
             home: StreamBuilder<User?>(
-              stream: FirebaseAuth.instance.authStateChanges(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+              stream: FirebaseAuth.instance
+                  .authStateChanges(),
+              builder: (
+                context,
+                snapshot,
+              ) {
+                if (snapshot.connectionState ==
+                    ConnectionState.waiting) {
                   return const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
+                    body: Center(
+                      child:
+                          CircularProgressIndicator(),
+                    ),
                   );
                 }
 
                 if (snapshot.hasData) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.read<authProv.AuthProvider>().loadUser();
-                  });
+                  WidgetsBinding.instance
+                      .addPostFrameCallback(
+                    (_) {
+                      context
+                          .read<
+                              authProv
+                              .AuthProvider>()
+                          .loadUser();
+                    },
+                  );
 
                   return const MainNavigationScreen();
                 }

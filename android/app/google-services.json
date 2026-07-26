@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "448948961427",
+    "firebase_url": "https://forum-3b899-default-rtdb.firebaseio.com",
     "project_id": "forum-3b899",
     "storage_bucket": "forum-3b899.firebasestorage.app"
   },

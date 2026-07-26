@@ -143,5 +143,132 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> sendVocabularyMessage({
+  required String chatId,
+  required String senderId,
+  required String word,
+  String? translation,
+  String? languageCode,
+}) async {
+  final chatRef = FirebaseFirestore.instance
+      .collection('chats')
+      .doc(chatId);
 
+  final messageRef = chatRef
+      .collection('messages')
+      .doc();
+
+  final translations = <String, String>{};
+
+  if (translation != null && translation.trim().isNotEmpty) {
+    translations[senderId] = translation.trim();
+  }
+
+  final batch = FirebaseFirestore.instance.batch();
+
+  batch.set(messageRef, {
+    'type': 'vocab',
+    'senderId': senderId,
+    'word': word.trim(),
+    'languageCode': languageCode,
+    'translations': translations,
+    'createdAt': FieldValue.serverTimestamp(),
+  });
+
+  batch.set(
+    chatRef,
+    {
+      'lastMessage': '[单词] ${word.trim()}',
+      'lastMessageAt': FieldValue.serverTimestamp(),
+      'lastSenderId': senderId,
+    },
+    SetOptions(merge: true),
+  );
+
+  await batch.commit();
+}
+
+Future<void> updateVocabularyTranslation({
+  required String chatId,
+  required String messageId,
+  required String userId,
+  required String translation,
+}) async {
+  final messageRef = FirebaseFirestore.instance
+      .collection('chats')
+      .doc(chatId)
+      .collection('messages')
+      .doc(messageId);
+
+  await messageRef.update({
+    'translations.$userId': translation.trim(),
+  });
+}
+
+Future<void> updateLiveDraftEnabled({
+  required String chatId,
+  required String userId,
+  required bool enabled,
+}) async {
+  await FirebaseFirestore.instance
+      .collection('chats')
+      .doc(chatId)
+      .collection('memberSettings')
+      .doc(userId)
+      .set({
+    'shareLiveDraft': enabled,
+  }, SetOptions(merge: true));
+}
+
+Future<bool> getLiveDraftEnabled({
+  required String chatId,
+  required String userId,
+}) async {
+  final doc = await FirebaseFirestore.instance
+      .collection('chats')
+      .doc(chatId)
+      .collection('memberSettings')
+      .doc(userId)
+      .get();
+
+  return doc.data()?['shareLiveDraft'] == true;
+}
+
+Future<void> editMessage({
+  required String chatId,
+  required String messageId,
+  required String currentUserId,
+  required String newContent,
+}) {
+  return _chatRepo.editMessage(
+    chatId: chatId,
+    messageId: messageId,
+    currentUserId: currentUserId,
+    newContent: newContent,
+  );
+}
+
+Future<void> deleteMessageForMe({
+  required String chatId,
+  required String messageId,
+  required String currentUserId,
+}) {
+  return _chatRepo.deleteMessageForMe(
+    chatId: chatId,
+    messageId: messageId,
+    currentUserId: currentUserId,
+  );
+}
+
+Future<void> deleteMessageForEveryone({
+  required String chatId,
+  required String messageId,
+  required String currentUserId,
+}) {
+  return _chatRepo.deleteMessageForEveryone(
+    chatId: chatId,
+    messageId: messageId,
+    currentUserId: currentUserId,
+  );
+}
 }
