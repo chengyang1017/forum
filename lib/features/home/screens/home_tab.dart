@@ -3,11 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../config/l10n/app_localizations.dart';
-import '../../../config/languages.dart';
+import 'package:glyphora_language_core/glyphora_language_core.dart';
 import '../../feed/screens/feed_screen.dart';
 import '../../profile/screens/language_select_screen.dart';
 import 'recommended_posts_view.dart';
 
+import '../../../config/forum_languages.dart';
 enum _HomeSection {
   recommended,
   categories,
@@ -84,9 +85,9 @@ class _HomeTabState extends State<HomeTab> {
   ];
 
   LanguageConfig get _currentChannelLanguage {
-    return LanguageConfig.supportedLanguages.firstWhere(
+    return ForumLanguages.supportedLanguages.firstWhere(
       (language) => language.code == _selectedChannelCode,
-      orElse: LanguageConfig.getDefaultLanguage,
+      orElse: ForumLanguages.getDefaultLanguage,
     );
   }
 

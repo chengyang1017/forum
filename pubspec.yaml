@@ -56,7 +56,9 @@ dependencies:
     path: C:/Users/USER/Documents/服务/glyphora_ui
   flutter_quill: 11.5.1
   flutter_quill_extensions: 11.0.0
-
+  glyphora_language_core:
+    path: C:/Users/USER/Documents/服务/glyphora_language_core
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../config/languages.dart';
+import 'package:glyphora_language_core/glyphora_language_core.dart';
+import '../../../config/forum_languages.dart';
 
 Future<List<Map<String, dynamic>>?> showLanguageEditorSheet({
   required BuildContext context,
@@ -57,7 +58,7 @@ class _LanguageEditorSheetState
 
     // 完整语言库。
     _allLanguages = List<LanguageConfig>.from(
-      LanguageConfig.supportedLanguages,
+      ForumLanguages.supportedLanguages,
     );
 
     // 使用 Map 通过语言代码快速查找。

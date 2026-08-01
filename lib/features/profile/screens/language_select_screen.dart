@@ -1,6 +1,9 @@
 // lib/screens/language_select_screen.dart
 import 'package:flutter/material.dart';
-import '../../../config/languages.dart';
+import 'package:glyphora_language_core/glyphora_language_core.dart';
+
+
+import '../../../config/forum_languages.dart';
 
 class LanguageSelectScreen extends StatefulWidget {
   final LanguageConfig currentLanguage;
@@ -35,7 +38,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
   final uiCode = widget.currentUiLanguageCode;
 
   _sortedLanguages = List<LanguageConfig>.from(
-    LanguageConfig.channelLanguages,
+    ForumLanguages.channelLanguages,
   );
 
   _sortedLanguages.sort(
@@ -103,7 +106,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          LanguageConfig.languageSelectTitleOf(uiCode),
+          ForumLanguages.languageSelectTitleOf(uiCode),
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFF1E293B),
