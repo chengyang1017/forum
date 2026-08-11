@@ -22,6 +22,10 @@ const {
   getStorage,
 } = require("firebase-admin/storage");
 
+const {
+  translatePost,
+} = require("./translate_post");
+
 initializeApp();
 
 setGlobalOptions({
@@ -494,3 +498,6 @@ exports.cleanupExpiredChatMessages =
         );
       },
   );
+
+exports.translatePost =
+  translatePost;

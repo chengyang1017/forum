@@ -1,0 +1,2930 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:provider/provider.dart';
+
+import 'comment_screen.dart';
+import '../../../profile/presentation/screens/user_profile_screen.dart';
+import '../providers/post_provider.dart' as postProv;
+import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
+import '../../../../core/widgets/user_name_display.dart';
+import '../../../../core/widgets/loading_indicator.dart';
+import '../../domain/models/post_model.dart';
+import 'package:glyphora_language_core/glyphora_language_core.dart';
+import '../../../translation/presentation/screens/post_translation_screen.dart';
+import 'package:flutter/services.dart';
+import '../../data/services/post_service.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_quill/flutter_quill.dart'
+    as quill;
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
+import 'post_edit_history_screen.dart';
+class PostDetailScreen extends StatefulWidget {
+  final String postId;
+  final PostModel post;
+
+  const PostDetailScreen({
+    super.key,
+    required this.postId,
+    required this.post,
+  });
+
+  @override
+  State<PostDetailScreen> createState() => _PostDetailScreenState();
+}
+
+class _PostDetailScreenState extends State<PostDetailScreen> {
+  // ✅ 所有字段改为带默认值，不再使用 late
+  PostModel _post = PostModel(
+    id: '',
+    userId: '',
+    content: '',
+    category: '',
+    languageCode: 'zh',
+    imageUrls: [],
+    likes: [],
+    likeCount: 0,
+    commentCount: 0,
+  );
+
+  bool _isLiked = false;
+  List<String> _likes = [];
+  List<String> _images = [];
+  int _currentIndex = 0;
+  bool _isUploadingImage = false;
+  bool _isEditingImages = false;
+  String? _currentUserId;
+  final PostService _postService = PostService();
+  DateTime? _currentVersionCreatedAt;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
+
+  void _initializeData() {
+    // ✅ 安全初始化
+    _post = widget.post;
+    _currentUserId = context.read<authProv.AuthProvider>().user?.id;
+    _likes = List<String>.from(_post.likes ?? []);
+    _images = List<String>.from(_post.imageUrls ?? []);
+    _isLiked = _currentUserId != null && _likes.contains(_currentUserId);
+    _loadCurrentVersionCreatedAt();
+  }
+
+  DateTime? _toDateTime(dynamic value) {
+  if (value is Timestamp) {
+    return value.toDate();
+  }
+
+  if (value is DateTime) {
+    return value;
+  }
+
+  return null;
+}
+
+Future<void> _loadCurrentVersionCreatedAt() async {
+  final currentLanguageCode =
+      _post.languageCode;
+
+  final primaryLanguageCode =
+      _post.primaryLanguageCode ??
+      widget.post.primaryLanguageCode ??
+      widget.post.languageCode;
+
+  if (currentLanguageCode == null) {
+    return;
+  }
+
+  if (currentLanguageCode ==
+      primaryLanguageCode) {
+    _currentVersionCreatedAt =
+        _post.createdAt;
+    return;
+  }
+
+  try {
+    final version =
+        await _postService.getLanguageVersion(
+      postId: widget.postId,
+      languageCode: currentLanguageCode,
+    );
+
+    if (!mounted || version == null) {
+      return;
+    }
+
+    setState(() {
+      _currentVersionCreatedAt =
+          _toDateTime(
+        version['createdAt'],
+      );
+    });
+  } catch (e) {
+    debugPrint(
+      '加载语言版本发布时间失败: $e',
+    );
+  }
+}
+
+String _formatVersionTimestamp(
+  DateTime dateTime,
+) {
+  final year =
+      dateTime.year.toString();
+
+  final month =
+      dateTime.month
+          .toString()
+          .padLeft(2, '0');
+
+  final day =
+      dateTime.day
+          .toString()
+          .padLeft(2, '0');
+
+  final hour =
+      dateTime.hour
+          .toString()
+          .padLeft(2, '0');
+
+  final minute =
+      dateTime.minute
+          .toString()
+          .padLeft(2, '0');
+
+  return '$year/$month/$day $hour:$minute';
+}
+
+  String _formatTimestamp(DateTime? dateTime) {
+    if (dateTime == null) return '';
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+    if (difference.inMinutes < 1) return '刚刚';
+    if (difference.inHours < 1) return '${difference.inMinutes} 分钟前';
+    if (difference.inDays < 1) return '${difference.inHours} 小时前';
+    if (difference.inDays < 7) return '${difference.inDays} 天前';
+    return '${dateTime.year}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.day.toString().padLeft(2, '0')}';
+  }
+
+  // ============================================================
+  // 编辑帖子
+  // ============================================================
+  Future<void> _editPost() async {
+  final currentLanguageCode =
+      _post.languageCode ??
+      _post.primaryLanguageCode;
+
+  if (currentLanguageCode == null) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      const SnackBar(
+        content: Text(
+          '无法确定当前语言',
+        ),
+      ),
+    );
+
+    return;
+  }
+
+  // ===== 编辑前的版本 =====
+  // 注意：这里必须在进入编辑页之前保存。
+  final previousTitle =
+    _post.title ?? '';
+  final previousContent =
+      _post.content ?? '';
+
+  final previousBodyDelta =
+      List<dynamic>.from(
+    _post.bodyDelta,
+  );
+
+  final previousImageUrls =
+      List<String>.from(
+    _images,
+  );
+
+  final result =
+    await Navigator.push<
+        _PostEditResult>(
+  context,
+  MaterialPageRoute(
+    builder: (_) =>
+        _PostRichEditPage(
+      postId:
+          widget.postId,
+      title:
+          previousTitle,
+      content:
+          previousContent,
+      bodyDelta:
+          previousBodyDelta,
+      imageUrls:
+          previousImageUrls,
+    ),
+  ),
+);
+
+  if (result == null ||
+      !mounted) {
+    return;
+  }
+
+  final user =
+    FirebaseAuth.instance.currentUser;
+
+if (user == null) {
+  return;
+}
+
+await _postService
+    .ensureOriginalEditHistory(
+  postId:
+      widget.postId,
+  languageCode:
+      currentLanguageCode,
+  title:
+    previousTitle,
+  content:
+      previousContent,
+  bodyDelta:
+      previousBodyDelta,
+  imageUrls:
+      previousImageUrls,
+  editedBy:
+      user.uid,
+  originalTime:
+      _currentVersionCreatedAt ??
+      _post.createdAt,
+);
+
+  try {
+    // ===== 1. 保存新的正文版本 =====
+
+    await _postService
+        .updateLanguageVersionContent(
+      postId:
+          widget.postId,
+      languageCode:
+          currentLanguageCode,
+
+      title:
+    result.title,
+      content:
+          result.content,
+      bodyDelta:
+          result.bodyDelta,
+    );
+
+    if (!mounted) return;
+
+
+    // ===== 2. 更新新的顶部图片 =====
+
+    if (!listEquals(
+      _images,
+      result.imageUrls,
+    )) {
+      final postProvider =
+          context.read<
+              postProv.PostProvider>();
+
+      await postProvider.updateImages(
+        widget.postId,
+        result.imageUrls,
+      );
+
+      // 注意：
+      // 不要在这里删除旧图片的 Storage 文件。
+      //
+      // 因为历史版本还需要显示这些图片。
+    }
+
+
+    // ===== 3. 保存“编辑前”的版本 =====
+
+    final user =
+        FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      await _postService
+          .addEditHistory(
+        postId:
+            widget.postId,
+        languageCode:
+            currentLanguageCode,
+
+        title:
+            previousTitle,
+
+        // 全部使用 previous
+        content:
+            previousContent,
+
+        bodyDelta:
+            previousBodyDelta,
+
+        imageUrls:
+            previousImageUrls,
+
+        editedBy:
+            user.uid,
+      );
+    }
+
+    if (!mounted) return;
+
+
+    // ===== 4. 页面切换到新版本 =====
+
+    setState(() {
+      _images =
+          List<String>.from(
+        result.imageUrls,
+      );
+
+      if (_currentIndex >=
+          _images.length) {
+        _currentIndex = 0;
+      }
+
+      _post = _post.copyWith(
+        title:
+            result.title,
+        content:
+            result.content,
+        bodyDelta:
+            result.bodyDelta,
+        imageUrls:
+            _images,
+      );
+    });
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      const SnackBar(
+        content:
+            Text('帖子已更新 ✨'),
+        backgroundColor:
+            Colors.green,
+        behavior:
+            SnackBarBehavior.floating,
+      ),
+    );
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      SnackBar(
+        content:
+            Text('更新失败: $e'),
+        backgroundColor:
+            Colors.red,
+        behavior:
+            SnackBarBehavior.floating,
+      ),
+    );
+  }
+}
+
+  // ============================================================
+  // 点赞
+  // ============================================================
+  Future<void> _toggleLike() async {
+    if (_currentUserId == null) return;
+
+    setState(() {
+      _isLiked = !_isLiked;
+      if (_isLiked) {
+        _likes.add(_currentUserId!);
+      } else {
+        _likes.remove(_currentUserId);
+      }
+    });
+
+    try {
+      final postProvider = context.read<postProv.PostProvider>();
+      await postProvider.toggleLike(widget.postId, _currentUserId!);
+    } catch (e) {
+      setState(() {
+        _isLiked = !_isLiked;
+        if (_isLiked) {
+          _likes.add(_currentUserId!);
+        } else {
+          _likes.remove(_currentUserId);
+        }
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('操作失败: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  // ============================================================
+  // 分享
+  // ============================================================
+  // void _sharePost() {
+  //   Share.share(_post.content ?? '');
+  // }
+  String get _postLink {
+  return 'forum://post/${widget.postId}';
+}
+
+Future<void> _sharePost() async {
+  final title = _post.title?.trim() ?? '';
+  final content = _post.content?.trim() ?? '';
+
+  final shareText = [
+    if (title.isNotEmpty) title,
+    if (content.isNotEmpty) content,
+    _postLink,
+  ].join('\n\n');
+
+  await Share.share(
+    shareText,
+    subject: title.isNotEmpty ? title : '分享帖子',
+  );
+}
+
+Future<void> _copyPostLink() async {
+  await Clipboard.setData(
+    ClipboardData(text: _postLink),
+  );
+
+  if (!mounted) return;
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('帖子链接已复制'),
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
+}
+
+void _showShareOptions() {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(20),
+      ),
+    ),
+    builder: (bottomSheetContext) {
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 38,
+              height: 4,
+              margin: const EdgeInsets.only(
+                top: 12,
+                bottom: 8,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.ios_share_rounded,
+              ),
+              title: const Text('分享帖子'),
+              onTap: () {
+                Navigator.pop(bottomSheetContext);
+                _sharePost();
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.link_rounded,
+              ),
+              title: const Text('复制链接'),
+              onTap: () {
+                Navigator.pop(bottomSheetContext);
+                _copyPostLink();
+              },
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Future<void> _openTranslation() async {
+  if (_currentUserId == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('请先登录'),
+      ),
+    );
+    return;
+  }
+
+  final existingLanguages = <String>{
+    ..._post.availableLanguageCodes,
+  };
+
+  final primaryLanguageCode =
+      _post.primaryLanguageCode ??
+      _post.languageCode;
+
+  if (primaryLanguageCode != null) {
+    existingLanguages.add(
+      primaryLanguageCode,
+    );
+  }
+
+  // 当前正在看的语言
+  final currentLanguageCode =
+      _post.languageCode ??
+      primaryLanguageCode;
+
+  // 翻译入口显示语言库中的全部语言，
+  // 只排除当前正在看的语言。
+  final targetLanguages =
+      LanguageConfig.allLanguages
+          .where(
+            (language) =>
+                language.code !=
+                currentLanguageCode,
+          )
+          .toList();
+
+  final uiLanguageCode =
+      Localizations.localeOf(context)
+          .languageCode;
+
+  final selectedLanguage =
+      await showModalBottomSheet<LanguageConfig>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (sheetContext) {
+      return SafeArea(
+        child: SizedBox(
+          height:
+              MediaQuery.sizeOf(context).height *
+              0.75,
+          child: Column(
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  8,
+                  20,
+                  12,
+                ),
+                child: Align(
+                  alignment:
+                      Alignment.centerLeft,
+                  child: Text(
+                    '选择语言',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight:
+                          FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+
+              Expanded(
+                child: ListView.builder(
+                  itemCount:
+                      targetLanguages.length,
+                  itemBuilder: (
+                    context,
+                    index,
+                  ) {
+                    final language =
+                        targetLanguages[index];
+
+                    final hasVersion =
+                        existingLanguages
+                            .contains(
+                      language.code,
+                    );
+
+                    return ListTile(
+                      leading: const Icon(
+                        Icons.language_rounded,
+                      ),
+                      title: Text(
+                        language.nameOf(
+                          uiLanguageCode,
+                        ),
+                      ),
+                      subtitle: Text(
+                        hasVersion
+                            ? '已有语言版本 · 点击查看'
+                            : '尚无语言版本 · 点击翻译',
+                      ),
+                      trailing: Icon(
+                        hasVersion
+                            ? Icons
+                                .arrow_forward_rounded
+                            : Icons
+                                .translate_rounded,
+                      ),
+                      onTap: () {
+                        Navigator.pop(
+                          sheetContext,
+                          language,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+
+  if (selectedLanguage == null ||
+      !mounted) {
+    return;
+  }
+
+  if (existingLanguages.contains(
+    selectedLanguage.code,
+  )) {
+    await _openExistingLanguageVersion(
+      selectedLanguage,
+    );
+    return;
+  }
+
+  await _chooseTranslationMode(
+    selectedLanguage,
+  );
+}
+
+Future<void> _openExistingLanguageVersion(
+  LanguageConfig language,
+) async {
+  await _switchLanguageVersion(
+    language,
+  );
+}
+
+Future<void> _chooseTranslationMode(
+  LanguageConfig language,
+) async {
+  final mode =
+      await showModalBottomSheet<
+          TranslationMode>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheetContext) {
+      return SafeArea(
+        child: Column(
+          mainAxisSize:
+              MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                8,
+                20,
+                12,
+              ),
+              child: Align(
+                alignment:
+                    Alignment.centerLeft,
+                child: Text(
+                  '选择翻译方式',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight:
+                        FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
+            ListTile(
+              leading: const Icon(
+                Icons.auto_awesome_rounded,
+              ),
+              title: const Text(
+                'AI 翻译',
+              ),
+              subtitle: const Text(
+                'AI 生成译文后可以继续修改',
+              ),
+              onTap: () {
+                Navigator.pop(
+                  sheetContext,
+                  TranslationMode.ai,
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(
+                Icons.edit_rounded,
+              ),
+              title: const Text(
+                '自己翻译',
+              ),
+              subtitle: const Text(
+                '从空白开始自己填写译文',
+              ),
+              onTap: () {
+                Navigator.pop(
+                  sheetContext,
+                  TranslationMode.manual,
+                );
+              },
+            ),
+
+            const SizedBox(height: 12),
+          ],
+        ),
+      );
+    },
+  );
+
+  if (mode == null || !mounted) {
+    return;
+  }
+
+  final uiLanguageCode =
+      Localizations.localeOf(context)
+          .languageCode;
+
+  final published =
+    await Navigator.push<bool>(
+  context,
+  MaterialPageRoute(
+    builder: (_) => PostTranslationScreen(
+      post: _post,
+      targetLanguageCode: language.code,
+      targetLanguageName:
+          language.nameOf(uiLanguageCode),
+      mode: mode,
+    ),
+  ),
+);
+
+if (published == true && mounted) {
+  setState(() {
+    final languages = <String>{
+      ..._post.availableLanguageCodes,
+      language.code,
+    };
+
+    _post = _post.copyWith(
+      availableLanguageCodes:
+          languages.toList(),
+    );
+  });
+}
+}
+
+List<LanguageConfig> get _availableLanguageVersions {
+  final codes = <String>{
+    ..._post.availableLanguageCodes,
+  };
+
+  final primaryLanguageCode =
+      _post.primaryLanguageCode ??
+      _post.languageCode;
+
+  if (primaryLanguageCode != null) {
+    codes.add(primaryLanguageCode);
+  }
+
+  return LanguageConfig.allLanguages
+      .where(
+        (language) =>
+            codes.contains(language.code),
+      )
+      .toList();
+}
+
+Future<void> _switchLanguageVersion(
+  LanguageConfig language,
+) async {
+  if (_post.languageCode == language.code) {
+    return;
+  }
+
+  try {
+    final primaryLanguageCode =
+        _post.primaryLanguageCode ??
+        widget.post.primaryLanguageCode ??
+        widget.post.languageCode;
+
+    final version =
+        await _postService.getLanguageVersion(
+      postId: widget.postId,
+      languageCode: language.code,
+    );
+
+    if (!mounted) return;
+
+    if (version != null) {
+  final versionCreatedAt =
+      _toDateTime(
+    version['createdAt'],
+  );
+
+  final versionBodyDelta =
+      (version['bodyDelta']
+              as List<dynamic>?)
+          ?.map((e) => e)
+          .toList() ??
+      const [];
+
+  setState(() {
+    _post = _post.copyWith(
+      title:
+          version['title']?.toString(),
+      content:
+          version['content']?.toString(),
+      bodyDelta:
+          versionBodyDelta,
+      languageCode:
+          language.code,
+    );
+
+    _currentVersionCreatedAt =
+        language.code ==
+                primaryLanguageCode
+            ? _post.createdAt
+            : versionCreatedAt;
+  });
+
+  return;
+}
+
+    // 兼容旧帖子：
+    // 旧帖子的主语言可能还没有 versions/{主语言}
+    if (language.code == primaryLanguageCode) {
+      final snapshot =
+          await FirebaseFirestore.instance
+              .collection('posts')
+              .doc(widget.postId)
+              .get();
+
+      final data = snapshot.data();
+
+      if (data == null) {
+        throw Exception('帖子不存在');
+      }
+
+      if (!mounted) return;
+
+setState(() {
+  _post = _post.copyWith(
+    title:
+        data['title']?.toString(),
+    content:
+        data['content']?.toString(),
+    bodyDelta:
+        (data['bodyDelta']
+                as List<dynamic>?)
+            ?.map((e) => e)
+            .toList() ??
+        const [],
+    languageCode:
+        primaryLanguageCode,
+  );
+
+  _currentVersionCreatedAt =
+      _post.createdAt;
+});
+
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('这个语言版本不存在'),
+      ),
+    );
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '切换语言失败: $e',
+        ),
+      ),
+    );
+  }
+}
+
+
+
+  // ============================================================
+  // 删除帖子
+  // ============================================================
+  Future<void> _deletePost() async {
+    if (_currentUserId != _post.userId) return;
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('删除帖子', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('确定要删除这个帖子吗？此操作不可撤销。', style: TextStyle(color: Color(0xFF64748B))),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消', style: TextStyle(color: Colors.grey))),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('确认删除', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold))
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    try {
+      final postProvider = context.read<postProv.PostProvider>();
+      await postProvider.deletePost(widget.postId);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('帖子已安全删除'), backgroundColor: Colors.black87, behavior: SnackBarBehavior.floating),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('删除失败: $e'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
+  }
+
+  // ============================================================
+  // 图片管理
+  // ============================================================
+  Future<void> _addImages() async {
+    if (_images.length >= 9) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('最多只能添加 9 张图片 📸'), behavior: SnackBarBehavior.floating),
+      );
+      return;
+    }
+
+    final picker = ImagePicker();
+    final picked = await picker.pickMultiImage(imageQuality: 85, maxWidth: 1240);
+    if (picked.isEmpty) return;
+
+    setState(() => _isUploadingImage = true);
+
+    try {
+      final postProvider = context.read<postProv.PostProvider>();
+      final newUrls = await postProvider.uploadImages(widget.postId, picked);
+      
+      if (mounted) {
+        setState(() {
+          _images.addAll(newUrls);
+          if (_images.length > 9) _images = _images.sublist(0, 9);
+          _isUploadingImage = false;
+        });
+        _post = _post.copyWith(imageUrls: _images);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isUploadingImage = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('图片上传失败: $e'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteImage(int index) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('删除图片'),
+        content: const Text('确定要移除这张图片吗？'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消', style: TextStyle(color: Colors.grey))),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('删除', style: TextStyle(color: Color(0xFFEF4444)))),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    try {
+      final targetUrl = _images[index];
+      setState(() {
+        _images.removeAt(index);
+        if (_currentIndex >= _images.length) _currentIndex = 0;
+      });
+
+      final postProvider = context.read<postProv.PostProvider>();
+      await postProvider.removeImage(widget.postId, _images);
+      await postProvider.deleteImageFromStorage(targetUrl);
+      _post = _post.copyWith(imageUrls: _images);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('同步失败: $e'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
+  }
+
+  Future<void> _reorderImages(int oldIndex, int newIndex) async {
+    if (newIndex > oldIndex) newIndex--;
+    setState(() {
+      final img = _images.removeAt(oldIndex);
+      _images.insert(newIndex, img);
+      _currentIndex = newIndex;
+    });
+    try {
+      final postProvider = context.read<postProv.PostProvider>();
+      await postProvider.updateImages(widget.postId, _images);
+      _post = _post.copyWith(imageUrls: _images);
+    } catch (e) {
+      setState(() {
+        final img = _images.removeAt(newIndex);
+        _images.insert(oldIndex, img);
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('排序失败: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  void _showImageOptions(int index) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 38,
+              height: 4.5,
+              decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(3)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444)),
+              title: const Text('删除这张图片', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w500)),
+              onTap: () { Navigator.pop(context); _deleteImage(index); },
+            ),
+            ListTile(
+              leading: const Icon(Icons.add_photo_alternate_outlined, color: Color(0xFF2563EB)),
+              title: const Text('追加更多图片'),
+              onTap: () { Navigator.pop(context); _addImages(); },
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // 评论
+  // ============================================================
+  void _openComments() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 10, bottom: 10),
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+            ),
+            Expanded(child: CommentScreen(postId: widget.postId)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // 导航到用户主页
+  // ============================================================
+  void _navigateToProfile() {
+    final uid = _post.userId;
+    if (uid != null && uid.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => UserProfileScreen(uid: uid)),
+      );
+    }
+  }
+
+  // ============================================================
+  // Build
+  // ============================================================
+  @override
+  Widget build(BuildContext context) {
+    final isOwner = _currentUserId == _post.userId;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: _buildAppBar(isOwner),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (_images.isNotEmpty)
+                    _isEditingImages ? _buildEditableImageList() : _buildImageViewer(),
+                  _buildContent(),
+                ],
+              ),
+            ),
+          ),
+          _buildBottomBar(),
+        ],
+      ),
+    );
+  }
+
+  AppBar _buildAppBar(bool isOwner) {
+    return AppBar(
+      title: const Text("详情", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+      centerTitle: true,
+      elevation: 0,
+      backgroundColor: Colors.white,
+      foregroundColor: const Color(0xFF1E293B),
+      actions: [
+        if (isOwner && _images.length > 1)
+          IconButton(
+            icon: Icon(_isEditingImages ? Icons.done_all_rounded : Icons.swap_vert_rounded, size: 22),
+            color: _isEditingImages ? const Color(0xFF10B981) : const Color(0xFF64748B),
+            tooltip: _isEditingImages ? '完成排序' : '重排图片',
+            onPressed: () => setState(() => _isEditingImages = !_isEditingImages),
+          ),
+        if (isOwner)
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_horiz_rounded, color: Color(0xFF64748B)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            onSelected: (value) {
+  if (value == 'edit') {
+    _editPost();
+  }
+
+  if (value == 'history') {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            PostEditHistoryScreen(
+          postId:
+              widget.postId,
+        ),
+      ),
+    );
+  }
+
+  if (value == 'delete') {
+    _deletePost();
+  }
+},
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit_outlined, size: 18, color: Colors.blue),
+                    SizedBox(width: 8),
+                    Text('编辑帖子'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'history',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.history_rounded,
+                      size: 18,
+                      color: Colors.blueGrey,
+                    ),
+                    SizedBox(width: 8),
+                    Text('编辑历史'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text('删除帖子', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // 小红书风格图片查看器
+  // ============================================================
+  void _openImagePreview(int initialIndex) {
+    Navigator.of(context).push(
+      PageRouteBuilder<void>(
+        opaque: true,
+        barrierColor: Colors.black,
+        transitionDuration: const Duration(milliseconds: 220),
+        reverseTransitionDuration: const Duration(milliseconds: 180),
+        pageBuilder: (_, animation, __) {
+          return _XhsImagePreview(
+            images: List<String>.unmodifiable(_images),
+            initialIndex: initialIndex,
+            postId: widget.postId,
+          );
+        },
+        transitionsBuilder: (_, animation, __, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    );
+  }
+
+  Widget _buildImageViewer() {
+    return AspectRatio(
+      // 小红书常见的竖图展示比例。
+      aspectRatio: 3 / 4,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          PageView.builder(
+            itemCount: _images.length,
+            physics: const BouncingScrollPhysics(),
+            onPageChanged: (index) {
+              setState(() => _currentIndex = index);
+            },
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _openImagePreview(index),
+                child: Hero(
+                  tag: 'post-${widget.postId}-image-$index',
+                  child: Material(
+                    color: const Color(0xFFF2F2F2),
+                    child: CachedNetworkImage(
+                      imageUrl: _images[index],
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
+                      fadeInDuration: const Duration(milliseconds: 180),
+                      placeholder: (_, __) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Color(0xFFFF2442),
+                          ),
+                        );
+                      },
+                      errorWidget: (_, __, ___) {
+                        return const Center(
+                          child: Icon(
+                            Icons.broken_image_rounded,
+                            size: 48,
+                            color: Color(0xFF9CA3AF),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+
+          if (_images.length > 1)
+            Positioned(
+              top: 12,
+              right: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.52),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text(
+                  '${_currentIndex + 1}/${_images.length}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    height: 1,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+
+          if (_images.length > 1)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 12,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(_images.length, (index) {
+                  final selected = index == _currentIndex;
+
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                    width: selected ? 13 : 5,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? Colors.white
+                          : Colors.white.withOpacity(0.55),
+                      borderRadius: BorderRadius.circular(99),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 2,
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+            ),
+
+          if (_isUploadingImage)
+            Positioned.fill(
+              child: ColoredBox(
+                color: Colors.black26,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFFFF2442),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // 可拖拽排序的图片编辑列表
+  // ============================================================
+  Widget _buildEditableImageList() {
+    return Container(
+      color: const Color(0xFFF8FAFC),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.info_outline_rounded, size: 14, color: Colors.grey),
+              const SizedBox(width: 4),
+              const Text('长按右侧控制手柄拖动排序', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: _addImages,
+                icon: const Icon(Icons.add_a_photo_outlined, size: 16),
+                label: const Text('添加图片', style: TextStyle(fontWeight: FontWeight.bold)),
+                style: TextButton.styleFrom(foregroundColor: Colors.black),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ReorderableListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _images.length,
+            onReorder: _reorderImages,
+            buildDefaultDragHandles: false,
+            itemBuilder: (context, index) {
+              return Container(
+                key: ValueKey(_images[index]),
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 6, offset: const Offset(0, 2)),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: CachedNetworkImage(
+                          imageUrl: _images[index],
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          '第 ${index + 1} 张',
+                          style: const TextStyle(fontSize: 14, color: Color(0xFF334155)),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.more_horiz, color: Color(0xFF94A3B8)),
+                        onPressed: () => _showImageOptions(index),
+                      ),
+                      ReorderableDragStartListener(
+                        index: index,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          child: Icon(Icons.menu_rounded, color: Color(0xFF94A3B8)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // 帖子内容
+  // ============================================================
+  Widget _buildContent() {
+    final title = _post.title?.trim() ?? '';
+    final content = _post.content?.trim() ?? '';
+    final userId = _post.userId ?? '';
+    final category = _post.category ?? '';
+    final primaryLanguageCode =
+    _post.primaryLanguageCode ??
+    widget.post.primaryLanguageCode ??
+    widget.post.languageCode;
+
+    final currentLanguageCode =
+        _post.languageCode ??
+        primaryLanguageCode;
+
+    final isPrimaryLanguage =
+        currentLanguageCode ==
+        primaryLanguageCode;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (category.isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  "# $category",
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF475569), fontWeight: FontWeight.w600)
+                ),
+              ),
+            ),
+            if (_availableLanguageVersions.length > 1) ...[
+            _buildLanguageVersionSwitcher(),
+            const SizedBox(height: 16),
+            ],
+            if (title.isNotEmpty) ...[
+  Text(
+    title,
+    style: const TextStyle(
+      fontSize: 22,
+      fontWeight: FontWeight.bold,
+      color: Color(0xFF0F172A),
+      height: 1.3,
+    ),
+  ),
+  const SizedBox(height: 14),
+],
+          Row(
+            children: [
+              if (userId.isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: UserNameDisplay(uid: userId),
+                ),
+              const SizedBox(width: 12),
+              const Icon(Icons.space_dashboard_outlined, size: 3, color: Colors.grey),
+              const SizedBox(width: 12),
+              Text(
+  isPrimaryLanguage
+      ? _formatTimestamp(
+          _post.createdAt,
+        )
+      : _currentVersionCreatedAt ==
+              null
+          ? '翻译版本'
+          : '译文发布于 ${_formatVersionTimestamp(
+              _currentVersionCreatedAt!,
+            )}',
+  style: const TextStyle(
+    color: Color(0xFF94A3B8),
+    fontSize: 13,
+  ),
+),
+            ],
+          ),
+          if (_post.updatedAt != null && _post.updatedAt != _post.createdAt) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const Icon(Icons.history_toggle_off_rounded, size: 13, color: Color(0xFFF59E0B)),
+                const SizedBox(width: 4),
+                Text('修改于 ${_formatTimestamp(_post.updatedAt)}',
+                    style: const TextStyle(color: Color(0xFFD97706), fontSize: 12, fontStyle: FontStyle.italic)),
+              ],
+            ),
+          ],
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Divider(color: Color(0xFFF1F5F9), thickness: 1),
+          ),
+          if (_post.bodyDelta.isNotEmpty)
+  _PostRichBody(
+    key: ValueKey(
+      '${_post.id}-'
+      '${_post.languageCode}-'
+      '${_post.bodyDelta.hashCode}',
+    ),
+    bodyDelta:
+        _post.bodyDelta,
+  )
+else
+  Text(
+    content.isNotEmpty
+        ? content
+        : '无内容',
+    style: const TextStyle(
+      fontSize: 16,
+      height: 1.7,
+      color: Color(0xFF334155),
+      letterSpacing: 0.2,
+    ),
+  ),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // 底部操作栏
+  // ============================================================
+  Widget _buildBottomBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          )
+        ],
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: _toggleLike,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: _buildAction(
+                    _isLiked ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                    _likes.isNotEmpty ? '${_likes.length} 赞同' : '赞同',
+                    _isLiked,
+                  ),
+                ),
+              ),
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: _openComments,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: _buildAction(Icons.mode_comment_outlined, '评论', false),
+                ),
+              ),
+              InkWell(
+  borderRadius: BorderRadius.circular(20),
+  onTap: _openTranslation,
+  child: Padding(
+    padding: const EdgeInsets.symmetric(
+      horizontal: 6,
+      vertical: 8,
+    ),
+    child: _buildAction(
+      Icons.translate_rounded,
+      '翻译',
+      false,
+    ),
+  ),
+),
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: _showShareOptions,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: _buildAction(Icons.ios_share_rounded, '分享', false),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAction(IconData icon, String text, bool active) {
+    final activeColor = const Color(0xFFF43F5E);
+    final inactiveColor = const Color(0xFF64748B);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 20, color: active ? activeColor : inactiveColor),
+        const SizedBox(width: 6),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 14,
+            color: active ? activeColor : inactiveColor,
+            fontWeight: active ? FontWeight.bold : FontWeight.w500
+          )
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLanguageVersionSwitcher() {
+  final languages =
+      _availableLanguageVersions;
+
+  if (languages.length <= 1) {
+    return const SizedBox.shrink();
+  }
+
+  final currentLanguageCode =
+      _post.languageCode ??
+      _post.primaryLanguageCode;
+
+  final primaryLanguageCode =
+      _post.primaryLanguageCode;
+
+  final uiLanguageCode =
+      Localizations.localeOf(context)
+          .languageCode;
+
+  return Wrap(
+    spacing: 8,
+    runSpacing: 8,
+    children: languages.map(
+      (language) {
+        final selected =
+            language.code ==
+                currentLanguageCode;
+
+        final isPrimary =
+            language.code ==
+                primaryLanguageCode;
+
+        return ChoiceChip(
+          selected: selected,
+          label: Text(
+            isPrimary
+                ? '${language.nameOf(uiLanguageCode)} · 主语言'
+                : language.nameOf(
+                    uiLanguageCode,
+                  ),
+          ),
+          onSelected: selected
+              ? null
+              : (_) {
+                  _switchLanguageVersion(
+                    language,
+                  );
+                },
+        );
+      },
+    ).toList(),
+  );
+}
+}
+
+class _PostRichBody
+    extends StatefulWidget {
+  final List<dynamic> bodyDelta;
+
+  const _PostRichBody({
+    super.key,
+    required this.bodyDelta,
+  });
+
+  @override
+  State<_PostRichBody> createState() =>
+      _PostRichBodyState();
+}
+
+class _PostRichBodyState
+    extends State<_PostRichBody> {
+  late final quill.QuillController
+      _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final document =
+        quill.Document.fromJson(
+      widget.bodyDelta,
+    );
+
+    _controller =
+        quill.QuillController(
+      document: document,
+      selection:
+          const TextSelection.collapsed(
+        offset: 0,
+      ),
+      readOnly: true,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return quill.QuillEditor.basic(
+      controller: _controller,
+      config:
+          quill.QuillEditorConfig(
+        scrollable: false,
+        padding: EdgeInsets.zero,
+        showCursor: false,
+        autoFocus: false,
+        embedBuilders: kIsWeb
+            ? FlutterQuillEmbeds
+                .editorWebBuilders()
+            : FlutterQuillEmbeds
+                .editorBuilders(),
+      ),
+    );
+  }
+}
+
+class _PostEditResult {
+  final String title;
+  final String content;
+  final List<dynamic> bodyDelta;
+
+  final List<String> imageUrls;
+  final List<String> removedImageUrls;
+
+  const _PostEditResult({
+    required this.title,
+    required this.content,
+    required this.bodyDelta,
+    required this.imageUrls,
+    required this.removedImageUrls,
+  });
+}
+
+class _PostRichEditPage
+    extends StatefulWidget {
+  final String postId;
+  final String title;
+  final String content;
+  final List<dynamic> bodyDelta;
+  final List<String> imageUrls;
+
+  const _PostRichEditPage({
+    required this.postId,
+    required this.title,
+    required this.content,
+    required this.bodyDelta,
+    required this.imageUrls,
+  });
+
+  @override
+  State<_PostRichEditPage>
+      createState() =>
+          _PostRichEditPageState();
+}
+
+class _PostRichEditPageState
+    extends State<_PostRichEditPage> {
+      late final TextEditingController
+    _titleController;
+  late final quill.QuillController
+      _controller;
+
+  final FocusNode _focusNode =
+      FocusNode();
+
+  final ScrollController
+      _scrollController =
+      ScrollController();
+
+  final ImagePicker _imagePicker =
+      ImagePicker();
+
+  bool _uploadingImage = false;
+  bool _saving = false;
+  late List<String> _topImages;
+late final List<String>
+    _originalTopImages;
+
+final List<String>
+    _newTopImageUrls = [];
+
+final List<String>
+    _newInlineImageUrls = [];
+
+bool _didSave = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _titleController =
+        TextEditingController(
+      text: widget.title,
+    );
+
+    final document =
+        widget.bodyDelta.isNotEmpty
+            ? quill.Document.fromJson(
+                widget.bodyDelta,
+              )
+            : quill.Document.fromJson(
+                [
+                  {
+                    'insert':
+                        '${widget.content}\n',
+                  },
+                ],
+              );
+
+    _controller =
+        quill.QuillController(
+      document: document,
+      selection:
+          const TextSelection.collapsed(
+        offset: 0,
+      ),
+    );
+
+    _originalTopImages =
+    List<String>.from(
+  widget.imageUrls,
+);
+
+_topImages =
+    List<String>.from(
+  widget.imageUrls,
+);
+  }
+
+  int _countInlineImages() {
+  final delta =
+      _controller.document
+          .toDelta()
+          .toJson();
+
+  return delta.where(
+    (operation) {
+      if (operation is! Map) {
+        return false;
+      }
+
+      final insert =
+          operation['insert'];
+
+      return insert is Map &&
+          insert.containsKey(
+            'image',
+          );
+    },
+  ).length;
+}
+
+int get _totalImageCount {
+  return _topImages.length +
+      _countInlineImages();
+}
+
+Future<void> _addTopImages() async {
+  if (_uploadingImage) {
+    return;
+  }
+
+  final remaining =
+      9 - _totalImageCount;
+
+  if (remaining <= 0) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      const SnackBar(
+        content: Text(
+          '每篇帖子最多 9 张图片',
+        ),
+      ),
+    );
+
+    return;
+  }
+
+  final picked =
+      await _imagePicker
+          .pickMultiImage(
+    imageQuality: 85,
+    maxWidth: 1600,
+  );
+
+  if (picked.isEmpty) {
+    return;
+  }
+
+  final selected =
+      picked.take(remaining).toList();
+
+  setState(() {
+    _uploadingImage = true;
+  });
+
+  try {
+    for (final image in selected) {
+      final ref =
+          FirebaseStorage.instance
+              .ref()
+              .child(
+        'posts/'
+        '${widget.postId}/'
+        'top/'
+        '${DateTime.now().microsecondsSinceEpoch}_'
+        '${image.name}',
+      );
+
+      await ref.putFile(
+        File(image.path),
+      );
+
+      final url =
+          await ref.getDownloadURL();
+
+      _newTopImageUrls.add(url);
+
+      if (!mounted) return;
+
+      setState(() {
+        _topImages.add(url);
+      });
+    }
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      SnackBar(
+        content: Text(
+          '顶部图片上传失败: $e',
+        ),
+        backgroundColor:
+            Colors.red,
+      ),
+    );
+  } finally {
+    if (mounted) {
+      setState(() {
+        _uploadingImage = false;
+      });
+    }
+  }
+}
+Future<void> _removeTopImage(
+  int index,
+) async {
+  final imageUrl =
+      _topImages[index];
+
+  setState(() {
+    _topImages.removeAt(index);
+  });
+
+  // 如果是本次编辑刚上传的，
+  // 可以立即删除 Storage。
+  if (_newTopImageUrls.remove(
+    imageUrl,
+  )) {
+    try {
+      await FirebaseStorage.instance
+          .refFromURL(imageUrl)
+          .delete();
+    } catch (_) {}
+  }
+}
+
+void _reorderTopImages(
+  int oldIndex,
+  int newIndex,
+) {
+  if (newIndex > oldIndex) {
+    newIndex--;
+  }
+
+  setState(() {
+    final image =
+        _topImages.removeAt(
+      oldIndex,
+    );
+
+    _topImages.insert(
+      newIndex,
+      image,
+    );
+  });
+}
+
+  Future<void>
+      _insertImage() async {
+    if (_uploadingImage) {
+  return;
+}
+
+if (_totalImageCount >= 9) {
+  ScaffoldMessenger.of(context)
+      .showSnackBar(
+    const SnackBar(
+      content: Text(
+        '每篇帖子最多 9 张图片',
+      ),
+    ),
+  );
+
+  return;
+}
+
+    final image =
+        await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+      maxWidth: 1600,
+    );
+
+    if (image == null) {
+      return;
+    }
+
+    setState(() {
+      _uploadingImage = true;
+    });
+
+    try {
+      final ref =
+          FirebaseStorage.instance
+              .ref()
+              .child(
+        'posts/'
+        '${widget.postId}/'
+        'inline/'
+        '${DateTime.now().millisecondsSinceEpoch}_'
+        '${image.name}',
+      );
+
+      final uploadTask =
+          ref.putFile(
+        File(image.path),
+      );
+
+      await uploadTask;
+
+      final imageUrl =
+          await ref.getDownloadURL();
+      _newInlineImageUrls.add(
+        imageUrl,
+      );
+      final documentLength =
+          _controller.document.length;
+
+      final maximumPosition =
+          documentLength > 0
+              ? documentLength - 1
+              : 0;
+
+      final selection =
+          _controller.selection;
+
+      final rawPosition =
+          selection.isValid
+              ? selection.baseOffset
+              : maximumPosition;
+
+      final insertPosition =
+          rawPosition
+              .clamp(
+                0,
+                maximumPosition,
+              )
+              .toInt();
+
+      _controller.replaceText(
+        insertPosition,
+        0,
+        quill.BlockEmbed.image(
+          imageUrl,
+        ),
+        TextSelection.collapsed(
+          offset:
+              insertPosition + 1,
+        ),
+      );
+
+      _controller.replaceText(
+        insertPosition + 1,
+        0,
+        '\n',
+        TextSelection.collapsed(
+          offset:
+              insertPosition + 2,
+        ),
+      );
+
+      _controller.updateSelection(
+        TextSelection.collapsed(
+          offset:
+              insertPosition + 2,
+        ),
+        quill.ChangeSource.local,
+      );
+
+      _focusNode.requestFocus();
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        SnackBar(
+          content: Text(
+            '图片上传失败: $e',
+          ),
+          backgroundColor:
+              Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _uploadingImage = false;
+        });
+      }
+    }
+  }
+
+  void _save() {
+    if (_saving ||
+        _uploadingImage) {
+      return;
+    }
+
+    final title =
+    _titleController.text
+        .trim();
+
+if (title.isEmpty) {
+  ScaffoldMessenger.of(context)
+      .showSnackBar(
+    const SnackBar(
+      content:
+          Text('标题不能为空'),
+    ),
+  );
+
+  return;
+}
+
+    final content =
+        _controller.document
+            .toPlainText()
+            .trim();
+
+    final bodyDelta =
+        _controller.document
+            .toDelta()
+            .toJson();
+
+    if (content.isEmpty &&
+        !_hasImage(bodyDelta)) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(
+          content: Text(
+            '内容不能为空',
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    final removedImageUrls =
+    _originalTopImages
+        .where(
+          (url) =>
+              !_topImages.contains(
+            url,
+          ),
+        )
+        .toList();
+
+_didSave = true;
+
+Navigator.pop(
+  context,
+  _PostEditResult(
+    title: title,
+    content: content,
+    bodyDelta: bodyDelta,
+    imageUrls:
+        List<String>.from(
+      _topImages,
+    ),
+    removedImageUrls:
+        removedImageUrls,
+  ),
+);
+  }
+
+  bool _hasImage(
+    List<dynamic> delta,
+  ) {
+    for (final operation in delta) {
+      if (operation is! Map) {
+        continue;
+      }
+
+      final insert =
+          operation['insert'];
+
+      if (insert is Map &&
+          insert.containsKey(
+            'image',
+          )) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _controller.dispose();
+    _focusNode.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+    return Scaffold(
+      appBar: AppBar(
+        title:
+            const Text('编辑帖子'),
+        actions: [
+          TextButton(
+            onPressed:
+                _uploadingImage
+                    ? null
+                    : _save,
+            child: const Text(
+              '保存',
+            ),
+          ),
+        ],
+      ),
+
+      
+
+      body: Column(
+        children: [
+          if (_uploadingImage)
+            const LinearProgressIndicator(),
+
+            Padding(
+  padding:
+      const EdgeInsets.fromLTRB(
+    16,
+    12,
+    16,
+    8,
+  ),
+  child: TextField(
+    controller:
+        _titleController,
+    maxLength: 100,
+    decoration:
+        const InputDecoration(
+      labelText: '标题',
+      hintText: '输入帖子标题',
+      border:
+          OutlineInputBorder(),
+      counterText: '',
+    ),
+  ),
+),
+
+
+Container(
+  width: double.infinity,
+  padding:
+      const EdgeInsets.fromLTRB(
+    16,
+    12,
+    16,
+    12,
+  ),
+  decoration: const BoxDecoration(
+    color: Color(0xFFF8FAFC),
+    border: Border(
+      bottom: BorderSide(
+        color: Color(0xFFE2E8F0),
+      ),
+    ),
+  ),
+  child: Column(
+    crossAxisAlignment:
+        CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          const Text(
+            '顶部图片',
+            style: TextStyle(
+              fontWeight:
+                  FontWeight.bold,
+              fontSize: 15,
+            ),
+          ),
+
+          const SizedBox(width: 8),
+
+          Text(
+            '${_topImages.length}'
+            '/9',
+            style: const TextStyle(
+              color: Colors.grey,
+              fontSize: 12,
+            ),
+          ),
+
+          const Spacer(),
+
+          TextButton.icon(
+            onPressed:
+                _uploadingImage ||
+                        _totalImageCount >=
+                            9
+                    ? null
+                    : _addTopImages,
+            icon: const Icon(
+              Icons
+                  .add_photo_alternate_outlined,
+              size: 18,
+            ),
+            label:
+                const Text('添加'),
+          ),
+        ],
+      ),
+
+      if (_topImages.isEmpty)
+        const Padding(
+          padding:
+              EdgeInsets.symmetric(
+            vertical: 12,
+          ),
+          child: Text(
+            '暂无顶部图片',
+            style: TextStyle(
+              color: Colors.grey,
+            ),
+          ),
+        )
+      else
+        SizedBox(
+          height: 112,
+          child:
+              ReorderableListView
+                  .builder(
+            scrollDirection:
+                Axis.horizontal,
+            buildDefaultDragHandles:
+                false,
+            itemCount:
+                _topImages.length,
+            onReorder:
+                _reorderTopImages,
+            itemBuilder:
+                (context, index) {
+              final imageUrl =
+                  _topImages[index];
+
+              return Container(
+                key: ValueKey(
+                  imageUrl,
+                ),
+                width: 104,
+                margin:
+                    const EdgeInsets.only(
+                  right: 10,
+                ),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius:
+                            BorderRadius
+                                .circular(
+                          10,
+                        ),
+                        child:
+                            CachedNetworkImage(
+                          imageUrl:
+                              imageUrl,
+                          fit:
+                              BoxFit.cover,
+                        ),
+                      ),
+                    ),
+
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child:
+                          GestureDetector(
+                        onTap: () {
+                          _removeTopImage(
+                            index,
+                          );
+                        },
+                        child:
+                            Container(
+                          padding:
+                              const EdgeInsets
+                                  .all(
+                            5,
+                          ),
+                          decoration:
+                              const BoxDecoration(
+                            color:
+                                Colors.black54,
+                            shape:
+                                BoxShape.circle,
+                          ),
+                          child:
+                              const Icon(
+                            Icons.close,
+                            size: 15,
+                            color:
+                                Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    Positioned(
+                      left: 4,
+                      bottom: 4,
+                      child:
+                          ReorderableDragStartListener(
+                        index: index,
+                        child:
+                            Container(
+                          padding:
+                              const EdgeInsets
+                                  .all(
+                            5,
+                          ),
+                          decoration:
+                              const BoxDecoration(
+                            color:
+                                Colors.black54,
+                            shape:
+                                BoxShape.circle,
+                          ),
+                          child:
+                              const Icon(
+                            Icons
+                                .drag_indicator,
+                            size: 16,
+                            color:
+                                Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+    ],
+  ),
+),
+          Expanded(
+            child: quill.QuillEditor(
+              controller:
+                  _controller,
+              focusNode:
+                  _focusNode,
+              scrollController:
+                  _scrollController,
+              config:
+                  quill.QuillEditorConfig(
+                padding:
+                    const EdgeInsets.all(
+                  16,
+                ),
+                placeholder:
+                    '输入帖子内容……',
+                embedBuilders:
+                    FlutterQuillEmbeds
+                        .editorBuilders(),
+              ),
+            ),
+          ),
+
+          const Divider(height: 1),
+
+          SafeArea(
+            top: false,
+            child: Column(
+              children: [
+                if (_uploadingImage)
+                  const Padding(
+                    padding:
+                        EdgeInsets.fromLTRB(
+                      16,
+                      8,
+                      16,
+                      0,
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child:
+                              CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Text(
+                          '正在上传并插入图片...',
+                        ),
+                      ],
+                    ),
+                  ),
+
+                Row(
+                  children: [
+                    IconButton(
+                      tooltip:
+                          '插入图片',
+                      onPressed:
+                          _uploadingImage
+                              ? null
+                              : _insertImage,
+                      icon: const Icon(
+                        Icons
+                            .add_photo_alternate_outlined,
+                      ),
+                    ),
+
+                    Expanded(
+                      child: SizedBox(
+                        height: 48,
+                        child: quill
+                            .QuillSimpleToolbar(
+                          controller:
+                              _controller,
+                          config: const quill
+                              .QuillSimpleToolbarConfig(
+                            multiRowsDisplay:
+                                false,
+                            showFontFamily:
+                                false,
+                            showFontSize:
+                                false,
+                            showBoldButton:
+                                true,
+                            showItalicButton:
+                                true,
+                            showUnderLineButton:
+                                true,
+                            showStrikeThrough:
+                                false,
+                            showColorButton:
+                                false,
+                            showBackgroundColorButton:
+                                false,
+                            showClearFormat:
+                                true,
+                            showAlignmentButtons:
+                                false,
+                            showHeaderStyle:
+                                true,
+                            showListNumbers:
+                                true,
+                            showListBullets:
+                                true,
+                            showListCheck:
+                                true,
+                            showCodeBlock:
+                                false,
+                            showQuote:
+                                true,
+                            showIndent:
+                                false,
+                            showLink:
+                                false,
+                            showUndo:
+                                true,
+                            showRedo:
+                                true,
+                            showSearchButton:
+                                false,
+                            showSubscript:
+                                false,
+                            showSuperscript:
+                                false,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _XhsImagePreview extends StatefulWidget {
+  final List<String> images;
+  final int initialIndex;
+  final String postId;
+
+  const _XhsImagePreview({
+    required this.images,
+    required this.initialIndex,
+    required this.postId,
+  });
+
+  @override
+  State<_XhsImagePreview> createState() => _XhsImagePreviewState();
+}
+
+class _XhsImagePreviewState extends State<_XhsImagePreview> {
+  late final PageController _pageController;
+  late int _currentIndex;
+  bool _showControls = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: widget.images.length,
+            physics: const BouncingScrollPhysics(),
+            onPageChanged: (index) {
+              setState(() => _currentIndex = index);
+            },
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  setState(() => _showControls = !_showControls);
+                },
+                child: Center(
+                  child: Hero(
+                    tag: 'post-${widget.postId}-image-$index',
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InteractiveViewer(
+                        minScale: 1,
+                        maxScale: 5,
+                        boundaryMargin: const EdgeInsets.all(80),
+                        clipBehavior: Clip.none,
+                        child: CachedNetworkImage(
+                          imageUrl: widget.images[index],
+                          width: MediaQuery.sizeOf(context).width,
+                          height: MediaQuery.sizeOf(context).height,
+                          fit: BoxFit.contain,
+                          placeholder: (_, __) {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white70,
+                              ),
+                            );
+                          },
+                          errorWidget: (_, __, ___) {
+                            return const Center(
+                              child: Icon(
+                                Icons.broken_image_rounded,
+                                size: 64,
+                                color: Colors.white38,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+
+          IgnorePointer(
+            ignoring: !_showControls,
+            child: AnimatedOpacity(
+              opacity: _showControls ? 1 : 0,
+              duration: const Duration(milliseconds: 160),
+              child: SafeArea(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 8, 14, 0),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          tooltip: '关闭',
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 11,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.45),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            '${_currentIndex + 1}/${widget.images.length}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          if (widget.images.length > 1)
+            IgnorePointer(
+              child: AnimatedOpacity(
+                opacity: _showControls ? 1 : 0,
+                duration: const Duration(milliseconds: 160),
+                child: SafeArea(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 18),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(widget.images.length, (index) {
+                          final selected = index == _currentIndex;
+
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                            width: selected ? 14 : 5,
+                            height: 5,
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? Colors.white
+                                  : Colors.white.withOpacity(0.38),
+                              borderRadius: BorderRadius.circular(99),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+

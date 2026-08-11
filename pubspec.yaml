@@ -58,6 +58,7 @@ dependencies:
   flutter_quill_extensions: 11.0.0
   glyphora_language_core:
     path: C:/Users/USER/Documents/服务/glyphora_language_core
+  cloud_functions: ^5.6.2
   
 dev_dependencies:
   flutter_test:

@@ -6,31 +6,31 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
 // ========== 屏幕 ==========
-import 'features/auth/screens/login_screen.dart';
-import 'features/home/screens/main_navigation_screen.dart';
+import 'features/auth/presentation/screens/login_screen.dart';
+import 'features/home/presentation/screens/main_navigation_screen.dart';
 
 // ========== 国际化 ==========
-import 'config/l10n/app_localizations.dart';
-import 'config/l10n/localizations_delegate.dart';
+import 'app/l10n/app_localizations.dart';
+import 'app/l10n/localizations_delegate.dart';
 
 // ========== Provider（全局） ==========
-import 'shared/providers/app_language.dart';
+import 'app/providers/app_language.dart';
 
 // ========== Provider（功能模块） ==========
-import 'features/auth/providers/auth_provider.dart'
+import 'features/auth/presentation/providers/auth_provider.dart'
     as authProv;
-import 'features/chat/providers/chat_provider.dart'
+import 'features/chat/presentation/providers/chat_provider.dart'
     as chatProv;
-import 'features/social/providers/friend_provider.dart'
+import 'features/social/presentation/providers/friend_provider.dart'
     as friendProv;
-import 'features/feed/providers/feed_provider.dart'
+import 'features/feed/presentation/providers/feed_provider.dart'
     as feedProv;
-import 'features/discover/providers/discover_provider.dart'
+import 'features/discover/presentation/providers/discover_provider.dart'
     as discoverProv;
-import 'features/feed/providers/post_provider.dart'
+import 'features/post/presentation/providers/post_provider.dart'
     as postProv;
 
-import 'shared/services/deep_link_service.dart';
+import 'core/services/deep_link_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
