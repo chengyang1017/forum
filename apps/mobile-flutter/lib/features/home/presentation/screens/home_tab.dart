@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 
 import '../../../../app/l10n/app_localizations.dart';
+import '../../../../core/constants/forum_categories.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
 import '../../../feed/presentation/screens/feed_screen.dart';
 import '../../../language/presentation/screens/language_select_screen.dart';
@@ -38,6 +39,7 @@ class _HomeTabState extends State<HomeTab> {
     CategoryConfig(id: 'chat', icon: Icons.forum_rounded),
     CategoryConfig(id: 'love', icon: Icons.favorite_rounded),
     CategoryConfig(id: 'food', icon: Icons.restaurant_rounded),
+    CategoryConfig(id: 'medicine', icon: Icons.medical_services_rounded),
   ];
 
   ForumLanguageChannel get _currentChannel {
@@ -699,7 +701,10 @@ class _CategoryGrid extends StatelessWidget {
 
             final categoryName = index < categoryNames.length
                 ? categoryNames[index]
-                : category.id;
+                : ForumCategories.nameOf(
+                    category.id,
+                    Localizations.localeOf(context).languageCode,
+                  );
 
             final key = '$channelKey::${category.id}';
 
