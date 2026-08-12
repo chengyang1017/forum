@@ -43,6 +43,34 @@ void main() {
       expect(ForumCategories.hasChildren('flutter'), isFalse);
     });
 
+    test('returns every descendant', () {
+      final descendants = ForumCategories.descendantsOf('programming')
+          .map((category) => category.id)
+          .toSet();
+
+      expect(descendants, contains('mobile_development'));
+      expect(descendants, contains('flutter'));
+      expect(descendants, contains('react_native'));
+    });
+
+    test('detects ancestor relationships', () {
+      expect(
+        ForumCategories.isDescendantOf(
+          categoryId: 'cardiology',
+          ancestorId: 'medicine',
+        ),
+        isTrue,
+      );
+
+      expect(
+        ForumCategories.isDescendantOf(
+          categoryId: 'medicine',
+          ancestorId: 'medicine',
+        ),
+        isFalse,
+      );
+    });
+
     test('returns localized names with fallback', () {
       expect(
         ForumCategories.nameOf('internal_medicine', 'zh'),
@@ -55,6 +83,13 @@ void main() {
       expect(
         ForumCategories.nameOf('flutter', 'vi'),
         'Flutter',
+      );
+    });
+
+    test('returns localized breadcrumb path', () {
+      expect(
+        ForumCategories.localizedPathOf('cardiology', 'zh'),
+        <String>['医学', '内科', '心血管内科'],
       );
     });
   });
