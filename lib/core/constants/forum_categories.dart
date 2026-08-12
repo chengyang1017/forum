@@ -14,6 +14,9 @@ class ForumCategories {
   const ForumCategories._();
 
   static const List<ForumCategory> all = [
+    // ============================================================
+    // 一级分类
+    // ============================================================
     ForumCategory(id: 'language_learning'),
     ForumCategory(id: 'programming'),
     ForumCategory(id: 'ai'),
@@ -28,9 +31,103 @@ class ForumCategories {
     ForumCategory(id: 'chat'),
     ForumCategory(id: 'love'),
     ForumCategory(id: 'food'),
-
-    // 新一级分类。
     ForumCategory(id: 'medicine'),
+
+    // ============================================================
+    // 编程开发
+    // ============================================================
+    ForumCategory(
+      id: 'mobile_development',
+      parentId: 'programming',
+    ),
+    ForumCategory(
+      id: 'web_development',
+      parentId: 'programming',
+    ),
+    ForumCategory(
+      id: 'backend_development',
+      parentId: 'programming',
+    ),
+    ForumCategory(
+      id: 'database_development',
+      parentId: 'programming',
+    ),
+    ForumCategory(
+      id: 'flutter',
+      parentId: 'mobile_development',
+    ),
+    ForumCategory(
+      id: 'react_native',
+      parentId: 'mobile_development',
+    ),
+
+    // ============================================================
+    // 游戏
+    // ============================================================
+    ForumCategory(
+      id: 'rpg',
+      parentId: 'gaming',
+    ),
+    ForumCategory(
+      id: 'fps',
+      parentId: 'gaming',
+    ),
+    ForumCategory(
+      id: 'strategy_games',
+      parentId: 'gaming',
+    ),
+    ForumCategory(
+      id: 'simulation_games',
+      parentId: 'gaming',
+    ),
+
+    // ============================================================
+    // 影视
+    // ============================================================
+    ForumCategory(
+      id: 'film',
+      parentId: 'movies',
+    ),
+    ForumCategory(
+      id: 'tv_series',
+      parentId: 'movies',
+    ),
+    ForumCategory(
+      id: 'animation',
+      parentId: 'movies',
+    ),
+    ForumCategory(
+      id: 'documentary',
+      parentId: 'movies',
+    ),
+
+    // ============================================================
+    // 医学
+    // ============================================================
+    ForumCategory(
+      id: 'internal_medicine',
+      parentId: 'medicine',
+    ),
+    ForumCategory(
+      id: 'surgery',
+      parentId: 'medicine',
+    ),
+    ForumCategory(
+      id: 'pediatrics',
+      parentId: 'medicine',
+    ),
+    ForumCategory(
+      id: 'dermatology',
+      parentId: 'medicine',
+    ),
+    ForumCategory(
+      id: 'psychiatry',
+      parentId: 'medicine',
+    ),
+    ForumCategory(
+      id: 'cardiology',
+      parentId: 'internal_medicine',
+    ),
   ];
 
   static List<ForumCategory> get roots {
