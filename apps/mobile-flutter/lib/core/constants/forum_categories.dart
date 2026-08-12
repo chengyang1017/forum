@@ -235,6 +235,28 @@ class ForumCategories {
     return all.any((category) => category.parentId == categoryId);
   }
 
+  static List<ForumCategory> descendantsOf(String categoryId) {
+    final result = <ForumCategory>[];
+    final queue = <ForumCategory>[...childrenOf(categoryId)];
+
+    while (queue.isNotEmpty) {
+      final current = queue.removeAt(0);
+      result.add(current);
+      queue.addAll(childrenOf(current.id));
+    }
+
+    return result.toList(growable: false);
+  }
+
+  static bool isDescendantOf({
+    required String categoryId,
+    required String ancestorId,
+  }) {
+    final path = pathOf(categoryId);
+
+    return path.length > 1 && path.take(path.length - 1).contains(ancestorId);
+  }
+
   static List<String> pathOf(String categoryId) {
     final path = <String>[];
     final visited = <String>{};
@@ -253,6 +275,15 @@ class ForumCategories {
     }
 
     return path.reversed.toList(growable: false);
+  }
+
+  static List<String> localizedPathOf(
+    String categoryId,
+    String uiLanguageCode,
+  ) {
+    return pathOf(categoryId)
+        .map((id) => nameOf(id, uiLanguageCode))
+        .toList(growable: false);
   }
 
   static String rootIdOf(String categoryId) {
