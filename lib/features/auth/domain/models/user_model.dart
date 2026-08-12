@@ -161,15 +161,18 @@ class UserModel {
   static List<Map<String, dynamic>>? _languagesFromJson(dynamic value) {
     if (value is! List) return null;
 
-    final result = value.map<Map<String, dynamic>>((item) {
-      if (item is Map) {
-        return Map<String, dynamic>.from(item);
-      }
-      if (item is String) {
-        return {'name': item, 'level': 70};
-      }
-      return <String, dynamic>{};
-    }).where((item) => item.isNotEmpty).toList();
+    final result = value
+        .map<Map<String, dynamic>>((item) {
+          if (item is Map) {
+            return Map<String, dynamic>.from(item);
+          }
+          if (item is String) {
+            return {'name': item, 'level': 70};
+          }
+          return <String, dynamic>{};
+        })
+        .where((item) => item.isNotEmpty)
+        .toList();
 
     return result;
   }

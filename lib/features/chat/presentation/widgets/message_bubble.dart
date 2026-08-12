@@ -27,8 +27,12 @@ class MessageBubble extends StatelessWidget {
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(16),
           topRight: const Radius.circular(16),
-          bottomLeft: isMe ? const Radius.circular(16) : const Radius.circular(4),
-          bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(16),
+          bottomLeft: isMe
+              ? const Radius.circular(16)
+              : const Radius.circular(4),
+          bottomRight: isMe
+              ? const Radius.circular(4)
+              : const Radius.circular(16),
         ),
       ),
       child: content != null && content!.isNotEmpty

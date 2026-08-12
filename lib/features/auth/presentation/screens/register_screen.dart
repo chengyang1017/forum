@@ -66,17 +66,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('注册成功！'),
-          backgroundColor: Colors.green,
-        ),
+        const SnackBar(content: Text('注册成功！'), backgroundColor: Colors.green),
       );
 
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(
-          builder: (_) => const MainNavigationScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
         (route) => false,
       );
     } catch (e) {
@@ -88,10 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(msg),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(msg), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -104,10 +96,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('注册'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('注册'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -116,18 +105,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 20),
-              const Icon(
-                Icons.person_add,
-                size: 80,
-                color: Colors.blue,
-              ),
+              const Icon(Icons.person_add, size: 80, color: Colors.blue),
               const SizedBox(height: 20),
               const Text(
                 '创建新账号',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
@@ -150,7 +132,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if (value.trim().length > 20) {
                     return '用户名最多20个字符';
                   }
-                  if (!RegExp(r'^[a-zA-Z0-9_\u4e00-\u9fa5]+$').hasMatch(value.trim())) {
+                  if (!RegExp(
+                    r'^[a-zA-Z0-9_\u4e00-\u9fa5]+$',
+                  ).hasMatch(value.trim())) {
                     return '用户名只能包含中英文、数字和下划线';
                   }
                   return null;
@@ -232,10 +216,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text(
-                        '注册',
-                        style: TextStyle(fontSize: 18),
-                      ),
+                    : const Text('注册', style: TextStyle(fontSize: 18)),
               ),
 
               const SizedBox(height: 16),

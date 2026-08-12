@@ -25,7 +25,9 @@ class UserAvatar extends StatelessWidget {
       child: CircleAvatar(
         radius: radius,
         backgroundColor: Colors.blue.shade50,
-        backgroundImage: hasImage ? CachedNetworkImageProvider(imageUrl!) : null,
+        backgroundImage: hasImage
+            ? CachedNetworkImageProvider(imageUrl!)
+            : null,
         child: !hasImage
             ? Text(
                 displayText,

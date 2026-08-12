@@ -47,7 +47,10 @@ class ChatInputBar extends StatelessWidget {
                       borderRadius: BorderRadius.circular(24),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     isDense: true,
                   ),
                   onSubmitted: (_) => onSend(),

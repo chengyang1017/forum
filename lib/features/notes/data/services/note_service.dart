@@ -21,19 +21,15 @@ class NoteService {
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
 
-  NoteService({
-    FirebaseFirestore? firestore,
-    FirebaseStorage? storage,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _storage = storage ?? FirebaseStorage.instance;
+  NoteService({FirebaseFirestore? firestore, FirebaseStorage? storage})
+    : _firestore = firestore ?? FirebaseFirestore.instance,
+      _storage = storage ?? FirebaseStorage.instance;
 
   CollectionReference<Map<String, dynamic>> get _notes {
     return _firestore.collection('notes');
   }
 
-  DocumentReference<Map<String, dynamic>> noteReference(
-    String noteId,
-  ) {
+  DocumentReference<Map<String, dynamic>> noteReference(String noteId) {
     return _notes.doc(noteId);
   }
 
@@ -49,22 +45,17 @@ class NoteService {
 
   Stream<List<NoteModel>> watchNotesForUser(String userId) {
     return _notes
-        .where(
-          'participantIds',
-          arrayContains: userId,
-        )
+        .where('participantIds', arrayContains: userId)
         .snapshots()
         .map((snapshot) {
-      final notes = snapshot.docs
-          .map(NoteModel.fromDocument)
-          .toList();
+          final notes = snapshot.docs.map(NoteModel.fromDocument).toList();
 
-      notes.sort((first, second) {
-        return second.updatedAt.compareTo(first.updatedAt);
-      });
+          notes.sort((first, second) {
+            return second.updatedAt.compareTo(first.updatedAt);
+          });
 
-      return notes;
-    });
+          return notes;
+        });
   }
 
   Stream<List<NoteModel>> watchNotesWithUser({
@@ -72,74 +63,213 @@ class NoteService {
     required String otherUserId,
   }) {
     return watchNotesForUser(currentUserId).map((notes) {
-      return notes
-          .where((note) => note.includesUser(otherUserId))
+      return notes.where((note) => note.includesUser(otherUserId)).toList();
+    });
+  }
+
+Future<String> createNote({
+  required String ownerId,
+  List<String> sharedUserIds = const [],
+  String title = '',
+  String content = '',
+  List<dynamic>? bodyDelta,
+  String sourceType = 'manual',
+  String? sourceId,
+  String? category,
+  String? languageCode,
+}) async {
+  final cleanedSharedUserIds =
+      sharedUserIds
+          .where(
+            (userId) =>
+                userId.isNotEmpty &&
+                userId != ownerId,
+          )
+          .toSet()
           .toList();
-    });
+
+  final participantIds = <String>[
+    ownerId,
+    ...cleanedSharedUserIds,
+  ];
+
+  final reference = _notes.doc();
+
+  final cleanedCategory =
+      category?.trim();
+
+  final cleanedLanguageCode =
+      languageCode?.trim();
+
+  await reference.set({
+    'ownerId': ownerId,
+
+    'participantIds':
+        participantIds,
+
+    'sharedUserIds':
+        cleanedSharedUserIds,
+
+    'title': title,
+
+    'content': content,
+
+    'bodyDelta':
+        bodyDelta ??
+        const [
+          {
+            'insert': '\n',
+          },
+        ],
+
+    'sourceType':
+        sourceType,
+
+    'sourceId':
+        sourceId,
+
+    'category':
+        cleanedCategory == null ||
+                cleanedCategory.isEmpty
+            ? null
+            : cleanedCategory,
+
+    'languageCode':
+        cleanedLanguageCode == null ||
+                cleanedLanguageCode.isEmpty
+            ? null
+            : cleanedLanguageCode,
+
+    'allowOthersEdit':
+        false,
+
+    'createdAt':
+        FieldValue.serverTimestamp(),
+
+    'updatedAt':
+        FieldValue.serverTimestamp(),
+
+    'updatedBy':
+        ownerId,
+  });
+
+  return reference.id;
+}
+
+Future<void> updateNote({
+  required String noteId,
+  required String userId,
+  String? title,
+  String? content,
+  List<dynamic>? bodyDelta,
+  String? category,
+  String? languageCode,
+}) async {
+  final reference = noteReference(noteId);
+
+  final updates = <String, dynamic>{};
+
+  if (title != null) {
+    updates['title'] = title;
   }
 
-  Future<String> createNote({
-    required String ownerId,
-    List<String> sharedUserIds = const [],
-  }) async {
-    final cleanedSharedUserIds = sharedUserIds
-        .where(
-          (userId) => userId.isNotEmpty && userId != ownerId,
-        )
-        .toSet()
-        .toList();
-
-    final participantIds = <String>[
-      ownerId,
-      ...cleanedSharedUserIds,
-    ];
-
-    final reference = _notes.doc();
-
-    await reference.set({
-      'ownerId': ownerId,
-      'participantIds': participantIds,
-      'sharedUserIds': cleanedSharedUserIds,
-      'title': '',
-      'content': '',
-      'bodyDelta': const [
-        {'insert': '\n'},
-      ],
-      'allowOthersEdit': false,
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-      'updatedBy': ownerId,
-    });
-
-    return reference.id;
+  if (content != null) {
+    updates['content'] = content;
   }
 
-  Future<void> updateNote({
-    required String noteId,
-    required String userId,
-    String? title,
-    String? content,
-    List<dynamic>? bodyDelta,
-  }) async {
-    final updates = <String, dynamic>{
-      'updatedAt': FieldValue.serverTimestamp(),
-      'updatedBy': userId,
-    };
-
-    if (title != null) {
-      updates['title'] = title;
-    }
-
-    if (content != null) {
-      updates['content'] = content;
-    }
-
-    if (bodyDelta != null) {
-      updates['bodyDelta'] = bodyDelta;
-    }
-
-    await noteReference(noteId).update(updates);
+  if (bodyDelta != null) {
+    updates['bodyDelta'] = bodyDelta;
   }
+
+  if (category != null) {
+    final cleanedCategory =
+        category.trim();
+
+    updates['category'] =
+        cleanedCategory.isEmpty
+            ? null
+            : cleanedCategory;
+  }
+
+  if (languageCode != null) {
+    final cleanedLanguageCode =
+        languageCode.trim();
+
+    updates['languageCode'] =
+        cleanedLanguageCode.isEmpty
+            ? null
+            : cleanedLanguageCode;
+  }
+
+  if (updates.isEmpty) {
+    return;
+  }
+
+  updates['updatedAt'] =
+      FieldValue.serverTimestamp();
+
+  updates['updatedBy'] =
+      userId;
+
+  await _firestore.runTransaction(
+    (transaction) async {
+      final snapshot =
+          await transaction.get(
+            reference,
+          );
+
+      if (!snapshot.exists) {
+        throw StateError(
+          '笔记不存在',
+        );
+      }
+
+      final data =
+          snapshot.data() ??
+          const <String, dynamic>{};
+
+      final ownerId =
+          data['ownerId']
+                  ?.toString() ??
+              '';
+
+      final allowOthersEdit =
+          data['allowOthersEdit']
+                  as bool? ??
+              false;
+
+      final participantIds =
+          List<String>.from(
+            data['participantIds'] ??
+                const <String>[],
+          );
+
+      final isOwner =
+          ownerId == userId;
+
+      final isParticipant =
+          participantIds.contains(
+            userId,
+          );
+
+      final canEdit =
+          isOwner ||
+          (isParticipant &&
+              allowOthersEdit);
+
+      if (!canEdit) {
+        throw StateError(
+          '无权编辑这条笔记',
+        );
+      }
+
+      transaction.update(
+        reference,
+        updates,
+      );
+    },
+  );
+}
 
   Future<void> updateEditPermission({
     required String noteId,
@@ -159,9 +289,7 @@ class NoteService {
     required List<String> sharedUserIds,
   }) async {
     final cleanedSharedUserIds = sharedUserIds
-        .where(
-          (userId) => userId.isNotEmpty && userId != ownerId,
-        )
+        .where((userId) => userId.isNotEmpty && userId != ownerId)
         .toSet()
         .toList();
 
@@ -181,10 +309,7 @@ class NoteService {
       }
 
       transaction.update(reference, {
-        'participantIds': [
-          ownerId,
-          ...cleanedSharedUserIds,
-        ],
+        'participantIds': [ownerId, ...cleanedSharedUserIds],
         'sharedUserIds': cleanedSharedUserIds,
         'updatedAt': FieldValue.serverTimestamp(),
         'updatedBy': ownerId,
@@ -197,21 +322,16 @@ class NoteService {
     required String userId,
     required File file,
   }) async {
-    final imageReference = noteReference(noteId)
-        .collection('images')
-        .doc();
+    final imageReference = noteReference(noteId).collection('images').doc();
 
     final extension = _imageExtension(file.path);
-    final storagePath =
-        'note_images/$noteId/${imageReference.id}.$extension';
+    final storagePath = 'note_images/$noteId/${imageReference.id}.$extension';
     final storageReference = _storage.ref(storagePath);
 
     try {
       await storageReference.putFile(
         file,
-        SettableMetadata(
-          contentType: _contentType(extension),
-        ),
+        SettableMetadata(contentType: _contentType(extension)),
       );
 
       final imageUrl = await storageReference.getDownloadURL();
@@ -243,9 +363,7 @@ class NoteService {
 
   Future<void> deleteNote(String noteId) async {
     final reference = noteReference(noteId);
-    final imageSnapshot = await reference
-        .collection('images')
-        .get();
+    final imageSnapshot = await reference.collection('images').get();
 
     final storagePaths = imageSnapshot.docs
         .map((document) {
@@ -281,16 +399,9 @@ class NoteService {
 
     final extension = parts.last.toLowerCase();
 
-    const allowedExtensions = <String>{
-      'jpg',
-      'jpeg',
-      'png',
-      'webp',
-    };
+    const allowedExtensions = <String>{'jpg', 'jpeg', 'png', 'webp'};
 
-    return allowedExtensions.contains(extension)
-        ? extension
-        : 'jpg';
+    return allowedExtensions.contains(extension) ? extension : 'jpg';
   }
 
   String _contentType(String extension) {

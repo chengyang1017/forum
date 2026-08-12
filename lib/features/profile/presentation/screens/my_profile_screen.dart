@@ -381,368 +381,326 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     );
   }
 
-  Widget _buildBody(
-  BuildContext context,
-  ProfileProvider profile,
-) {
-  final l10n = AppLocalizations.of(context)!;
-  final theme = Theme.of(context);
+  Widget _buildBody(BuildContext context, ProfileProvider profile) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
-  // 用户未登录。
-  if (user == null) {
+    // 用户未登录。
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.profile), centerTitle: true),
+        body: Center(
+          child: Text(
+            l10n.notLoggedIn,
+            style: const TextStyle(color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
+    // 正在加载个人资料。
+    if (profile.loadingProfile) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(strokeWidth: 3)),
+      );
+    }
+
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+
+      // ============================================================
+      // 顶部导航栏
+      // ============================================================
       appBar: AppBar(
-        title: Text(l10n.profile),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
         centerTitle: true,
-      ),
-      body: Center(
-        child: Text(
-          l10n.notLoggedIn,
-          style: const TextStyle(
-            color: Colors.grey,
+
+        title: Text(
+          profile.displayName,
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
+        ),
+
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: Colors.black87),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
           ),
-        ),
-      ),
-    );
-  }
-
-  // 正在加载个人资料。
-  if (profile.loadingProfile) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 3,
-        ),
-      ),
-    );
-  }
-
-  return Scaffold(
-    backgroundColor: Colors.grey.shade100,
-
-    // ============================================================
-    // 顶部导航栏
-    // ============================================================
-    appBar: AppBar(
-      elevation: 0,
-      backgroundColor: Colors.white,
-      foregroundColor: Colors.black87,
-      centerTitle: true,
-
-      title: Text(
-        profile.displayName,
-        style: const TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 17,
-        ),
+        ],
       ),
 
-      actions: [
-        IconButton(
-          icon: const Icon(
-            Icons.settings_outlined,
-            color: Colors.black87,
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const SettingsScreen(),
-              ),
+      // ============================================================
+      // 页面内容
+      // ============================================================
+      body: RefreshIndicator(
+        onRefresh: loadProfile,
+
+        child: StreamBuilder<List<PostModel>>(
+          stream: profile.watchUserPosts(user!.uid),
+
+          builder: (context, postSnapshot) {
+            final posts = postSnapshot.data ?? const <PostModel>[];
+
+            final postCount = posts.length;
+            final totalLikes = profile.totalLikesOf(posts);
+
+            return CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+
+              slivers: [
+                // ====================================================
+                // 个人资料头部
+                // ====================================================
+                SliverToBoxAdapter(
+                  child: ProfileHeader(
+                    profile: profile,
+                    email: user!.email ?? '',
+                    postCount: postCount,
+                    totalLikes: totalLikes,
+                    l10n: l10n,
+                    onAvatarTap: changeAvatar,
+                    onNicknameTap: editNickname,
+                    onUsernameTap: editUsername,
+                    onBirthdayTap: _editAge,
+                  ),
+                ),
+
+                // ====================================================
+                // 简介和兴趣标签
+                // ====================================================
+                SliverToBoxAdapter(
+                  child: ProfileBioTagsSection(
+                    bio: profile.bio,
+                    tags: profile.tags,
+                    l10n: l10n,
+                    onEditBio: _editBio,
+                    onEditTags: _editTags,
+                  ),
+                ),
+
+                // ====================================================
+                // 语言能力
+                // ====================================================
+                SliverToBoxAdapter(
+                  child: ProfileLanguageSection(
+                    languages: profile.languages,
+                    l10n: l10n,
+                    onTap: _editLanguages,
+                  ),
+                ),
+
+                //笔记
+                SliverToBoxAdapter(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    color: Colors.white,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      leading: CircleAvatar(
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        child: Icon(
+                          Icons.note_alt_outlined,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      title: const Text(
+                        '我的笔记',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: const Text('查看和管理所有共享笔记'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) {
+                              return const AllNotesScreen();
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                // ====================================================
+                // 我的帖子标题
+                // ====================================================
+                SliverToBoxAdapter(
+                  child: Container(
+                    margin: EdgeInsets.zero,
+                    color: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.dynamic_feed_rounded,
+                          size: 20,
+                          color: theme.primaryColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          l10n.myPosts,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ====================================================
+                // 帖子加载中
+                // ====================================================
+                if (postSnapshot.connectionState == ConnectionState.waiting)
+                  const SliverToBoxAdapter(
+                    child: ColoredBox(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40),
+                        child: Center(
+                          child: CircularProgressIndicator(strokeWidth: 2.5),
+                        ),
+                      ),
+                    ),
+                  )
+                // ====================================================
+                // 帖子加载失败
+                // ====================================================
+                else if (postSnapshot.hasError)
+                  SliverToBoxAdapter(
+                    child: ColoredBox(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 45,
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(
+                              Icons.error_outline_rounded,
+                              size: 44,
+                              color: Colors.redAccent,
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              '帖子加载失败',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.redAccent,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              '${postSnapshot.error}',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                // ====================================================
+                // 没有帖子
+                // ====================================================
+                else if (posts.isEmpty)
+                  const SliverToBoxAdapter(
+                    child: ColoredBox(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 50),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.article_outlined,
+                              size: 48,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              '暂无帖子',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                // ====================================================
+                // 使用 PostItemCard 显示帖子
+                // ====================================================
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        // 奇数位置显示分隔线。
+                        if (index.isOdd) {
+                          return Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: Colors.grey.shade100,
+                          );
+                        }
+
+                        // 因为中间加入了分隔线，
+                        // 所以真实帖子索引需要除以 2。
+                        final postIndex = index ~/ 2;
+                        final post = posts[postIndex];
+
+                        return ColoredBox(
+                          color: Colors.white,
+                          child: PostItemCard(
+                            post: post,
+
+                            // 个人主页不重复显示作者信息。
+                            showUserInfo: false,
+
+                            // 显示语言频道标签。
+                            showLanguageBadge: true,
+                          ),
+                        );
+                      },
+
+                      // 例如有三条帖子：
+                      // 帖子、分隔线、帖子、分隔线、帖子
+                      // 一共五个子元素。
+                      childCount: posts.length * 2 - 1,
+                    ),
+                  ),
+              ],
             );
           },
         ),
-      ],
-    ),
-
-    // ============================================================
-    // 页面内容
-    // ============================================================
-    body: RefreshIndicator(
-      onRefresh: loadProfile,
-
-      child: StreamBuilder<List<PostModel>>(
-        stream: profile.watchUserPosts(user!.uid),
-
-        builder: (context, postSnapshot) {
-          final posts =
-              postSnapshot.data ?? const <PostModel>[];
-
-          final postCount = posts.length;
-          final totalLikes = profile.totalLikesOf(posts);
-
-          return CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-
-            slivers: [
-              // ====================================================
-              // 个人资料头部
-              // ====================================================
-              SliverToBoxAdapter(
-                child: ProfileHeader(
-                  profile: profile,
-                  email: user!.email ?? '',
-                  postCount: postCount,
-                  totalLikes: totalLikes,
-                  l10n: l10n,
-                  onAvatarTap: changeAvatar,
-                  onNicknameTap: editNickname,
-                  onUsernameTap: editUsername,
-                  onBirthdayTap: _editAge,
-                ),
-              ),
-
-              // ====================================================
-              // 简介和兴趣标签
-              // ====================================================
-              SliverToBoxAdapter(
-                child: ProfileBioTagsSection(
-                  bio: profile.bio,
-                  tags: profile.tags,
-                  l10n: l10n,
-                  onEditBio: _editBio,
-                  onEditTags: _editTags,
-                ),
-              ),
-
-              // ====================================================
-              // 语言能力
-              // ====================================================
-              SliverToBoxAdapter(
-                child: ProfileLanguageSection(
-                  languages: profile.languages,
-                  l10n: l10n,
-                  onTap: _editLanguages,
-                ),
-              ),
-              
-              //笔记
-              SliverToBoxAdapter(
-  child: Container(
-    margin: const EdgeInsets.only(
-      top: 10,
-    ),
-    color: Colors.white,
-    child: ListTile(
-      contentPadding:
-          const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 8,
       ),
-      leading: CircleAvatar(
-        backgroundColor: Theme.of(context)
-            .colorScheme
-            .primaryContainer,
-        child: Icon(
-          Icons.note_alt_outlined,
-          color: Theme.of(context)
-              .colorScheme
-              .primary,
-        ),
-      ),
-      title: const Text(
-        '我的笔记',
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      subtitle: const Text(
-        '查看和管理所有共享笔记',
-      ),
-      trailing: const Icon(
-        Icons.chevron_right,
-      ),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) {
-              return const AllNotesScreen();
-            },
-          ),
-        );
-      },
-    ),
-  ),
-),
-
-              // ====================================================
-              // 我的帖子标题
-              // ====================================================
-              SliverToBoxAdapter(
-                child: Container(
-                  margin: EdgeInsets.zero,
-                  color: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.dynamic_feed_rounded,
-                        size: 20,
-                        color: theme.primaryColor,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        l10n.myPosts,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // ====================================================
-              // 帖子加载中
-              // ====================================================
-              if (
-                postSnapshot.connectionState ==
-                ConnectionState.waiting
-              )
-                const SliverToBoxAdapter(
-                  child: ColoredBox(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 40,
-                      ),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-
-              // ====================================================
-              // 帖子加载失败
-              // ====================================================
-              else if (postSnapshot.hasError)
-                SliverToBoxAdapter(
-                  child: ColoredBox(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 45,
-                      ),
-                      child: Column(
-                        children: [
-                          const Icon(
-                            Icons.error_outline_rounded,
-                            size: 44,
-                            color: Colors.redAccent,
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            '帖子加载失败',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.redAccent,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            '${postSnapshot.error}',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-
-              // ====================================================
-              // 没有帖子
-              // ====================================================
-              else if (posts.isEmpty)
-                const SliverToBoxAdapter(
-                  child: ColoredBox(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 50,
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.article_outlined,
-                            size: 48,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 12),
-                          Text(
-                            '暂无帖子',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-
-              // ====================================================
-              // 使用 PostItemCard 显示帖子
-              // ====================================================
-              else
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      // 奇数位置显示分隔线。
-                      if (index.isOdd) {
-                        return Divider(
-                          height: 1,
-                          thickness: 1,
-                          color: Colors.grey.shade100,
-                        );
-                      }
-
-                      // 因为中间加入了分隔线，
-                      // 所以真实帖子索引需要除以 2。
-                      final postIndex = index ~/ 2;
-                      final post = posts[postIndex];
-
-                      return ColoredBox(
-                        color: Colors.white,
-                        child: PostItemCard(
-                          post: post,
-
-                          // 个人主页不重复显示作者信息。
-                          showUserInfo: false,
-
-                          // 显示语言频道标签。
-                          showLanguageBadge: true,
-                        ),
-                      );
-                    },
-
-                    // 例如有三条帖子：
-                    // 帖子、分隔线、帖子、分隔线、帖子
-                    // 一共五个子元素。
-                    childCount: posts.length * 2 - 1,
-                  ),
-                ),
-            ],
-          );
-        },
-      ),
-    ),
-  );
-}
+    );
+  }
 }

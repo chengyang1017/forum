@@ -93,7 +93,11 @@ class ProfileBioTagsSection extends StatelessWidget {
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Icon(Icons.add, size: 14, color: Colors.grey.shade500),
+                    child: Icon(
+                      Icons.add,
+                      size: 14,
+                      color: Colors.grey.shade500,
+                    ),
                   ),
                 ],
               ),

@@ -28,10 +28,7 @@ class DiscoverService {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
         'lastMessage': '',
-        'unreadCount': {
-          currentUid: 0,
-          otherUserId: 0,
-        },
+        'unreadCount': {currentUid: 0, otherUserId: 0},
       });
     }
     return chatDoc.id;

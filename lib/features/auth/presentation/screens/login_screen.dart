@@ -44,12 +44,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _saveAccount(User user) async {
     final prefs = await SharedPreferences.getInstance();
-    final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
     final data = doc.data();
 
     final newAccount = <String, String>{
       'email': user.email ?? '',
-      'username': (data?['username'] ?? user.email?.split('@')[0] ?? '用户').toString(),
+      'username': (data?['username'] ?? user.email?.split('@')[0] ?? '用户')
+          .toString(),
       'avatar': (data?['avatar'] ?? '').toString(),
       'uid': user.uid,
     };
@@ -78,9 +82,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("请输入邮箱和密码")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("请输入邮箱和密码")));
       return;
     }
 
@@ -98,10 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid != null) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(uid)
-            .set({
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
           'lastLogin': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
       }
@@ -166,7 +167,10 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const Icon(Icons.forum, size: 60, color: Colors.blue),
                 const SizedBox(height: 16),
-                const Text("选择账号登录", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text(
+                  "选择账号登录",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 24),
                 Expanded(
                   child: ListView.builder(
@@ -178,22 +182,40 @@ class _LoginScreenState extends State<LoginScreen> {
                         leading: CircleAvatar(
                           radius: 22,
                           backgroundColor: Colors.blue.shade50,
-                          backgroundImage: account['avatar'] != null && account['avatar']!.isNotEmpty
+                          backgroundImage:
+                              account['avatar'] != null &&
+                                  account['avatar']!.isNotEmpty
                               ? NetworkImage(account['avatar']!)
                               : null,
-                          child: account['avatar'] == null || account['avatar']!.isEmpty
+                          child:
+                              account['avatar'] == null ||
+                                  account['avatar']!.isEmpty
                               ? Text(
                                   (account['username'] ?? 'U')[0].toUpperCase(),
-                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
                                 )
                               : null,
                         ),
-                        title: Text(account['username'] ?? '用户',
-                            style: const TextStyle(fontWeight: FontWeight.w600)),
-                        subtitle: Text(account['email'] ?? '',
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+                        title: Text(
+                          account['username'] ?? '用户',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(
+                          account['email'] ?? '',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.close, size: 18, color: Colors.grey),
+                          icon: const Icon(
+                            Icons.close,
+                            size: 18,
+                            color: Colors.grey,
+                          ),
                           onPressed: () => _removeAccount(index),
                         ),
                         onTap: () => _selectAccount(account),
@@ -214,10 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("登录"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("登录"), centerTitle: true),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -225,7 +244,10 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const Icon(Icons.forum, size: 90, color: Colors.blue),
               const SizedBox(height: 20),
-              const Text("论坛社区", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+              const Text(
+                "论坛社区",
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 30),
               TextField(
                 controller: emailController,
@@ -233,7 +255,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: InputDecoration(
                   labelText: "邮箱",
                   prefixIcon: const Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
               const SizedBox(height: 15),
@@ -243,7 +267,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: InputDecoration(
                   labelText: "密码",
                   prefixIcon: const Icon(Icons.lock_outlined),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 onSubmitted: (_) => login(),
               ),
@@ -252,9 +278,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ForgotPasswordScreen(),
+                      ),
+                    );
                   },
-                  child: const Text('忘记密码？', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                  child: const Text(
+                    '忘记密码？',
+                    style: TextStyle(fontSize: 13, color: Colors.grey),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -266,17 +300,29 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: isLoading
-                      ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
                       : const Text("登录", style: TextStyle(fontSize: 16)),
                 ),
               ),
               const SizedBox(height: 12),
               TextButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                  );
                 },
                 child: const Text("没有账号？立即注册"),
               ),

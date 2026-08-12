@@ -7,580 +7,385 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-import 'package:flutter_quill/flutter_quill.dart'
-    as quill;
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
+import 'package:glyphora_language_core/glyphora_language_core.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final String category;
-final String languageCode;
-final String languageName;
+  final String languageCode;
+  final String languageName;
 
-// 从笔记发布时使用
-final String? initialTitle;
-final List<dynamic>? initialBodyDelta;
-final String? sourceNoteId;
+  // 从笔记发布时使用
+  final String? initialTitle;
+  final List<dynamic>? initialBodyDelta;
+  final String? sourceNoteId;
 
-const CreatePostScreen({
-  super.key,
-  required this.category,
-  required this.languageCode,
-  required this.languageName,
-  this.initialTitle,
-  this.initialBodyDelta,
-  this.sourceNoteId,
-});
+  const CreatePostScreen({
+    super.key,
+    required this.category,
+    required this.languageCode,
+    required this.languageName,
+    this.initialTitle,
+    this.initialBodyDelta,
+    this.sourceNoteId,
+  });
 
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
 }
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
-  final title =
-    TextEditingController();
+  final title = TextEditingController();
 
-final _bodyController =
-    quill.QuillController.basic();
+  final _bodyController = quill.QuillController.basic();
 
-final _bodyFocusNode =
-    FocusNode();
+  final _bodyFocusNode = FocusNode();
 
-final _bodyScrollController =
-    ScrollController();
+  final _bodyScrollController = ScrollController();
 
-final _imagePicker =
-    ImagePicker();
+  final _imagePicker = ImagePicker();
 
-late final DocumentReference<
-    Map<String, dynamic>> _draftPostRef;
+  late final DocumentReference<Map<String, dynamic>> _draftPostRef;
 
-List<File> images = [];
+  List<File> images = [];
 
-bool isUploading = false;
-bool _isUploadingInlineImage = false;
+  bool isUploading = false;
+  bool _isUploadingInlineImage = false;
 
   double progress = 0;
 
   static const List<String> _categoryIds = [
-  'language_learning',
-  'programming',
-  'ai',
-  'technology',
-  'gaming',
-  'music',
-  'movies',
-  'campus',
-  'startup',
-  'friends',
-  'travel',
-  'chat',
-  'love',
-  'food',
-];
+    'language_learning',
+    'programming',
+    'ai',
+    'technology',
+    'gaming',
+    'music',
+    'movies',
+    'campus',
+    'startup',
+    'friends',
+    'travel',
+    'chat',
+    'love',
+    'food',
+  ];
 
-@override
-void initState() {
-  super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-  _draftPostRef =
-      FirebaseFirestore.instance
-          .collection('posts')
-          .doc();
+    _draftPostRef = FirebaseFirestore.instance.collection('posts').doc();
 
-  // 从笔记进入时自动带入标题
-  final initialTitle =
-      widget.initialTitle;
+    // 从笔记进入时自动带入标题
+    final initialTitle = widget.initialTitle;
 
-  if (initialTitle != null) {
-    title.text = initialTitle;
+    if (initialTitle != null) {
+      title.text = initialTitle;
+    }
+
+    // 从笔记进入时恢复完整富文本
+    final initialBodyDelta = widget.initialBodyDelta;
+
+    if (initialBodyDelta != null && initialBodyDelta.isNotEmpty) {
+      _bodyController.document = quill.Document.fromJson(
+        List<dynamic>.from(initialBodyDelta),
+      );
+    }
+
+    _bodyController.addListener(_onBodyChanged);
   }
 
-  // 从笔记进入时恢复完整富文本
-  final initialBodyDelta =
-      widget.initialBodyDelta;
+  void _onBodyChanged() {
+    if (!mounted) return;
 
-  if (initialBodyDelta != null &&
-      initialBodyDelta.isNotEmpty) {
-    _bodyController.document =
-        quill.Document.fromJson(
-      List<dynamic>.from(
-        initialBodyDelta,
-      ),
-    );
+    setState(() {});
   }
 
-  _bodyController.addListener(
-    _onBodyChanged,
-  );
-}
+  String _getCategoryName(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final index = _categoryIds.indexOf(widget.category);
 
-void _onBodyChanged() {
-  if (!mounted) return;
+    if (index == -1 || index >= l10n.categoryNames.length) {
+      return widget.category;
+    }
 
-  setState(() {});
-}
-
-String _getCategoryName(BuildContext context) {
-  final l10n = AppLocalizations.of(context)!;
-  final index = _categoryIds.indexOf(widget.category);
-
-  if (index == -1 || index >= l10n.categoryNames.length) {
-    return widget.category;
+    return l10n.categoryNames[index];
   }
-
-  return l10n.categoryNames[index];
-}
 
   // 获取语言国旗
+  // 国旗统一从 glyphora_language_core 获取
   String _getFlag(String code) {
-    switch (code) {
-      case 'zh':
-        return '🇨🇳';
-      case 'en':
-        return '🇺🇸';
-      case 'ja':
-        return '🇯🇵';
-      case 'ko':
-        return '🇰🇷';
-      case 'es':
-        return '🇪🇸';
-      case 'fr':
-        return '🇫🇷';
-      case 'de':
-        return '🇩🇪';
-      case 'pt':
-        return '🇧🇷';
-      case 'ru':
-        return '🇷🇺';
-      case 'ar':
-        return '🇸🇦';
-      case 'th':
-        return '🇹🇭';
-      case 'vi':
-        return '🇻🇳';
-      case 'id':
-        return '🇮🇩';
-      default:
-        return '🌐';
-    }
+    return LanguageConfig.findByCode(code)?.flag ?? '🌐';
   }
 
   int _countInlineImages() {
-  final operations =
-      _bodyController.document
-          .toDelta()
-          .toJson();
+    final operations = _bodyController.document.toDelta().toJson();
 
-  return operations.where(
-    (operation) {
-      final insert =
-          operation['insert'];
+    return operations.where((operation) {
+      final insert = operation['insert'];
 
-      return insert is Map &&
-          insert.containsKey(
-            'image',
-          );
-    },
-  ).length;
-}
-
-int get _totalImageCount {
-  return images.length +
-      _countInlineImages();
-}
-
- Future<void> pickImages() async {
-  final remaining =
-      9 - _totalImageCount;
-
-  if (remaining <= 0) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      const SnackBar(
-        content: Text(
-          '每篇帖子最多添加 9 张图片',
-        ),
-      ),
-    );
-
-    return;
+      return insert is Map && insert.containsKey('image');
+    }).length;
   }
 
-  final picked =
-      await _imagePicker
-          .pickMultiImage();
-
-  if (picked.isEmpty) return;
-
-  setState(() {
-    images.addAll(
-      picked
-          .take(remaining)
-          .map(
-            (e) => File(e.path),
-          ),
-    );
-  });
-}
-
-Future<void>
-    _showImagePlacementOptions() async {
-  if (_totalImageCount >= 9) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      const SnackBar(
-        content: Text(
-          '每篇帖子最多添加 9 张图片',
-        ),
-      ),
-    );
-
-    return;
+  int get _totalImageCount {
+    return images.length + _countInlineImages();
   }
 
-  await showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    builder: (sheetContext) {
-      return SafeArea(
-        child: Column(
-          mainAxisSize:
-              MainAxisSize.min,
-          children: [
-            const Padding(
-              padding:
-                  EdgeInsets.fromLTRB(
-                20,
-                8,
-                20,
-                12,
-              ),
-              child: Align(
-                alignment:
-                    Alignment.centerLeft,
-                child: Text(
-                  '图片放在哪里？',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight:
-                        FontWeight.bold,
+  Future<void> pickImages() async {
+    final remaining = 9 - _totalImageCount;
+
+    if (remaining <= 0) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('每篇帖子最多添加 9 张图片')));
+
+      return;
+    }
+
+    final picked = await _imagePicker.pickMultiImage();
+
+    if (picked.isEmpty) return;
+
+    setState(() {
+      images.addAll(picked.take(remaining).map((e) => File(e.path)));
+    });
+  }
+
+  Future<void> _showImagePlacementOptions() async {
+    if (_totalImageCount >= 9) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('每篇帖子最多添加 9 张图片')));
+
+      return;
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '图片放在哪里？',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-            ),
 
-            ListTile(
-              leading: const Icon(
-                Icons
-                    .photo_library_outlined,
-              ),
-              title: const Text(
-                '放在文章顶部',
-              ),
-              subtitle: const Text(
-                '保持原来的图片展示方式',
-              ),
-              onTap: () {
-                Navigator.pop(
-                  sheetContext,
-                );
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('放在文章顶部'),
+                subtitle: const Text('保持原来的图片展示方式'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
 
-                pickImages();
-              },
-            ),
-
-            ListTile(
-              leading: const Icon(
-                Icons
-                    .article_outlined,
+                  pickImages();
+                },
               ),
-              title: const Text(
-                '插入正文',
-              ),
-              subtitle: const Text(
-                '插入到当前文字光标的位置',
-              ),
-              onTap: () {
-                Navigator.pop(
-                  sheetContext,
-                );
 
-                _pickInlineImage();
-              },
-            ),
+              ListTile(
+                leading: const Icon(Icons.article_outlined),
+                title: const Text('插入正文'),
+                subtitle: const Text('插入到当前文字光标的位置'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
 
-            const SizedBox(
-              height: 12,
-            ),
-          ],
-        ),
+                  _pickInlineImage();
+                },
+              ),
+
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickInlineImage() async {
+    if (_isUploadingInlineImage || _totalImageCount >= 9) {
+      return;
+    }
+
+    final selectedImage = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+      maxWidth: 1600,
+    );
+
+    if (selectedImage == null) {
+      return;
+    }
+
+    setState(() {
+      _isUploadingInlineImage = true;
+    });
+
+    try {
+      final ref = FirebaseStorage.instance.ref().child(
+        'posts/'
+        '${_draftPostRef.id}/'
+        'inline/'
+        '${DateTime.now().millisecondsSinceEpoch}_'
+        '${selectedImage.name}',
       );
-    },
-  );
-}
 
-Future<void>
-    _pickInlineImage() async {
-  if (_isUploadingInlineImage ||
-      _totalImageCount >= 9) {
-    return;
-  }
+      await ref.putFile(File(selectedImage.path));
 
-  final selectedImage =
-      await _imagePicker.pickImage(
-    source: ImageSource.gallery,
-    imageQuality: 85,
-    maxWidth: 1600,
-  );
+      final imageUrl = await ref.getDownloadURL();
 
-  if (selectedImage == null) {
-    return;
-  }
+      _insertImageEmbed(imageUrl);
+    } catch (e) {
+      if (!mounted) return;
 
-  setState(() {
-    _isUploadingInlineImage = true;
-  });
-
-  try {
-    final ref =
-        FirebaseStorage.instance
-            .ref()
-            .child(
-      'posts/'
-      '${_draftPostRef.id}/'
-      'inline/'
-      '${DateTime.now().millisecondsSinceEpoch}_'
-      '${selectedImage.name}',
-    );
-
-    await ref.putFile(
-      File(selectedImage.path),
-    );
-
-    final imageUrl =
-        await ref.getDownloadURL();
-
-    _insertImageEmbed(
-      imageUrl,
-    );
-  } catch (e) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      SnackBar(
-        content: Text(
-          '插入图片失败: $e',
-        ),
-        backgroundColor:
-            Colors.red,
-      ),
-    );
-  } finally {
-    if (mounted) {
-      setState(() {
-        _isUploadingInlineImage =
-            false;
-      });
-    }
-  }
-}
-
-void _insertImageEmbed(
-  String imageUrl,
-) {
-  final documentLength =
-      _bodyController
-          .document
-          .length;
-
-  final maximumPosition =
-      max(
-    0,
-    documentLength - 1,
-  );
-
-  final selection =
-      _bodyController.selection;
-
-  final rawPosition =
-      selection.isValid
-          ? selection.baseOffset
-          : maximumPosition;
-
-  final insertPosition =
-      rawPosition
-          .clamp(
-            0,
-            maximumPosition,
-          )
-          .toInt();
-
-  _bodyController.replaceText(
-    insertPosition,
-    0,
-    quill.BlockEmbed.image(
-      imageUrl,
-    ),
-    TextSelection.collapsed(
-      offset:
-          insertPosition + 1,
-    ),
-  );
-
-  _bodyController.replaceText(
-    insertPosition + 1,
-    0,
-    '\n',
-    TextSelection.collapsed(
-      offset:
-          insertPosition + 2,
-    ),
-  );
-
-  _bodyController.updateSelection(
-    TextSelection.collapsed(
-      offset:
-          insertPosition + 2,
-    ),
-    quill.ChangeSource.local,
-  );
-
-  _bodyFocusNode.requestFocus();
-}
-
-Future<List<dynamic>>
-    _copyImportedInlineImagesToPost(
-  List<dynamic> bodyDelta,
-) async {
-  // 普通发帖，不需要做任何复制
-  if (widget.sourceNoteId == null) {
-    return bodyDelta;
-  }
-
-  final result = <dynamic>[];
-
-  // 同一张图出现多次时，
-  // 不重复复制 Storage。
-  final copiedUrls =
-      <String, String>{};
-
-  for (final rawOperation
-      in bodyDelta) {
-    if (rawOperation is! Map) {
-      result.add(rawOperation);
-      continue;
-    }
-
-    final operation =
-        Map<String, dynamic>.from(
-      rawOperation,
-    );
-
-    final insert =
-        operation['insert'];
-
-    if (insert is Map &&
-        insert['image'] is String) {
-      final oldUrl =
-          insert['image']
-              .toString();
-
-      if (oldUrl.isNotEmpty) {
-        try {
-          final sourceRef =
-              FirebaseStorage.instance
-                  .refFromURL(
-            oldUrl,
-          );
-
-          final currentPostPrefix =
-              'posts/'
-              '${_draftPostRef.id}/';
-
-          // 如果这张图是在发帖页里
-          // 新插入的，它已经属于帖子，
-          // 不需要再次复制。
-          if (!sourceRef.fullPath
-              .startsWith(
-            currentPostPrefix,
-          )) {
-            String? newUrl =
-                copiedUrls[oldUrl];
-
-            if (newUrl == null) {
-              // 笔记目前图片上限本来就不大，
-              // 这里给 15MB 读取上限。
-              final bytes =
-                  await sourceRef.getData(
-                15 * 1024 * 1024,
-              );
-
-              if (bytes == null) {
-                throw Exception(
-                  '无法读取笔记图片',
-                );
-              }
-
-              final metadata =
-                  await sourceRef
-                      .getMetadata();
-
-              final targetRef =
-                  FirebaseStorage.instance
-                      .ref()
-                      .child(
-                'posts/'
-                '${_draftPostRef.id}/'
-                'inline/'
-                'note_'
-                '${DateTime.now().microsecondsSinceEpoch}_'
-                '${sourceRef.name}',
-              );
-
-              await targetRef.putData(
-                bytes,
-                SettableMetadata(
-                  contentType:
-                      metadata.contentType,
-                ),
-              );
-
-              newUrl =
-                  await targetRef
-                      .getDownloadURL();
-
-              copiedUrls[oldUrl] =
-                  newUrl;
-            }
-
-            final newInsert =
-                Map<String, dynamic>.from(
-              insert,
-            );
-
-            newInsert['image'] =
-                newUrl;
-
-            operation['insert'] =
-                newInsert;
-          }
-        } catch (e) {
-          throw Exception(
-            '复制笔记正文图片失败：$e',
-          );
-        }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('插入图片失败: $e'), backgroundColor: Colors.red),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploadingInlineImage = false;
+        });
       }
     }
-
-    result.add(operation);
   }
 
-  return result;
-}
+  void _insertImageEmbed(String imageUrl) {
+    final documentLength = _bodyController.document.length;
+
+    final maximumPosition = max(0, documentLength - 1);
+
+    final selection = _bodyController.selection;
+
+    final rawPosition = selection.isValid
+        ? selection.baseOffset
+        : maximumPosition;
+
+    final insertPosition = rawPosition.clamp(0, maximumPosition).toInt();
+
+    _bodyController.replaceText(
+      insertPosition,
+      0,
+      quill.BlockEmbed.image(imageUrl),
+      TextSelection.collapsed(offset: insertPosition + 1),
+    );
+
+    _bodyController.replaceText(
+      insertPosition + 1,
+      0,
+      '\n',
+      TextSelection.collapsed(offset: insertPosition + 2),
+    );
+
+    _bodyController.updateSelection(
+      TextSelection.collapsed(offset: insertPosition + 2),
+      quill.ChangeSource.local,
+    );
+
+    _bodyFocusNode.requestFocus();
+  }
+
+  Future<List<dynamic>> _copyImportedInlineImagesToPost(
+    List<dynamic> bodyDelta,
+  ) async {
+    // 普通发帖，不需要做任何复制
+    if (widget.sourceNoteId == null) {
+      return bodyDelta;
+    }
+
+    final result = <dynamic>[];
+
+    // 同一张图出现多次时，
+    // 不重复复制 Storage。
+    final copiedUrls = <String, String>{};
+
+    for (final rawOperation in bodyDelta) {
+      if (rawOperation is! Map) {
+        result.add(rawOperation);
+        continue;
+      }
+
+      final operation = Map<String, dynamic>.from(rawOperation);
+
+      final insert = operation['insert'];
+
+      if (insert is Map && insert['image'] is String) {
+        final oldUrl = insert['image'].toString();
+
+        if (oldUrl.isNotEmpty) {
+          try {
+            final sourceRef = FirebaseStorage.instance.refFromURL(oldUrl);
+
+            final currentPostPrefix =
+                'posts/'
+                '${_draftPostRef.id}/';
+
+            // 如果这张图是在发帖页里
+            // 新插入的，它已经属于帖子，
+            // 不需要再次复制。
+            if (!sourceRef.fullPath.startsWith(currentPostPrefix)) {
+              String? newUrl = copiedUrls[oldUrl];
+
+              if (newUrl == null) {
+                // 笔记目前图片上限本来就不大，
+                // 这里给 15MB 读取上限。
+                final bytes = await sourceRef.getData(15 * 1024 * 1024);
+
+                if (bytes == null) {
+                  throw Exception('无法读取笔记图片');
+                }
+
+                final metadata = await sourceRef.getMetadata();
+
+                final targetRef = FirebaseStorage.instance.ref().child(
+                  'posts/'
+                  '${_draftPostRef.id}/'
+                  'inline/'
+                  'note_'
+                  '${DateTime.now().microsecondsSinceEpoch}_'
+                  '${sourceRef.name}',
+                );
+
+                await targetRef.putData(
+                  bytes,
+                  SettableMetadata(contentType: metadata.contentType),
+                );
+
+                newUrl = await targetRef.getDownloadURL();
+
+                copiedUrls[oldUrl] = newUrl;
+              }
+
+              final newInsert = Map<String, dynamic>.from(insert);
+
+              newInsert['image'] = newUrl;
+
+              operation['insert'] = newInsert;
+            }
+          } catch (e) {
+            throw Exception('复制笔记正文图片失败：$e');
+          }
+        }
+      }
+
+      result.add(operation);
+    }
+
+    return result;
+  }
 
   Future<List<String>> uploadImages(String postId) async {
     List<String> urls = [];
@@ -588,15 +393,12 @@ Future<List<dynamic>>
     for (int i = 0; i < images.length; i++) {
       final file = images[i];
 
-      final ref = FirebaseStorage.instance
-          .ref()
-          .child('posts/$postId/$i.jpg');
+      final ref = FirebaseStorage.instance.ref().child('posts/$postId/$i.jpg');
 
       final uploadTask = ref.putFile(file);
 
       uploadTask.snapshotEvents.listen((event) {
-        final fileProgress =
-            event.bytesTransferred / event.totalBytes;
+        final fileProgress = event.bytesTransferred / event.totalBytes;
 
         setState(() {
           progress = (i + fileProgress) / images.length;
@@ -616,45 +418,28 @@ Future<List<dynamic>>
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    final plainContent =
-    _bodyController.document
-        .toPlainText()
-        .trim();
+    final plainContent = _bodyController.document.toPlainText().trim();
 
-List<dynamic> bodyDelta =
-    List<dynamic>.from(
-  _bodyController.document
-      .toDelta()
-      .toJson(),
-);
+    List<dynamic> bodyDelta = List<dynamic>.from(
+      _bodyController.document.toDelta().toJson(),
+    );
 
-if (title.text.trim().isEmpty ||
-    (plainContent.isEmpty &&
-        _countInlineImages() == 0)) {
-  ScaffoldMessenger.of(context)
-      .showSnackBar(
-    const SnackBar(
-      content: Text(
-        '请填写标题和内容',
-      ),
-    ),
-  );
+    if (title.text.trim().isEmpty ||
+        (plainContent.isEmpty && _countInlineImages() == 0)) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('请填写标题和内容')));
 
-  return;
-}
+      return;
+    }
 
-if (plainContent.length > 5000) {
-  ScaffoldMessenger.of(context)
-      .showSnackBar(
-    const SnackBar(
-      content: Text(
-        '正文最多 5000 字',
-      ),
-    ),
-  );
+    if (plainContent.length > 5000) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('正文最多 5000 字')));
 
-  return;
-}
+      return;
+    }
 
     setState(() {
       isUploading = true;
@@ -664,22 +449,15 @@ if (plainContent.length > 5000) {
     try {
       // 如果来源是笔记，
       // 先把笔记正文图片复制成帖子自己的图片。
-      bodyDelta =
-          await _copyImportedInlineImagesToPost(
-        bodyDelta,
-      );
+      bodyDelta = await _copyImportedInlineImagesToPost(bodyDelta);
 
       // 更新编辑器中的 URL。
       // 如果后续发布失败后重试，
       // 就不会再次复制同一批笔记图片。
       if (widget.sourceNoteId != null) {
-        _bodyController.document =
-            quill.Document.fromJson(
-          bodyDelta,
-        );
+        _bodyController.document = quill.Document.fromJson(bodyDelta);
       }
 
-      
       // 获取用户信息
       final userDoc = await FirebaseFirestore.instance
           .collection('users')
@@ -689,118 +467,90 @@ if (plainContent.length > 5000) {
       final username = userData?['username'] ?? '匿名用户';
       final nickname = userData?['nickname'] ?? '';
 
-      final doc =
-    _draftPostRef;
+      final doc = _draftPostRef;
 
       final imageUrls = await uploadImages(doc.id);
 
-final versionRef = doc
-    .collection('versions')
-    .doc(widget.languageCode);
+      final versionRef = doc.collection('versions').doc(widget.languageCode);
 
-// 原始发布版本
-final historyRef = doc
-    .collection('editHistory')
-    .doc();
+      // 原始发布版本
+      final historyRef = doc.collection('editHistory').doc();
 
-final batch =
-    FirebaseFirestore.instance.batch();
+      final batch = FirebaseFirestore.instance.batch();
 
-batch.set(doc, {
-  'title':
-    title.text.trim(),
+      batch.set(doc, {
+        'title': title.text.trim(),
 
-'content':
-    plainContent,
+        'content': plainContent,
 
-'bodyDelta':
-    bodyDelta,
+        'bodyDelta': bodyDelta,
 
-  'category': widget.category,
+        'category': widget.category,
 
-  // 兼容旧代码
-  'languageCode': widget.languageCode,
-  'languageName': widget.languageName,
+        // 兼容旧代码
+        'languageCode': widget.languageCode,
+        'languageName': widget.languageName,
 
-  // 一帖多语言
-  'primaryLanguageCode':
-      widget.languageCode,
+        // 一帖多语言
+        'primaryLanguageCode': widget.languageCode,
 
-  'availableLanguageCodes': [
-    widget.languageCode,
-  ],
+        'availableLanguageCodes': [widget.languageCode],
 
-  'uid': user.uid,
-  'username': username,
-  'nickname': nickname,
+        'uid': user.uid,
+        'username': username,
+        'nickname': nickname,
 
-  'images': imageUrls,
+        'images': imageUrls,
 
-  'likes': [],
-  'likeCount': 0,
-  'commentCount': 0,
+        'likes': [],
+        'likeCount': 0,
+        'commentCount': 0,
 
-  'timestamp':
-      FieldValue.serverTimestamp(),
-});
+        'timestamp': FieldValue.serverTimestamp(),
+      });
 
-batch.set(versionRef, {
-  'languageCode':
-      widget.languageCode,
+      batch.set(versionRef, {
+        'languageCode': widget.languageCode,
 
-  'languageName':
-      widget.languageName,
+        'languageName': widget.languageName,
 
-  'title':
-      title.text.trim(),
+        'title': title.text.trim(),
 
-  'content':
-    plainContent,
+        'content': plainContent,
 
-  'bodyDelta':
-      bodyDelta,
+        'bodyDelta': bodyDelta,
 
-  'authorId':
-      user.uid,
+        'authorId': user.uid,
 
-  'type':
-      'original',
+        'type': 'original',
 
-  'createdAt':
-      FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(),
 
-  'updatedAt':
-      FieldValue.serverTimestamp(),
-});
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
 
-batch.set(historyRef, {
-  'type': 'original',
+      batch.set(historyRef, {
+        'type': 'original',
 
-  'languageCode':
-      widget.languageCode,
+        'languageCode': widget.languageCode,
 
-  'content':
-      plainContent,
+        'content': plainContent,
 
-  'bodyDelta':
-      bodyDelta,
+        'bodyDelta': bodyDelta,
 
-  'imageUrls':
-      imageUrls,
+        'imageUrls': imageUrls,
 
-  'editedBy':
-      user.uid,
+        'editedBy': user.uid,
 
-  // 对 original 来说，
-  // 这个时间就是首次发布时间
-  'editedAt':
-      FieldValue.serverTimestamp(),
-});
+        // 对 original 来说，
+        // 这个时间就是首次发布时间
+        'editedAt': FieldValue.serverTimestamp(),
+      });
 
-await batch.commit();
+      await batch.commit();
 
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("在${widget.languageName}频道发布成功"),
@@ -808,20 +558,14 @@ await batch.commit();
           duration: const Duration(seconds: 2),
         ),
       );
-      
-      Navigator.pop(
-  context,
-  true,
-);
+
+      Navigator.pop(context, true);
     } catch (e) {
       debugPrint("UPLOAD ERROR: $e");
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("上传失败: $e"),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text("上传失败: $e"), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -859,19 +603,17 @@ await batch.commit();
   }
 
   @override
-void dispose() {
-  _bodyController.removeListener(
-    _onBodyChanged,
-  );
+  void dispose() {
+    _bodyController.removeListener(_onBodyChanged);
 
-  title.dispose();
+    title.dispose();
 
-  _bodyController.dispose();
-  _bodyFocusNode.dispose();
-  _bodyScrollController.dispose();
+    _bodyController.dispose();
+    _bodyFocusNode.dispose();
+    _bodyScrollController.dispose();
 
-  super.dispose();
-}
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -979,9 +721,9 @@ void dispose() {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // ========== 标题输入 ==========
               TextField(
                 controller: title,
@@ -1005,108 +747,90 @@ void dispose() {
                 ),
                 onChanged: (_) => setState(() {}),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // ========== 内容输入 ==========
               // ========== 富文本正文 ==========
-Container(
-  decoration: BoxDecoration(
-    border: Border.all(
-      color: Colors.grey.shade400,
-    ),
-    borderRadius:
-        BorderRadius.circular(12),
-  ),
-  clipBehavior: Clip.antiAlias,
-  child: Column(
-    children: [
-      SizedBox(
-        height: 280,
-        child: quill.QuillEditor(
-          controller:
-              _bodyController,
-          focusNode:
-              _bodyFocusNode,
-          scrollController:
-              _bodyScrollController,
-          config:
-              quill.QuillEditorConfig(
-            placeholder:
-                '输入帖子内容……',
-            padding:
-                const EdgeInsets.all(14),
-            embedBuilders:
-                FlutterQuillEmbeds
-                    .editorBuilders(),
-          ),
-        ),
-      ),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 280,
+                      child: quill.QuillEditor(
+                        controller: _bodyController,
+                        focusNode: _bodyFocusNode,
+                        scrollController: _bodyScrollController,
+                        config: quill.QuillEditorConfig(
+                          placeholder: '输入帖子内容……',
+                          padding: const EdgeInsets.all(14),
+                          embedBuilders: FlutterQuillEmbeds.editorBuilders(),
+                        ),
+                      ),
+                    ),
 
-      const Divider(height: 1),
+                    const Divider(height: 1),
 
-      SizedBox(
-        height: 48,
-        child:
-            quill.QuillSimpleToolbar(
-          controller:
-              _bodyController,
-          config: const quill
-              .QuillSimpleToolbarConfig(
-            multiRowsDisplay: false,
-            showFontFamily: false,
-            showFontSize: false,
-            showBoldButton: true,
-            showItalicButton: true,
-            showUnderLineButton: true,
-            showStrikeThrough: false,
-            showColorButton: false,
-            showBackgroundColorButton:
-                false,
-            showClearFormat: true,
-            showAlignmentButtons: false,
-            showHeaderStyle: true,
-            showListNumbers: true,
-            showListBullets: true,
-            showListCheck: true,
-            showCodeBlock: false,
-            showQuote: true,
-            showIndent: false,
-            showLink: false,
-            showUndo: true,
-            showRedo: true,
-            showSearchButton: false,
-            showSubscript: false,
-            showSuperscript: false,
-          ),
-        ),
-      ),
-    ],
-  ),
-),
+                    SizedBox(
+                      height: 48,
+                      child: quill.QuillSimpleToolbar(
+                        controller: _bodyController,
+                        config: const quill.QuillSimpleToolbarConfig(
+                          multiRowsDisplay: false,
+                          showFontFamily: false,
+                          showFontSize: false,
+                          showBoldButton: true,
+                          showItalicButton: true,
+                          showUnderLineButton: true,
+                          showStrikeThrough: false,
+                          showColorButton: false,
+                          showBackgroundColorButton: false,
+                          showClearFormat: true,
+                          showAlignmentButtons: false,
+                          showHeaderStyle: true,
+                          showListNumbers: true,
+                          showListBullets: true,
+                          showListCheck: true,
+                          showCodeBlock: false,
+                          showQuote: true,
+                          showIndent: false,
+                          showLink: false,
+                          showUndo: true,
+                          showRedo: true,
+                          showSearchButton: false,
+                          showSubscript: false,
+                          showSuperscript: false,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-const SizedBox(height: 6),
+              const SizedBox(height: 6),
 
-Align(
-  alignment: Alignment.centerRight,
-  child: Text(
-    '${_bodyController.document.toPlainText().trim().length}/5000',
-    style: TextStyle(
-      color: _bodyController
-                  .document
-                  .toPlainText()
-                  .trim()
-                  .length >
-              4500
-          ? Colors.red
-          : Colors.grey,
-      fontSize: 12,
-    ),
-  ),
-),
-              
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '${_bodyController.document.toPlainText().trim().length}/5000',
+                  style: TextStyle(
+                    color:
+                        _bodyController.document.toPlainText().trim().length >
+                            4500
+                        ? Colors.red
+                        : Colors.grey,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 20),
-              
+
               // ========== 图片选择区域 ==========
               Container(
                 padding: const EdgeInsets.all(12),
@@ -1133,7 +857,9 @@ Align(
                         Text(
                           "$_totalImageCount/9",
                           style: TextStyle(
-                            color: images.length >= 9 ? Colors.red : Colors.grey.shade600,
+                            color: images.length >= 9
+                                ? Colors.red
+                                : Colors.grey.shade600,
                             fontSize: 13,
                           ),
                         ),
@@ -1141,74 +867,63 @@ Align(
                     ),
                     const SizedBox(height: 12),
                     OutlinedButton.icon(
-  onPressed:
-      isUploading ||
-              _isUploadingInlineImage ||
-              _totalImageCount >= 9
-          ? null
-          : _showImagePlacementOptions,
-  icon: _isUploadingInlineImage
-      ? const SizedBox(
-          width: 18,
-          height: 18,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-          ),
-        )
-      : const Icon(
-          Icons.add_photo_alternate,
-          size: 20,
-        ),
-  label: Text(
-    _isUploadingInlineImage
-        ? '正在插入图片...'
-        : _totalImageCount >= 9
-            ? '已达上限'
-            : '添加图片',
-  ),
-  style: OutlinedButton.styleFrom(
-    padding: const EdgeInsets.symmetric(
-      horizontal: 16,
-      vertical: 12,
-    ),
-    shape: RoundedRectangleBorder(
-      borderRadius:
-          BorderRadius.circular(8),
-    ),
-  ),
-),
+                      onPressed:
+                          isUploading ||
+                              _isUploadingInlineImage ||
+                              _totalImageCount >= 9
+                          ? null
+                          : _showImagePlacementOptions,
+                      icon: _isUploadingInlineImage
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.add_photo_alternate, size: 20),
+                      label: Text(
+                        _isUploadingInlineImage
+                            ? '正在插入图片...'
+                            : _totalImageCount >= 9
+                            ? '已达上限'
+                            : '添加图片',
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
 
-if (_isUploadingInlineImage) ...[
-  const SizedBox(height: 12),
+                    if (_isUploadingInlineImage) ...[
+                      const SizedBox(height: 12),
 
-  const LinearProgressIndicator(),
+                      const LinearProgressIndicator(),
 
-  const SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
-  const Row(
-    children: [
-      SizedBox(
-        width: 16,
-        height: 16,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-        ),
-      ),
-      SizedBox(width: 8),
-      Text(
-        '正在上传并插入正文图片...',
-        style: TextStyle(
-          fontSize: 13,
-          color: Colors.grey,
-        ),
-      ),
-    ],
-  ),
-],
+                      const Row(
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            '正在上传并插入正文图片...',
+                            style: TextStyle(fontSize: 13, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
-              
+
               // ========== 图片预览网格 ==========
               if (images.isNotEmpty) ...[
                 const SizedBox(height: 16),
@@ -1226,10 +941,7 @@ if (_isUploadingInlineImage) ...[
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        Image.file(
-                          images[i],
-                          fit: BoxFit.cover,
-                        ),
+                        Image.file(images[i], fit: BoxFit.cover),
                         // 序号标记
                         Positioned(
                           top: 8,
@@ -1278,7 +990,7 @@ if (_isUploadingInlineImage) ...[
                   ),
                 ),
               ],
-              
+
               // ========== 上传进度 ==========
               if (isUploading) ...[
                 const SizedBox(height: 20),
@@ -1305,16 +1017,14 @@ if (_isUploadingInlineImage) ...[
                   ],
                 ),
               ],
-              
+
               const SizedBox(height: 24),
-              
+
               // ========== 发布按钮 ==========
               ElevatedButton(
-                onPressed:
-    isUploading ||
-            _isUploadingInlineImage
-        ? null
-        : uploadPost,
+                onPressed: isUploading || _isUploadingInlineImage
+                    ? null
+                    : uploadPost,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: Colors.blue,
@@ -1350,7 +1060,7 @@ if (_isUploadingInlineImage) ...[
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 32),
             ],
           ),

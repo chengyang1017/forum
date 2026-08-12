@@ -67,10 +67,7 @@ class UsersScreen extends StatelessWidget {
               final userId = users[i].id;
 
               return Card(
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 child: ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.blue.shade100,
@@ -106,9 +103,9 @@ class UsersScreen extends StatelessWidget {
                       );
                     } catch (e) {
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('创建聊天失败：$e')),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('创建聊天失败：$e')));
                       }
                     }
                   },

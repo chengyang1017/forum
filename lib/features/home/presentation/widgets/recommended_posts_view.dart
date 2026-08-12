@@ -27,9 +27,7 @@ class RecommendedPostsView extends StatelessWidget {
       );
     }
 
-    return StreamBuilder<
-      DocumentSnapshot<Map<String, dynamic>>
-    >(
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -44,9 +42,7 @@ class RecommendedPostsView extends StatelessWidget {
         }
 
         if (!userSnapshot.hasData) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         final interests = _readInterests(
@@ -58,14 +54,11 @@ class RecommendedPostsView extends StatelessWidget {
           return const _InterestEmptyState(
             icon: Icons.favorite_border_rounded,
             title: '还没有感兴趣的分类',
-            description:
-                '进入分类频道，选择一个语言，再点击分类右侧的心形。',
+            description: '进入分类频道，选择一个语言，再点击分类右侧的心形。',
           );
         }
 
-        return _InterestedPostList(
-          interests: interests,
-        );
+        return _InterestedPostList(interests: interests);
       },
     );
   }
@@ -74,33 +67,22 @@ class RecommendedPostsView extends StatelessWidget {
 class _InterestedPostList extends StatelessWidget {
   final Set<String> interests;
 
-  const _InterestedPostList({
-    required this.interests,
-  });
+  const _InterestedPostList({required this.interests});
 
-  String _postInterestKey(
-    Map<String, dynamic> data,
-  ) {
-    final languageCode =
-        data['languageCode'] as String? ?? '';
+  String _postInterestKey(Map<String, dynamic> data) {
+    final languageCode = data['languageCode'] as String? ?? '';
 
-    final category =
-        data['category'] as String? ?? '';
+    final category = data['category'] as String? ?? '';
 
     return '$languageCode::$category';
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<
-      QuerySnapshot<Map<String, dynamic>>
-    >(
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
           .collection('posts')
-          .orderBy(
-            'timestamp',
-            descending: true,
-          )
+          .orderBy('timestamp', descending: true)
           .limit(100)
           .snapshots(),
       builder: (context, postSnapshot) {
@@ -113,39 +95,27 @@ class _InterestedPostList extends StatelessWidget {
         }
 
         if (!postSnapshot.hasData) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
-        final matchingPosts = postSnapshot.data!.docs
-            .where((document) {
-              final key =
-                  _postInterestKey(document.data());
+        final matchingPosts = postSnapshot.data!.docs.where((document) {
+          final key = _postInterestKey(document.data());
 
-              return interests.contains(key);
-            })
-            .toList();
+          return interests.contains(key);
+        }).toList();
 
         if (matchingPosts.isEmpty) {
           return const _InterestEmptyState(
             icon: Icons.inbox_outlined,
             title: '这些兴趣暂时没有帖子',
-            description:
-                '已选择的语言频道和分类中，目前还没有可显示的内容。',
+            description: '已选择的语言频道和分类中，目前还没有可显示的内容。',
           );
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(
-            12,
-            4,
-            12,
-            24,
-          ),
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
           itemCount: matchingPosts.length,
-          separatorBuilder: (_, __) =>
-              const SizedBox(height: 12),
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final document = matchingPosts[index];
             //final post = PostModel.fromDocument(document);
@@ -170,6 +140,7 @@ class _InterestedPostList extends StatelessWidget {
     );
   }
 }
+
 class _InterestEmptyState extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -195,32 +166,23 @@ class _InterestEmptyState extends StatelessWidget {
               width: 76,
               height: 76,
               decoration: BoxDecoration(
-                color: colorScheme.primary
-                    .withOpacity(0.09),
+                color: colorScheme.primary.withOpacity(0.09),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: colorScheme.primary,
-                size: 36,
-              ),
+              child: Icon(icon, color: colorScheme.primary, size: 36),
             ),
             const SizedBox(height: 18),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-              ),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 7),
             Text(
               description,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: colorScheme.onSurface
-                    .withOpacity(0.56),
+                color: colorScheme.onSurface.withOpacity(0.56),
                 height: 1.45,
               ),
             ),

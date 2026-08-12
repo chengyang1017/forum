@@ -5,91 +5,63 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class ChatService {
-  final FirebaseFirestore _firestore =
-      FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  final FirebaseAuth _auth =
-      FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  final FirebaseStorage _storage =
-      FirebaseStorage.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  static const Duration _messageCleanupDelay =
-    Duration(days: 7);
+  static const Duration _messageCleanupDelay = Duration(days: 7);
 
   Timestamp _buildCleanupAt() {
-    return Timestamp.fromDate(
-      DateTime.now()
-          .toUtc()
-          .add(_messageCleanupDelay),
-    );
+    return Timestamp.fromDate(DateTime.now().toUtc().add(_messageCleanupDelay));
   }
-  
+
   String _requireCurrentUserId() {
-  final currentUserId =
-      _auth.currentUser?.uid;
+    final currentUserId = _auth.currentUser?.uid;
 
-  if (currentUserId == null) {
-    throw StateError('未登录');
+    if (currentUserId == null) {
+      throw StateError('未登录');
+    }
+
+    return currentUserId;
   }
 
-  return currentUserId;
-}
+  void _verifyCurrentUser(String providedUserId) {
+    final actualUserId = _requireCurrentUserId();
 
-void _verifyCurrentUser(
-  String providedUserId,
-) {
-  final actualUserId =
-      _requireCurrentUserId();
-
-  if (providedUserId != actualUserId) {
-    throw StateError(
-      '用户身份不一致',
-    );
+    if (providedUserId != actualUserId) {
+      throw StateError('用户身份不一致');
+    }
   }
-}
-  
 
   // ============================================================
   // 1. 聊天室管理
   // ============================================================
 
   /// 获取或创建私聊聊天室
-  Future<String> getOrCreateChat(
-    String otherUserId,
-  ) async {
-    final currentUid =
-        _auth.currentUser?.uid;
+  Future<String> getOrCreateChat(String otherUserId) async {
+    final currentUid = _auth.currentUser?.uid;
 
     if (currentUid == null) {
       throw StateError('未登录');
     }
 
-    final userIds = [
-      currentUid,
-      otherUserId,
-    ]..sort();
+    final userIds = [currentUid, otherUserId]..sort();
 
-    final chatRef = _firestore
-        .collection('chats')
-        .doc(userIds.join('_'));
+    final chatRef = _firestore.collection('chats').doc(userIds.join('_'));
 
     final snapshot = await chatRef.get();
 
     if (!snapshot.exists) {
       await chatRef.set({
         'users': userIds,
-        'createdAt':
-            FieldValue.serverTimestamp(),
-        'updatedAt':
-            FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
         'lastMessage': '',
         'lastMessageId': null,
         'lastSenderId': null,
-        'unreadCount': {
-          currentUid: 0,
-          otherUserId: 0,
-        },
+        'unreadCount': {currentUid: 0, otherUserId: 0},
       });
     }
 
@@ -97,85 +69,55 @@ void _verifyCurrentUser(
   }
 
   /// 获取聊天列表
-  Future<QuerySnapshot> getChats(
-    String userId,
-  ) {
+  Future<QuerySnapshot> getChats(String userId) {
     return _firestore
         .collection('chats')
-        .where(
-          'users',
-          arrayContains: userId,
-        )
-        .orderBy(
-          'updatedAt',
-          descending: true,
-        )
+        .where('users', arrayContains: userId)
+        .orderBy('updatedAt', descending: true)
         .get();
   }
 
   /// 实时监听聊天列表
-  Stream<QuerySnapshot> watchChats(
-    String userId,
-  ) {
+  Stream<QuerySnapshot> watchChats(String userId) {
     return _firestore
         .collection('chats')
-        .where(
-          'users',
-          arrayContains: userId,
-        )
-        .orderBy(
-          'updatedAt',
-          descending: true,
-        )
+        .where('users', arrayContains: userId)
+        .orderBy('updatedAt', descending: true)
         .snapshots();
   }
 
   /// 实时监听全部聊天室的未读总数
-  Stream<int> watchTotalUnread(
-    String userId,
-  ) {
-    return watchChats(userId)
-        .map((snapshot) {
-          var totalUnread = 0;
+  Stream<int> watchTotalUnread(String userId) {
+    return watchChats(userId).map((snapshot) {
+      var totalUnread = 0;
 
-          for (final document
-              in snapshot.docs) {
-            final data = document.data();
+      for (final document in snapshot.docs) {
+        final data = document.data();
 
-            if (data
-                is! Map<String, dynamic>) {
-              continue;
-            }
+        if (data is! Map<String, dynamic>) {
+          continue;
+        }
 
-            final unreadCount =
-                data['unreadCount'];
+        final unreadCount = data['unreadCount'];
 
-            if (unreadCount is! Map) {
-              continue;
-            }
+        if (unreadCount is! Map) {
+          continue;
+        }
 
-            final count =
-                unreadCount[userId];
+        final count = unreadCount[userId];
 
-            if (count is num) {
-              totalUnread += count.toInt();
-            }
-          }
+        if (count is num) {
+          totalUnread += count.toInt();
+        }
+      }
 
-          return totalUnread;
-        })
-        .distinct();
+      return totalUnread;
+    }).distinct();
   }
 
   /// 获取聊天参与者
-  Future<List<String>>
-      getChatParticipants(
-    String chatId,
-  ) async {
-    final snapshot = await _firestore
-        .collection('chats')
-        .doc(chatId)
-        .get();
+  Future<List<String>> getChatParticipants(String chatId) async {
+    final snapshot = await _firestore.collection('chats').doc(chatId).get();
 
     final data = snapshot.data();
 
@@ -183,20 +125,12 @@ void _verifyCurrentUser(
       return [];
     }
 
-    return List<String>.from(
-      data['users'] ?? const [],
-    );
+    return List<String>.from(data['users'] ?? const []);
   }
 
   /// 标记当前用户已读
-  Future<void> markAsRead(
-    String chatId,
-    String userId,
-  ) {
-    return _firestore
-        .collection('chats')
-        .doc(chatId)
-        .update({
+  Future<void> markAsRead(String chatId, String userId) {
+    return _firestore.collection('chats').doc(chatId).update({
       'unreadCount.$userId': 0,
     });
   }
@@ -215,52 +149,41 @@ void _verifyCurrentUser(
     final cleanContent = content.trim();
 
     if (cleanContent.isEmpty) {
-      throw ArgumentError(
-        '消息内容不能为空',
-      );
+      throw ArgumentError('消息内容不能为空');
     }
 
-    final chatRef = _firestore
-        .collection('chats')
-        .doc(chatId);
+    final chatRef = _firestore.collection('chats').doc(chatId);
 
-    final messageRef = chatRef
-        .collection('messages')
-        .doc();
+    final messageRef = chatRef.collection('messages').doc();
 
-    final users =
-        await getChatParticipants(chatId);
+    final users = await getChatParticipants(chatId);
 
     if (!users.contains(senderId)) {
-      throw StateError(
-        '当前用户不是聊天室成员',
-      );
+      throw StateError('当前用户不是聊天室成员');
     }
 
     final batch = _firestore.batch();
-    final now =
-        FieldValue.serverTimestamp();
+    final now = FieldValue.serverTimestamp();
 
     batch.set(messageRef, {
-  'type': 'text',
-  'senderId': senderId,
-  'content': cleanContent,
-  'imageUrl': null,
-  'imagePath': null,
-  'timestamp': now,
+      'type': 'text',
+      'senderId': senderId,
+      'content': cleanContent,
+      'imageUrl': null,
+      'imagePath': null,
+      'timestamp': now,
 
-  'editedAt': null,
+      'editedAt': null,
 
-  'hiddenFor': <String>[],
+      'hiddenFor': <String>[],
 
-  'status': 'active',
-  'deletedBy': null,
-  'deletedAt': null,
-  'cleanupAt': null,
-});
+      'status': 'active',
+      'deletedBy': null,
+      'deletedAt': null,
+      'cleanupAt': null,
+    });
 
-    final chatUpdates =
-        <String, dynamic>{
+    final chatUpdates = <String, dynamic>{
       'lastMessage': cleanContent,
       'lastMessageId': messageRef.id,
       'lastSenderId': senderId,
@@ -268,39 +191,27 @@ void _verifyCurrentUser(
     };
 
     for (final userId in users) {
-      chatUpdates['unreadCount.$userId'] =
-          userId == senderId
-              ? 0
-              : FieldValue.increment(1);
+      chatUpdates['unreadCount.$userId'] = userId == senderId
+          ? 0
+          : FieldValue.increment(1);
     }
 
-    batch.update(
-      chatRef,
-      chatUpdates,
-    );
+    batch.update(chatRef, chatUpdates);
 
     await batch.commit();
   }
 
   /// 上传聊天图片
-  Future<String> uploadChatImage(
-    File imageFile,
-  ) async {
-    final currentUid =
-        _auth.currentUser?.uid;
+  Future<String> uploadChatImage(File imageFile) async {
+    final currentUid = _auth.currentUser?.uid;
 
     if (currentUid == null) {
       throw StateError('未登录');
     }
 
-    final fileName =
-        '${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-    final imageRef = _storage
-        .ref()
-        .child(
-          'chat_images/$currentUid/$fileName',
-        );
+    final imageRef = _storage.ref().child('chat_images/$currentUid/$fileName');
 
     await imageRef.putFile(imageFile);
 
@@ -314,60 +225,46 @@ void _verifyCurrentUser(
     String imageUrl,
   ) async {
     _verifyCurrentUser(senderId);
-    final cleanImageUrl =
-        imageUrl.trim();
+    final cleanImageUrl = imageUrl.trim();
 
     if (cleanImageUrl.isEmpty) {
-      throw ArgumentError(
-        '图片地址不能为空',
-      );
+      throw ArgumentError('图片地址不能为空');
     }
 
-    final chatRef = _firestore
-        .collection('chats')
-        .doc(chatId);
+    final chatRef = _firestore.collection('chats').doc(chatId);
 
-    final messageRef = chatRef
-        .collection('messages')
-        .doc();
+    final messageRef = chatRef.collection('messages').doc();
 
-    final users =
-        await getChatParticipants(chatId);
+    final users = await getChatParticipants(chatId);
 
     if (!users.contains(senderId)) {
-      throw StateError(
-        '当前用户不是聊天室成员',
-      );
+      throw StateError('当前用户不是聊天室成员');
     }
 
-    final imagePath = _storage
-    .refFromURL(cleanImageUrl)
-    .fullPath;
+    final imagePath = _storage.refFromURL(cleanImageUrl).fullPath;
 
     final batch = _firestore.batch();
-    final now =
-        FieldValue.serverTimestamp();
+    final now = FieldValue.serverTimestamp();
 
     batch.set(messageRef, {
-  'type': 'image',
-  'senderId': senderId,
-  'content': '',
-  'imageUrl': cleanImageUrl,
-  'imagePath': imagePath,
-  'timestamp': now,
+      'type': 'image',
+      'senderId': senderId,
+      'content': '',
+      'imageUrl': cleanImageUrl,
+      'imagePath': imagePath,
+      'timestamp': now,
 
-  'editedAt': null,
+      'editedAt': null,
 
-  'hiddenFor': <String>[],
+      'hiddenFor': <String>[],
 
-  'status': 'active',
-  'deletedBy': null,
-  'deletedAt': null,
-  'cleanupAt': null,
-});
+      'status': 'active',
+      'deletedBy': null,
+      'deletedAt': null,
+      'cleanupAt': null,
+    });
 
-    final chatUpdates =
-        <String, dynamic>{
+    final chatUpdates = <String, dynamic>{
       'lastMessage': '[图片]',
       'lastMessageId': messageRef.id,
       'lastSenderId': senderId,
@@ -375,16 +272,12 @@ void _verifyCurrentUser(
     };
 
     for (final userId in users) {
-      chatUpdates['unreadCount.$userId'] =
-          userId == senderId
-              ? 0
-              : FieldValue.increment(1);
+      chatUpdates['unreadCount.$userId'] = userId == senderId
+          ? 0
+          : FieldValue.increment(1);
     }
 
-    batch.update(
-      chatRef,
-      chatUpdates,
-    );
+    batch.update(chatRef, chatUpdates);
 
     await batch.commit();
   }
@@ -394,17 +287,12 @@ void _verifyCurrentUser(
   // ============================================================
 
   /// 实时监听聊天消息
-  Stream<QuerySnapshot> watchMessages(
-    String chatId,
-  ) {
+  Stream<QuerySnapshot> watchMessages(String chatId) {
     return _firestore
         .collection('chats')
         .doc(chatId)
         .collection('messages')
-        .orderBy(
-          'timestamp',
-          descending: true,
-        )
+        .orderBy('timestamp', descending: true)
         .snapshots();
   }
 
@@ -413,28 +301,26 @@ void _verifyCurrentUser(
   // ============================================================
 
   Future<void> editMessage({
-  required String chatId,
-  required String messageId,
-  required String currentUserId,
-  required String newContent,
-}) async {
-  _verifyCurrentUser(currentUserId);
-  final cleanContent = newContent.trim();
+    required String chatId,
+    required String messageId,
+    required String currentUserId,
+    required String newContent,
+  }) async {
+    _verifyCurrentUser(currentUserId);
+    final cleanContent = newContent.trim();
 
-  if (cleanContent.isEmpty) {
-    throw ArgumentError('消息内容不能为空');
-  }
+    if (cleanContent.isEmpty) {
+      throw ArgumentError('消息内容不能为空');
+    }
 
-  final messageRef = _firestore
-      .collection('chats')
-      .doc(chatId)
-      .collection('messages')
-      .doc(messageId);
+    final messageRef = _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .doc(messageId);
 
-  await _firestore.runTransaction(
-    (transaction) async {
-      final snapshot =
-          await transaction.get(messageRef);
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(messageRef);
 
       final data = snapshot.data();
 
@@ -446,64 +332,50 @@ void _verifyCurrentUser(
         throw StateError('只能编辑自己发送的消息');
       }
 
-      final status =
-          data['status'] as String? ?? 'active';
+      final status = data['status'] as String? ?? 'active';
 
       if (status != 'active') {
         throw StateError('已删除的消息不能编辑');
       }
 
-      final imageUrl =
-          data['imageUrl'] as String?;
+      final imageUrl = data['imageUrl'] as String?;
 
-      if (imageUrl != null &&
-          imageUrl.trim().isNotEmpty) {
+      if (imageUrl != null && imageUrl.trim().isNotEmpty) {
         throw StateError('图片消息暂不支持编辑');
       }
 
       transaction.update(messageRef, {
         'content': cleanContent,
-        'editedAt':
-            FieldValue.serverTimestamp(),
+        'editedAt': FieldValue.serverTimestamp(),
       });
-    },
-  );
+    });
 
-  await _refreshChatPreview(chatId);
-}
+    await _refreshChatPreview(chatId);
+  }
 
   // ============================================================
   // 5. 删除消息
   // ============================================================
 
   Future<void> deleteMessageForMe({
-  required String chatId,
-  required String messageId,
-  required String currentUserId,
-}) async {
-  _verifyCurrentUser(
-    currentUserId,
-  );
-  final chatRef = _firestore
-      .collection('chats')
-      .doc(chatId);
+    required String chatId,
+    required String messageId,
+    required String currentUserId,
+  }) async {
+    _verifyCurrentUser(currentUserId);
+    final chatRef = _firestore.collection('chats').doc(chatId);
 
-  final messageRef = chatRef
-      .collection('messages')
-      .doc(messageId);
+    final messageRef = chatRef.collection('messages').doc(messageId);
 
-  final hiddenForEveryone =
-      await _firestore.runTransaction<bool>(
-    (transaction) async {
-      final chatSnapshot =
-          await transaction.get(chatRef);
+    final hiddenForEveryone = await _firestore.runTransaction<bool>((
+      transaction,
+    ) async {
+      final chatSnapshot = await transaction.get(chatRef);
 
-      final messageSnapshot =
-          await transaction.get(messageRef);
+      final messageSnapshot = await transaction.get(messageRef);
 
       final chatData = chatSnapshot.data();
-      final messageData =
-          messageSnapshot.data();
+      final messageData = messageSnapshot.data();
 
       if (chatData == null) {
         throw StateError('聊天室不存在');
@@ -513,80 +385,56 @@ void _verifyCurrentUser(
         throw StateError('消息不存在');
       }
 
-      final participants =
-          List<String>.from(
-        chatData['users'] ?? const [],
-      );
+      final participants = List<String>.from(chatData['users'] ?? const []);
 
-      if (!participants.contains(
-        currentUserId,
-      )) {
+      if (!participants.contains(currentUserId)) {
         throw StateError('当前用户不是聊天室成员');
       }
 
-      final oldHiddenFor =
-          List<String>.from(
-        messageData['hiddenFor'] ??
-            const [],
+      final oldHiddenFor = List<String>.from(
+        messageData['hiddenFor'] ?? const [],
       );
 
-      if (oldHiddenFor.contains(
-        currentUserId,
-      )) {
+      if (oldHiddenFor.contains(currentUserId)) {
         return false;
       }
 
-      final newHiddenFor = <String>{
-        ...oldHiddenFor,
-        currentUserId,
-      }.toList();
+      final newHiddenFor = <String>{...oldHiddenFor, currentUserId}.toList();
 
       final allParticipantsHidden =
-          participants.isNotEmpty &&
-          participants.every(
-            newHiddenFor.contains,
-          );
+          participants.isNotEmpty && participants.every(newHiddenFor.contains);
 
-      final updates = <String, dynamic>{
-        'hiddenFor': newHiddenFor,
-      };
+      final updates = <String, dynamic>{'hiddenFor': newHiddenFor};
 
       if (allParticipantsHidden) {
-        updates['cleanupAt'] =
-            _buildCleanupAt();
+        updates['cleanupAt'] = _buildCleanupAt();
       }
 
-      transaction.update(
-        messageRef,
-        updates,
-      );
+      transaction.update(messageRef, updates);
 
       return allParticipantsHidden;
-    },
-  );
+    });
 
-  // 所有人都隐藏后，这条消息不应继续作为
-  // 聊天列表的最后一条预览。
-  if (hiddenForEveryone) {
-    await _refreshChatPreview(chatId);
+    // 所有人都隐藏后，这条消息不应继续作为
+    // 聊天列表的最后一条预览。
+    if (hiddenForEveryone) {
+      await _refreshChatPreview(chatId);
+    }
   }
-}
 
   Future<void> deleteMessageForEveryone({
-  required String chatId,
-  required String messageId,
-  required String currentUserId,
-}) async {
-  final messageRef = _firestore
-      .collection('chats')
-      .doc(chatId)
-      .collection('messages')
-      .doc(messageId);
+    required String chatId,
+    required String messageId,
+    required String currentUserId,
+  }) async {
+    final messageRef = _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .doc(messageId);
 
-  await _firestore.runTransaction(
-    (transaction) async {
-      final snapshot =
-          await transaction.get(messageRef);
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(messageRef);
 
       final data = snapshot.data();
 
@@ -598,8 +446,7 @@ void _verifyCurrentUser(
         throw StateError('只能删除自己发送的消息');
       }
 
-      final status =
-          data['status'] as String? ?? 'active';
+      final status = data['status'] as String? ?? 'active';
 
       if (status == 'deleted') {
         return;
@@ -608,8 +455,7 @@ void _verifyCurrentUser(
       final updates = <String, dynamic>{
         'status': 'deleted',
         'deletedBy': currentUserId,
-        'deletedAt':
-            FieldValue.serverTimestamp(),
+        'deletedAt': FieldValue.serverTimestamp(),
         'cleanupAt': _buildCleanupAt(),
 
         // 清除用户内容，但保留消息占位。
@@ -619,162 +465,111 @@ void _verifyCurrentUser(
       };
 
       // 兼容以前没有 imagePath 的图片消息。
-      final existingImagePath =
-          data['imagePath'] as String?;
+      final existingImagePath = data['imagePath'] as String?;
 
-      final oldImageUrl =
-          data['imageUrl'] as String?;
+      final oldImageUrl = data['imageUrl'] as String?;
 
-      if ((existingImagePath == null ||
-              existingImagePath.isEmpty) &&
+      if ((existingImagePath == null || existingImagePath.isEmpty) &&
           oldImageUrl != null &&
           oldImageUrl.isNotEmpty) {
         try {
-          updates['imagePath'] = _storage
-              .refFromURL(oldImageUrl)
-              .fullPath;
+          updates['imagePath'] = _storage.refFromURL(oldImageUrl).fullPath;
         } catch (_) {
           // 无法解析旧地址时不阻止逻辑删除。
         }
       }
 
-      transaction.update(
-        messageRef,
-        updates,
-      );
-    },
-  );
+      transaction.update(messageRef, updates);
+    });
 
-  await _refreshChatPreview(chatId);
-}
+    await _refreshChatPreview(chatId);
+  }
 
   // ============================================================
   // 6. 私有辅助方法
   // ============================================================
 
-  Future<void> _refreshChatPreview(
-  String chatId,
-) async {
-  final chatRef = _firestore
-      .collection('chats')
-      .doc(chatId);
+  Future<void> _refreshChatPreview(String chatId) async {
+    final chatRef = _firestore.collection('chats').doc(chatId);
 
-  final chatSnapshot =
-      await chatRef.get();
+    final chatSnapshot = await chatRef.get();
 
-  final chatData =
-      chatSnapshot.data();
+    final chatData = chatSnapshot.data();
 
-  if (chatData == null) {
-    return;
-  }
-
-  final participants =
-      List<String>.from(
-    chatData['users'] ?? const [],
-  );
-
-  final messagesSnapshot =
-      await chatRef
-          .collection('messages')
-          .orderBy(
-            'timestamp',
-            descending: true,
-          )
-          .limit(50)
-          .get();
-
-  QueryDocumentSnapshot<
-      Map<String, dynamic>>?
-      latestVisibleDocument;
-
-  for (final document
-      in messagesSnapshot.docs) {
-    final message = document.data();
-
-    final hiddenFor =
-        List<String>.from(
-      message['hiddenFor'] ?? const [],
-    );
-
-    final hiddenForEveryone =
-        participants.isNotEmpty &&
-        participants.every(
-          hiddenFor.contains,
-        );
-
-    if (hiddenForEveryone) {
-      continue;
+    if (chatData == null) {
+      return;
     }
 
-    latestVisibleDocument = document;
-    break;
-  }
+    final participants = List<String>.from(chatData['users'] ?? const []);
 
-  if (latestVisibleDocument == null) {
+    final messagesSnapshot = await chatRef
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .limit(50)
+        .get();
+
+    QueryDocumentSnapshot<Map<String, dynamic>>? latestVisibleDocument;
+
+    for (final document in messagesSnapshot.docs) {
+      final message = document.data();
+
+      final hiddenFor = List<String>.from(message['hiddenFor'] ?? const []);
+
+      final hiddenForEveryone =
+          participants.isNotEmpty && participants.every(hiddenFor.contains);
+
+      if (hiddenForEveryone) {
+        continue;
+      }
+
+      latestVisibleDocument = document;
+      break;
+    }
+
+    if (latestVisibleDocument == null) {
+      await chatRef.update({
+        'lastMessage': '',
+        'lastMessageId': null,
+        'lastSenderId': null,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      return;
+    }
+
+    final latestData = latestVisibleDocument.data();
+
     await chatRef.update({
-      'lastMessage': '',
-      'lastMessageId': null,
-      'lastSenderId': null,
-      'updatedAt':
-          FieldValue.serverTimestamp(),
+      'lastMessage': _buildMessagePreview(latestData),
+      'lastMessageId': latestVisibleDocument.id,
+      'lastSenderId': latestData['senderId'],
+      'updatedAt': latestData['timestamp'] ?? FieldValue.serverTimestamp(),
     });
-
-    return;
   }
 
-  final latestData =
-      latestVisibleDocument.data();
+  String _buildMessagePreview(Map<String, dynamic> message) {
+    final status = message['status'] as String? ?? 'active';
 
-  await chatRef.update({
-    'lastMessage':
-        _buildMessagePreview(latestData),
-    'lastMessageId':
-        latestVisibleDocument.id,
-    'lastSenderId':
-        latestData['senderId'],
-    'updatedAt':
-        latestData['timestamp'] ??
-        FieldValue.serverTimestamp(),
-  });
-}
+    if (status == 'deleted') {
+      return '此消息已删除';
+    }
 
-  String _buildMessagePreview(
-  Map<String, dynamic> message,
-) {
-  final status =
-      message['status'] as String? ??
-      'active';
+    final type = message['type'] as String?;
 
-  if (status == 'deleted') {
-    return '此消息已删除';
+    final imageUrl = message['imageUrl'] as String?;
+
+    if (imageUrl != null && imageUrl.trim().isNotEmpty) {
+      return '[图片]';
+    }
+
+    if (type == 'vocab') {
+      final word = message['word'] as String? ?? '';
+
+      return word.trim().isEmpty ? '[单词]' : '[单词] ${word.trim()}';
+    }
+
+    final content = message['content'] as String? ?? '';
+
+    return content.trim().isEmpty ? '[消息]' : content.trim();
   }
-
-  final type =
-      message['type'] as String?;
-
-  final imageUrl =
-      message['imageUrl'] as String?;
-
-  if (imageUrl != null &&
-      imageUrl.trim().isNotEmpty) {
-    return '[图片]';
-  }
-
-  if (type == 'vocab') {
-    final word =
-        message['word'] as String? ?? '';
-
-    return word.trim().isEmpty
-        ? '[单词]'
-        : '[单词] ${word.trim()}';
-  }
-
-  final content =
-      message['content'] as String? ?? '';
-
-  return content.trim().isEmpty
-      ? '[消息]'
-      : content.trim();
-}
 }

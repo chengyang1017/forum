@@ -6,7 +6,8 @@ import 'package:provider/provider.dart';
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 import '../providers/chat_provider.dart' as chatProv;
-import '../../../social/presentation/providers/friend_provider.dart' as friendProv;
+import '../../../social/presentation/providers/friend_provider.dart'
+    as friendProv;
 import 'chat_screen.dart';
 import '../../../social/presentation/screens/friend_requests_screen.dart';
 import '../../../../core/widgets/user_avatar.dart';
@@ -23,7 +24,7 @@ class ChatListScreen extends StatefulWidget {
 class _ChatListScreenState extends State<ChatListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   // ✅ 不再存储 currentUserId，改为从 AuthProvider 实时获取
 
   final Map<String, Map<String, dynamic>> _userCache = {};
@@ -43,7 +44,10 @@ class _ChatListScreenState extends State<ChatListScreen>
   // ========== 用户信息缓存 ==========
   Future<Map<String, dynamic>> _getUserInfo(String uid) async {
     if (_userCache.containsKey(uid)) return _userCache[uid]!;
-    final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .get();
     if (doc.exists && doc.data() != null) {
       _userCache[uid] = doc.data()!;
       return doc.data()!;
@@ -117,13 +121,19 @@ class _ChatListScreenState extends State<ChatListScreen>
                     const SizedBox(height: 12),
                     Text(
                       displayName2,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     if (nickname.isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(
                         '@$username',
-                        style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ],
                     if (bio.isNotEmpty) ...[
@@ -133,7 +143,10 @@ class _ChatListScreenState extends State<ChatListScreen>
                         child: Text(
                           bio,
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                       ),
                     ],
@@ -145,42 +158,69 @@ class _ChatListScreenState extends State<ChatListScreen>
                           spacing: 6,
                           runSpacing: 6,
                           alignment: WrapAlignment.center,
-                          children: tags.map((tag) => Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              tag,
-                              style: TextStyle(fontSize: 11, color: Colors.blue.shade700),
-                            ),
-                          )).toList(),
+                          children: tags
+                              .map(
+                                (tag) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    tag,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.blue.shade700,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
                         ),
                       ),
                     ],
                     const SizedBox(height: 16),
                     Divider(height: 1, color: Colors.grey.shade200),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 8,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _buildAction(Icons.chat_bubble_outline_rounded, l10n.send, () async {
-                            Navigator.pop(context);
-                            final chatProvider = context.read<chatProv.ChatProvider>();
-                            final chatId = await chatProvider.getOrCreateChat(uid);
-                            if (!mounted) return;
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChatScreen(chatId: chatId, otherUserName: displayName2),
-                              ),
-                            );
-                          }),
-                          _buildAction(Icons.person_remove_outlined, l10n.delete, () {
-                            Navigator.pop(context);
-                          }),
+                          _buildAction(
+                            Icons.chat_bubble_outline_rounded,
+                            l10n.send,
+                            () async {
+                              Navigator.pop(context);
+                              final chatProvider = context
+                                  .read<chatProv.ChatProvider>();
+                              final chatId = await chatProvider.getOrCreateChat(
+                                uid,
+                              );
+                              if (!mounted) return;
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChatScreen(
+                                    chatId: chatId,
+                                    otherUserName: displayName2,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildAction(
+                            Icons.person_remove_outlined,
+                            l10n.delete,
+                            () {
+                              Navigator.pop(context);
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -210,7 +250,10 @@ class _ChatListScreenState extends State<ChatListScreen>
             child: Icon(icon, size: 22, color: Colors.black87),
           ),
           const SizedBox(height: 6),
-          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          ),
         ],
       ),
     );
@@ -232,10 +275,7 @@ class _ChatListScreenState extends State<ChatListScreen>
     // ✅ 如果未登录，显示提示页
     if (currentUserId == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.messages),
-          centerTitle: true,
-        ),
+        appBar: AppBar(title: Text(l10n.messages), centerTitle: true),
         body: const Center(child: Text('请先登录')),
       );
     }
@@ -248,8 +288,10 @@ class _ChatListScreenState extends State<ChatListScreen>
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
-        title: Text(l10n.messages,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
+        title: Text(
+          l10n.messages,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+        ),
         centerTitle: true,
         actions: [
           Padding(
@@ -258,14 +300,18 @@ class _ChatListScreenState extends State<ChatListScreen>
               alignment: Alignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.person_add_rounded,
-                      size: 26, color: Colors.black87),
+                  icon: const Icon(
+                    Icons.person_add_rounded,
+                    size: 26,
+                    color: Colors.black87,
+                  ),
                   tooltip: l10n.reply,
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const FriendRequestsScreen()),
+                        builder: (_) => const FriendRequestsScreen(),
+                      ),
                     );
                   },
                 ),
@@ -285,7 +331,9 @@ class _ChatListScreenState extends State<ChatListScreen>
                       child: Container(
                         padding: const EdgeInsets.all(5),
                         constraints: const BoxConstraints(
-                            minWidth: 18, minHeight: 18),
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.redAccent,
                           shape: BoxShape.circle,
@@ -294,10 +342,11 @@ class _ChatListScreenState extends State<ChatListScreen>
                         child: Text(
                           '${snapshot.data!.docs.length}',
                           style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                              height: 1.0),
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            height: 1.0,
+                          ),
                         ),
                       ),
                     );
@@ -313,8 +362,10 @@ class _ChatListScreenState extends State<ChatListScreen>
           unselectedLabelColor: Colors.grey,
           indicatorColor: theme.primaryColor,
           indicatorWeight: 3,
-          labelStyle:
-              const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          labelStyle: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
           tabs: [
             Tab(text: l10n.comment),
             Tab(text: l10n.reply),
@@ -373,7 +424,10 @@ class _ChatListScreenState extends State<ChatListScreen>
               orElse: () => '',
             );
 
-            final unreadCount = chatProvider.getUnreadCount(chatData, currentUserId);
+            final unreadCount = chatProvider.getUnreadCount(
+              chatData,
+              currentUserId,
+            );
             final hasUnread = unreadCount > 0;
 
             return FutureBuilder<Map<String, dynamic>>(
@@ -395,14 +449,16 @@ class _ChatListScreenState extends State<ChatListScreen>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ChatScreen(
-                            chatId: chat.id, otherUserName: name),
+                        builder: (_) =>
+                            ChatScreen(chatId: chat.id, otherUserName: name),
                       ),
                     );
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     child: Row(
                       children: [
                         UserAvatar(
@@ -420,11 +476,15 @@ class _ChatListScreenState extends State<ChatListScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 15,
-                                      fontWeight: FontWeight.w600)),
+                              Text(
+                                name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                               const SizedBox(height: 3),
                               Text(
                                 hasMsg ? lastMsg : l10n.noPosts,
@@ -444,7 +504,9 @@ class _ChatListScreenState extends State<ChatListScreen>
                           Container(
                             margin: const EdgeInsets.only(left: 8),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 3),
+                              horizontal: 7,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.red,
                               borderRadius: BorderRadius.circular(10),
@@ -452,9 +514,10 @@ class _ChatListScreenState extends State<ChatListScreen>
                             child: Text(
                               unreadCount > 99 ? '99+' : '$unreadCount',
                               style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold),
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         const SizedBox(width: 8),
@@ -463,8 +526,10 @@ class _ChatListScreenState extends State<ChatListScreen>
                           children: [
                             Text(
                               _formatTime(chatData['updatedAt'], l10n),
-                              style: TextStyle(color: Colors.grey[400],
-                                  fontSize: 11),
+                              style: TextStyle(
+                                color: Colors.grey[400],
+                                fontSize: 11,
+                              ),
                             ),
                           ],
                         ),
@@ -523,7 +588,9 @@ class _ChatListScreenState extends State<ChatListScreen>
                   onTap: () => _showUserProfile(friendUid, name, avatar),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     child: Row(
                       children: [
                         UserAvatar(
@@ -536,29 +603,37 @@ class _ChatListScreenState extends State<ChatListScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(name,
-                                  style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600)),
+                              Text(
+                                name,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                               if (email.isNotEmpty)
-                                Text(email,
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey.shade500)),
+                                Text(
+                                  email,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade500,
+                                  ),
+                                ),
                             ],
                           ),
                         ),
                         IconButton(
                           icon: const Icon(
-                              Icons.chat_bubble_outline_rounded,
-                              size: 20),
+                            Icons.chat_bubble_outline_rounded,
+                            size: 20,
+                          ),
                           color: Theme.of(context).primaryColor,
                           splashRadius: 24,
                           onPressed: () async {
-                            final chatProvider =
-                                context.read<chatProv.ChatProvider>();
-                            final chatId =
-                                await chatProvider.getOrCreateChat(friendUid);
+                            final chatProvider = context
+                                .read<chatProv.ChatProvider>();
+                            final chatId = await chatProvider.getOrCreateChat(
+                              friendUid,
+                            );
                             if (!mounted) return;
                             Navigator.push(
                               context,
@@ -594,11 +669,9 @@ class _ChatListScreenState extends State<ChatListScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                    width: 100, height: 14, color: Colors.grey.shade100),
+                Container(width: 100, height: 14, color: Colors.grey.shade100),
                 const SizedBox(height: 6),
-                Container(
-                    width: 150, height: 11, color: Colors.grey.shade100),
+                Container(width: 150, height: 11, color: Colors.grey.shade100),
               ],
             ),
           ),

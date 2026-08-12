@@ -38,7 +38,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('密码修改成功'), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text('密码修改成功'),
+            backgroundColor: Colors.green,
+          ),
         );
         Navigator.pop(context);
       }
@@ -60,10 +63,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('修改密码'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('修改密码'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -121,10 +121,19 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: _isLoading
-                      ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
                       : const Text('确认修改', style: TextStyle(fontSize: 16)),
                 ),
               ),

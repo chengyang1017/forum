@@ -7,14 +7,12 @@ import 'package:flutter/material.dart';
 import '../../features/post/domain/models/post_model.dart';
 import '../../features/post/presentation/screens/post_detail_screen.dart';
 
-final GlobalKey<NavigatorState> rootNavigatorKey =
-    GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 class DeepLinkService {
   DeepLinkService._();
 
-  static final DeepLinkService instance =
-      DeepLinkService._();
+  static final DeepLinkService instance = DeepLinkService._();
 
   final AppLinks _appLinks = AppLinks();
 
@@ -79,25 +77,17 @@ class DeepLinkService {
       final data = document.data();
 
       if (!document.exists || data == null) {
-        ScaffoldMessenger.of(navigator.context).showSnackBar(
-          const SnackBar(
-            content: Text('这个帖子不存在或已经被删除'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          navigator.context,
+        ).showSnackBar(const SnackBar(content: Text('这个帖子不存在或已经被删除')));
         return;
       }
 
-      final post = PostModel.fromJson({
-        ...data,
-        'id': document.id,
-      });
+      final post = PostModel.fromJson({...data, 'id': document.id});
 
       await navigator.push(
         MaterialPageRoute<void>(
-          builder: (_) => PostDetailScreen(
-            postId: document.id,
-            post: post,
-          ),
+          builder: (_) => PostDetailScreen(postId: document.id, post: post),
         ),
       );
     } catch (error) {
@@ -106,11 +96,7 @@ class DeepLinkService {
       if (rootNavigatorKey.currentContext != null) {
         ScaffoldMessenger.of(
           rootNavigatorKey.currentContext!,
-        ).showSnackBar(
-          SnackBar(
-            content: Text('打开帖子失败：$error'),
-          ),
-        );
+        ).showSnackBar(SnackBar(content: Text('打开帖子失败：$error')));
       }
     } finally {
       _openingPostId = null;

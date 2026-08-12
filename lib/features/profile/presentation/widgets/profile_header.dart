@@ -96,8 +96,11 @@ class ProfileHeader extends StatelessWidget {
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.cake_outlined,
-                          size: 16, color: Colors.grey[400]),
+                      Icon(
+                        Icons.cake_outlined,
+                        size: 16,
+                        color: Colors.grey[400],
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         l10n.setBirthday,
@@ -171,22 +174,23 @@ class ProfileHeader extends StatelessWidget {
             child: CircleAvatar(
               radius: 46,
               backgroundColor: Colors.blue.shade50,
-              backgroundImage:
-                  avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+              backgroundImage: avatarUrl.isNotEmpty
+                  ? NetworkImage(avatarUrl)
+                  : null,
               child: uploadingAvatar
                   ? const CircularProgressIndicator(strokeWidth: 2)
                   : avatarUrl.isEmpty
-                      ? Text(
-                          displayName.isNotEmpty
-                              ? displayName[0].toUpperCase()
-                              : '?',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: theme.primaryColor,
-                          ),
-                        )
-                      : null,
+                  ? Text(
+                      displayName.isNotEmpty
+                          ? displayName[0].toUpperCase()
+                          : '?',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: theme.primaryColor,
+                      ),
+                    )
+                  : null,
             ),
           ),
           Positioned(

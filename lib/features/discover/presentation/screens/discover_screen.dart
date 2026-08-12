@@ -45,7 +45,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ChatScreen(chatId: chatId, otherUserName: displayName),
+          builder: (_) =>
+              ChatScreen(chatId: chatId, otherUserName: displayName),
         ),
       );
     } catch (e) {
@@ -77,10 +78,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('发送好友请求失败：$e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('发送好友请求失败：$e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -100,10 +98,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
     if (_currentUserId == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.discover),
-          centerTitle: true,
-        ),
+        appBar: AppBar(title: Text(l10n.discover), centerTitle: true),
         body: const Center(child: Text('请先登录')),
       );
     }
@@ -111,7 +106,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(l10n.discover, style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          l10n.discover,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -161,8 +159,12 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           padding: EdgeInsets.zero,
           physics: const BouncingScrollPhysics(),
           itemCount: users.length,
-          separatorBuilder: (context, index) =>
-              Divider(height: 1, thickness: 1, color: Colors.grey.shade100, indent: 72),
+          separatorBuilder: (context, index) => Divider(
+            height: 1,
+            thickness: 1,
+            color: Colors.grey.shade100,
+            indent: 72,
+          ),
           itemBuilder: (context, i) {
             final userData = users[i].data() as Map<String, dynamic>;
             final userId = users[i].id;
@@ -174,7 +176,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             return InkWell(
               onTap: () => _navigateToProfile(userId),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 child: Row(
                   children: [
                     UserAvatar(
@@ -198,13 +203,19 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                           if (nickname.isNotEmpty)
                             Text(
                               '@$username',
-                              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade500,
+                              ),
                             ),
                         ],
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.chat_bubble_outline_rounded, size: 22),
+                      icon: const Icon(
+                        Icons.chat_bubble_outline_rounded,
+                        size: 22,
+                      ),
                       color: Colors.blue,
                       tooltip: l10n.startChat,
                       onPressed: () => _startChat(userId, displayName),

@@ -13,8 +13,14 @@ class AuthService {
   }
 
   // 注册
-  Future<UserCredential> registerWithEmailPassword(String email, String password) {
-    return _auth.createUserWithEmailAndPassword(email: email, password: password);
+  Future<UserCredential> registerWithEmailPassword(
+    String email,
+    String password,
+  ) {
+    return _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
   }
 
   // 登出

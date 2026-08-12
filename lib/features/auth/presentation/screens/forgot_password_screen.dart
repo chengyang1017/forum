@@ -132,10 +132,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('找回密码'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('找回密码'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -144,9 +141,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildStep(1, '验证身份', step >= 1),
-                Container(width: 40, height: 2, color: step >= 2 ? Colors.blue : Colors.grey[300]),
+                Container(
+                  width: 40,
+                  height: 2,
+                  color: step >= 2 ? Colors.blue : Colors.grey[300],
+                ),
                 _buildStep(2, '回答问题', step >= 2),
-                Container(width: 40, height: 2, color: step >= 3 ? Colors.blue : Colors.grey[300]),
+                Container(
+                  width: 40,
+                  height: 2,
+                  color: step >= 3 ? Colors.blue : Colors.grey[300],
+                ),
                 _buildStep(3, '重置密码', step >= 3),
               ],
             ),
@@ -155,7 +160,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             if (step == 1) ...[
               const Icon(Icons.email_outlined, size: 64, color: Colors.blue),
               const SizedBox(height: 16),
-              const Text('请输入注册时使用的邮箱',
+              const Text(
+                '请输入注册时使用的邮箱',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 16),
@@ -182,7 +188,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             if (step == 2) ...[
               const Icon(Icons.lock_outlined, size: 64, color: Colors.orange),
               const SizedBox(height: 16),
-              const Text('回答密保问题',
+              const Text(
+                '回答密保问题',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 16),
@@ -194,7 +201,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
                 child: Text(
                   securityQuestion ?? '',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -220,7 +230,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             if (step == 3) ...[
               const Icon(Icons.check_circle, size: 64, color: Colors.green),
               const SizedBox(height: 16),
-              const Text('设置新密码',
+              const Text(
+                '设置新密码',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 16),
@@ -262,13 +273,25 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           child: Center(
             child: active
                 ? (step > stepNum
-                    ? const Icon(Icons.check, color: Colors.white, size: 16)
-                    : Text('$stepNum', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))
+                      ? const Icon(Icons.check, color: Colors.white, size: 16)
+                      : Text(
+                          '$stepNum',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ))
                 : Text('$stepNum', style: TextStyle(color: Colors.grey[600])),
           ),
         ),
         const SizedBox(height: 4),
-        Text(label, style: TextStyle(fontSize: 12, color: active ? Colors.blue : Colors.grey)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: active ? Colors.blue : Colors.grey,
+          ),
+        ),
       ],
     );
   }

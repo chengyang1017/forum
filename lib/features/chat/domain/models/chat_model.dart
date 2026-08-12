@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'chat_model.g.dart';  // ✅ 添加这一行
+part 'chat_model.g.dart'; // ✅ 添加这一行
 
 @JsonSerializable()
 class ChatRoomModel {

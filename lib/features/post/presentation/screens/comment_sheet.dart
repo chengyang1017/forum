@@ -31,11 +31,11 @@ class _CommentSheetState extends State<CommentSheet> {
         .doc(widget.postId)
         .collection('comments')
         .add({
-      'text': controller.text.trim(),
-      'uid': user?.uid ?? '',
-      'user': user?.email ?? 'Guest',
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+          'text': controller.text.trim(),
+          'uid': user?.uid ?? '',
+          'user': user?.email ?? 'Guest',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
 
     controller.clear();
   }
@@ -50,12 +50,12 @@ class _CommentSheetState extends State<CommentSheet> {
         .doc(commentId)
         .collection('replies')
         .add({
-      'text': controller.text.trim(),
-      'uid': user?.uid ?? '',
-      'user': user?.email ?? 'Guest',
-      'replyTo': replyUser ?? '',
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+          'text': controller.text.trim(),
+          'uid': user?.uid ?? '',
+          'user': user?.email ?? 'Guest',
+          'replyTo': replyUser ?? '',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
 
     controller.clear();
 
@@ -154,7 +154,9 @@ class _CommentSheetState extends State<CommentSheet> {
                                   final d = r.data() as Map<String, dynamic>;
 
                                   return Container(
-                                    margin: const EdgeInsets.symmetric(vertical: 4),
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                    ),
                                     child: Text(
                                       "${d['user']}：${d['text']}",
                                       style: const TextStyle(fontSize: 13),
@@ -182,9 +184,7 @@ class _CommentSheetState extends State<CommentSheet> {
                   child: TextField(
                     controller: controller,
                     decoration: InputDecoration(
-                      hintText: replyUser != null
-                          ? "回复 @$replyUser"
-                          : "写评论...",
+                      hintText: replyUser != null ? "回复 @$replyUser" : "写评论...",
                       border: const OutlineInputBorder(),
                     ),
                   ),
@@ -198,10 +198,10 @@ class _CommentSheetState extends State<CommentSheet> {
                       sendReply(replyTo!);
                     }
                   },
-                )
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

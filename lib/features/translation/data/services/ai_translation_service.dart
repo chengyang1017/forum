@@ -4,15 +4,11 @@ class AiTranslationResult {
   final String title;
   final String content;
 
-  const AiTranslationResult({
-    required this.title,
-    required this.content,
-  });
+  const AiTranslationResult({required this.title, required this.content});
 }
 
 class AiTranslationService {
-  final FirebaseFunctions _functions =
-      FirebaseFunctions.instanceFor(
+  final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
     region: 'asia-southeast1',
   );
 
@@ -23,32 +19,21 @@ class AiTranslationService {
     required String targetLanguageCode,
     required String targetLanguageName,
   }) async {
-    final callable =
-        _functions.httpsCallable(
-      'translatePost',
-    );
+    final callable = _functions.httpsCallable('translatePost');
 
     final result = await callable.call({
       'title': title,
       'content': content,
-      'sourceLanguageCode':
-          sourceLanguageCode,
-      'targetLanguageCode':
-          targetLanguageCode,
-      'targetLanguageName':
-          targetLanguageName,
+      'sourceLanguageCode': sourceLanguageCode,
+      'targetLanguageCode': targetLanguageCode,
+      'targetLanguageName': targetLanguageName,
     });
 
-    final data =
-        Map<String, dynamic>.from(
-      result.data as Map,
-    );
+    final data = Map<String, dynamic>.from(result.data as Map);
 
     return AiTranslationResult(
-      title:
-          data['title']?.toString() ?? '',
-      content:
-          data['content']?.toString() ?? '',
+      title: data['title']?.toString() ?? '',
+      content: data['content']?.toString() ?? '',
     );
   }
 }

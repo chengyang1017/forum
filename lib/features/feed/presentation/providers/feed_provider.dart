@@ -18,10 +18,7 @@ class FeedProvider extends ChangeNotifier {
     required String languageCode,
     String? currentUserId,
   }) {
-    return _postRepo.watchPosts(
-      category: category,
-      languageCode: languageCode,
-    );
+    return _postRepo.watchPosts(category: category, languageCode: languageCode);
   }
 
   // ========== 刷新帖子列表 ==========
@@ -35,7 +32,10 @@ class FeedProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _postRepo.refreshPosts(category: category, languageCode: languageCode);
+      await _postRepo.refreshPosts(
+        category: category,
+        languageCode: languageCode,
+      );
     } catch (e) {
       _error = e.toString();
     } finally {

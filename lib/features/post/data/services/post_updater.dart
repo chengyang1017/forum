@@ -22,17 +22,17 @@ class PostUpdater {
     try {
       print('开始更新旧帖子...');
       final firestore = FirebaseFirestore.instance;
-      
+
       // 查询所有没有 languageCode 的帖子
       final snapshot = await firestore.collection('posts').get();
-      
+
       int updatedCount = 0;
       var batch = firestore.batch();
       int batchCount = 0;
-      
+
       for (var doc in snapshot.docs) {
         final data = doc.data();
-        
+
         if (!data.containsKey('languageCode')) {
           batch.update(doc.reference, {
             'languageCode': 'zh',
@@ -40,7 +40,7 @@ class PostUpdater {
           });
           updatedCount++;
           batchCount++;
-          
+
           // 每 500 条提交一次
           if (batchCount >= 500) {
             await batch.commit();
@@ -50,16 +50,16 @@ class PostUpdater {
           }
         }
       }
-      
+
       // 提交剩余
       if (batchCount > 0) {
         await batch.commit();
       }
-      
+
       // 标记已完成更新
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_updateKey, true);
-      
+
       print('旧帖子更新完成！共更新 $updatedCount 条');
     } catch (e) {
       print('更新旧帖子失败: $e');

@@ -36,50 +36,40 @@ class PostModel {
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
-  return PostModel(
-    id: json['id']?.toString() ?? '',
-    userId: json['uid']?.toString() ?? json['userId']?.toString(),
+    return PostModel(
+      id: json['id']?.toString() ?? '',
+      userId: json['uid']?.toString() ?? json['userId']?.toString(),
 
-    title: json['title']?.toString() ?? '',
-    content: json['content']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      content: json['content']?.toString() ?? '',
 
-    bodyDelta:
-        (json['bodyDelta'] as List<dynamic>?)
-            ?.map((e) => e)
-            .toList() ??
-        const [],
+      bodyDelta:
+          (json['bodyDelta'] as List<dynamic>?)?.map((e) => e).toList() ??
+          const [],
 
-    category: json['category']?.toString(),
-    languageCode: json['languageCode']?.toString(),
-    primaryLanguageCode:
-    json['primaryLanguageCode']
-        ?.toString() ??
-    json['languageCode']
-        ?.toString(),
+      category: json['category']?.toString(),
+      languageCode: json['languageCode']?.toString(),
+      primaryLanguageCode:
+          json['primaryLanguageCode']?.toString() ??
+          json['languageCode']?.toString(),
 
-availableLanguageCodes:
-    (json['availableLanguageCodes']
-            as List<dynamic>?)
-        ?.map(
-          (e) => e.toString(),
-        )
-        .toList() ??
-    [
-      if (json['languageCode'] != null)
-        json['languageCode'].toString(),
-    ],
-    imageUrls: (json['images'] as List<dynamic>?)
-        ?.map((e) => e.toString())
-        .toList(),
-    likes: (json['likes'] as List<dynamic>?)
-        ?.map((e) => e.toString())
-        .toList(),
-    likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
-    commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
-    createdAt: _toDateTime(json['timestamp'] ?? json['createdAt']),
-    updatedAt: _toDateTime(json['updatedAt']),
-  );
-}
+      availableLanguageCodes:
+          (json['availableLanguageCodes'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [if (json['languageCode'] != null) json['languageCode'].toString()],
+      imageUrls: (json['images'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
+      likes: (json['likes'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
+      likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
+      commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
+      createdAt: _toDateTime(json['timestamp'] ?? json['createdAt']),
+      updatedAt: _toDateTime(json['updatedAt']),
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -89,11 +79,9 @@ availableLanguageCodes:
       'bodyDelta': bodyDelta,
       'category': category,
       'languageCode': languageCode,
-      'primaryLanguageCode':
-    primaryLanguageCode,
+      'primaryLanguageCode': primaryLanguageCode,
 
-'availableLanguageCodes':
-    availableLanguageCodes,
+      'availableLanguageCodes': availableLanguageCodes,
       'images': imageUrls,
       'likes': likes,
       'likeCount': likeCount,
@@ -104,51 +92,46 @@ availableLanguageCodes:
   }
 
   PostModel copyWith({
-  String? id,
-  String? userId,
-  String? title,
-  String? content,
-  List<dynamic>? bodyDelta,
-  String? category,
-  String? languageCode,
+    String? id,
+    String? userId,
+    String? title,
+    String? content,
+    List<dynamic>? bodyDelta,
+    String? category,
+    String? languageCode,
 
-  String? primaryLanguageCode,
-  List<String>? availableLanguageCodes,
+    String? primaryLanguageCode,
+    List<String>? availableLanguageCodes,
 
-  List<String>? imageUrls,
-  List<String>? likes,
-  int? likeCount,
-  int? commentCount,
-  DateTime? createdAt,
-  DateTime? updatedAt,
-}) {
-  return PostModel(
-    id: id ?? this.id,
-    userId: userId ?? this.userId,
-    title: title ?? this.title,
-    content: content ?? this.content,
-    bodyDelta:
-    bodyDelta ?? this.bodyDelta,
-    category: category ?? this.category,
-    languageCode: languageCode ?? this.languageCode,
+    List<String>? imageUrls,
+    List<String>? likes,
+    int? likeCount,
+    int? commentCount,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return PostModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      bodyDelta: bodyDelta ?? this.bodyDelta,
+      category: category ?? this.category,
+      languageCode: languageCode ?? this.languageCode,
 
-    primaryLanguageCode:
-        primaryLanguageCode ??
-        this.primaryLanguageCode,
+      primaryLanguageCode: primaryLanguageCode ?? this.primaryLanguageCode,
 
-    availableLanguageCodes:
-        availableLanguageCodes ??
-        this.availableLanguageCodes,
+      availableLanguageCodes:
+          availableLanguageCodes ?? this.availableLanguageCodes,
 
-    imageUrls: imageUrls ?? this.imageUrls,
-    likes: likes ?? this.likes,
-    likeCount: likeCount ?? this.likeCount,
-    commentCount:
-        commentCount ?? this.commentCount,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
-}
+      imageUrls: imageUrls ?? this.imageUrls,
+      likes: likes ?? this.likes,
+      likeCount: likeCount ?? this.likeCount,
+      commentCount: commentCount ?? this.commentCount,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 
   static DateTime? _toDateTime(dynamic value) {
     if (value == null) return null;

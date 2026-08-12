@@ -17,18 +17,14 @@ import 'app/l10n/localizations_delegate.dart';
 import 'app/providers/app_language.dart';
 
 // ========== Provider（功能模块） ==========
-import 'features/auth/presentation/providers/auth_provider.dart'
-    as authProv;
-import 'features/chat/presentation/providers/chat_provider.dart'
-    as chatProv;
+import 'features/auth/presentation/providers/auth_provider.dart' as authProv;
+import 'features/chat/presentation/providers/chat_provider.dart' as chatProv;
 import 'features/social/presentation/providers/friend_provider.dart'
     as friendProv;
-import 'features/feed/presentation/providers/feed_provider.dart'
-    as feedProv;
+import 'features/feed/presentation/providers/feed_provider.dart' as feedProv;
 import 'features/discover/presentation/providers/discover_provider.dart'
     as discoverProv;
-import 'features/post/presentation/providers/post_provider.dart'
-    as postProv;
+import 'features/post/presentation/providers/post_provider.dart' as postProv;
 
 import 'core/services/deep_link_service.dart';
 
@@ -47,12 +43,9 @@ void main() async {
 // ============================================================
 
 class MyApp extends StatelessWidget {
-  const MyApp({
-    super.key,
-  });
+  const MyApp({super.key});
 
-  static const Locale chunomLocale =
-      Locale.fromSubtags(
+  static const Locale chunomLocale = Locale.fromSubtags(
     languageCode: 'vi',
     scriptCode: 'Nom',
   );
@@ -62,46 +55,21 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         // ----- 全局状态 -----
-        ChangeNotifierProvider(
-          create: (_) => AppLanguage(),
-        ),
+        ChangeNotifierProvider(create: (_) => AppLanguage()),
 
         // ----- 功能模块 Provider -----
-        ChangeNotifierProvider(
-          create: (_) =>
-              authProv.AuthProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) =>
-              chatProv.ChatProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) =>
-              friendProv.FriendProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) =>
-              discoverProv.DiscoverProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) =>
-              feedProv.FeedProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) =>
-              postProv.PostProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => authProv.AuthProvider()),
+        ChangeNotifierProvider(create: (_) => chatProv.ChatProvider()),
+        ChangeNotifierProvider(create: (_) => friendProv.FriendProvider()),
+        ChangeNotifierProvider(create: (_) => discoverProv.DiscoverProvider()),
+        ChangeNotifierProvider(create: (_) => feedProv.FeedProvider()),
+        ChangeNotifierProvider(create: (_) => postProv.PostProvider()),
       ],
       child: Consumer<AppLanguage>(
-        builder: (
-          context,
-          appLanguage,
-          child,
-        ) {
+        builder: (context, appLanguage, child) {
           return MaterialApp(
             navigatorKey: rootNavigatorKey,
-            debugShowCheckedModeBanner:
-                false,
+            debugShowCheckedModeBanner: false,
             title: '论坛App',
 
             // 当前语言
@@ -118,57 +86,37 @@ class MyApp extends StatelessWidget {
               Locale('th'),
 
               // 喃字
-              Locale.fromSubtags(
-                languageCode: 'vi',
-                scriptCode: 'Hani',
-              ),
+              Locale.fromSubtags(languageCode: 'vi', scriptCode: 'Hani'),
             ],
 
             // 本地化 delegate
             localizationsDelegates: const [
               AppLocalizationsDelegate(),
 
-              GlobalMaterialLocalizations
-                  .delegate,
-              GlobalWidgetsLocalizations
-                  .delegate,
-              GlobalCupertinoLocalizations
-                  .delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
 
               // Flutter Quill 本地化
-              FlutterQuillLocalizations
-                  .delegate,
+              FlutterQuillLocalizations.delegate,
             ],
 
             // 优先匹配 scriptCode
-            localeResolutionCallback: (
-              locale,
-              supportedLocales,
-            ) {
+            localeResolutionCallback: (locale, supportedLocales) {
               if (locale == null) {
                 return const Locale('zh');
               }
 
-              for (final supportedLocale
-                  in supportedLocales) {
-                if (supportedLocale
-                            .languageCode ==
-                        locale.languageCode &&
-                    supportedLocale
-                            .scriptCode ==
-                        locale.scriptCode) {
+              for (final supportedLocale in supportedLocales) {
+                if (supportedLocale.languageCode == locale.languageCode &&
+                    supportedLocale.scriptCode == locale.scriptCode) {
                   return supportedLocale;
                 }
               }
 
-              for (final supportedLocale
-                  in supportedLocales) {
-                if (supportedLocale
-                            .languageCode ==
-                        locale.languageCode &&
-                    supportedLocale
-                            .scriptCode ==
-                        null) {
+              for (final supportedLocale in supportedLocales) {
+                if (supportedLocale.languageCode == locale.languageCode &&
+                    supportedLocale.scriptCode == null) {
                   return supportedLocale;
                 }
               }
@@ -183,33 +131,18 @@ class MyApp extends StatelessWidget {
             ),
 
             home: StreamBuilder<User?>(
-              stream: FirebaseAuth.instance
-                  .authStateChanges(),
-              builder: (
-                context,
-                snapshot,
-              ) {
-                if (snapshot.connectionState ==
-                    ConnectionState.waiting) {
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Scaffold(
-                    body: Center(
-                      child:
-                          CircularProgressIndicator(),
-                    ),
+                    body: Center(child: CircularProgressIndicator()),
                   );
                 }
 
                 if (snapshot.hasData) {
-                  WidgetsBinding.instance
-                      .addPostFrameCallback(
-                    (_) {
-                      context
-                          .read<
-                              authProv
-                              .AuthProvider>()
-                          .loadUser();
-                    },
-                  );
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    context.read<authProv.AuthProvider>().loadUser();
+                  });
 
                   return const MainNavigationScreen();
                 }

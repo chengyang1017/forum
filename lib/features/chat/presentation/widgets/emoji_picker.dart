@@ -3,15 +3,33 @@ import 'package:flutter/material.dart';
 class EmojiPicker extends StatelessWidget {
   final Function(String) onEmojiSelected;
 
-  const EmojiPicker({
-    super.key,
-    required this.onEmojiSelected,
-  });
+  const EmojiPicker({super.key, required this.onEmojiSelected});
 
   static const List<String> _emojis = [
-    '😀', '😂', '🤣', '😍', '🥰', '😘', '😜', '😎',
-    '🤩', '🥳', '😢', '😡', '👍', '👎', '🙏', '💪',
-    '🔥', '❤️', '💔', '🎉', '🌟', '💯', '✅', '❌',
+    '😀',
+    '😂',
+    '🤣',
+    '😍',
+    '🥰',
+    '😘',
+    '😜',
+    '😎',
+    '🤩',
+    '🥳',
+    '😢',
+    '😡',
+    '👍',
+    '👎',
+    '🙏',
+    '💪',
+    '🔥',
+    '❤️',
+    '💔',
+    '🎉',
+    '🌟',
+    '💯',
+    '✅',
+    '❌',
   ];
 
   @override
@@ -33,13 +51,17 @@ class EmojiPicker extends StatelessWidget {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _emojis.map((emoji) => GestureDetector(
-              onTap: () {
-                onEmojiSelected(emoji);
-                Navigator.pop(context);
-              },
-              child: Text(emoji, style: const TextStyle(fontSize: 32)),
-            )).toList(),
+            children: _emojis
+                .map(
+                  (emoji) => GestureDetector(
+                    onTap: () {
+                      onEmojiSelected(emoji);
+                      Navigator.pop(context);
+                    },
+                    child: Text(emoji, style: const TextStyle(fontSize: 32)),
+                  ),
+                )
+                .toList(),
           ),
           const SizedBox(height: 8),
         ],

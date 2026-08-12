@@ -4,19 +4,14 @@ class ForumLanguageChannel {
   final LanguageConfig language;
   final String? scriptCode;
 
-  const ForumLanguageChannel({
-    required this.language,
-    this.scriptCode,
-  });
+  const ForumLanguageChannel({required this.language, this.scriptCode});
 
-  String get languageCode =>
-      language.code;
+  String get languageCode => language.code;
 
   String get key {
     final script = scriptCode;
 
-    if (script == null ||
-        script.isEmpty) {
+    if (script == null || script.isEmpty) {
       return language.code;
     }
 
@@ -24,43 +19,31 @@ class ForumLanguageChannel {
   }
 
   String get contentLanguageCode {
-  final code = scriptCode;
+    final code = scriptCode;
 
-  if (code == null || code.isEmpty) {
+    if (code == null || code.isEmpty) {
+      return language.code;
+    }
+
+    final script = ScriptConfig.findByCode(code);
+
+    if (script != null && script.aliases.isNotEmpty) {
+      return script.aliases.first;
+    }
+
     return language.code;
   }
 
-  final script =
-      ScriptConfig.findByCode(code);
-
-  if (script != null &&
-      script.aliases.isNotEmpty) {
-    return script.aliases.first;
-  }
-
-  return language.code;
-}
-
-  String nameOf(
-    String uiLanguageCode,
-  ) {
-    final languageName =
-        language.nameOf(
-      uiLanguageCode,
-    );
+  String nameOf(String uiLanguageCode) {
+    final languageName = language.nameOf(uiLanguageCode);
 
     final script = scriptCode;
 
-    if (script == null ||
-        script.isEmpty) {
+    if (script == null || script.isEmpty) {
       return languageName;
     }
 
-    final scriptName =
-        language.scriptNameOf(
-      script,
-      uiLanguageCode,
-    );
+    final scriptName = language.scriptNameOf(script, uiLanguageCode);
 
     return '$languageName-$scriptName';
   }
@@ -69,8 +52,7 @@ class ForumLanguageChannel {
 class ForumLanguages {
   const ForumLanguages._();
 
-  static const Set<String>
-      channelLanguageCodes = {
+  static const Set<String> channelLanguageCodes = {
     'zh',
     'en',
     'vi',
@@ -83,80 +65,46 @@ class ForumLanguages {
     'kk',
   };
 
-  static List<LanguageConfig>
-      get channelLanguages {
-    return LanguageConfig
-        .allLanguages
-        .where(
-          (language) =>
-              channelLanguageCodes
-                  .contains(
-            language.code,
-          ),
-        )
-        .toList(
-          growable: false,
-        );
+  static List<LanguageConfig> get channelLanguages {
+    return LanguageConfig.allLanguages
+        .where((language) => channelLanguageCodes.contains(language.code))
+        .toList(growable: false);
   }
 
-  static List<ForumLanguageChannel>
-      get channels {
-    final result =
-        <ForumLanguageChannel>[];
+  static List<ForumLanguageChannel> get channels {
+    final result = <ForumLanguageChannel>[];
 
-    for (final language
-        in channelLanguages) {
+    for (final language in channelLanguages) {
       // 有多个文字系统：
       // 每个文字系统独立成为一个频道。
-      if (language.scriptCodes.length >
-          1) {
-        for (final scriptCode
-            in language.scriptCodes) {
+      if (language.scriptCodes.length > 1) {
+        for (final scriptCode in language.scriptCodes) {
           result.add(
-            ForumLanguageChannel(
-              language: language,
-              scriptCode: scriptCode,
-            ),
+            ForumLanguageChannel(language: language, scriptCode: scriptCode),
           );
         }
 
         continue;
       }
 
-      result.add(
-        ForumLanguageChannel(
-          language: language,
-        ),
-      );
+      result.add(ForumLanguageChannel(language: language));
     }
 
     return result;
   }
 
-  static List<LanguageConfig>
-      get supportedLanguages {
+  static List<LanguageConfig> get supportedLanguages {
     return LanguageConfig.allLanguages;
   }
 
-  static LanguageConfig
-      getDefaultLanguage() {
-    return LanguageConfig
-        .allLanguages
-        .firstWhere(
-      (language) =>
-          language.code == 'zh',
+  static LanguageConfig getDefaultLanguage() {
+    return LanguageConfig.allLanguages.firstWhere(
+      (language) => language.code == 'zh',
     );
   }
 
-  static String languageSelectTitleOf(
-    String uiLangCode,
-  ) {
-    final code = uiLangCode
-        .toLowerCase()
-        .split(
-          RegExp(r'[-_]'),
-        )
-        .first;
+  static String languageSelectTitleOf(String uiLangCode) {
+    final code = uiLangCode.toLowerCase().split(RegExp(r'[-_]')).first;
 
     switch (code) {
       case 'en':

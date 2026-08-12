@@ -20,19 +20,15 @@ import '../../../translation/presentation/screens/post_translation_screen.dart';
 import 'package:flutter/services.dart';
 import '../../data/services/post_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_quill/flutter_quill.dart'
-    as quill;
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'post_edit_history_screen.dart';
+
 class PostDetailScreen extends StatefulWidget {
   final String postId;
   final PostModel post;
 
-  const PostDetailScreen({
-    super.key,
-    required this.postId,
-    required this.post,
-  });
+  const PostDetailScreen({super.key, required this.postId, required this.post});
 
   @override
   State<PostDetailScreen> createState() => _PostDetailScreenState();
@@ -79,89 +75,65 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   DateTime? _toDateTime(dynamic value) {
-  if (value is Timestamp) {
-    return value.toDate();
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+
+    if (value is DateTime) {
+      return value;
+    }
+
+    return null;
   }
 
-  if (value is DateTime) {
-    return value;
-  }
+  Future<void> _loadCurrentVersionCreatedAt() async {
+    final currentLanguageCode = _post.languageCode;
 
-  return null;
-}
+    final primaryLanguageCode =
+        _post.primaryLanguageCode ??
+        widget.post.primaryLanguageCode ??
+        widget.post.languageCode;
 
-Future<void> _loadCurrentVersionCreatedAt() async {
-  final currentLanguageCode =
-      _post.languageCode;
-
-  final primaryLanguageCode =
-      _post.primaryLanguageCode ??
-      widget.post.primaryLanguageCode ??
-      widget.post.languageCode;
-
-  if (currentLanguageCode == null) {
-    return;
-  }
-
-  if (currentLanguageCode ==
-      primaryLanguageCode) {
-    _currentVersionCreatedAt =
-        _post.createdAt;
-    return;
-  }
-
-  try {
-    final version =
-        await _postService.getLanguageVersion(
-      postId: widget.postId,
-      languageCode: currentLanguageCode,
-    );
-
-    if (!mounted || version == null) {
+    if (currentLanguageCode == null) {
       return;
     }
 
-    setState(() {
-      _currentVersionCreatedAt =
-          _toDateTime(
-        version['createdAt'],
+    if (currentLanguageCode == primaryLanguageCode) {
+      _currentVersionCreatedAt = _post.createdAt;
+      return;
+    }
+
+    try {
+      final version = await _postService.getLanguageVersion(
+        postId: widget.postId,
+        languageCode: currentLanguageCode,
       );
-    });
-  } catch (e) {
-    debugPrint(
-      '加载语言版本发布时间失败: $e',
-    );
+
+      if (!mounted || version == null) {
+        return;
+      }
+
+      setState(() {
+        _currentVersionCreatedAt = _toDateTime(version['createdAt']);
+      });
+    } catch (e) {
+      debugPrint('加载语言版本发布时间失败: $e');
+    }
   }
-}
 
-String _formatVersionTimestamp(
-  DateTime dateTime,
-) {
-  final year =
-      dateTime.year.toString();
+  String _formatVersionTimestamp(DateTime dateTime) {
+    final year = dateTime.year.toString();
 
-  final month =
-      dateTime.month
-          .toString()
-          .padLeft(2, '0');
+    final month = dateTime.month.toString().padLeft(2, '0');
 
-  final day =
-      dateTime.day
-          .toString()
-          .padLeft(2, '0');
+    final day = dateTime.day.toString().padLeft(2, '0');
 
-  final hour =
-      dateTime.hour
-          .toString()
-          .padLeft(2, '0');
+    final hour = dateTime.hour.toString().padLeft(2, '0');
 
-  final minute =
-      dateTime.minute
-          .toString()
-          .padLeft(2, '0');
+    final minute = dateTime.minute.toString().padLeft(2, '0');
 
-  return '$year/$month/$day $hour:$minute';
-}
+    return '$year/$month/$day $hour:$minute';
+  }
 
   String _formatTimestamp(DateTime? dateTime) {
     if (dateTime == null) return '';
@@ -178,223 +150,146 @@ String _formatVersionTimestamp(
   // 编辑帖子
   // ============================================================
   Future<void> _editPost() async {
-  final currentLanguageCode =
-      _post.languageCode ??
-      _post.primaryLanguageCode;
+    final currentLanguageCode = _post.languageCode ?? _post.primaryLanguageCode;
 
-  if (currentLanguageCode == null) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      const SnackBar(
-        content: Text(
-          '无法确定当前语言',
+    if (currentLanguageCode == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('无法确定当前语言')));
+
+      return;
+    }
+
+    // ===== 编辑前的版本 =====
+    // 注意：这里必须在进入编辑页之前保存。
+    final previousTitle = _post.title ?? '';
+    final previousContent = _post.content ?? '';
+
+    final previousBodyDelta = List<dynamic>.from(_post.bodyDelta);
+
+    final previousImageUrls = List<String>.from(_images);
+
+    final result = await Navigator.push<_PostEditResult>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => _PostRichEditPage(
+          postId: widget.postId,
+          title: previousTitle,
+          content: previousContent,
+          bodyDelta: previousBodyDelta,
+          imageUrls: previousImageUrls,
         ),
       ),
     );
 
-    return;
-  }
+    if (result == null || !mounted) {
+      return;
+    }
 
-  // ===== 编辑前的版本 =====
-  // 注意：这里必须在进入编辑页之前保存。
-  final previousTitle =
-    _post.title ?? '';
-  final previousContent =
-      _post.content ?? '';
+    final user = FirebaseAuth.instance.currentUser;
 
-  final previousBodyDelta =
-      List<dynamic>.from(
-    _post.bodyDelta,
-  );
+    if (user == null) {
+      return;
+    }
 
-  final previousImageUrls =
-      List<String>.from(
-    _images,
-  );
-
-  final result =
-    await Navigator.push<
-        _PostEditResult>(
-  context,
-  MaterialPageRoute(
-    builder: (_) =>
-        _PostRichEditPage(
-      postId:
-          widget.postId,
-      title:
-          previousTitle,
-      content:
-          previousContent,
-      bodyDelta:
-          previousBodyDelta,
-      imageUrls:
-          previousImageUrls,
-    ),
-  ),
-);
-
-  if (result == null ||
-      !mounted) {
-    return;
-  }
-
-  final user =
-    FirebaseAuth.instance.currentUser;
-
-if (user == null) {
-  return;
-}
-
-await _postService
-    .ensureOriginalEditHistory(
-  postId:
-      widget.postId,
-  languageCode:
-      currentLanguageCode,
-  title:
-    previousTitle,
-  content:
-      previousContent,
-  bodyDelta:
-      previousBodyDelta,
-  imageUrls:
-      previousImageUrls,
-  editedBy:
-      user.uid,
-  originalTime:
-      _currentVersionCreatedAt ??
-      _post.createdAt,
-);
-
-  try {
-    // ===== 1. 保存新的正文版本 =====
-
-    await _postService
-        .updateLanguageVersionContent(
-      postId:
-          widget.postId,
-      languageCode:
-          currentLanguageCode,
-
-      title:
-    result.title,
-      content:
-          result.content,
-      bodyDelta:
-          result.bodyDelta,
+    await _postService.ensureOriginalEditHistory(
+      postId: widget.postId,
+      languageCode: currentLanguageCode,
+      title: previousTitle,
+      content: previousContent,
+      bodyDelta: previousBodyDelta,
+      imageUrls: previousImageUrls,
+      editedBy: user.uid,
+      originalTime: _currentVersionCreatedAt ?? _post.createdAt,
     );
 
-    if (!mounted) return;
+    try {
+      // ===== 1. 保存新的正文版本 =====
 
+      await _postService.updateLanguageVersionContent(
+        postId: widget.postId,
+        languageCode: currentLanguageCode,
 
-    // ===== 2. 更新新的顶部图片 =====
-
-    if (!listEquals(
-      _images,
-      result.imageUrls,
-    )) {
-      final postProvider =
-          context.read<
-              postProv.PostProvider>();
-
-      await postProvider.updateImages(
-        widget.postId,
-        result.imageUrls,
+        title: result.title,
+        content: result.content,
+        bodyDelta: result.bodyDelta,
       );
 
-      // 注意：
-      // 不要在这里删除旧图片的 Storage 文件。
-      //
-      // 因为历史版本还需要显示这些图片。
-    }
+      if (!mounted) return;
 
+      // ===== 2. 更新新的顶部图片 =====
 
-    // ===== 3. 保存“编辑前”的版本 =====
+      if (!listEquals(_images, result.imageUrls)) {
+        final postProvider = context.read<postProv.PostProvider>();
 
-    final user =
-        FirebaseAuth.instance.currentUser;
+        await postProvider.updateImages(widget.postId, result.imageUrls);
 
-    if (user != null) {
-      await _postService
-          .addEditHistory(
-        postId:
-            widget.postId,
-        languageCode:
-            currentLanguageCode,
-
-        title:
-            previousTitle,
-
-        // 全部使用 previous
-        content:
-            previousContent,
-
-        bodyDelta:
-            previousBodyDelta,
-
-        imageUrls:
-            previousImageUrls,
-
-        editedBy:
-            user.uid,
-      );
-    }
-
-    if (!mounted) return;
-
-
-    // ===== 4. 页面切换到新版本 =====
-
-    setState(() {
-      _images =
-          List<String>.from(
-        result.imageUrls,
-      );
-
-      if (_currentIndex >=
-          _images.length) {
-        _currentIndex = 0;
+        // 注意：
+        // 不要在这里删除旧图片的 Storage 文件。
+        //
+        // 因为历史版本还需要显示这些图片。
       }
 
-      _post = _post.copyWith(
-        title:
-            result.title,
-        content:
-            result.content,
-        bodyDelta:
-            result.bodyDelta,
-        imageUrls:
-            _images,
+      // ===== 3. 保存“编辑前”的版本 =====
+
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        await _postService.addEditHistory(
+          postId: widget.postId,
+          languageCode: currentLanguageCode,
+
+          title: previousTitle,
+
+          // 全部使用 previous
+          content: previousContent,
+
+          bodyDelta: previousBodyDelta,
+
+          imageUrls: previousImageUrls,
+
+          editedBy: user.uid,
+        );
+      }
+
+      if (!mounted) return;
+
+      // ===== 4. 页面切换到新版本 =====
+
+      setState(() {
+        _images = List<String>.from(result.imageUrls);
+
+        if (_currentIndex >= _images.length) {
+          _currentIndex = 0;
+        }
+
+        _post = _post.copyWith(
+          title: result.title,
+          content: result.content,
+          bodyDelta: result.bodyDelta,
+          imageUrls: _images,
+        );
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('帖子已更新 ✨'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
-    });
+    } catch (e) {
+      if (!mounted) return;
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      const SnackBar(
-        content:
-            Text('帖子已更新 ✨'),
-        backgroundColor:
-            Colors.green,
-        behavior:
-            SnackBarBehavior.floating,
-      ),
-    );
-  } catch (e) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      SnackBar(
-        content:
-            Text('更新失败: $e'),
-        backgroundColor:
-            Colors.red,
-        behavior:
-            SnackBarBehavior.floating,
-      ),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('更新失败: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
-}
 
   // ============================================================
   // 点赞
@@ -438,505 +333,355 @@ await _postService
   //   Share.share(_post.content ?? '');
   // }
   String get _postLink {
-  return 'forum://post/${widget.postId}';
-}
-
-Future<void> _sharePost() async {
-  final title = _post.title?.trim() ?? '';
-  final content = _post.content?.trim() ?? '';
-
-  final shareText = [
-    if (title.isNotEmpty) title,
-    if (content.isNotEmpty) content,
-    _postLink,
-  ].join('\n\n');
-
-  await Share.share(
-    shareText,
-    subject: title.isNotEmpty ? title : '分享帖子',
-  );
-}
-
-Future<void> _copyPostLink() async {
-  await Clipboard.setData(
-    ClipboardData(text: _postLink),
-  );
-
-  if (!mounted) return;
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('帖子链接已复制'),
-      behavior: SnackBarBehavior.floating,
-    ),
-  );
-}
-
-void _showShareOptions() {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(20),
-      ),
-    ),
-    builder: (bottomSheetContext) {
-      return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 38,
-              height: 4,
-              margin: const EdgeInsets.only(
-                top: 12,
-                bottom: 8,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.ios_share_rounded,
-              ),
-              title: const Text('分享帖子'),
-              onTap: () {
-                Navigator.pop(bottomSheetContext);
-                _sharePost();
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.link_rounded,
-              ),
-              title: const Text('复制链接'),
-              onTap: () {
-                Navigator.pop(bottomSheetContext);
-                _copyPostLink();
-              },
-            ),
-            const SizedBox(height: 10),
-          ],
-        ),
-      );
-    },
-  );
-}
-
-Future<void> _openTranslation() async {
-  if (_currentUserId == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('请先登录'),
-      ),
-    );
-    return;
+    return 'forum://post/${widget.postId}';
   }
 
-  final existingLanguages = <String>{
-    ..._post.availableLanguageCodes,
-  };
+  Future<void> _sharePost() async {
+    final title = _post.title?.trim() ?? '';
+    final content = _post.content?.trim() ?? '';
 
-  final primaryLanguageCode =
-      _post.primaryLanguageCode ??
-      _post.languageCode;
+    final shareText = [
+      if (title.isNotEmpty) title,
+      if (content.isNotEmpty) content,
+      _postLink,
+    ].join('\n\n');
 
-  if (primaryLanguageCode != null) {
-    existingLanguages.add(
-      primaryLanguageCode,
-    );
+    await Share.share(shareText, subject: title.isNotEmpty ? title : '分享帖子');
   }
 
-  // 当前正在看的语言
-  final currentLanguageCode =
-      _post.languageCode ??
-      primaryLanguageCode;
-
-  // 翻译入口显示语言库中的全部语言，
-  // 只排除当前正在看的语言。
-  final targetLanguages =
-      LanguageConfig.allLanguages
-          .where(
-            (language) =>
-                language.code !=
-                currentLanguageCode,
-          )
-          .toList();
-
-  final uiLanguageCode =
-      Localizations.localeOf(context)
-          .languageCode;
-
-  final selectedLanguage =
-      await showModalBottomSheet<LanguageConfig>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
-    builder: (sheetContext) {
-      return SafeArea(
-        child: SizedBox(
-          height:
-              MediaQuery.sizeOf(context).height *
-              0.75,
-          child: Column(
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(
-                  20,
-                  8,
-                  20,
-                  12,
-                ),
-                child: Align(
-                  alignment:
-                      Alignment.centerLeft,
-                  child: Text(
-                    '选择语言',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight:
-                          FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-
-              Expanded(
-                child: ListView.builder(
-                  itemCount:
-                      targetLanguages.length,
-                  itemBuilder: (
-                    context,
-                    index,
-                  ) {
-                    final language =
-                        targetLanguages[index];
-
-                    final hasVersion =
-                        existingLanguages
-                            .contains(
-                      language.code,
-                    );
-
-                    return ListTile(
-                      leading: const Icon(
-                        Icons.language_rounded,
-                      ),
-                      title: Text(
-                        language.nameOf(
-                          uiLanguageCode,
-                        ),
-                      ),
-                      subtitle: Text(
-                        hasVersion
-                            ? '已有语言版本 · 点击查看'
-                            : '尚无语言版本 · 点击翻译',
-                      ),
-                      trailing: Icon(
-                        hasVersion
-                            ? Icons
-                                .arrow_forward_rounded
-                            : Icons
-                                .translate_rounded,
-                      ),
-                      onTap: () {
-                        Navigator.pop(
-                          sheetContext,
-                          language,
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
-
-  if (selectedLanguage == null ||
-      !mounted) {
-    return;
-  }
-
-  if (existingLanguages.contains(
-    selectedLanguage.code,
-  )) {
-    await _openExistingLanguageVersion(
-      selectedLanguage,
-    );
-    return;
-  }
-
-  await _chooseTranslationMode(
-    selectedLanguage,
-  );
-}
-
-Future<void> _openExistingLanguageVersion(
-  LanguageConfig language,
-) async {
-  await _switchLanguageVersion(
-    language,
-  );
-}
-
-Future<void> _chooseTranslationMode(
-  LanguageConfig language,
-) async {
-  final mode =
-      await showModalBottomSheet<
-          TranslationMode>(
-    context: context,
-    showDragHandle: true,
-    builder: (sheetContext) {
-      return SafeArea(
-        child: Column(
-          mainAxisSize:
-              MainAxisSize.min,
-          children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                8,
-                20,
-                12,
-              ),
-              child: Align(
-                alignment:
-                    Alignment.centerLeft,
-                child: Text(
-                  '选择翻译方式',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight:
-                        FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-
-            ListTile(
-              leading: const Icon(
-                Icons.auto_awesome_rounded,
-              ),
-              title: const Text(
-                'AI 翻译',
-              ),
-              subtitle: const Text(
-                'AI 生成译文后可以继续修改',
-              ),
-              onTap: () {
-                Navigator.pop(
-                  sheetContext,
-                  TranslationMode.ai,
-                );
-              },
-            ),
-
-            ListTile(
-              leading: const Icon(
-                Icons.edit_rounded,
-              ),
-              title: const Text(
-                '自己翻译',
-              ),
-              subtitle: const Text(
-                '从空白开始自己填写译文',
-              ),
-              onTap: () {
-                Navigator.pop(
-                  sheetContext,
-                  TranslationMode.manual,
-                );
-              },
-            ),
-
-            const SizedBox(height: 12),
-          ],
-        ),
-      );
-    },
-  );
-
-  if (mode == null || !mounted) {
-    return;
-  }
-
-  final uiLanguageCode =
-      Localizations.localeOf(context)
-          .languageCode;
-
-  final published =
-    await Navigator.push<bool>(
-  context,
-  MaterialPageRoute(
-    builder: (_) => PostTranslationScreen(
-      post: _post,
-      targetLanguageCode: language.code,
-      targetLanguageName:
-          language.nameOf(uiLanguageCode),
-      mode: mode,
-    ),
-  ),
-);
-
-if (published == true && mounted) {
-  setState(() {
-    final languages = <String>{
-      ..._post.availableLanguageCodes,
-      language.code,
-    };
-
-    _post = _post.copyWith(
-      availableLanguageCodes:
-          languages.toList(),
-    );
-  });
-}
-}
-
-List<LanguageConfig> get _availableLanguageVersions {
-  final codes = <String>{
-    ..._post.availableLanguageCodes,
-  };
-
-  final primaryLanguageCode =
-      _post.primaryLanguageCode ??
-      _post.languageCode;
-
-  if (primaryLanguageCode != null) {
-    codes.add(primaryLanguageCode);
-  }
-
-  return LanguageConfig.allLanguages
-      .where(
-        (language) =>
-            codes.contains(language.code),
-      )
-      .toList();
-}
-
-Future<void> _switchLanguageVersion(
-  LanguageConfig language,
-) async {
-  if (_post.languageCode == language.code) {
-    return;
-  }
-
-  try {
-    final primaryLanguageCode =
-        _post.primaryLanguageCode ??
-        widget.post.primaryLanguageCode ??
-        widget.post.languageCode;
-
-    final version =
-        await _postService.getLanguageVersion(
-      postId: widget.postId,
-      languageCode: language.code,
-    );
+  Future<void> _copyPostLink() async {
+    await Clipboard.setData(ClipboardData(text: _postLink));
 
     if (!mounted) return;
 
-    if (version != null) {
-  final versionCreatedAt =
-      _toDateTime(
-    version['createdAt'],
-  );
-
-  final versionBodyDelta =
-      (version['bodyDelta']
-              as List<dynamic>?)
-          ?.map((e) => e)
-          .toList() ??
-      const [];
-
-  setState(() {
-    _post = _post.copyWith(
-      title:
-          version['title']?.toString(),
-      content:
-          version['content']?.toString(),
-      bodyDelta:
-          versionBodyDelta,
-      languageCode:
-          language.code,
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('帖子链接已复制'),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
+  }
 
-    _currentVersionCreatedAt =
-        language.code ==
-                primaryLanguageCode
-            ? _post.createdAt
-            : versionCreatedAt;
-  });
+  void _showShareOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (bottomSheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 38,
+                height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.ios_share_rounded),
+                title: const Text('分享帖子'),
+                onTap: () {
+                  Navigator.pop(bottomSheetContext);
+                  _sharePost();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.link_rounded),
+                title: const Text('复制链接'),
+                onTap: () {
+                  Navigator.pop(bottomSheetContext);
+                  _copyPostLink();
+                },
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
-  return;
-}
-
-    // 兼容旧帖子：
-    // 旧帖子的主语言可能还没有 versions/{主语言}
-    if (language.code == primaryLanguageCode) {
-      final snapshot =
-          await FirebaseFirestore.instance
-              .collection('posts')
-              .doc(widget.postId)
-              .get();
-
-      final data = snapshot.data();
-
-      if (data == null) {
-        throw Exception('帖子不存在');
-      }
-
-      if (!mounted) return;
-
-setState(() {
-  _post = _post.copyWith(
-    title:
-        data['title']?.toString(),
-    content:
-        data['content']?.toString(),
-    bodyDelta:
-        (data['bodyDelta']
-                as List<dynamic>?)
-            ?.map((e) => e)
-            .toList() ??
-        const [],
-    languageCode:
-        primaryLanguageCode,
-  );
-
-  _currentVersionCreatedAt =
-      _post.createdAt;
-});
-
+  Future<void> _openTranslation() async {
+    if (_currentUserId == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('请先登录')));
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('这个语言版本不存在'),
-      ),
-    );
-  } catch (e) {
-    if (!mounted) return;
+    final existingLanguages = <String>{..._post.availableLanguageCodes};
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '切换语言失败: $e',
+    final primaryLanguageCode = _post.primaryLanguageCode ?? _post.languageCode;
+
+    if (primaryLanguageCode != null) {
+      existingLanguages.add(primaryLanguageCode);
+    }
+
+    // 当前正在看的语言
+    final currentLanguageCode = _post.languageCode ?? primaryLanguageCode;
+
+    // 翻译入口显示语言库中的全部语言，
+    // 只排除当前正在看的语言。
+    final targetLanguages = LanguageConfig.allLanguages
+        .where((language) => language.code != currentLanguageCode)
+        .toList();
+
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
+
+    final selectedLanguage = await showModalBottomSheet<LanguageConfig>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.75,
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '选择语言',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: targetLanguages.length,
+                    itemBuilder: (context, index) {
+                      final language = targetLanguages[index];
+
+                      final hasVersion = existingLanguages.contains(
+                        language.code,
+                      );
+
+                      return ListTile(
+                        leading: const Icon(Icons.language_rounded),
+                        title: Text(language.nameOf(uiLanguageCode)),
+                        subtitle: Text(
+                          hasVersion ? '已有语言版本 · 点击查看' : '尚无语言版本 · 点击翻译',
+                        ),
+                        trailing: Icon(
+                          hasVersion
+                              ? Icons.arrow_forward_rounded
+                              : Icons.translate_rounded,
+                        ),
+                        onTap: () {
+                          Navigator.pop(sheetContext, language);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selectedLanguage == null || !mounted) {
+      return;
+    }
+
+    if (existingLanguages.contains(selectedLanguage.code)) {
+      await _openExistingLanguageVersion(selectedLanguage);
+      return;
+    }
+
+    await _chooseTranslationMode(selectedLanguage);
+  }
+
+  Future<void> _openExistingLanguageVersion(LanguageConfig language) async {
+    await _switchLanguageVersion(language);
+  }
+
+  Future<void> _chooseTranslationMode(LanguageConfig language) async {
+    final mode = await showModalBottomSheet<TranslationMode>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '选择翻译方式',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.auto_awesome_rounded),
+                title: const Text('AI 翻译'),
+                subtitle: const Text('AI 生成译文后可以继续修改'),
+                onTap: () {
+                  Navigator.pop(sheetContext, TranslationMode.ai);
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.edit_rounded),
+                title: const Text('自己翻译'),
+                subtitle: const Text('从空白开始自己填写译文'),
+                onTap: () {
+                  Navigator.pop(sheetContext, TranslationMode.manual);
+                },
+              ),
+
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (mode == null || !mounted) {
+      return;
+    }
+
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
+
+    final published = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PostTranslationScreen(
+          post: _post,
+          targetLanguageCode: language.code,
+          targetLanguageName: language.nameOf(uiLanguageCode),
+          mode: mode,
         ),
       ),
     );
+
+    if (published == true && mounted) {
+      setState(() {
+        final languages = <String>{
+          ..._post.availableLanguageCodes,
+          language.code,
+        };
+
+        _post = _post.copyWith(availableLanguageCodes: languages.toList());
+      });
+    }
   }
-}
 
+  List<LanguageConfig> get _availableLanguageVersions {
+    final codes = <String>{..._post.availableLanguageCodes};
 
+    final primaryLanguageCode = _post.primaryLanguageCode ?? _post.languageCode;
+
+    if (primaryLanguageCode != null) {
+      codes.add(primaryLanguageCode);
+    }
+
+    return LanguageConfig.allLanguages
+        .where((language) => codes.contains(language.code))
+        .toList();
+  }
+
+  Future<void> _switchLanguageVersion(LanguageConfig language) async {
+    if (_post.languageCode == language.code) {
+      return;
+    }
+
+    try {
+      final primaryLanguageCode =
+          _post.primaryLanguageCode ??
+          widget.post.primaryLanguageCode ??
+          widget.post.languageCode;
+
+      final version = await _postService.getLanguageVersion(
+        postId: widget.postId,
+        languageCode: language.code,
+      );
+
+      if (!mounted) return;
+
+      if (version != null) {
+        final versionCreatedAt = _toDateTime(version['createdAt']);
+
+        final versionBodyDelta =
+            (version['bodyDelta'] as List<dynamic>?)?.map((e) => e).toList() ??
+            const [];
+
+        setState(() {
+          _post = _post.copyWith(
+            title: version['title']?.toString(),
+            content: version['content']?.toString(),
+            bodyDelta: versionBodyDelta,
+            languageCode: language.code,
+          );
+
+          _currentVersionCreatedAt = language.code == primaryLanguageCode
+              ? _post.createdAt
+              : versionCreatedAt;
+        });
+
+        return;
+      }
+
+      // 兼容旧帖子：
+      // 旧帖子的主语言可能还没有 versions/{主语言}
+      if (language.code == primaryLanguageCode) {
+        final snapshot = await FirebaseFirestore.instance
+            .collection('posts')
+            .doc(widget.postId)
+            .get();
+
+        final data = snapshot.data();
+
+        if (data == null) {
+          throw Exception('帖子不存在');
+        }
+
+        if (!mounted) return;
+
+        setState(() {
+          _post = _post.copyWith(
+            title: data['title']?.toString(),
+            content: data['content']?.toString(),
+            bodyDelta:
+                (data['bodyDelta'] as List<dynamic>?)?.map((e) => e).toList() ??
+                const [],
+            languageCode: primaryLanguageCode,
+          );
+
+          _currentVersionCreatedAt = _post.createdAt;
+        });
+
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('这个语言版本不存在')));
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('切换语言失败: $e')));
+    }
+  }
 
   // ============================================================
   // 删除帖子
@@ -948,13 +693,28 @@ setState(() {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('删除帖子', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text('确定要删除这个帖子吗？此操作不可撤销。', style: TextStyle(color: Color(0xFF64748B))),
+        title: const Text(
+          '删除帖子',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          '确定要删除这个帖子吗？此操作不可撤销。',
+          style: TextStyle(color: Color(0xFF64748B)),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消', style: TextStyle(color: Colors.grey))),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消', style: TextStyle(color: Colors.grey)),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('确认删除', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold))
+            child: const Text(
+              '确认删除',
+              style: TextStyle(
+                color: Color(0xFFEF4444),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -967,13 +727,21 @@ setState(() {
       await postProvider.deletePost(widget.postId);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('帖子已安全删除'), backgroundColor: Colors.black87, behavior: SnackBarBehavior.floating),
+        const SnackBar(
+          content: Text('帖子已安全删除'),
+          backgroundColor: Colors.black87,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
       Navigator.pop(context);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('删除失败: $e'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating),
+          SnackBar(
+            content: Text('删除失败: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     }
@@ -985,13 +753,19 @@ setState(() {
   Future<void> _addImages() async {
     if (_images.length >= 9) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('最多只能添加 9 张图片 📸'), behavior: SnackBarBehavior.floating),
+        const SnackBar(
+          content: Text('最多只能添加 9 张图片 📸'),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
       return;
     }
 
     final picker = ImagePicker();
-    final picked = await picker.pickMultiImage(imageQuality: 85, maxWidth: 1240);
+    final picked = await picker.pickMultiImage(
+      imageQuality: 85,
+      maxWidth: 1240,
+    );
     if (picked.isEmpty) return;
 
     setState(() => _isUploadingImage = true);
@@ -999,7 +773,7 @@ setState(() {
     try {
       final postProvider = context.read<postProv.PostProvider>();
       final newUrls = await postProvider.uploadImages(widget.postId, picked);
-      
+
       if (mounted) {
         setState(() {
           _images.addAll(newUrls);
@@ -1012,7 +786,11 @@ setState(() {
       if (mounted) {
         setState(() => _isUploadingImage = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('图片上传失败: $e'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating),
+          SnackBar(
+            content: Text('图片上传失败: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     }
@@ -1026,8 +804,14 @@ setState(() {
         title: const Text('删除图片'),
         content: const Text('确定要移除这张图片吗？'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('取消', style: TextStyle(color: Colors.grey))),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('删除', style: TextStyle(color: Color(0xFFEF4444)))),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('删除', style: TextStyle(color: Color(0xFFEF4444))),
+          ),
         ],
       ),
     );
@@ -1048,7 +832,11 @@ setState(() {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('同步失败: $e'), backgroundColor: Colors.red, behavior: SnackBarBehavior.floating),
+          SnackBar(
+            content: Text('同步失败: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     }
@@ -1082,7 +870,9 @@ setState(() {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1091,17 +881,38 @@ setState(() {
               margin: const EdgeInsets.only(top: 12, bottom: 8),
               width: 38,
               height: 4.5,
-              decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(3)),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(3),
+              ),
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444)),
-              title: const Text('删除这张图片', style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w500)),
-              onTap: () { Navigator.pop(context); _deleteImage(index); },
+              leading: const Icon(
+                Icons.delete_outline_rounded,
+                color: Color(0xFFEF4444),
+              ),
+              title: const Text(
+                '删除这张图片',
+                style: TextStyle(
+                  color: Color(0xFFEF4444),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _deleteImage(index);
+              },
             ),
             ListTile(
-              leading: const Icon(Icons.add_photo_alternate_outlined, color: Color(0xFF2563EB)),
+              leading: const Icon(
+                Icons.add_photo_alternate_outlined,
+                color: Color(0xFF2563EB),
+              ),
               title: const Text('追加更多图片'),
-              onTap: () { Navigator.pop(context); _addImages(); },
+              onTap: () {
+                Navigator.pop(context);
+                _addImages();
+              },
             ),
             const SizedBox(height: 12),
           ],
@@ -1120,7 +931,9 @@ setState(() {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         height: MediaQuery.of(context).size.height * 0.85,
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -1131,7 +944,10 @@ setState(() {
               margin: const EdgeInsets.only(top: 10, bottom: 10),
               width: 36,
               height: 4,
-              decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
             Expanded(child: CommentScreen(postId: widget.postId)),
           ],
@@ -1172,7 +988,9 @@ setState(() {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (_images.isNotEmpty)
-                    _isEditingImages ? _buildEditableImageList() : _buildImageViewer(),
+                    _isEditingImages
+                        ? _buildEditableImageList()
+                        : _buildImageViewer(),
                   _buildContent(),
                 ],
               ),
@@ -1186,7 +1004,10 @@ setState(() {
 
   AppBar _buildAppBar(bool isOwner) {
     return AppBar(
-      title: const Text("详情", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+      title: const Text(
+        "详情",
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+      ),
       centerTitle: true,
       elevation: 0,
       backgroundColor: Colors.white,
@@ -1194,37 +1015,47 @@ setState(() {
       actions: [
         if (isOwner && _images.length > 1)
           IconButton(
-            icon: Icon(_isEditingImages ? Icons.done_all_rounded : Icons.swap_vert_rounded, size: 22),
-            color: _isEditingImages ? const Color(0xFF10B981) : const Color(0xFF64748B),
+            icon: Icon(
+              _isEditingImages
+                  ? Icons.done_all_rounded
+                  : Icons.swap_vert_rounded,
+              size: 22,
+            ),
+            color: _isEditingImages
+                ? const Color(0xFF10B981)
+                : const Color(0xFF64748B),
             tooltip: _isEditingImages ? '完成排序' : '重排图片',
-            onPressed: () => setState(() => _isEditingImages = !_isEditingImages),
+            onPressed: () =>
+                setState(() => _isEditingImages = !_isEditingImages),
           ),
         if (isOwner)
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_horiz_rounded, color: Color(0xFF64748B)),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            icon: const Icon(
+              Icons.more_horiz_rounded,
+              color: Color(0xFF64748B),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             onSelected: (value) {
-  if (value == 'edit') {
-    _editPost();
-  }
+              if (value == 'edit') {
+                _editPost();
+              }
 
-  if (value == 'history') {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) =>
-            PostEditHistoryScreen(
-          postId:
-              widget.postId,
-        ),
-      ),
-    );
-  }
+              if (value == 'history') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        PostEditHistoryScreen(postId: widget.postId),
+                  ),
+                );
+              }
 
-  if (value == 'delete') {
-    _deletePost();
-  }
-},
+              if (value == 'delete') {
+                _deletePost();
+              }
+            },
             itemBuilder: (context) => [
               const PopupMenuItem(
                 value: 'edit',
@@ -1254,7 +1085,11 @@ setState(() {
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
+                    Icon(
+                      Icons.delete_outline_rounded,
+                      size: 18,
+                      color: Colors.red,
+                    ),
                     SizedBox(width: 8),
                     Text('删除帖子', style: TextStyle(color: Colors.red)),
                   ],
@@ -1387,10 +1222,7 @@ setState(() {
                           : Colors.white.withOpacity(0.55),
                       borderRadius: BorderRadius.circular(99),
                       boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 2,
-                        ),
+                        BoxShadow(color: Colors.black26, blurRadius: 2),
                       ],
                     ),
                   );
@@ -1403,9 +1235,7 @@ setState(() {
               child: ColoredBox(
                 color: Colors.black26,
                 child: const Center(
-                  child: CircularProgressIndicator(
-                    color: Color(0xFFFF2442),
-                  ),
+                  child: CircularProgressIndicator(color: Color(0xFFFF2442)),
                 ),
               ),
             ),
@@ -1426,14 +1256,24 @@ setState(() {
         children: [
           Row(
             children: [
-              const Icon(Icons.info_outline_rounded, size: 14, color: Colors.grey),
+              const Icon(
+                Icons.info_outline_rounded,
+                size: 14,
+                color: Colors.grey,
+              ),
               const SizedBox(width: 4),
-              const Text('长按右侧控制手柄拖动排序', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+              const Text(
+                '长按右侧控制手柄拖动排序',
+                style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+              ),
               const Spacer(),
               TextButton.icon(
                 onPressed: _addImages,
                 icon: const Icon(Icons.add_a_photo_outlined, size: 16),
-                label: const Text('添加图片', style: TextStyle(fontWeight: FontWeight.bold)),
+                label: const Text(
+                  '添加图片',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 style: TextButton.styleFrom(foregroundColor: Colors.black),
               ),
             ],
@@ -1453,7 +1293,11 @@ setState(() {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 6, offset: const Offset(0, 2)),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
                   ],
                 ),
                 child: Padding(
@@ -1473,18 +1317,30 @@ setState(() {
                       Expanded(
                         child: Text(
                           '第 ${index + 1} 张',
-                          style: const TextStyle(fontSize: 14, color: Color(0xFF334155)),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF334155),
+                          ),
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.more_horiz, color: Color(0xFF94A3B8)),
+                        icon: const Icon(
+                          Icons.more_horiz,
+                          color: Color(0xFF94A3B8),
+                        ),
                         onPressed: () => _showImageOptions(index),
                       ),
                       ReorderableDragStartListener(
                         index: index,
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          child: Icon(Icons.menu_rounded, color: Color(0xFF94A3B8)),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          child: Icon(
+                            Icons.menu_rounded,
+                            color: Color(0xFF94A3B8),
+                          ),
                         ),
                       ),
                     ],
@@ -1507,17 +1363,13 @@ setState(() {
     final userId = _post.userId ?? '';
     final category = _post.category ?? '';
     final primaryLanguageCode =
-    _post.primaryLanguageCode ??
-    widget.post.primaryLanguageCode ??
-    widget.post.languageCode;
+        _post.primaryLanguageCode ??
+        widget.post.primaryLanguageCode ??
+        widget.post.languageCode;
 
-    final currentLanguageCode =
-        _post.languageCode ??
-        primaryLanguageCode;
+    final currentLanguageCode = _post.languageCode ?? primaryLanguageCode;
 
-    final isPrimaryLanguage =
-        currentLanguageCode ==
-        primaryLanguageCode;
+    final isPrimaryLanguage = currentLanguageCode == primaryLanguageCode;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -1528,33 +1380,40 @@ setState(() {
             Container(
               margin: const EdgeInsets.only(bottom: 12),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   "# $category",
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF475569), fontWeight: FontWeight.w600)
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF475569),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
-            if (_availableLanguageVersions.length > 1) ...[
+          if (_availableLanguageVersions.length > 1) ...[
             _buildLanguageVersionSwitcher(),
             const SizedBox(height: 16),
-            ],
-            if (title.isNotEmpty) ...[
-  Text(
-    title,
-    style: const TextStyle(
-      fontSize: 22,
-      fontWeight: FontWeight.bold,
-      color: Color(0xFF0F172A),
-      height: 1.3,
-    ),
-  ),
-  const SizedBox(height: 14),
-],
+          ],
+          if (title.isNotEmpty) ...[
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A),
+                height: 1.3,
+              ),
+            ),
+            const SizedBox(height: 14),
+          ],
           Row(
             children: [
               if (userId.isNotEmpty)
@@ -1563,34 +1422,41 @@ setState(() {
                   child: UserNameDisplay(uid: userId),
                 ),
               const SizedBox(width: 12),
-              const Icon(Icons.space_dashboard_outlined, size: 3, color: Colors.grey),
+              const Icon(
+                Icons.space_dashboard_outlined,
+                size: 3,
+                color: Colors.grey,
+              ),
               const SizedBox(width: 12),
               Text(
-  isPrimaryLanguage
-      ? _formatTimestamp(
-          _post.createdAt,
-        )
-      : _currentVersionCreatedAt ==
-              null
-          ? '翻译版本'
-          : '译文发布于 ${_formatVersionTimestamp(
-              _currentVersionCreatedAt!,
-            )}',
-  style: const TextStyle(
-    color: Color(0xFF94A3B8),
-    fontSize: 13,
-  ),
-),
+                isPrimaryLanguage
+                    ? _formatTimestamp(_post.createdAt)
+                    : _currentVersionCreatedAt == null
+                    ? '翻译版本'
+                    : '译文发布于 ${_formatVersionTimestamp(_currentVersionCreatedAt!)}',
+                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+              ),
             ],
           ),
-          if (_post.updatedAt != null && _post.updatedAt != _post.createdAt) ...[
+          if (_post.updatedAt != null &&
+              _post.updatedAt != _post.createdAt) ...[
             const SizedBox(height: 6),
             Row(
               children: [
-                const Icon(Icons.history_toggle_off_rounded, size: 13, color: Color(0xFFF59E0B)),
+                const Icon(
+                  Icons.history_toggle_off_rounded,
+                  size: 13,
+                  color: Color(0xFFF59E0B),
+                ),
                 const SizedBox(width: 4),
-                Text('修改于 ${_formatTimestamp(_post.updatedAt)}',
-                    style: const TextStyle(color: Color(0xFFD97706), fontSize: 12, fontStyle: FontStyle.italic)),
+                Text(
+                  '修改于 ${_formatTimestamp(_post.updatedAt)}',
+                  style: const TextStyle(
+                    color: Color(0xFFD97706),
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               ],
             ),
           ],
@@ -1599,27 +1465,24 @@ setState(() {
             child: Divider(color: Color(0xFFF1F5F9), thickness: 1),
           ),
           if (_post.bodyDelta.isNotEmpty)
-  _PostRichBody(
-    key: ValueKey(
-      '${_post.id}-'
-      '${_post.languageCode}-'
-      '${_post.bodyDelta.hashCode}',
-    ),
-    bodyDelta:
-        _post.bodyDelta,
-  )
-else
-  Text(
-    content.isNotEmpty
-        ? content
-        : '无内容',
-    style: const TextStyle(
-      fontSize: 16,
-      height: 1.7,
-      color: Color(0xFF334155),
-      letterSpacing: 0.2,
-    ),
-  ),
+            _PostRichBody(
+              key: ValueKey(
+                '${_post.id}-'
+                '${_post.languageCode}-'
+                '${_post.bodyDelta.hashCode}',
+              ),
+              bodyDelta: _post.bodyDelta,
+            )
+          else
+            Text(
+              content.isNotEmpty ? content : '无内容',
+              style: const TextStyle(
+                fontSize: 16,
+                height: 1.7,
+                color: Color(0xFF334155),
+                letterSpacing: 0.2,
+              ),
+            ),
           const SizedBox(height: 32),
         ],
       ),
@@ -1638,7 +1501,7 @@ else
             color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, -4),
-          )
+          ),
         ],
       ),
       child: SafeArea(
@@ -1651,9 +1514,14 @@ else
                 borderRadius: BorderRadius.circular(20),
                 onTap: _toggleLike,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   child: _buildAction(
-                    _isLiked ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                    _isLiked
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_outline_rounded,
                     _likes.isNotEmpty ? '${_likes.length} 赞同' : '赞同',
                     _isLiked,
                   ),
@@ -1663,30 +1531,32 @@ else
                 borderRadius: BorderRadius.circular(20),
                 onTap: _openComments,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   child: _buildAction(Icons.mode_comment_outlined, '评论', false),
                 ),
               ),
               InkWell(
-  borderRadius: BorderRadius.circular(20),
-  onTap: _openTranslation,
-  child: Padding(
-    padding: const EdgeInsets.symmetric(
-      horizontal: 6,
-      vertical: 8,
-    ),
-    child: _buildAction(
-      Icons.translate_rounded,
-      '翻译',
-      false,
-    ),
-  ),
-),
+                borderRadius: BorderRadius.circular(20),
+                onTap: _openTranslation,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 8,
+                  ),
+                  child: _buildAction(Icons.translate_rounded, '翻译', false),
+                ),
+              ),
               InkWell(
                 borderRadius: BorderRadius.circular(20),
                 onTap: _showShareOptions,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   child: _buildAction(Icons.ios_share_rounded, '分享', false),
                 ),
               ),
@@ -1711,103 +1581,73 @@ else
           style: TextStyle(
             fontSize: 14,
             color: active ? activeColor : inactiveColor,
-            fontWeight: active ? FontWeight.bold : FontWeight.w500
-          )
+            fontWeight: active ? FontWeight.bold : FontWeight.w500,
+          ),
         ),
       ],
     );
   }
 
   Widget _buildLanguageVersionSwitcher() {
-  final languages =
-      _availableLanguageVersions;
+    final languages = _availableLanguageVersions;
 
-  if (languages.length <= 1) {
-    return const SizedBox.shrink();
-  }
+    if (languages.length <= 1) {
+      return const SizedBox.shrink();
+    }
 
-  final currentLanguageCode =
-      _post.languageCode ??
-      _post.primaryLanguageCode;
+    final currentLanguageCode = _post.languageCode ?? _post.primaryLanguageCode;
 
-  final primaryLanguageCode =
-      _post.primaryLanguageCode;
+    final primaryLanguageCode = _post.primaryLanguageCode;
 
-  final uiLanguageCode =
-      Localizations.localeOf(context)
-          .languageCode;
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
 
-  return Wrap(
-    spacing: 8,
-    runSpacing: 8,
-    children: languages.map(
-      (language) {
-        final selected =
-            language.code ==
-                currentLanguageCode;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: languages.map((language) {
+        final selected = language.code == currentLanguageCode;
 
-        final isPrimary =
-            language.code ==
-                primaryLanguageCode;
+        final isPrimary = language.code == primaryLanguageCode;
 
         return ChoiceChip(
           selected: selected,
           label: Text(
             isPrimary
                 ? '${language.nameOf(uiLanguageCode)} · 主语言'
-                : language.nameOf(
-                    uiLanguageCode,
-                  ),
+                : language.nameOf(uiLanguageCode),
           ),
           onSelected: selected
               ? null
               : (_) {
-                  _switchLanguageVersion(
-                    language,
-                  );
+                  _switchLanguageVersion(language);
                 },
         );
-      },
-    ).toList(),
-  );
-}
+      }).toList(),
+    );
+  }
 }
 
-class _PostRichBody
-    extends StatefulWidget {
+class _PostRichBody extends StatefulWidget {
   final List<dynamic> bodyDelta;
 
-  const _PostRichBody({
-    super.key,
-    required this.bodyDelta,
-  });
+  const _PostRichBody({super.key, required this.bodyDelta});
 
   @override
-  State<_PostRichBody> createState() =>
-      _PostRichBodyState();
+  State<_PostRichBody> createState() => _PostRichBodyState();
 }
 
-class _PostRichBodyState
-    extends State<_PostRichBody> {
-  late final quill.QuillController
-      _controller;
+class _PostRichBodyState extends State<_PostRichBody> {
+  late final quill.QuillController _controller;
 
   @override
   void initState() {
     super.initState();
 
-    final document =
-        quill.Document.fromJson(
-      widget.bodyDelta,
-    );
+    final document = quill.Document.fromJson(widget.bodyDelta);
 
-    _controller =
-        quill.QuillController(
+    _controller = quill.QuillController(
       document: document,
-      selection:
-          const TextSelection.collapsed(
-        offset: 0,
-      ),
+      selection: const TextSelection.collapsed(offset: 0),
       readOnly: true,
     );
   }
@@ -1822,17 +1662,14 @@ class _PostRichBodyState
   Widget build(BuildContext context) {
     return quill.QuillEditor.basic(
       controller: _controller,
-      config:
-          quill.QuillEditorConfig(
+      config: quill.QuillEditorConfig(
         scrollable: false,
         padding: EdgeInsets.zero,
         showCursor: false,
         autoFocus: false,
         embedBuilders: kIsWeb
-            ? FlutterQuillEmbeds
-                .editorWebBuilders()
-            : FlutterQuillEmbeds
-                .editorBuilders(),
+            ? FlutterQuillEmbeds.editorWebBuilders()
+            : FlutterQuillEmbeds.editorBuilders(),
       ),
     );
   }
@@ -1855,8 +1692,7 @@ class _PostEditResult {
   });
 }
 
-class _PostRichEditPage
-    extends StatefulWidget {
+class _PostRichEditPage extends StatefulWidget {
   final String postId;
   final String title;
   final String content;
@@ -1872,266 +1708,179 @@ class _PostRichEditPage
   });
 
   @override
-  State<_PostRichEditPage>
-      createState() =>
-          _PostRichEditPageState();
+  State<_PostRichEditPage> createState() => _PostRichEditPageState();
 }
 
-class _PostRichEditPageState
-    extends State<_PostRichEditPage> {
-      late final TextEditingController
-    _titleController;
-  late final quill.QuillController
-      _controller;
+class _PostRichEditPageState extends State<_PostRichEditPage> {
+  late final TextEditingController _titleController;
+  late final quill.QuillController _controller;
 
-  final FocusNode _focusNode =
-      FocusNode();
+  final FocusNode _focusNode = FocusNode();
 
-  final ScrollController
-      _scrollController =
-      ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
-  final ImagePicker _imagePicker =
-      ImagePicker();
+  final ImagePicker _imagePicker = ImagePicker();
 
   bool _uploadingImage = false;
   bool _saving = false;
   late List<String> _topImages;
-late final List<String>
-    _originalTopImages;
+  late final List<String> _originalTopImages;
 
-final List<String>
-    _newTopImageUrls = [];
+  final List<String> _newTopImageUrls = [];
 
-final List<String>
-    _newInlineImageUrls = [];
+  final List<String> _newInlineImageUrls = [];
 
-bool _didSave = false;
+  bool _didSave = false;
 
   @override
   void initState() {
     super.initState();
 
-    _titleController =
-        TextEditingController(
-      text: widget.title,
-    );
+    _titleController = TextEditingController(text: widget.title);
 
-    final document =
-        widget.bodyDelta.isNotEmpty
-            ? quill.Document.fromJson(
-                widget.bodyDelta,
-              )
-            : quill.Document.fromJson(
-                [
-                  {
-                    'insert':
-                        '${widget.content}\n',
-                  },
-                ],
-              );
+    final document = widget.bodyDelta.isNotEmpty
+        ? quill.Document.fromJson(widget.bodyDelta)
+        : quill.Document.fromJson([
+            {'insert': '${widget.content}\n'},
+          ]);
 
-    _controller =
-        quill.QuillController(
+    _controller = quill.QuillController(
       document: document,
-      selection:
-          const TextSelection.collapsed(
-        offset: 0,
-      ),
+      selection: const TextSelection.collapsed(offset: 0),
     );
 
-    _originalTopImages =
-    List<String>.from(
-  widget.imageUrls,
-);
+    _originalTopImages = List<String>.from(widget.imageUrls);
 
-_topImages =
-    List<String>.from(
-  widget.imageUrls,
-);
+    _topImages = List<String>.from(widget.imageUrls);
   }
 
   int _countInlineImages() {
-  final delta =
-      _controller.document
-          .toDelta()
-          .toJson();
+    final delta = _controller.document.toDelta().toJson();
 
-  return delta.where(
-    (operation) {
+    return delta.where((operation) {
       if (operation is! Map) {
         return false;
       }
 
-      final insert =
-          operation['insert'];
+      final insert = operation['insert'];
 
-      return insert is Map &&
-          insert.containsKey(
-            'image',
-          );
-    },
-  ).length;
-}
-
-int get _totalImageCount {
-  return _topImages.length +
-      _countInlineImages();
-}
-
-Future<void> _addTopImages() async {
-  if (_uploadingImage) {
-    return;
+      return insert is Map && insert.containsKey('image');
+    }).length;
   }
 
-  final remaining =
-      9 - _totalImageCount;
+  int get _totalImageCount {
+    return _topImages.length + _countInlineImages();
+  }
 
-  if (remaining <= 0) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      const SnackBar(
-        content: Text(
-          '每篇帖子最多 9 张图片',
-        ),
-      ),
+  Future<void> _addTopImages() async {
+    if (_uploadingImage) {
+      return;
+    }
+
+    final remaining = 9 - _totalImageCount;
+
+    if (remaining <= 0) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('每篇帖子最多 9 张图片')));
+
+      return;
+    }
+
+    final picked = await _imagePicker.pickMultiImage(
+      imageQuality: 85,
+      maxWidth: 1600,
     );
 
-    return;
-  }
+    if (picked.isEmpty) {
+      return;
+    }
 
-  final picked =
-      await _imagePicker
-          .pickMultiImage(
-    imageQuality: 85,
-    maxWidth: 1600,
-  );
+    final selected = picked.take(remaining).toList();
 
-  if (picked.isEmpty) {
-    return;
-  }
+    setState(() {
+      _uploadingImage = true;
+    });
 
-  final selected =
-      picked.take(remaining).toList();
+    try {
+      for (final image in selected) {
+        final ref = FirebaseStorage.instance.ref().child(
+          'posts/'
+          '${widget.postId}/'
+          'top/'
+          '${DateTime.now().microsecondsSinceEpoch}_'
+          '${image.name}',
+        );
 
-  setState(() {
-    _uploadingImage = true;
-  });
+        await ref.putFile(File(image.path));
 
-  try {
-    for (final image in selected) {
-      final ref =
-          FirebaseStorage.instance
-              .ref()
-              .child(
-        'posts/'
-        '${widget.postId}/'
-        'top/'
-        '${DateTime.now().microsecondsSinceEpoch}_'
-        '${image.name}',
-      );
+        final url = await ref.getDownloadURL();
 
-      await ref.putFile(
-        File(image.path),
-      );
+        _newTopImageUrls.add(url);
 
-      final url =
-          await ref.getDownloadURL();
+        if (!mounted) return;
 
-      _newTopImageUrls.add(url);
-
+        setState(() {
+          _topImages.add(url);
+        });
+      }
+    } catch (e) {
       if (!mounted) return;
 
-      setState(() {
-        _topImages.add(url);
-      });
-    }
-  } catch (e) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      SnackBar(
-        content: Text(
-          '顶部图片上传失败: $e',
-        ),
-        backgroundColor:
-            Colors.red,
-      ),
-    );
-  } finally {
-    if (mounted) {
-      setState(() {
-        _uploadingImage = false;
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('顶部图片上传失败: $e'), backgroundColor: Colors.red),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _uploadingImage = false;
+        });
+      }
     }
   }
-}
-Future<void> _removeTopImage(
-  int index,
-) async {
-  final imageUrl =
-      _topImages[index];
 
-  setState(() {
-    _topImages.removeAt(index);
-  });
+  Future<void> _removeTopImage(int index) async {
+    final imageUrl = _topImages[index];
 
-  // 如果是本次编辑刚上传的，
-  // 可以立即删除 Storage。
-  if (_newTopImageUrls.remove(
-    imageUrl,
-  )) {
-    try {
-      await FirebaseStorage.instance
-          .refFromURL(imageUrl)
-          .delete();
-    } catch (_) {}
-  }
-}
+    setState(() {
+      _topImages.removeAt(index);
+    });
 
-void _reorderTopImages(
-  int oldIndex,
-  int newIndex,
-) {
-  if (newIndex > oldIndex) {
-    newIndex--;
+    // 如果是本次编辑刚上传的，
+    // 可以立即删除 Storage。
+    if (_newTopImageUrls.remove(imageUrl)) {
+      try {
+        await FirebaseStorage.instance.refFromURL(imageUrl).delete();
+      } catch (_) {}
+    }
   }
 
-  setState(() {
-    final image =
-        _topImages.removeAt(
-      oldIndex,
-    );
+  void _reorderTopImages(int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) {
+      newIndex--;
+    }
 
-    _topImages.insert(
-      newIndex,
-      image,
-    );
-  });
-}
+    setState(() {
+      final image = _topImages.removeAt(oldIndex);
 
-  Future<void>
-      _insertImage() async {
+      _topImages.insert(newIndex, image);
+    });
+  }
+
+  Future<void> _insertImage() async {
     if (_uploadingImage) {
-  return;
-}
+      return;
+    }
 
-if (_totalImageCount >= 9) {
-  ScaffoldMessenger.of(context)
-      .showSnackBar(
-    const SnackBar(
-      content: Text(
-        '每篇帖子最多 9 张图片',
-      ),
-    ),
-  );
+    if (_totalImageCount >= 9) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('每篇帖子最多 9 张图片')));
 
-  return;
-}
+      return;
+    }
 
-    final image =
-        await _imagePicker.pickImage(
+    final image = await _imagePicker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 85,
       maxWidth: 1600,
@@ -2146,10 +1895,7 @@ if (_totalImageCount >= 9) {
     });
 
     try {
-      final ref =
-          FirebaseStorage.instance
-              .ref()
-              .child(
+      final ref = FirebaseStorage.instance.ref().child(
         'posts/'
         '${widget.postId}/'
         'inline/'
@@ -2157,69 +1903,40 @@ if (_totalImageCount >= 9) {
         '${image.name}',
       );
 
-      final uploadTask =
-          ref.putFile(
-        File(image.path),
-      );
+      final uploadTask = ref.putFile(File(image.path));
 
       await uploadTask;
 
-      final imageUrl =
-          await ref.getDownloadURL();
-      _newInlineImageUrls.add(
-        imageUrl,
-      );
-      final documentLength =
-          _controller.document.length;
+      final imageUrl = await ref.getDownloadURL();
+      _newInlineImageUrls.add(imageUrl);
+      final documentLength = _controller.document.length;
 
-      final maximumPosition =
-          documentLength > 0
-              ? documentLength - 1
-              : 0;
+      final maximumPosition = documentLength > 0 ? documentLength - 1 : 0;
 
-      final selection =
-          _controller.selection;
+      final selection = _controller.selection;
 
-      final rawPosition =
-          selection.isValid
-              ? selection.baseOffset
-              : maximumPosition;
+      final rawPosition = selection.isValid
+          ? selection.baseOffset
+          : maximumPosition;
 
-      final insertPosition =
-          rawPosition
-              .clamp(
-                0,
-                maximumPosition,
-              )
-              .toInt();
+      final insertPosition = rawPosition.clamp(0, maximumPosition).toInt();
 
       _controller.replaceText(
         insertPosition,
         0,
-        quill.BlockEmbed.image(
-          imageUrl,
-        ),
-        TextSelection.collapsed(
-          offset:
-              insertPosition + 1,
-        ),
+        quill.BlockEmbed.image(imageUrl),
+        TextSelection.collapsed(offset: insertPosition + 1),
       );
 
       _controller.replaceText(
         insertPosition + 1,
         0,
         '\n',
-        TextSelection.collapsed(
-          offset:
-              insertPosition + 2,
-        ),
+        TextSelection.collapsed(offset: insertPosition + 2),
       );
 
       _controller.updateSelection(
-        TextSelection.collapsed(
-          offset:
-              insertPosition + 2,
-        ),
+        TextSelection.collapsed(offset: insertPosition + 2),
         quill.ChangeSource.local,
       );
 
@@ -2227,15 +1944,8 @@ if (_totalImageCount >= 9) {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        SnackBar(
-          content: Text(
-            '图片上传失败: $e',
-          ),
-          backgroundColor:
-              Colors.red,
-        ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('图片上传失败: $e'), backgroundColor: Colors.red),
       );
     } finally {
       if (mounted) {
@@ -2247,94 +1957,59 @@ if (_totalImageCount >= 9) {
   }
 
   void _save() {
-    if (_saving ||
-        _uploadingImage) {
+    if (_saving || _uploadingImage) {
       return;
     }
 
-    final title =
-    _titleController.text
-        .trim();
+    final title = _titleController.text.trim();
 
-if (title.isEmpty) {
-  ScaffoldMessenger.of(context)
-      .showSnackBar(
-    const SnackBar(
-      content:
-          Text('标题不能为空'),
-    ),
-  );
-
-  return;
-}
-
-    final content =
-        _controller.document
-            .toPlainText()
-            .trim();
-
-    final bodyDelta =
-        _controller.document
-            .toDelta()
-            .toJson();
-
-    if (content.isEmpty &&
-        !_hasImage(bodyDelta)) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(
-        const SnackBar(
-          content: Text(
-            '内容不能为空',
-          ),
-        ),
-      );
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('标题不能为空')));
 
       return;
     }
 
-    final removedImageUrls =
-    _originalTopImages
-        .where(
-          (url) =>
-              !_topImages.contains(
-            url,
-          ),
-        )
+    final content = _controller.document.toPlainText().trim();
+
+    final bodyDelta = _controller.document.toDelta().toJson();
+
+    if (content.isEmpty && !_hasImage(bodyDelta)) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('内容不能为空')));
+
+      return;
+    }
+
+    final removedImageUrls = _originalTopImages
+        .where((url) => !_topImages.contains(url))
         .toList();
 
-_didSave = true;
+    _didSave = true;
 
-Navigator.pop(
-  context,
-  _PostEditResult(
-    title: title,
-    content: content,
-    bodyDelta: bodyDelta,
-    imageUrls:
-        List<String>.from(
-      _topImages,
-    ),
-    removedImageUrls:
-        removedImageUrls,
-  ),
-);
+    Navigator.pop(
+      context,
+      _PostEditResult(
+        title: title,
+        content: content,
+        bodyDelta: bodyDelta,
+        imageUrls: List<String>.from(_topImages),
+        removedImageUrls: removedImageUrls,
+      ),
+    );
   }
 
-  bool _hasImage(
-    List<dynamic> delta,
-  ) {
+  bool _hasImage(List<dynamic> delta) {
     for (final operation in delta) {
       if (operation is! Map) {
         continue;
       }
 
-      final insert =
-          operation['insert'];
+      final insert = operation['insert'];
 
-      if (insert is Map &&
-          insert.containsKey(
-            'image',
-          )) {
+      if (insert is Map && insert.containsKey('image')) {
         return true;
       }
     }
@@ -2352,274 +2027,170 @@ Navigator.pop(
   }
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            const Text('编辑帖子'),
+        title: const Text('编辑帖子'),
         actions: [
           TextButton(
-            onPressed:
-                _uploadingImage
-                    ? null
-                    : _save,
-            child: const Text(
-              '保存',
-            ),
+            onPressed: _uploadingImage ? null : _save,
+            child: const Text('保存'),
           ),
         ],
       ),
-
-      
 
       body: Column(
         children: [
-          if (_uploadingImage)
-            const LinearProgressIndicator(),
+          if (_uploadingImage) const LinearProgressIndicator(),
 
-            Padding(
-  padding:
-      const EdgeInsets.fromLTRB(
-    16,
-    12,
-    16,
-    8,
-  ),
-  child: TextField(
-    controller:
-        _titleController,
-    maxLength: 100,
-    decoration:
-        const InputDecoration(
-      labelText: '标题',
-      hintText: '输入帖子标题',
-      border:
-          OutlineInputBorder(),
-      counterText: '',
-    ),
-  ),
-),
-
-
-Container(
-  width: double.infinity,
-  padding:
-      const EdgeInsets.fromLTRB(
-    16,
-    12,
-    16,
-    12,
-  ),
-  decoration: const BoxDecoration(
-    color: Color(0xFFF8FAFC),
-    border: Border(
-      bottom: BorderSide(
-        color: Color(0xFFE2E8F0),
-      ),
-    ),
-  ),
-  child: Column(
-    crossAxisAlignment:
-        CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          const Text(
-            '顶部图片',
-            style: TextStyle(
-              fontWeight:
-                  FontWeight.bold,
-              fontSize: 15,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: TextField(
+              controller: _titleController,
+              maxLength: 100,
+              decoration: const InputDecoration(
+                labelText: '标题',
+                hintText: '输入帖子标题',
+                border: OutlineInputBorder(),
+                counterText: '',
+              ),
             ),
           ),
 
-          const SizedBox(width: 8),
-
-          Text(
-            '${_topImages.length}'
-            '/9',
-            style: const TextStyle(
-              color: Colors.grey,
-              fontSize: 12,
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF8FAFC),
+              border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
             ),
-          ),
-
-          const Spacer(),
-
-          TextButton.icon(
-            onPressed:
-                _uploadingImage ||
-                        _totalImageCount >=
-                            9
-                    ? null
-                    : _addTopImages,
-            icon: const Icon(
-              Icons
-                  .add_photo_alternate_outlined,
-              size: 18,
-            ),
-            label:
-                const Text('添加'),
-          ),
-        ],
-      ),
-
-      if (_topImages.isEmpty)
-        const Padding(
-          padding:
-              EdgeInsets.symmetric(
-            vertical: 12,
-          ),
-          child: Text(
-            '暂无顶部图片',
-            style: TextStyle(
-              color: Colors.grey,
-            ),
-          ),
-        )
-      else
-        SizedBox(
-          height: 112,
-          child:
-              ReorderableListView
-                  .builder(
-            scrollDirection:
-                Axis.horizontal,
-            buildDefaultDragHandles:
-                false,
-            itemCount:
-                _topImages.length,
-            onReorder:
-                _reorderTopImages,
-            itemBuilder:
-                (context, index) {
-              final imageUrl =
-                  _topImages[index];
-
-              return Container(
-                key: ValueKey(
-                  imageUrl,
-                ),
-                width: 104,
-                margin:
-                    const EdgeInsets.only(
-                  right: 10,
-                ),
-                child: Stack(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Positioned.fill(
-                      child: ClipRRect(
-                        borderRadius:
-                            BorderRadius
-                                .circular(
-                          10,
-                        ),
-                        child:
-                            CachedNetworkImage(
-                          imageUrl:
-                              imageUrl,
-                          fit:
-                              BoxFit.cover,
-                        ),
+                    const Text(
+                      '顶部图片',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
                     ),
 
-                    Positioned(
-                      top: 4,
-                      right: 4,
-                      child:
-                          GestureDetector(
-                        onTap: () {
-                          _removeTopImage(
-                            index,
-                          );
-                        },
-                        child:
-                            Container(
-                          padding:
-                              const EdgeInsets
-                                  .all(
-                            5,
-                          ),
-                          decoration:
-                              const BoxDecoration(
-                            color:
-                                Colors.black54,
-                            shape:
-                                BoxShape.circle,
-                          ),
-                          child:
-                              const Icon(
-                            Icons.close,
-                            size: 15,
-                            color:
-                                Colors.white,
-                          ),
-                        ),
-                      ),
+                    const SizedBox(width: 8),
+
+                    Text(
+                      '${_topImages.length}'
+                      '/9',
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
 
-                    Positioned(
-                      left: 4,
-                      bottom: 4,
-                      child:
-                          ReorderableDragStartListener(
-                        index: index,
-                        child:
-                            Container(
-                          padding:
-                              const EdgeInsets
-                                  .all(
-                            5,
-                          ),
-                          decoration:
-                              const BoxDecoration(
-                            color:
-                                Colors.black54,
-                            shape:
-                                BoxShape.circle,
-                          ),
-                          child:
-                              const Icon(
-                            Icons
-                                .drag_indicator,
-                            size: 16,
-                            color:
-                                Colors.white,
-                          ),
-                        ),
+                    const Spacer(),
+
+                    TextButton.icon(
+                      onPressed: _uploadingImage || _totalImageCount >= 9
+                          ? null
+                          : _addTopImages,
+                      icon: const Icon(
+                        Icons.add_photo_alternate_outlined,
+                        size: 18,
                       ),
+                      label: const Text('添加'),
                     ),
                   ],
                 ),
-              );
-            },
+
+                if (_topImages.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Text('暂无顶部图片', style: TextStyle(color: Colors.grey)),
+                  )
+                else
+                  SizedBox(
+                    height: 112,
+                    child: ReorderableListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      buildDefaultDragHandles: false,
+                      itemCount: _topImages.length,
+                      onReorder: _reorderTopImages,
+                      itemBuilder: (context, index) {
+                        final imageUrl = _topImages[index];
+
+                        return Container(
+                          key: ValueKey(imageUrl),
+                          width: 104,
+                          margin: const EdgeInsets.only(right: 10),
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: CachedNetworkImage(
+                                    imageUrl: imageUrl,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+
+                              Positioned(
+                                top: 4,
+                                right: 4,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    _removeTopImage(index);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.black54,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.close,
+                                      size: 15,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              Positioned(
+                                left: 4,
+                                bottom: 4,
+                                child: ReorderableDragStartListener(
+                                  index: index,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.black54,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.drag_indicator,
+                                      size: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ),
-    ],
-  ),
-),
           Expanded(
             child: quill.QuillEditor(
-              controller:
-                  _controller,
-              focusNode:
-                  _focusNode,
-              scrollController:
-                  _scrollController,
-              config:
-                  quill.QuillEditorConfig(
-                padding:
-                    const EdgeInsets.all(
-                  16,
-                ),
-                placeholder:
-                    '输入帖子内容……',
-                embedBuilders:
-                    FlutterQuillEmbeds
-                        .editorBuilders(),
+              controller: _controller,
+              focusNode: _focusNode,
+              scrollController: _scrollController,
+              config: quill.QuillEditorConfig(
+                padding: const EdgeInsets.all(16),
+                placeholder: '输入帖子内容……',
+                embedBuilders: FlutterQuillEmbeds.editorBuilders(),
               ),
             ),
           ),
@@ -2632,29 +2203,16 @@ Container(
               children: [
                 if (_uploadingImage)
                   const Padding(
-                    padding:
-                        EdgeInsets.fromLTRB(
-                      16,
-                      8,
-                      16,
-                      0,
-                    ),
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
                     child: Row(
                       children: [
                         SizedBox(
                           width: 16,
                           height: 16,
-                          child:
-                              CircularProgressIndicator(
-                            strokeWidth: 2,
-                          ),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         ),
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Text(
-                          '正在上传并插入图片...',
-                        ),
+                        SizedBox(width: 8),
+                        Text('正在上传并插入图片...'),
                       ],
                     ),
                   ),
@@ -2662,75 +2220,41 @@ Container(
                 Row(
                   children: [
                     IconButton(
-                      tooltip:
-                          '插入图片',
-                      onPressed:
-                          _uploadingImage
-                              ? null
-                              : _insertImage,
-                      icon: const Icon(
-                        Icons
-                            .add_photo_alternate_outlined,
-                      ),
+                      tooltip: '插入图片',
+                      onPressed: _uploadingImage ? null : _insertImage,
+                      icon: const Icon(Icons.add_photo_alternate_outlined),
                     ),
 
                     Expanded(
                       child: SizedBox(
                         height: 48,
-                        child: quill
-                            .QuillSimpleToolbar(
-                          controller:
-                              _controller,
-                          config: const quill
-                              .QuillSimpleToolbarConfig(
-                            multiRowsDisplay:
-                                false,
-                            showFontFamily:
-                                false,
-                            showFontSize:
-                                false,
-                            showBoldButton:
-                                true,
-                            showItalicButton:
-                                true,
-                            showUnderLineButton:
-                                true,
-                            showStrikeThrough:
-                                false,
-                            showColorButton:
-                                false,
-                            showBackgroundColorButton:
-                                false,
-                            showClearFormat:
-                                true,
-                            showAlignmentButtons:
-                                false,
-                            showHeaderStyle:
-                                true,
-                            showListNumbers:
-                                true,
-                            showListBullets:
-                                true,
-                            showListCheck:
-                                true,
-                            showCodeBlock:
-                                false,
-                            showQuote:
-                                true,
-                            showIndent:
-                                false,
-                            showLink:
-                                false,
-                            showUndo:
-                                true,
-                            showRedo:
-                                true,
-                            showSearchButton:
-                                false,
-                            showSubscript:
-                                false,
-                            showSuperscript:
-                                false,
+                        child: quill.QuillSimpleToolbar(
+                          controller: _controller,
+                          config: const quill.QuillSimpleToolbarConfig(
+                            multiRowsDisplay: false,
+                            showFontFamily: false,
+                            showFontSize: false,
+                            showBoldButton: true,
+                            showItalicButton: true,
+                            showUnderLineButton: true,
+                            showStrikeThrough: false,
+                            showColorButton: false,
+                            showBackgroundColorButton: false,
+                            showClearFormat: true,
+                            showAlignmentButtons: false,
+                            showHeaderStyle: true,
+                            showListNumbers: true,
+                            showListBullets: true,
+                            showListCheck: true,
+                            showCodeBlock: false,
+                            showQuote: true,
+                            showIndent: false,
+                            showLink: false,
+                            showUndo: true,
+                            showRedo: true,
+                            showSearchButton: false,
+                            showSubscript: false,
+                            showSuperscript: false,
                           ),
                         ),
                       ),
@@ -2927,4 +2451,3 @@ class _XhsImagePreviewState extends State<_XhsImagePreview> {
     );
   }
 }
-

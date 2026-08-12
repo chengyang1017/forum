@@ -10,9 +10,8 @@ class LiveDraftService {
 
   Timer? _writeTimer;
 
-  LiveDraftService({
-    FirebaseDatabase? database,
-  }) : _database = database ?? FirebaseDatabase.instance;
+  LiveDraftService({FirebaseDatabase? database})
+    : _database = database ?? FirebaseDatabase.instance;
 
   // ============================================================
   // 草稿路径
@@ -22,23 +21,15 @@ class LiveDraftService {
     required String chatId,
     required String userId,
   }) {
-    return _database.ref(
-      'chatDrafts/$chatId/$userId',
-    );
+    return _database.ref('chatDrafts/$chatId/$userId');
   }
 
   // ============================================================
   // 断线清除
   // ============================================================
 
-  Future<void> prepare({
-    required String chatId,
-    required String userId,
-  }) async {
-    final ref = _draftRef(
-      chatId: chatId,
-      userId: userId,
-    );
+  Future<void> prepare({required String chatId, required String userId}) async {
+    final ref = _draftRef(chatId: chatId, userId: userId);
 
     // 用户断网、关闭程序或程序崩溃时，
     // 自动删除这个用户在当前聊天室里的草稿。
@@ -58,40 +49,24 @@ class LiveDraftService {
 
     // 输入框已经清空，就立即删除草稿。
     if (text.trim().isEmpty) {
-      unawaited(
-        clearDraft(
-          chatId: chatId,
-          userId: userId,
-        ),
-      );
+      unawaited(clearDraft(chatId: chatId, userId: userId));
 
       return;
     }
 
     // 连续输入时，不要每按一次键立刻写数据库。
     // 停止输入 150ms 后再写入最新内容。
-    _writeTimer = Timer(
-      const Duration(milliseconds: 150),
-      () async {
-        try {
-          final ref = _draftRef(
-            chatId: chatId,
-            userId: userId,
-          );
+    _writeTimer = Timer(const Duration(milliseconds: 150), () async {
+      try {
+        final ref = _draftRef(chatId: chatId, userId: userId);
 
-          await ref.set({
-            'text': text,
-            'updatedAt': ServerValue.timestamp,
-          });
+        await ref.set({'text': text, 'updatedAt': ServerValue.timestamp});
 
-          debugPrint(
-            '草稿写入成功：chatDrafts/$chatId/$userId',
-          );
-        } catch (error) {
-          debugPrint('草稿写入失败：$error');
-        }
-      },
-    );
+        debugPrint('草稿写入成功：chatDrafts/$chatId/$userId');
+      } catch (error) {
+        debugPrint('草稿写入失败：$error');
+      }
+    });
   }
 
   // ============================================================
@@ -102,10 +77,7 @@ class LiveDraftService {
     required String chatId,
     required String currentUserId,
   }) {
-    return _database
-        .ref('chatDrafts/$chatId')
-        .onValue
-        .map((event) {
+    return _database.ref('chatDrafts/$chatId').onValue.map((event) {
       final rawValue = event.snapshot.value;
 
       if (rawValue is! Map) {
@@ -129,38 +101,24 @@ class LiveDraftService {
           continue;
         }
 
-        final draftData =
-            Map<Object?, Object?>.from(rawDraft);
+        final draftData = Map<Object?, Object?>.from(rawDraft);
 
-        final text =
-            draftData['text']?.toString().trim() ?? '';
+        final text = draftData['text']?.toString().trim() ?? '';
 
-        final updatedAt = int.tryParse(
-              draftData['updatedAt']?.toString() ?? '',
-            ) ??
-            0;
+        final updatedAt =
+            int.tryParse(draftData['updatedAt']?.toString() ?? '') ?? 0;
 
         if (text.isEmpty) {
           continue;
         }
 
-        drafts.add(
-          LiveDraft(
-            userId: userId,
-            text: text,
-            updatedAt: updatedAt,
-          ),
-        );
+        drafts.add(LiveDraft(userId: userId, text: text, updatedAt: updatedAt));
       }
 
       // 最近更新输入内容的人排在最前面。
-      drafts.sort(
-        (first, second) {
-          return second.updatedAt.compareTo(
-            first.updatedAt,
-          );
-        },
-      );
+      drafts.sort((first, second) {
+        return second.updatedAt.compareTo(first.updatedAt);
+      });
 
       return drafts;
     }).asBroadcastStream();
@@ -177,10 +135,7 @@ class LiveDraftService {
     _writeTimer?.cancel();
 
     try {
-      await _draftRef(
-        chatId: chatId,
-        userId: userId,
-      ).remove();
+      await _draftRef(chatId: chatId, userId: userId).remove();
     } catch (error) {
       debugPrint('草稿删除失败：$error');
     }

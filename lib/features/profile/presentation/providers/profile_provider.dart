@@ -36,10 +36,7 @@ class ProfileProvider extends ChangeNotifier {
       final doc = await _firestore.collection('users').doc(uid).get();
 
       if (doc.exists) {
-        _userProfile = UserModel.fromJson({
-          'uid': doc.id,
-          ...?doc.data(),
-        });
+        _userProfile = UserModel.fromJson({'uid': doc.id, ...?doc.data()});
       }
     } catch (e) {
       debugPrint('加载资料失败: $e');
@@ -56,13 +53,10 @@ class ProfileProvider extends ChangeNotifier {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return PostModel.fromJson({
-          'id': doc.id,
-          ...doc.data(),
+          return snapshot.docs.map((doc) {
+            return PostModel.fromJson({'id': doc.id, ...doc.data()});
+          }).toList();
         });
-      }).toList();
-    });
   }
 
   int totalLikesOf(List<PostModel> posts) {
@@ -74,9 +68,7 @@ class ProfileProvider extends ChangeNotifier {
   Future<void> updateTags(String uid, List<String> newTags) async {
     await _firestore.collection('users').doc(uid).update({'tags': newTags});
 
-    _userProfile = _userProfile.copyWith(
-      tags: List<String>.from(newTags),
-    );
+    _userProfile = _userProfile.copyWith(tags: List<String>.from(newTags));
     notifyListeners();
   }
 

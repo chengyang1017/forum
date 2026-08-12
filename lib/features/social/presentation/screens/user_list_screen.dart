@@ -38,9 +38,9 @@ class UserListScreen extends StatelessWidget {
                   onPressed: () async {
                     await friendService.sendRequest(user.id);
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("已发送好友申请")),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text("已发送好友申请")));
                   },
                 ),
               );

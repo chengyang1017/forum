@@ -12,7 +12,10 @@ class PostRepository {
     required String category,
     required String languageCode,
   }) {
-    return _postService.watchPosts(category: category, languageCode: languageCode);
+    return _postService.watchPosts(
+      category: category,
+      languageCode: languageCode,
+    );
   }
 
   // ========== 刷新帖子列表 ==========
@@ -20,7 +23,10 @@ class PostRepository {
     required String category,
     required String languageCode,
   }) async {
-    await _postService.refreshPosts(category: category, languageCode: languageCode);
+    await _postService.refreshPosts(
+      category: category,
+      languageCode: languageCode,
+    );
   }
 
   // ========== 创建帖子 ==========

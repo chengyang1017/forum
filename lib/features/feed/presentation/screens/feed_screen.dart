@@ -116,7 +116,11 @@ class FeedScreen extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: IconButton(
-            icon: const Icon(Icons.add_rounded, color: Colors.blueAccent, size: 28),
+            icon: const Icon(
+              Icons.add_rounded,
+              color: Colors.blueAccent,
+              size: 28,
+            ),
             onPressed: () {
               Navigator.push(
                 context,
@@ -188,30 +192,24 @@ class FeedScreen extends StatelessWidget {
   }
 
   String _getFlag(String code) {
-  final language =
-      LanguageConfig.findByCode(code);
+    final language = LanguageConfig.findByCode(code);
 
-  if (language != null) {
-    return language.flag;
-  }
+    if (language != null) {
+      return language.flag;
+    }
 
-  final script =
-      ScriptConfig.findByCode(code);
+    final script = ScriptConfig.findByCode(code);
 
-  if (script != null) {
-    for (final languageCode
-        in script.languageCodes) {
-      final ownerLanguage =
-          LanguageConfig.findByCode(
-        languageCode,
-      );
+    if (script != null) {
+      for (final languageCode in script.languageCodes) {
+        final ownerLanguage = LanguageConfig.findByCode(languageCode);
 
-      if (ownerLanguage != null) {
-        return ownerLanguage.flag;
+        if (ownerLanguage != null) {
+          return ownerLanguage.flag;
+        }
       }
     }
-  }
 
-  return '🌐';
-}
+    return '🌐';
+  }
 }

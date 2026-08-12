@@ -32,12 +32,11 @@ class PostItemCard extends StatelessWidget {
   // ============================================================
   // 图片尺寸
   // ============================================================
-    /// 每张图片的统一高度。
-    static const double imageHeight = 210;
+  /// 每张图片的统一高度。
+  static const double imageHeight = 210;
 
-    /// 图片之间的间隔。
-    static const double imageSpacing = 6;
-
+  /// 图片之间的间隔。
+  static const double imageSpacing = 6;
 
   // /// 单张图片显示在正文右侧时的宽度。
   // static const double singleImageWidth = 120;
@@ -93,14 +92,11 @@ class PostItemCard extends StatelessWidget {
     final title = post.title?.trim() ?? '';
     final content = post.content?.trim() ?? '';
 
-    final images = List<String>.from(
-      post.imageUrls ?? const <String>[],
-    );
+    final images = List<String>.from(post.imageUrls ?? const <String>[]);
 
-    final postLanguageCode =
-        post.languageCode?.trim().isNotEmpty == true
-            ? post.languageCode!
-            : languageCode;
+    final postLanguageCode = post.languageCode?.trim().isNotEmpty == true
+        ? post.languageCode!
+        : languageCode;
 
     return InkWell(
       onTap: () {
@@ -108,37 +104,23 @@ class PostItemCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (_) {
-              return PostDetailScreen(
-                postId: post.id,
-                post: post,
-              );
+              return PostDetailScreen(postId: post.id, post: post);
             },
           ),
         );
       },
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          16,
-          16,
-          16,
-          12,
-        ),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 标题和语言频道标签。
-            _buildTitleRow(
-              title: title,
-              postLanguageCode: postLanguageCode,
-            ),
+            _buildTitleRow(title: title, postLanguageCode: postLanguageCode),
 
             // 正文和图片。
             if (content.isNotEmpty || images.isNotEmpty) ...[
               const SizedBox(height: 8),
-              _buildContentAndImages(
-                content: content,
-                images: images,
-              ),
+              _buildContentAndImages(content: content, images: images),
             ],
 
             const SizedBox(height: 14),
@@ -182,17 +164,11 @@ class PostItemCard extends StatelessWidget {
           const SizedBox(width: 8),
 
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 6,
-              vertical: 2,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
               color: Colors.blue.shade50,
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(
-                color: Colors.blue.shade200,
-                width: 0.5,
-              ),
+              border: Border.all(color: Colors.blue.shade200, width: 0.5),
             ),
             child: Text(
               _getLanguageName(postLanguageCode),
@@ -218,19 +194,13 @@ class PostItemCard extends StatelessWidget {
   }) {
     // 没有图片时，只显示正文。
     if (images.isEmpty) {
-      return _buildContentText(
-        content,
-        maxLines: 4,
-      );
+      return _buildContentText(content, maxLines: 4);
     }
 
     // 只有一张图片时：
     // 正文显示在左边，图片显示在右边。
     if (images.length == 1) {
-      return _buildSingleImageLayout(
-        content: content,
-        imageUrl: images.first,
-      );
+      return _buildSingleImageLayout(content: content, imageUrl: images.first);
     }
 
     // 两张及以上图片时：
@@ -239,10 +209,7 @@ class PostItemCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (content.isNotEmpty) ...[
-          _buildContentText(
-            content,
-            maxLines: 3,
-          ),
+          _buildContentText(content, maxLines: 3),
           const SizedBox(height: 10),
         ],
 
@@ -255,10 +222,7 @@ class PostItemCard extends StatelessWidget {
   // 正文文字
   // ============================================================
 
-  Widget _buildContentText(
-    String content, {
-    required int maxLines,
-  }) {
+  Widget _buildContentText(String content, {required int maxLines}) {
     if (content.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -279,39 +243,35 @@ class PostItemCard extends StatelessWidget {
   // 单张图片布局
   // ============================================================
 
-Widget _buildSingleImageLayout({
-  required String content,
-  required String imageUrl,
-}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      // 正文。
-      if (content.isNotEmpty) ...[
-        _buildContentText(
-          content,
-          maxLines: 3,
+  Widget _buildSingleImageLayout({
+    required String content,
+    required String imageUrl,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 正文。
+        if (content.isNotEmpty) ...[
+          _buildContentText(content, maxLines: 3),
+          const SizedBox(height: 10),
+        ],
+
+        // 根据页面宽度计算三列图片中每一张的宽度。
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final imageWidth = (constraints.maxWidth - imageSpacing * 2) / 3;
+
+            return _buildNetworkImage(
+              imageUrl: imageUrl,
+              width: imageWidth,
+              height: imageHeight,
+              borderRadius: 8,
+            );
+          },
         ),
-        const SizedBox(height: 10),
       ],
-
-      // 根据页面宽度计算三列图片中每一张的宽度。
-      LayoutBuilder(
-        builder: (context, constraints) {
-          final imageWidth =
-              (constraints.maxWidth - imageSpacing * 2) / 3;
-
-          return _buildNetworkImage(
-            imageUrl: imageUrl,
-            width: imageWidth,
-            height: imageHeight,
-            borderRadius: 8,
-          );
-        },
-      ),
-    ],
-  );
-}
+    );
+  }
 
   // ============================================================
   // 多张图片布局
@@ -333,88 +293,75 @@ Widget _buildSingleImageLayout({
         //     ) /
         //     imageCount;
         // 永远按照三列计算宽度。
-// 所以无论有 1、2、3 张，每张图的尺寸都一样。
-final itemWidth =
-    (constraints.maxWidth - imageSpacing * 2) / 3;
+        // 所以无论有 1、2、3 张，每张图的尺寸都一样。
+        final itemWidth = (constraints.maxWidth - imageSpacing * 2) / 3;
 
         return Row(
-          children: List.generate(
-            imageCount,
-            (index) {
-              final isLastVisibleImage =
-                  index == imageCount - 1;
+          children: List.generate(imageCount, (index) {
+            final isLastVisibleImage = index == imageCount - 1;
 
-              // 如果总共有 5 张图片：
-              // 当前只显示 3 张，则 remainingCount 为 2。
-              final remainingCount = images.length - 3;
+            // 如果总共有 5 张图片：
+            // 当前只显示 3 张，则 remainingCount 为 2。
+            final remainingCount = images.length - 3;
 
-              return Padding(
-                padding: EdgeInsets.only(
-                  right: index < imageCount - 1
-                      ? imageSpacing
-                      : 0,
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: SizedBox(
-                    width: itemWidth,
+            return Padding(
+              padding: EdgeInsets.only(
+                right: index < imageCount - 1 ? imageSpacing : 0,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  width: itemWidth,
 
-                    // 多张图片的统一高度。
-                    // 想让多图区域更高，就修改 multipleImageHeight。
-                    height: imageHeight,
+                  // 多张图片的统一高度。
+                  // 想让多图区域更高，就修改 multipleImageHeight。
+                  height: imageHeight,
 
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        CachedNetworkImage(
-                          imageUrl: visibleImages[index],
-                          fit: BoxFit.cover,
-                          fadeInDuration:
-                              const Duration(milliseconds: 180),
-                          placeholder: (_, __) {
-                            return const ColoredBox(
-                              color: Color(0xFFF2F3F5),
-                            );
-                          },
-                          errorWidget: (_, __, ___) {
-                            return const ColoredBox(
-                              color: Color(0xFFF2F3F5),
-                              child: Center(
-                                child: Icon(
-                                  Icons.broken_image_rounded,
-                                  color: Colors.grey,
-                                  size: 28,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-
-                        // 图片超过三张时，
-                        // 在第三张图片上显示剩余数量。
-                        if (
-                          isLastVisibleImage &&
-                          remainingCount > 0
-                        )
-                          Container(
-                            color: Colors.black45,
-                            alignment: Alignment.center,
-                            child: Text(
-                              '+$remainingCount',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      CachedNetworkImage(
+                        imageUrl: visibleImages[index],
+                        fit: BoxFit.cover,
+                        fadeInDuration: const Duration(milliseconds: 180),
+                        placeholder: (_, __) {
+                          return const ColoredBox(color: Color(0xFFF2F3F5));
+                        },
+                        errorWidget: (_, __, ___) {
+                          return const ColoredBox(
+                            color: Color(0xFFF2F3F5),
+                            child: Center(
+                              child: Icon(
+                                Icons.broken_image_rounded,
+                                color: Colors.grey,
+                                size: 28,
                               ),
                             ),
+                          );
+                        },
+                      ),
+
+                      // 图片超过三张时，
+                      // 在第三张图片上显示剩余数量。
+                      if (isLastVisibleImage && remainingCount > 0)
+                        Container(
+                          color: Colors.black45,
+                          alignment: Alignment.center,
+                          child: Text(
+                            '+$remainingCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          }),
         );
       },
     );
@@ -470,21 +417,14 @@ final itemWidth =
     return Row(
       children: [
         if (showUserInfo) ...[
-          Expanded(
-            child: UserNameDisplay(
-              uid: post.userId ?? '',
-            ),
-          ),
+          Expanded(child: UserNameDisplay(uid: post.userId ?? '')),
           const SizedBox(width: 8),
         ] else
           const Spacer(),
 
         Text(
           _formatTimestamp(post.createdAt),
-          style: const TextStyle(
-            fontSize: 14,
-            color: Color(0xFF999999),
-          ),
+          style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
         ),
       ],
     );

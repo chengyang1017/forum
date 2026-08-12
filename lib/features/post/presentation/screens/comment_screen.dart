@@ -26,9 +26,30 @@ class _CommentScreenState extends State<CommentScreen> {
   String? replyingToUser;
 
   final List<String> _emojis = [
-    '😀', '😂', '🤣', '😍', '🥰', '😘', '😜', '😎',
-    '🤩', '🥳', '😢', '😡', '👍', '👎', '🙏', '💪',
-    '🔥', '❤️', '💔', '🎉', '🌟', '💯', '✅', '❌',
+    '😀',
+    '😂',
+    '🤣',
+    '😍',
+    '🥰',
+    '😘',
+    '😜',
+    '😎',
+    '🤩',
+    '🥳',
+    '😢',
+    '😡',
+    '👍',
+    '👎',
+    '🙏',
+    '💪',
+    '🔥',
+    '❤️',
+    '💔',
+    '🎉',
+    '🌟',
+    '💯',
+    '✅',
+    '❌',
   ];
 
   Future<void> sendComment() async {
@@ -40,11 +61,11 @@ class _CommentScreenState extends State<CommentScreen> {
         .doc(widget.postId)
         .collection('comments')
         .add({
-      'text': text,
-      'uid': user?.uid ?? '',
-      'user': user?.email?.split('@').first ?? 'Guest',
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+          'text': text,
+          'uid': user?.uid ?? '',
+          'user': user?.email?.split('@').first ?? 'Guest',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
 
     controller.clear();
     focusNode.unfocus();
@@ -55,15 +76,19 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   Future<void> sendImageComment() async {
-    final image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85, maxWidth: 1024);
+    final image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+      maxWidth: 1024,
+    );
     if (image == null) return;
 
     setState(() => _isUploading = true);
 
     try {
-      final ref = FirebaseStorage.instance
-          .ref()
-          .child('comment_images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      final ref = FirebaseStorage.instance.ref().child(
+        'comment_images/${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
       await ref.putFile(File(image.path));
       final url = await ref.getDownloadURL();
 
@@ -72,12 +97,12 @@ class _CommentScreenState extends State<CommentScreen> {
           .doc(widget.postId)
           .collection('comments')
           .add({
-        'text': '',
-        'uid': user?.uid ?? '',
-        'user': user?.email?.split('@').first ?? 'Guest',
-        'imageUrl': url,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+            'text': '',
+            'uid': user?.uid ?? '',
+            'user': user?.email?.split('@').first ?? 'Guest',
+            'imageUrl': url,
+            'timestamp': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -100,12 +125,12 @@ class _CommentScreenState extends State<CommentScreen> {
         .doc(commentId)
         .collection('replies')
         .add({
-      'text': text,
-      'uid': user?.uid ?? '',
-      'user': user?.email?.split('@').first ?? 'Guest',
-      'replyTo': replyingToUser ?? '',
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+          'text': text,
+          'uid': user?.uid ?? '',
+          'user': user?.email?.split('@').first ?? 'Guest',
+          'replyTo': replyingToUser ?? '',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
 
     controller.clear();
     focusNode.unfocus();
@@ -127,19 +152,26 @@ class _CommentScreenState extends State<CommentScreen> {
             Container(
               width: 36,
               height: 4,
-              decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: _emojis.map((emoji) => GestureDetector(
-                onTap: () {
-                  controller.text += emoji;
-                  Navigator.pop(context);
-                },
-                child: Text(emoji, style: const TextStyle(fontSize: 32)),
-              )).toList(),
+              children: _emojis
+                  .map(
+                    (emoji) => GestureDetector(
+                      onTap: () {
+                        controller.text += emoji;
+                        Navigator.pop(context);
+                      },
+                      child: Text(emoji, style: const TextStyle(fontSize: 32)),
+                    ),
+                  )
+                  .toList(),
             ),
             const SizedBox(height: 8),
           ],
@@ -186,8 +218,14 @@ class _CommentScreenState extends State<CommentScreen> {
                       radius: 10,
                       backgroundColor: Colors.blueGrey.shade100,
                       child: Text(
-                        (data['user'] ?? 'G').toString().substring(0, 1).toUpperCase(),
-                        style: const TextStyle(fontSize: 10, color: Colors.blueGrey),
+                        (data['user'] ?? 'G')
+                            .toString()
+                            .substring(0, 1)
+                            .toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.blueGrey,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -204,17 +242,34 @@ class _CommentScreenState extends State<CommentScreen> {
                             )
                           : RichText(
                               text: TextSpan(
-                                style: TextStyle(color: Colors.grey.shade800, fontSize: 13),
+                                style: TextStyle(
+                                  color: Colors.grey.shade800,
+                                  fontSize: 13,
+                                ),
                                 children: [
                                   TextSpan(
                                     text: "${data['user']} ",
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                  if (data['replyTo'] != null && data['replyTo'].toString().isNotEmpty) ...[
-                                    TextSpan(text: '回复 ', style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                                  if (data['replyTo'] != null &&
+                                      data['replyTo']
+                                          .toString()
+                                          .isNotEmpty) ...[
+                                    TextSpan(
+                                      text: '回复 ',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade500,
+                                        fontSize: 12,
+                                      ),
+                                    ),
                                     TextSpan(
                                       text: "@${data['replyTo']} ",
-                                      style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w500),
+                                      style: const TextStyle(
+                                        color: Colors.blue,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ],
                                   TextSpan(text: data['text'] ?? ''),
@@ -258,16 +313,26 @@ class _CommentScreenState extends State<CommentScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.chat_bubble_outline, size: 48, color: Colors.grey.shade300),
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          size: 48,
+                          color: Colors.grey.shade300,
+                        ),
                         const SizedBox(height: 12),
-                        Text("暂无评论，快来抢沙发吧~", style: TextStyle(color: Colors.grey.shade400)),
+                        Text(
+                          "暂无评论，快来抢沙发吧~",
+                          style: TextStyle(color: Colors.grey.shade400),
+                        ),
                       ],
                     ),
                   );
                 }
 
                 return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
                     final doc = docs[index];
@@ -289,7 +354,10 @@ class _CommentScreenState extends State<CommentScreen> {
                                 backgroundColor: Colors.blue.shade100,
                                 child: Text(
                                   userName.substring(0, 1).toUpperCase(),
-                                  style: TextStyle(color: Colors.blue.shade800, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    color: Colors.blue.shade800,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 10),
@@ -299,7 +367,11 @@ class _CommentScreenState extends State<CommentScreen> {
                                   children: [
                                     Text(
                                       userName,
-                                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade800),
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey.shade800,
+                                      ),
                                     ),
                                     const SizedBox(height: 2),
                                     if (imageUrl != null && imageUrl.isNotEmpty)
@@ -315,7 +387,11 @@ class _CommentScreenState extends State<CommentScreen> {
                                     else
                                       Text(
                                         data['text'] ?? '',
-                                        style: const TextStyle(fontSize: 15, color: Colors.black87, height: 1.3),
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.black87,
+                                          height: 1.3,
+                                        ),
                                       ),
                                   ],
                                 ),
@@ -323,10 +399,20 @@ class _CommentScreenState extends State<CommentScreen> {
                               TextButton(
                                 style: TextButton.styleFrom(
                                   minimumSize: Size.zero,
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
-                                child: Text("回复", style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                                child: Text(
+                                  "回复",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     replyingToCommentId = commentId;
@@ -357,7 +443,7 @@ class _CommentScreenState extends State<CommentScreen> {
                     color: Colors.black.withOpacity(0.05),
                     offset: const Offset(0, -2),
                     blurRadius: 4,
-                  )
+                  ),
                 ],
               ),
               child: Column(
@@ -365,7 +451,11 @@ class _CommentScreenState extends State<CommentScreen> {
                 children: [
                   if (replyingToUser != null)
                     Container(
-                      padding: const EdgeInsets.only(left: 4, bottom: 6, right: 4),
+                      padding: const EdgeInsets.only(
+                        left: 4,
+                        bottom: 6,
+                        right: 4,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -373,8 +463,17 @@ class _CommentScreenState extends State<CommentScreen> {
                             text: TextSpan(
                               style: const TextStyle(fontSize: 13),
                               children: [
-                                TextSpan(text: "回复 ", style: TextStyle(color: Colors.grey.shade600)),
-                                TextSpan(text: "@$replyingToUser", style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                                TextSpan(
+                                  text: "回复 ",
+                                  style: TextStyle(color: Colors.grey.shade600),
+                                ),
+                                TextSpan(
+                                  text: "@$replyingToUser",
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -385,15 +484,22 @@ class _CommentScreenState extends State<CommentScreen> {
                                 replyingToUser = null;
                               });
                             },
-                            child: Icon(Icons.cancel, size: 18, color: Colors.grey.shade400),
-                          )
+                            child: Icon(
+                              Icons.cancel,
+                              size: 18,
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.emoji_emotions_outlined, size: 26),
+                        icon: const Icon(
+                          Icons.emoji_emotions_outlined,
+                          size: 26,
+                        ),
                         color: Colors.grey[600],
                         onPressed: _showEmojiPicker,
                       ),
@@ -410,9 +516,17 @@ class _CommentScreenState extends State<CommentScreen> {
                           minLines: 1,
                           style: const TextStyle(fontSize: 15),
                           decoration: InputDecoration(
-                            hintText: replyingToUser != null ? "回复内容..." : "说点什么吧...",
-                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            hintText: replyingToUser != null
+                                ? "回复内容..."
+                                : "说点什么吧...",
+                            hintStyle: TextStyle(
+                              color: Colors.grey.shade400,
+                              fontSize: 14,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
                             filled: true,
                             fillColor: Colors.grey.shade100,
                             border: OutlineInputBorder(
@@ -424,7 +538,11 @@ class _CommentScreenState extends State<CommentScreen> {
                       ),
                       const SizedBox(width: 8),
                       _isUploading
-                          ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
                           : IconButton(
                               icon: const Icon(Icons.send_rounded, size: 26),
                               color: Colors.blue,
@@ -441,7 +559,7 @@ class _CommentScreenState extends State<CommentScreen> {
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

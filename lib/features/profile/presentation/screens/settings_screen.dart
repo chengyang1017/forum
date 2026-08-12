@@ -125,9 +125,7 @@ class SettingsScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const ChangePasswordScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const ChangePasswordScreen()),
               );
             },
           ),
@@ -137,9 +135,9 @@ class SettingsScreen extends StatelessWidget {
             title: l10n.blockList,
             subtitle: l10n.blockListDesc,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.developing)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.developing)));
             },
           ),
           const Divider(height: 32, thickness: 1),

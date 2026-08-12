@@ -66,10 +66,7 @@ class ChatProvider extends ChangeNotifier {
   //   return (unreadMap[userId] ?? 0) as int;
   // }
 
-  int getUnreadCount(
-    Map<String, dynamic> chatData,
-    String userId,
-  ) {
+  int getUnreadCount(Map<String, dynamic> chatData, String userId) {
     final rawUnreadCount = chatData['unreadCount'];
 
     if (rawUnreadCount is! Map) {
@@ -79,7 +76,7 @@ class ChatProvider extends ChangeNotifier {
     final rawCount = rawUnreadCount[userId];
 
     return rawCount is num ? rawCount.toInt() : 0;
-}
+  }
 
   // ============================================================
   // 2. 消息管理
@@ -95,7 +92,11 @@ class ChatProvider extends ChangeNotifier {
   }
 
   /// 发送文本消息（带 senderId）
-  Future<void> sendMessageWithSender(String chatId, String senderId, String content) async {
+  Future<void> sendMessageWithSender(
+    String chatId,
+    String senderId,
+    String content,
+  ) async {
     await _chatRepo.sendMessage(chatId, senderId, content);
   }
 
@@ -144,131 +145,119 @@ class ChatProvider extends ChangeNotifier {
   }
 
   Future<void> sendVocabularyMessage({
-  required String chatId,
-  required String senderId,
-  required String word,
-  String? translation,
-  String? languageCode,
-}) async {
-  final chatRef = FirebaseFirestore.instance
-      .collection('chats')
-      .doc(chatId);
+    required String chatId,
+    required String senderId,
+    required String word,
+    String? translation,
+    String? languageCode,
+  }) async {
+    final chatRef = FirebaseFirestore.instance.collection('chats').doc(chatId);
 
-  final messageRef = chatRef
-      .collection('messages')
-      .doc();
+    final messageRef = chatRef.collection('messages').doc();
 
-  final translations = <String, String>{};
+    final translations = <String, String>{};
 
-  if (translation != null && translation.trim().isNotEmpty) {
-    translations[senderId] = translation.trim();
-  }
+    if (translation != null && translation.trim().isNotEmpty) {
+      translations[senderId] = translation.trim();
+    }
 
-  final batch = FirebaseFirestore.instance.batch();
+    final batch = FirebaseFirestore.instance.batch();
 
-  batch.set(messageRef, {
-    'type': 'vocab',
-    'senderId': senderId,
-    'word': word.trim(),
-    'languageCode': languageCode,
-    'translations': translations,
-    'createdAt': FieldValue.serverTimestamp(),
-  });
+    batch.set(messageRef, {
+      'type': 'vocab',
+      'senderId': senderId,
+      'word': word.trim(),
+      'languageCode': languageCode,
+      'translations': translations,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
 
-  batch.set(
-    chatRef,
-    {
+    batch.set(chatRef, {
       'lastMessage': '[单词] ${word.trim()}',
       'lastMessageAt': FieldValue.serverTimestamp(),
       'lastSenderId': senderId,
-    },
-    SetOptions(merge: true),
-  );
+    }, SetOptions(merge: true));
 
-  await batch.commit();
-}
+    await batch.commit();
+  }
 
-Future<void> updateVocabularyTranslation({
-  required String chatId,
-  required String messageId,
-  required String userId,
-  required String translation,
-}) async {
-  final messageRef = FirebaseFirestore.instance
-      .collection('chats')
-      .doc(chatId)
-      .collection('messages')
-      .doc(messageId);
+  Future<void> updateVocabularyTranslation({
+    required String chatId,
+    required String messageId,
+    required String userId,
+    required String translation,
+  }) async {
+    final messageRef = FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .doc(messageId);
 
-  await messageRef.update({
-    'translations.$userId': translation.trim(),
-  });
-}
+    await messageRef.update({'translations.$userId': translation.trim()});
+  }
 
-Future<void> updateLiveDraftEnabled({
-  required String chatId,
-  required String userId,
-  required bool enabled,
-}) async {
-  await FirebaseFirestore.instance
-      .collection('chats')
-      .doc(chatId)
-      .collection('memberSettings')
-      .doc(userId)
-      .set({
-    'shareLiveDraft': enabled,
-  }, SetOptions(merge: true));
-}
+  Future<void> updateLiveDraftEnabled({
+    required String chatId,
+    required String userId,
+    required bool enabled,
+  }) async {
+    await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .collection('memberSettings')
+        .doc(userId)
+        .set({'shareLiveDraft': enabled}, SetOptions(merge: true));
+  }
 
-Future<bool> getLiveDraftEnabled({
-  required String chatId,
-  required String userId,
-}) async {
-  final doc = await FirebaseFirestore.instance
-      .collection('chats')
-      .doc(chatId)
-      .collection('memberSettings')
-      .doc(userId)
-      .get();
+  Future<bool> getLiveDraftEnabled({
+    required String chatId,
+    required String userId,
+  }) async {
+    final doc = await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .collection('memberSettings')
+        .doc(userId)
+        .get();
 
-  return doc.data()?['shareLiveDraft'] == true;
-}
+    return doc.data()?['shareLiveDraft'] == true;
+  }
 
-Future<void> editMessage({
-  required String chatId,
-  required String messageId,
-  required String currentUserId,
-  required String newContent,
-}) {
-  return _chatRepo.editMessage(
-    chatId: chatId,
-    messageId: messageId,
-    currentUserId: currentUserId,
-    newContent: newContent,
-  );
-}
+  Future<void> editMessage({
+    required String chatId,
+    required String messageId,
+    required String currentUserId,
+    required String newContent,
+  }) {
+    return _chatRepo.editMessage(
+      chatId: chatId,
+      messageId: messageId,
+      currentUserId: currentUserId,
+      newContent: newContent,
+    );
+  }
 
-Future<void> deleteMessageForMe({
-  required String chatId,
-  required String messageId,
-  required String currentUserId,
-}) {
-  return _chatRepo.deleteMessageForMe(
-    chatId: chatId,
-    messageId: messageId,
-    currentUserId: currentUserId,
-  );
-}
+  Future<void> deleteMessageForMe({
+    required String chatId,
+    required String messageId,
+    required String currentUserId,
+  }) {
+    return _chatRepo.deleteMessageForMe(
+      chatId: chatId,
+      messageId: messageId,
+      currentUserId: currentUserId,
+    );
+  }
 
-Future<void> deleteMessageForEveryone({
-  required String chatId,
-  required String messageId,
-  required String currentUserId,
-}) {
-  return _chatRepo.deleteMessageForEveryone(
-    chatId: chatId,
-    messageId: messageId,
-    currentUserId: currentUserId,
-  );
-}
+  Future<void> deleteMessageForEveryone({
+    required String chatId,
+    required String messageId,
+    required String currentUserId,
+  }) {
+    return _chatRepo.deleteMessageForEveryone(
+      chatId: chatId,
+      messageId: messageId,
+      currentUserId: currentUserId,
+    );
+  }
 }

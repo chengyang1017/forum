@@ -26,8 +26,15 @@ class AuthRepository {
   }
 
   // ========== 注册 ==========
-  Future<UserModel> register(String email, String password, String username) async {
-    final userCred = await _authService.registerWithEmailPassword(email, password);
+  Future<UserModel> register(
+    String email,
+    String password,
+    String username,
+  ) async {
+    final userCred = await _authService.registerWithEmailPassword(
+      email,
+      password,
+    );
     final uid = userCred.user!.uid;
 
     final newUserMap = {
@@ -76,7 +83,10 @@ class AuthRepository {
   }
 
   // ========== 修改密码 ==========
-  Future<void> changePassword(String currentPassword, String newPassword) async {
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
     try {
       await _authService.reauthenticate(currentPassword);
       await _authService.updatePassword(newPassword);
@@ -96,7 +106,9 @@ class AuthRepository {
   }
 
   // ========== 密保问题（找回密码用） ==========
-  Future<(String uid, String question)?> getSecurityQuestion(String email) async {
+  Future<(String uid, String question)?> getSecurityQuestion(
+    String email,
+  ) async {
     final userMap = await _authService.getUserByEmail(email);
     if (userMap == null) return null;
     final question = userMap['securityQuestion'] as String?;

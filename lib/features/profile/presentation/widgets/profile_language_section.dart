@@ -16,32 +16,23 @@ class ProfileLanguageSection extends StatefulWidget {
   });
 
   @override
-  State<ProfileLanguageSection> createState() =>
-      _ProfileLanguageSectionState();
+  State<ProfileLanguageSection> createState() => _ProfileLanguageSectionState();
 }
 
-class _ProfileLanguageSectionState
-    extends State<ProfileLanguageSection> {
+class _ProfileLanguageSectionState extends State<ProfileLanguageSection> {
   static const int _collapsedCount = 5;
 
   bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
-    final uiLanguageCode =
-        Localizations.localeOf(context)
-            .languageCode;
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
 
-    final hasMoreLanguages =
-        widget.languages.length >
-            _collapsedCount;
+    final hasMoreLanguages = widget.languages.length > _collapsedCount;
 
-    final visibleLanguages =
-        hasMoreLanguages && !_expanded
-            ? widget.languages.take(
-                _collapsedCount,
-              )
-            : widget.languages;
+    final visibleLanguages = hasMoreLanguages && !_expanded
+        ? widget.languages.take(_collapsedCount)
+        : widget.languages;
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -50,8 +41,7 @@ class _ProfileLanguageSectionState
         padding: const EdgeInsets.all(20),
         color: Colors.white,
         child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ======================================================
             // 标题
@@ -61,19 +51,15 @@ class _ProfileLanguageSectionState
                 Icon(
                   Icons.translate_rounded,
                   size: 18,
-                  color:
-                      Colors.green.shade600,
+                  color: Colors.green.shade600,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  widget.l10n
-                      .languageAbility,
+                  widget.l10n.languageAbility,
                   style: TextStyle(
                     fontSize: 15,
-                    fontWeight:
-                        FontWeight.bold,
-                    color:
-                        Colors.grey.shade800,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade800,
                   ),
                 ),
                 const Spacer(),
@@ -82,16 +68,14 @@ class _ProfileLanguageSectionState
                     widget.l10n.add,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors
-                          .green.shade600,
+                      color: Colors.green.shade600,
                     ),
                   ),
                 if (widget.onTap != null)
                   Icon(
                     Icons.chevron_right,
                     size: 18,
-                    color:
-                        Colors.grey.shade400,
+                    color: Colors.grey.shade400,
                   ),
               ],
             ),
@@ -102,224 +86,132 @@ class _ProfileLanguageSectionState
             if (widget.languages.isNotEmpty) ...[
               const SizedBox(height: 16),
 
-              ...visibleLanguages.map(
-                (lang) {
-                  final languageConfig =
-    _findLanguage(lang);
+              ...visibleLanguages.map((lang) {
+                final languageConfig = _findLanguage(lang);
 
-final savedName =
-    lang['name']
-            ?.toString()
-            .trim() ??
-        '';
+                final savedName = lang['name']?.toString().trim() ?? '';
 
-final scriptCode =
-    lang['scriptCode']
-        ?.toString()
-        .trim();
+                final scriptCode = lang['scriptCode']?.toString().trim();
 
-final scriptConfig =
-    scriptCode != null &&
-            scriptCode.isNotEmpty
-        ? ScriptConfig.findByCode(
-            scriptCode,
-          )
-        : ScriptConfig.findByCode(
-            savedName,
-          );
+                final scriptConfig = scriptCode != null && scriptCode.isNotEmpty
+                    ? ScriptConfig.findByCode(scriptCode)
+                    : ScriptConfig.findByCode(savedName);
 
-LanguageConfig?
-    scriptOwnerLanguage;
+                LanguageConfig? scriptOwnerLanguage;
 
-if (scriptConfig != null) {
-  for (final code
-      in scriptConfig.languageCodes) {
-    final config =
-        LanguageConfig.findByCode(
-      code,
-    );
+                if (scriptConfig != null) {
+                  for (final code in scriptConfig.languageCodes) {
+                    final config = LanguageConfig.findByCode(code);
 
-    if (config != null) {
-      scriptOwnerLanguage = config;
-      break;
-    }
-  }
-}
+                    if (config != null) {
+                      scriptOwnerLanguage = config;
+                      break;
+                    }
+                  }
+                }
 
-final resolvedLanguageConfig =
-    languageConfig ??
-        scriptOwnerLanguage;
+                final resolvedLanguageConfig =
+                    languageConfig ?? scriptOwnerLanguage;
 
-final displayName =
-    scriptConfig?.nameOf(
-          uiLanguageCode,
-        ) ??
-        resolvedLanguageConfig
-            ?.nameOf(
-          uiLanguageCode,
-        ) ??
-        savedName;
+                final displayName =
+                    scriptConfig?.nameOf(uiLanguageCode) ??
+                    resolvedLanguageConfig?.nameOf(uiLanguageCode) ??
+                    savedName;
 
-final displayFlag =
-    resolvedLanguageConfig?.flag ??
-        '🌐';
+                final displayFlag = resolvedLanguageConfig?.flag ?? '🌐';
 
-                  return Padding(
-                    padding:
-                        const EdgeInsets.only(
-                      bottom: 8,
-                    ),
-                    child: Row(
-                      children: [
-                        // ==========================================
-                        // 国旗和语言名称
-                        // ==========================================
-                        Expanded(
-                          flex: 4,
-                          child: Row(
-                            children: [
-                              Text(
-  displayFlag,
-  style: const TextStyle(
-    fontSize: 15,
-  ),
-),
-const SizedBox(
-  width: 6,
-),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      // ==========================================
+                      // 国旗和语言名称
+                      // ==========================================
+                      Expanded(
+                        flex: 4,
+                        child: Row(
+                          children: [
+                            Text(
+                              displayFlag,
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                            const SizedBox(width: 6),
 
-                              Expanded(
-                                child: Text(
-                                  displayName,
-                                  maxLines: 2,
-                                  overflow:
-                                      TextOverflow
-                                          .ellipsis,
-                                  style:
-                                      const TextStyle(
-                                    fontWeight:
-                                        FontWeight
-                                            .w600,
-                                    fontSize: 13,
-                                    color: Colors
-                                        .black87,
-                                  ),
+                            Expanded(
+                              child: Text(
+                                displayName,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Colors.black87,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
+                      ),
 
-                        const SizedBox(width: 12),
+                      const SizedBox(width: 12),
 
-                        // ==========================================
-                        // 母语或熟练度
-                        // ==========================================
-                        Expanded(
-                          flex: 5,
-                          child:
-                              lang['level'] ==
-                                      'native'
-                                  ? Align(
-                                      alignment:
-                                          Alignment
-                                              .centerLeft,
-                                      child:
-                                          Container(
-                                        padding:
-                                            const EdgeInsets
-                                                .symmetric(
-                                          horizontal:
-                                              8,
-                                          vertical:
-                                              3,
-                                        ),
-                                        decoration:
-                                            BoxDecoration(
-                                          color: Colors
-                                              .orange
-                                              .shade50,
-                                          borderRadius:
-                                              BorderRadius
-                                                  .circular(
-                                            4,
-                                          ),
-                                        ),
-                                        child:
-                                            Text(
-                                          widget
-                                              .l10n
-                                              .nativeLanguage,
-                                          style:
-                                              TextStyle(
-                                            color: Colors
-                                                .orange
-                                                .shade700,
-                                            fontSize:
-                                                11,
-                                            fontWeight:
-                                                FontWeight
-                                                    .bold,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : ClipRRect(
-                                      borderRadius:
-                                          BorderRadius
-                                              .circular(
-                                        4,
-                                      ),
-                                      child:
-                                          LinearProgressIndicator(
-                                        value:
-                                            _levelValue(
-                                                  lang,
-                                                ) /
-                                                100,
-                                        minHeight:
-                                            6,
-                                        backgroundColor:
-                                            Colors
-                                                .grey
-                                                .shade100,
-                                        color: Colors
-                                            .green
-                                            .shade400,
-                                      ),
+                      // ==========================================
+                      // 母语或熟练度
+                      // ==========================================
+                      Expanded(
+                        flex: 5,
+                        child: lang['level'] == 'native'
+                            ? Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.shade50,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    widget.l10n.nativeLanguage,
+                                    style: TextStyle(
+                                      color: Colors.orange.shade700,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                        ),
-
-                        // ==========================================
-                        // 百分比
-                        // ==========================================
-                        if (lang['level'] !=
-                            'native')
-                          Padding(
-                            padding:
-                                const EdgeInsets
-                                    .only(
-                              left: 10,
-                            ),
-                            child: Text(
-                              '${_levelValue(lang).toInt()}%',
-                              style:
-                                  TextStyle(
-                                color: Colors
-                                    .grey
-                                    .shade500,
-                                fontSize: 12,
-                                fontWeight:
-                                    FontWeight
-                                        .w500,
+                                  ),
+                                ),
+                              )
+                            : ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: _levelValue(lang) / 100,
+                                  minHeight: 6,
+                                  backgroundColor: Colors.grey.shade100,
+                                  color: Colors.green.shade400,
+                                ),
                               ),
+                      ),
+
+                      // ==========================================
+                      // 百分比
+                      // ==========================================
+                      if (lang['level'] != 'native')
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            '${_levelValue(lang).toInt()}%',
+                            style: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                        ),
+                    ],
+                  ),
+                );
+              }),
 
               // ====================================================
               // 展开 / 收起
@@ -327,46 +219,32 @@ const SizedBox(
               // ====================================================
               if (hasMoreLanguages)
                 GestureDetector(
-                  behavior:
-                      HitTestBehavior.opaque,
+                  behavior: HitTestBehavior.opaque,
                   onTap: () {
                     setState(() {
-                      _expanded =
-                          !_expanded;
+                      _expanded = !_expanded;
                     });
                   },
                   child: SizedBox(
                     width: double.infinity,
                     height: 48,
                     child: Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment
-                              .center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           _expanded
-                              ? Icons
-                                  .keyboard_arrow_up
-                              : Icons
-                                  .keyboard_arrow_down,
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
                           size: 16,
-                          color: Colors
-                              .green.shade700,
+                          color: Colors.green.shade700,
                         ),
-                        const SizedBox(
-                          width: 4,
-                        ),
+                        const SizedBox(width: 4),
                         Text(
-                          _expanded
-                              ? '收起'
-                              : '查看更多',
+                          _expanded ? '收起' : '查看更多',
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight:
-                                FontWeight.w500,
-                            color: Colors
-                                .green
-                                .shade700,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.green.shade700,
                           ),
                         ),
                       ],
@@ -384,24 +262,14 @@ const SizedBox(
   // 从 LanguageConfig 查找语言
   // ============================================================
 
-  LanguageConfig? _findLanguage(
-    Map<String, dynamic> data,
-  ) {
-    final code =
-        data['code']
-            ?.toString()
-            .trim();
+  LanguageConfig? _findLanguage(Map<String, dynamic> data) {
+    final code = data['code']?.toString().trim();
 
-    if (code != null &&
-        code.isNotEmpty) {
-      final normalizedCode =
-          code.toLowerCase();
+    if (code != null && code.isNotEmpty) {
+      final normalizedCode = code.toLowerCase();
 
-      for (final language
-          in LanguageConfig.allLanguages) {
-        if (language.code
-                .toLowerCase() ==
-            normalizedCode) {
+      for (final language in LanguageConfig.allLanguages) {
+        if (language.code.toLowerCase() == normalizedCode) {
           return language;
         }
       }
@@ -412,32 +280,21 @@ const SizedBox(
      * 以前可能把语言代码保存在 name，
      * 例如 name: "vi"。
      */
-    final savedName =
-        data['name']
-            ?.toString()
-            .trim();
+    final savedName = data['name']?.toString().trim();
 
-    if (savedName == null ||
-        savedName.isEmpty) {
+    if (savedName == null || savedName.isEmpty) {
       return null;
     }
 
-    final normalizedName =
-        savedName.toLowerCase();
+    final normalizedName = savedName.toLowerCase();
 
-    for (final language
-        in LanguageConfig.allLanguages) {
-      if (language.code
-              .toLowerCase() ==
-          normalizedName) {
+    for (final language in LanguageConfig.allLanguages) {
+      if (language.code.toLowerCase() == normalizedName) {
         return language;
       }
 
-      final nameMatched =
-          language.names.values.any(
-        (name) =>
-            name.toLowerCase() ==
-            normalizedName,
+      final nameMatched = language.names.values.any(
+        (name) => name.toLowerCase() == normalizedName,
       );
 
       if (nameMatched) {
@@ -452,15 +309,11 @@ const SizedBox(
   // 获取熟练度
   // ============================================================
 
-  double _levelValue(
-    Map<String, dynamic> lang,
-  ) {
+  double _levelValue(Map<String, dynamic> lang) {
     final level = lang['level'];
 
     if (level is num) {
-      return level
-          .toDouble()
-          .clamp(0, 100);
+      return level.toDouble().clamp(0, 100);
     }
 
     return 70;

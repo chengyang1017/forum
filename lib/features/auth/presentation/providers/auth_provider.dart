@@ -53,7 +53,10 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // ========== 修改密码 ==========
-  Future<void> changePassword(String currentPassword, String newPassword) async {
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
     _isLoading = true;
     notifyListeners();
     try {
@@ -65,7 +68,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // ========== 密保问题（找回密码用） ==========
-  Future<(String uid, String question)?> getSecurityQuestion(String email) async {
+  Future<(String uid, String question)?> getSecurityQuestion(
+    String email,
+  ) async {
     return _authRepo.getSecurityQuestion(email);
   }
 

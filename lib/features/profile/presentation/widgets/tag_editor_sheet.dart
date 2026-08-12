@@ -15,7 +15,9 @@ Future<List<String>?> showTagEditorSheet({
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => AnimatedPadding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+          ),
           duration: const Duration(milliseconds: 150),
           child: Container(
             height: MediaQuery.of(ctx).size.height * 0.75,
@@ -77,9 +79,8 @@ Future<List<String>?> showTagEditorSheet({
                               size: 16,
                               color: Colors.blue.shade400,
                             ),
-                            onDeleted: () => setModalState(
-                              () => selected.remove(tag),
-                            ),
+                            onDeleted: () =>
+                                setModalState(() => selected.remove(tag)),
                           ),
                         )
                         .toList(),

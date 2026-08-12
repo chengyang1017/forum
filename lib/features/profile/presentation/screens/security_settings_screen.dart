@@ -14,7 +14,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
   final user = FirebaseAuth.instance.currentUser;
   final questionController = TextEditingController();
   final answerController = TextEditingController();
-  
+
   String? savedQuestion;
   bool isLoading = true;
 
@@ -72,11 +72,11 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
         'securityQuestion': question,
         'securityAnswer': answer,
       }, SetOptions(merge: true));
-      
+
       setState(() => savedQuestion = question);
       questionController.clear();
       answerController.clear();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('密保已设置'), backgroundColor: Colors.green),
@@ -98,10 +98,7 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('密保设置'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('密保设置'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -112,7 +109,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: savedQuestion != null ? Colors.green.shade50 : Colors.grey.shade100,
+                color: savedQuestion != null
+                    ? Colors.green.shade50
+                    : Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -127,7 +126,9 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                       savedQuestion != null ? '密保已设置' : '未设置密保',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: savedQuestion != null ? Colors.green.shade700 : Colors.grey.shade700,
+                        color: savedQuestion != null
+                            ? Colors.green.shade700
+                            : Colors.grey.shade700,
                       ),
                     ),
                   ),
@@ -137,37 +138,64 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
 
             if (savedQuestion != null) ...[
               const SizedBox(height: 16),
-              Text('当前问题：$savedQuestion',
+              Text(
+                '当前问题：$savedQuestion',
                 style: const TextStyle(fontSize: 14, color: Colors.black87),
               ),
             ],
 
             const SizedBox(height: 24),
-            const Text('设置密保问题', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              '设置密保问题',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
-            Text('用于找回密码，请牢记答案', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+            Text(
+              '用于找回密码，请牢记答案',
+              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+            ),
             const SizedBox(height: 16),
 
             // 预设问题
-            Text('常用问题', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+            Text(
+              '常用问题',
+              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: presetQuestions.map((q) => GestureDetector(
-                onTap: () => questionController.text = q,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: questionController.text == q ? Colors.blue.shade50 : Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: questionController.text == q ? Colors.blue : Colors.grey.shade300,
+              children: presetQuestions
+                  .map(
+                    (q) => GestureDetector(
+                      onTap: () => questionController.text = q,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: questionController.text == q
+                              ? Colors.blue.shade50
+                              : Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: questionController.text == q
+                                ? Colors.blue
+                                : Colors.grey.shade300,
+                          ),
+                        ),
+                        child: Text(
+                          q,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Text(q, style: TextStyle(fontSize: 13, color: Colors.grey[700])),
-                ),
-              )).toList(),
+                  )
+                  .toList(),
             ),
             const SizedBox(height: 16),
 

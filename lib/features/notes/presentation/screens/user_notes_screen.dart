@@ -16,8 +16,7 @@ class UserNotesScreen extends StatefulWidget {
   });
 
   @override
-  State<UserNotesScreen> createState() =>
-      _UserNotesScreenState();
+  State<UserNotesScreen> createState() => _UserNotesScreenState();
 }
 
 class _UserNotesScreenState extends State<UserNotesScreen> {
@@ -41,12 +40,9 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
     });
 
     try {
-      final noteId =
-          await _noteService.createNote(
+      final noteId = await _noteService.createNote(
         ownerId: currentUserId,
-        sharedUserIds: [
-          widget.otherUserId,
-        ],
+        sharedUserIds: [widget.otherUserId],
       );
 
       if (!mounted) {
@@ -57,9 +53,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
         context,
         MaterialPageRoute(
           builder: (_) {
-            return NoteEditorScreen(
-              noteId: noteId,
-            );
+            return NoteEditorScreen(noteId: noteId);
           },
         ),
       );
@@ -69,10 +63,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('创建笔记失败：$error'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('创建笔记失败：$error'), backgroundColor: Colors.red),
       );
     } finally {
       if (mounted) {
@@ -89,12 +80,8 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
 
     if (currentUserId == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('共享笔记'),
-        ),
-        body: const Center(
-          child: Text('请先登录'),
-        ),
+        appBar: AppBar(title: const Text('共享笔记')),
+        body: const Center(child: Text('请先登录')),
       );
     }
 
@@ -113,12 +100,9 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
           otherUserId: widget.otherUserId,
         ),
         builder: (context, snapshot) {
-          if (snapshot.connectionState ==
-                  ConnectionState.waiting &&
+          if (snapshot.connectionState == ConnectionState.waiting &&
               !snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
@@ -149,18 +133,12 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
                   Text(
                     '还没有与 ${widget.otherUserName} 共享的笔记',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 6),
                   const Text(
                     '点击右下角新建',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey,
-                    ),
+                    style: TextStyle(fontSize: 13, color: Colors.grey),
                   ),
                 ],
               ),
@@ -168,12 +146,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.fromLTRB(
-              12,
-              12,
-              12,
-              90,
-            ),
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 90),
             itemCount: notes.length,
             separatorBuilder: (_, __) {
               return const SizedBox(height: 10);
@@ -188,23 +161,15 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _isCreating
-            ? null
-            : _createNote,
+        onPressed: _isCreating ? null : _createNote,
         icon: _isCreating
             ? const SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2),
               )
             : const Icon(Icons.add),
-        label: Text(
-          _isCreating
-              ? '正在创建'
-              : '新建笔记',
-        ),
+        label: Text(_isCreating ? '正在创建' : '新建笔记'),
       ),
     );
   }
@@ -227,9 +192,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
             context,
             MaterialPageRoute(
               builder: (_) {
-                return NoteEditorScreen(
-                  noteId: note.id,
-                );
+                return NoteEditorScreen(noteId: note.id);
               },
             ),
           );
@@ -243,9 +206,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      title.isEmpty
-                          ? '无标题笔记'
-                          : title,
+                      title.isEmpty ? '无标题笔记' : title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -256,9 +217,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
                   ),
                   const SizedBox(width: 8),
                   Icon(
-                    canEdit
-                        ? Icons.edit_outlined
-                        : Icons.lock_outline,
+                    canEdit ? Icons.edit_outlined : Icons.lock_outline,
                     size: 18,
                     color: Colors.grey,
                   ),
@@ -266,9 +225,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
               ),
               const SizedBox(height: 7),
               Text(
-                content.isEmpty
-                    ? '暂无内容'
-                    : content,
+                content.isEmpty ? '暂无内容' : content,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -287,18 +244,12 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
                       note.ownerId == currentUserId
                           ? '由你创建'
                           : '由 ${widget.otherUserName} 创建',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ),
                   Text(
                     _formatTime(note.updatedAt),
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
                   ),
                 ],
               ),
@@ -316,7 +267,8 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
 
     final local = dateTime.toLocal();
     final now = DateTime.now();
-    final isToday = local.year == now.year &&
+    final isToday =
+        local.year == now.year &&
         local.month == now.month &&
         local.day == now.day;
     final hour = local.hour.toString().padLeft(2, '0');

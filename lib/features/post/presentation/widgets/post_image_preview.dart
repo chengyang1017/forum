@@ -6,11 +6,7 @@ class PostImagePreview extends StatelessWidget {
   final List<String> images;
   final double size;
 
-  const PostImagePreview({
-    super.key,
-    required this.images,
-    this.size = 80,
-  });
+  const PostImagePreview({super.key, required this.images, this.size = 80});
 
   @override
   Widget build(BuildContext context) {
@@ -24,36 +20,38 @@ class PostImagePreview extends StatelessWidget {
       height: size,
       child: Row(
         children: [
-          ...displayImages.map((url) => Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: url,
-                width: size,
-                height: size,
-                fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
+          ...displayImages.map(
+            (url) => Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: CachedNetworkImage(
+                  imageUrl: url,
                   width: size,
                   height: size,
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                  fit: BoxFit.cover,
+                  placeholder: (_, __) => Container(
+                    width: size,
+                    height: size,
+                    color: Colors.grey[200],
+                    child: const Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
                     ),
                   ),
-                ),
-                errorWidget: (_, __, ___) => Container(
-                  width: size,
-                  height: size,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.broken_image, color: Colors.grey),
+                  errorWidget: (_, __, ___) => Container(
+                    width: size,
+                    height: size,
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.broken_image, color: Colors.grey),
+                  ),
                 ),
               ),
             ),
-          )),
+          ),
           // 第4张显示"+N"
           if (remaining > 0)
             ClipRRect(

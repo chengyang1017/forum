@@ -20,7 +20,7 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
         .collection('users')
         .doc(uid)
         .get();
-    
+
     if (doc.exists) {
       final data = doc.data()!;
       return {
@@ -34,10 +34,7 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('好友申请'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('好友申请'), centerTitle: true),
       body: StreamBuilder<QuerySnapshot>(
         // ✅ 查看发给我的申请
         stream: FirebaseFirestore.instance
@@ -61,7 +58,10 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                 children: [
                   Icon(Icons.person_add_disabled, size: 80, color: Colors.grey),
                   SizedBox(height: 16),
-                  Text('暂无好友申请', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  Text(
+                    '暂无好友申请',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
                 ],
               ),
             );
@@ -151,7 +151,9 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                                   if (mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('已接受 ${userInfo['username']} 的好友申请'),
+                                        content: Text(
+                                          '已接受 ${userInfo['username']} 的好友申请',
+                                        ),
                                         backgroundColor: Colors.green,
                                       ),
                                     );

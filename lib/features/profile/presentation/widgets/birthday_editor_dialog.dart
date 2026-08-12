@@ -4,10 +4,7 @@ class BirthdayEditorResult {
   final DateTime? birthday;
   final bool showAge;
 
-  const BirthdayEditorResult({
-    required this.birthday,
-    required this.showAge,
-  });
+  const BirthdayEditorResult({required this.birthday, required this.showAge});
 }
 
 Future<BirthdayEditorResult?> showBirthdayEditorDialog({
@@ -47,8 +44,10 @@ Future<BirthdayEditorResult?> showBirthdayEditorDialog({
                   (v) => setDialogState(() => tempYear = v),
                 ),
                 const SizedBox(width: 2),
-                const Text('年',
-                    style: TextStyle(fontSize: 14, color: Colors.black87)),
+                const Text(
+                  '年',
+                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                ),
                 const SizedBox(width: 4),
                 _buildPicker(
                   tempMonth == 1 ? 'M' : '$tempMonth',
@@ -57,8 +56,10 @@ Future<BirthdayEditorResult?> showBirthdayEditorDialog({
                   (v) => setDialogState(() => tempMonth = v),
                 ),
                 const SizedBox(width: 2),
-                const Text('月',
-                    style: TextStyle(fontSize: 14, color: Colors.black87)),
+                const Text(
+                  '月',
+                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                ),
                 const SizedBox(width: 4),
                 _buildPicker(
                   tempDay == 1 ? 'D' : '$tempDay',
@@ -67,8 +68,10 @@ Future<BirthdayEditorResult?> showBirthdayEditorDialog({
                   (v) => setDialogState(() => tempDay = v),
                 ),
                 const SizedBox(width: 2),
-                const Text('日',
-                    style: TextStyle(fontSize: 14, color: Colors.black87)),
+                const Text(
+                  '日',
+                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                ),
               ],
             ),
             if (birthday != null)
@@ -80,7 +83,10 @@ Future<BirthdayEditorResult?> showBirthdayEditorDialog({
                     tempMonth = 1;
                     tempDay = 1;
                   }),
-                  child: const Text('清除生日', style: TextStyle(color: Colors.red)),
+                  child: const Text(
+                    '清除生日',
+                    style: TextStyle(color: Colors.red),
+                  ),
                 ),
               ),
             const SizedBox(height: 8),

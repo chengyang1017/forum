@@ -22,18 +22,13 @@ import '../../../post/presentation/screens/create_post_screen.dart';
 class NoteEditorScreen extends StatefulWidget {
   final String noteId;
 
-  const NoteEditorScreen({
-    super.key,
-    required this.noteId,
-  });
+  const NoteEditorScreen({super.key, required this.noteId});
 
   @override
-  State<NoteEditorScreen> createState() =>
-      _NoteEditorScreenState();
+  State<NoteEditorScreen> createState() => _NoteEditorScreenState();
 }
 
-class _NoteEditorScreenState
-    extends State<NoteEditorScreen> {
+class _NoteEditorScreenState extends State<NoteEditorScreen> {
   final _titleController = TextEditingController();
   final _bodyController = quill.QuillController.basic();
   final _editorFocusNode = FocusNode();
@@ -41,31 +36,34 @@ class _NoteEditorScreenState
   final _imagePicker = ImagePicker();
   final _noteService = NoteService();
 
-  static const List<String>
-    _publishCategoryIds = [
-  'language_learning',
-  'programming',
-  'ai',
-  'technology',
-  'gaming',
-  'music',
-  'movies',
-  'campus',
-  'startup',
-  'friends',
-  'travel',
-  'chat',
-  'love',
-  'food',
-];
+  static const List<String> _publishCategoryIds = [
+    'language_learning',
+    'programming',
+    'ai',
+    'technology',
+    'gaming',
+    'music',
+    'movies',
+    'campus',
+    'startup',
+    'friends',
+    'travel',
+    'chat',
+    'love',
+    'food',
+  ];
 
   StreamSubscription<NoteModel?>? _noteSubscription;
   Timer? _saveTimer;
 
-  String? _currentUserId;
-  String? _ownerId;
-  List<String> _sharedUserIds = [];
-  bool _isUpdatingMembers = false;
+ String? _currentUserId;
+String? _ownerId;
+
+String? _category;
+String? _languageCode;
+
+List<String> _sharedUserIds = [];
+bool _isUpdatingMembers = false;
 
   bool _initialized = false;
   bool _allowOthersEdit = false;
@@ -81,8 +79,7 @@ class _NoteEditorScreenState
   int _bodyRevision = 0;
 
   bool get _isOwner {
-    return _currentUserId != null &&
-        _currentUserId == _ownerId;
+    return _currentUserId != null && _currentUserId == _ownerId;
   }
 
   bool get _canEdit {
@@ -98,10 +95,7 @@ class _NoteEditorScreenState
     }
 
     _initialized = true;
-    _currentUserId = context
-        .read<authProv.AuthProvider>()
-        .user
-        ?.id;
+    _currentUserId = context.read<authProv.AuthProvider>().user?.id;
 
     if (_currentUserId == null) {
       _isLoaded = true;
@@ -115,10 +109,7 @@ class _NoteEditorScreenState
   void _listenToNote() {
     _noteSubscription = _noteService
         .watchNote(widget.noteId)
-        .listen(
-          _applyRemoteNote,
-          onError: _handleNoteError,
-        );
+        .listen(_applyRemoteNote, onError: _handleNoteError);
   }
 
   void _applyRemoteNote(NoteModel? note) {
@@ -145,22 +136,25 @@ class _NoteEditorScreenState
       );
     }
 
-    final canEdit =
-        note.ownerId == _currentUserId ||
-            note.allowOthersEdit;
+    final canEdit = note.ownerId == _currentUserId || note.allowOthersEdit;
 
     _bodyController.readOnly = !canEdit;
 
     setState(() {
-      _ownerId = note.ownerId;
-      _sharedUserIds =
-    List<String>.from(
-  note.sharedUserIds,
-);
-      _allowOthersEdit = note.allowOthersEdit;
-      _isDeleted = false;
-      _isLoaded = true;
-    });
+  _ownerId = note.ownerId;
+
+  _category = note.category;
+  _languageCode = note.languageCode;
+
+  _sharedUserIds =
+      List<String>.from(note.sharedUserIds);
+
+  _allowOthersEdit =
+      note.allowOthersEdit;
+
+  _isDeleted = false;
+  _isLoaded = true;
+});
   }
 
   void _replaceTitle(String title) {
@@ -168,125 +162,87 @@ class _NoteEditorScreenState
       return;
     }
 
-    final oldOffset =
-        _titleController.selection.baseOffset;
-    final safeOffset = min(
-      max(oldOffset, 0),
-      title.length,
-    );
+    final oldOffset = _titleController.selection.baseOffset;
+    final safeOffset = min(max(oldOffset, 0), title.length);
 
     _titleController.value = TextEditingValue(
       text: title,
-      selection: TextSelection.collapsed(
-        offset: safeOffset,
-      ),
+      selection: TextSelection.collapsed(offset: safeOffset),
     );
   }
 
-void _replaceBodyFromRemote({
-  required List<dynamic> bodyDelta,
-  required String fallbackContent,
-}) {
-  try {
-    final normalizedDelta =
-        bodyDelta.isEmpty
-            ? <dynamic>[
-                <String, dynamic>{
-                  'insert':
-                      fallbackContent.isEmpty
-                          ? '\n'
-                          : fallbackContent
-                                  .endsWith('\n')
-                              ? fallbackContent
-                              : '$fallbackContent\n',
-                },
-              ]
-            : bodyDelta;
+  void _replaceBodyFromRemote({
+    required List<dynamic> bodyDelta,
+    required String fallbackContent,
+  }) {
+    try {
+      final normalizedDelta = bodyDelta.isEmpty
+          ? <dynamic>[
+              <String, dynamic>{
+                'insert': fallbackContent.isEmpty
+                    ? '\n'
+                    : fallbackContent.endsWith('\n')
+                    ? fallbackContent
+                    : '$fallbackContent\n',
+              },
+            ]
+          : bodyDelta;
 
-    /*
+      /*
      * 内容完全相同就不要重新设置 document。
      *
      * 这是解决输入法跳动最关键的一步。
      */
-    final currentDeltaJson = jsonEncode(
-      _bodyController.document
-          .toDelta()
-          .toJson(),
-    );
+      final currentDeltaJson = jsonEncode(
+        _bodyController.document.toDelta().toJson(),
+      );
 
-    final remoteDeltaJson = jsonEncode(
-      normalizedDelta,
-    );
+      final remoteDeltaJson = jsonEncode(normalizedDelta);
 
-    if (currentDeltaJson ==
-        remoteDeltaJson) {
-      return;
+      if (currentDeltaJson == remoteDeltaJson) {
+        return;
+      }
+
+      final document = quill.Document.fromJson(normalizedDelta);
+
+      final oldOffset = _bodyController.selection.baseOffset;
+
+      _applyingRemoteBody = true;
+
+      _bodyController.document = document;
+
+      final maximumOffset = max(0, document.length - 1);
+
+      final safeOffset = min(max(oldOffset, 0), maximumOffset);
+
+      _bodyController.updateSelection(
+        TextSelection.collapsed(offset: safeOffset),
+        quill.ChangeSource.local,
+      );
+    } catch (error) {
+      debugPrint('读取富文本失败：$error');
+
+      final content = fallbackContent.isEmpty
+          ? '\n'
+          : fallbackContent.endsWith('\n')
+          ? fallbackContent
+          : '$fallbackContent\n';
+
+      final currentPlainText = _bodyController.document.toPlainText();
+
+      if (currentPlainText == content) {
+        return;
+      }
+
+      _applyingRemoteBody = true;
+
+      _bodyController.document = quill.Document.fromJson([
+        <String, dynamic>{'insert': content},
+      ]);
+    } finally {
+      _applyingRemoteBody = false;
     }
-
-    final document =
-        quill.Document.fromJson(
-      normalizedDelta,
-    );
-
-    final oldOffset =
-        _bodyController
-            .selection
-            .baseOffset;
-
-    _applyingRemoteBody = true;
-
-    _bodyController.document =
-        document;
-
-    final maximumOffset = max(
-      0,
-      document.length - 1,
-    );
-
-    final safeOffset = min(
-      max(oldOffset, 0),
-      maximumOffset,
-    );
-
-    _bodyController.updateSelection(
-      TextSelection.collapsed(
-        offset: safeOffset,
-      ),
-      quill.ChangeSource.local,
-    );
-  } catch (error) {
-    debugPrint(
-      '读取富文本失败：$error',
-    );
-
-    final content =
-        fallbackContent.isEmpty
-            ? '\n'
-            : fallbackContent
-                    .endsWith('\n')
-                ? fallbackContent
-                : '$fallbackContent\n';
-
-    final currentPlainText =
-        _bodyController.document
-            .toPlainText();
-
-    if (currentPlainText == content) {
-      return;
-    }
-
-    _applyingRemoteBody = true;
-
-    _bodyController.document =
-        quill.Document.fromJson([
-      <String, dynamic>{
-        'insert': content,
-      },
-    ]);
-  } finally {
-    _applyingRemoteBody = false;
   }
-}
 
   void _handleNoteError(Object error) {
     if (!mounted) {
@@ -298,153 +254,125 @@ void _replaceBodyFromRemote({
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('加载笔记失败：$error'),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text('加载笔记失败：$error'), backgroundColor: Colors.red),
     );
   }
 
-void _onTitleChanged(String value) {
-  if (!_canEdit) {
-    return;
+  void _onTitleChanged(String value) {
+    if (!_canEdit) {
+      return;
+    }
+
+    _titleDirty = true;
+    _titleRevision++;
+
+    _scheduleSave();
   }
 
-  _titleDirty = true;
-  _titleRevision++;
+  void _onBodyChanged() {
+    if (_applyingRemoteBody || !_canEdit) {
+      return;
+    }
 
-  _scheduleSave();
-}
+    _bodyDirty = true;
+    _bodyRevision++;
 
-void _onBodyChanged() {
-  if (_applyingRemoteBody || !_canEdit) {
-    return;
+    _scheduleSave();
   }
-
-  _bodyDirty = true;
-  _bodyRevision++;
-
-  _scheduleSave();
-}
 
   void _scheduleSave() {
     _saveTimer?.cancel();
-    _saveTimer = Timer(
-      const Duration(milliseconds: 350),
-      _saveNow,
-    );
+    _saveTimer = Timer(const Duration(milliseconds: 350), _saveNow);
   }
 
-Future<void> _saveNow() async {
-  final userId = _currentUserId;
+  Future<void> _saveNow() async {
+    final userId = _currentUserId;
 
-  if (userId == null ||
-      !_canEdit ||
-      !_isLoaded ||
-      _isDeleted) {
-    return;
-  }
+    if (userId == null || !_canEdit || !_isLoaded || _isDeleted) {
+      return;
+    }
 
-  /*
+    /*
    * 防止上一次保存还没结束，
    * 下一次保存又同时开始。
    */
-  if (_isSaving) {
-    return;
-  }
+    if (_isSaving) {
+      return;
+    }
 
-  final saveTitle = _titleDirty;
-  final saveBody = _bodyDirty;
+    final saveTitle = _titleDirty;
+    final saveBody = _bodyDirty;
 
-  if (!saveTitle && !saveBody) {
-    return;
-  }
+    if (!saveTitle && !saveBody) {
+      return;
+    }
 
-  /*
+    /*
    * 记录本次保存开始时的版本。
    *
    * 保存过程中用户可能继续输入，
    * 只有版本没有变化，才能把 dirty 清除。
    */
-  final savingTitleRevision =
-      _titleRevision;
+    final savingTitleRevision = _titleRevision;
 
-  final savingBodyRevision =
-      _bodyRevision;
+    final savingBodyRevision = _bodyRevision;
 
-  final title = saveTitle
-      ? _titleController.text
-      : null;
+    final title = saveTitle ? _titleController.text : null;
 
-  final bodyDelta = saveBody
-      ? _bodyController.document
-          .toDelta()
-          .toJson()
-      : null;
+    final bodyDelta = saveBody
+        ? _bodyController.document.toDelta().toJson()
+        : null;
 
-  final content = saveBody
-      ? _bodyController.document
-          .toPlainText()
-          .trim()
-      : null;
+    final content = saveBody
+        ? _bodyController.document.toPlainText().trim()
+        : null;
 
-  _isSaving = true;
+    _isSaving = true;
 
-  try {
-    await _noteService.updateNote(
-      noteId: widget.noteId,
-      userId: userId,
-      title: title,
-      content: content,
-      bodyDelta: bodyDelta,
-    );
+    try {
+      await _noteService.updateNote(
+        noteId: widget.noteId,
+        userId: userId,
+        title: title,
+        content: content,
+        bodyDelta: bodyDelta,
+      );
 
-    /*
+      /*
      * 保存期间没有继续修改，
      * 才表示当前内容已保存。
      */
-    if (saveTitle &&
-        _titleRevision ==
-            savingTitleRevision) {
-      _titleDirty = false;
-    }
+      if (saveTitle && _titleRevision == savingTitleRevision) {
+        _titleDirty = false;
+      }
 
-    if (saveBody &&
-        _bodyRevision ==
-            savingBodyRevision) {
-      _bodyDirty = false;
-    }
-  } catch (error) {
-    /*
+      if (saveBody && _bodyRevision == savingBodyRevision) {
+        _bodyDirty = false;
+      }
+    } catch (error) {
+      /*
      * 这里不需要重新把 dirty 改成 true，
      * 因为保存开始前没有提前清除 dirty。
      */
-    if (!mounted) {
-      return;
-    }
+      if (!mounted) {
+        return;
+      }
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      SnackBar(
-        content: Text(
-          '保存失败：$error',
-        ),
-        backgroundColor: Colors.red,
-      ),
-    );
-  } finally {
-    _isSaving = false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('保存失败：$error'), backgroundColor: Colors.red),
+      );
+    } finally {
+      _isSaving = false;
 
-    /*
+      /*
      * 保存期间又产生了新输入，
      * 再保存最新版本。
      */
-    if (mounted &&
-        (_titleDirty || _bodyDirty)) {
-      _scheduleSave();
+      if (mounted && (_titleDirty || _bodyDirty)) {
+        _scheduleSave();
+      }
     }
   }
-}
 
   Future<void> _changeEditPermission(bool value) async {
     final userId = _currentUserId;
@@ -473,124 +401,88 @@ Future<void> _saveNow() async {
 
       setState(() {
         _allowOthersEdit = oldValue;
-        _bodyController.readOnly =
-            !(_isOwner || oldValue);
+        _bodyController.readOnly = !(_isOwner || oldValue);
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('权限设置失败：$error'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('权限设置失败：$error'), backgroundColor: Colors.red),
       );
     }
   }
 
   Future<void> _manageSharedUsers() async {
-  final currentUserId =
-      _currentUserId;
+    final currentUserId = _currentUserId;
 
-  if (currentUserId == null ||
-      !_isOwner ||
-      _isUpdatingMembers) {
-    return;
-  }
-
-  try {
-    final snapshot =
-        await FirebaseFirestore
-            .instance
-            .collection('users')
-            .limit(200)
-            .get();
-
-    final users = snapshot.docs
-        .where(
-          (document) =>
-              document.id !=
-              currentUserId,
-        )
-        .map(
-          _NoteSharedUser
-              .fromDocument,
-        )
-        .toList();
-
-    users.sort(
-      (first, second) {
-        return first.name.compareTo(
-          second.name,
-        );
-      },
-    );
-
-    if (!mounted) {
+    if (currentUserId == null || !_isOwner || _isUpdatingMembers) {
       return;
     }
 
-    final result =
-        await showModalBottomSheet<
-            Set<String>>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) {
-        return _SharedMembersPicker(
-          users: users,
-          selectedUserIds:
-              _sharedUserIds.toSet(),
-        );
-      },
-    );
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .limit(200)
+          .get();
 
-    if (result == null ||
-        !mounted) {
-      return;
-    }
+      final users = snapshot.docs
+          .where((document) => document.id != currentUserId)
+          .map(_NoteSharedUser.fromDocument)
+          .toList();
 
-    setState(() {
-      _isUpdatingMembers = true;
-    });
-
-    await _noteService
-        .updateSharedUsers(
-      noteId: widget.noteId,
-      ownerId: currentUserId,
-      sharedUserIds:
-          result.toList(),
-    );
-  } catch (error) {
-    if (!mounted) {
-      return;
-    }
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      SnackBar(
-        content: Text(
-          '更新共享成员失败：$error',
-        ),
-        backgroundColor:
-            Colors.red,
-      ),
-    );
-  } finally {
-    if (mounted) {
-      setState(() {
-        _isUpdatingMembers =
-            false;
+      users.sort((first, second) {
+        return first.name.compareTo(second.name);
       });
+
+      if (!mounted) {
+        return;
+      }
+
+      final result = await showModalBottomSheet<Set<String>>(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: true,
+        builder: (_) {
+          return _SharedMembersPicker(
+            users: users,
+            selectedUserIds: _sharedUserIds.toSet(),
+          );
+        },
+      );
+
+      if (result == null || !mounted) {
+        return;
+      }
+
+      setState(() {
+        _isUpdatingMembers = true;
+      });
+
+      await _noteService.updateSharedUsers(
+        noteId: widget.noteId,
+        ownerId: currentUserId,
+        sharedUserIds: result.toList(),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('更新共享成员失败：$error'), backgroundColor: Colors.red),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUpdatingMembers = false;
+        });
+      }
     }
   }
-}
 
   void _onImageButtonPressed() {
     if (!_canEdit) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('创建者没有开放编辑权限'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('创建者没有开放编辑权限')));
       return;
     }
 
@@ -600,18 +492,14 @@ Future<void> _saveNow() async {
   Future<void> _insertImageAtCursor() async {
     final userId = _currentUserId;
 
-    if (userId == null ||
-        !_canEdit ||
-        _isUploadingImage) {
+    if (userId == null || !_canEdit || _isUploadingImage) {
       return;
     }
 
     if (_countInlineImages() >= 9) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('每条笔记最多插入 9 张图片'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('每条笔记最多插入 9 张图片')));
       return;
     }
 
@@ -630,8 +518,7 @@ Future<void> _saveNow() async {
     });
 
     try {
-      final uploadedImage =
-          await _noteService.uploadInlineImage(
+      final uploadedImage = await _noteService.uploadInlineImage(
         noteId: widget.noteId,
         userId: userId,
         file: File(selectedImage.path),
@@ -646,10 +533,7 @@ Future<void> _saveNow() async {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('插入图片失败：$error'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('插入图片失败：$error'), backgroundColor: Colors.red),
       );
     } finally {
       if (mounted) {
@@ -661,42 +545,30 @@ Future<void> _saveNow() async {
   }
 
   void _insertImageEmbed(String imageUrl) {
-    final documentLength =
-        _bodyController.document.length;
-    final maximumPosition = max(
-      0,
-      documentLength - 1,
-    );
+    final documentLength = _bodyController.document.length;
+    final maximumPosition = max(0, documentLength - 1);
     final selection = _bodyController.selection;
     final rawPosition = selection.isValid
         ? selection.baseOffset
         : maximumPosition;
-    final insertPosition = rawPosition
-        .clamp(0, maximumPosition)
-        .toInt();
+    final insertPosition = rawPosition.clamp(0, maximumPosition).toInt();
 
     _bodyController.replaceText(
       insertPosition,
       0,
       quill.BlockEmbed.image(imageUrl),
-      TextSelection.collapsed(
-        offset: insertPosition + 1,
-      ),
+      TextSelection.collapsed(offset: insertPosition + 1),
     );
 
     _bodyController.replaceText(
       insertPosition + 1,
       0,
       '\n',
-      TextSelection.collapsed(
-        offset: insertPosition + 2,
-      ),
+      TextSelection.collapsed(offset: insertPosition + 2),
     );
 
     _bodyController.updateSelection(
-      TextSelection.collapsed(
-        offset: insertPosition + 2,
-      ),
+      TextSelection.collapsed(offset: insertPosition + 2),
       quill.ChangeSource.local,
     );
 
@@ -704,283 +576,388 @@ Future<void> _saveNow() async {
   }
 
   int _countInlineImages() {
-    final operations = _bodyController
-        .document
-        .toDelta()
-        .toJson();
+    final operations = _bodyController.document.toDelta().toJson();
 
     return operations.where((operation) {
       final insert = operation['insert'];
 
-      return insert is Map &&
-          insert.containsKey('image');
+      return insert is Map && insert.containsKey('image');
     }).length;
   }
 
-  Future<String?>
-    _selectPublishCategory() async {
-  final l10n =
-      AppLocalizations.of(context)!;
+  Future<String?> _selectPublishCategory() async {
+    final l10n = AppLocalizations.of(context)!;
 
-  return showModalBottomSheet<String>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
-    builder: (sheetContext) {
-      return SafeArea(
-        child: SizedBox(
-          height:
-              MediaQuery.sizeOf(context)
-                      .height *
-                  0.72,
-          child: Column(
-            children: [
-              const Padding(
-                padding:
-                    EdgeInsets.fromLTRB(
-                  20,
-                  8,
-                  20,
-                  12,
-                ),
-                child: Align(
-                  alignment:
-                      Alignment.centerLeft,
-                  child: Text(
-                    '选择帖子分类',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight:
-                          FontWeight.w700,
+    return showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.72,
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '选择帖子分类',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              Expanded(
-                child: ListView.builder(
-                  itemCount:
-                      _publishCategoryIds
-                          .length,
-                  itemBuilder:
-                      (context, index) {
-                    final category =
-                        _publishCategoryIds[
-                            index];
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _publishCategoryIds.length,
+                    itemBuilder: (context, index) {
+                      final category = _publishCategoryIds[index];
 
-                    final categoryName =
-                        index <
-                                l10n.categoryNames
-                                    .length
-                            ? l10n
-                                .categoryNames[
-                              index
-                            ]
-                            : category;
+                      final categoryName = index < l10n.categoryNames.length
+                          ? l10n.categoryNames[index]
+                          : category;
 
-                    return ListTile(
-                      leading:
-                          const Icon(
-                        Icons
-                            .topic_outlined,
-                      ),
-                      title: Text(
-                        categoryName,
-                      ),
-                      subtitle: Text(
-                        category,
-                      ),
-                      trailing:
-                          const Icon(
-                        Icons
-                            .chevron_right,
-                      ),
-                      onTap: () {
-                        Navigator.pop(
-                          sheetContext,
-                          category,
-                        );
-                      },
-                    );
-                  },
+                      return ListTile(
+                        leading: const Icon(Icons.topic_outlined),
+                        title: Text(categoryName),
+                        subtitle: Text(category),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          Navigator.pop(sheetContext, category);
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+        );
+      },
+    );
+  }
+
+  String _categoryName(String? category) {
+    if (category == null || category.trim().isEmpty) {
+      return '未选择';
+    }
+
+    final categoryId = category.trim();
+    final index = _publishCategoryIds.indexOf(categoryId);
+
+    if (index == -1) {
+      return categoryId;
+    }
+
+    final l10n = AppLocalizations.of(context)!;
+
+    if (index >= l10n.categoryNames.length) {
+      return categoryId;
+    }
+
+    return l10n.categoryNames[index];
+  }
+
+  Future<void> _changeCategory() async {
+    final userId = _currentUserId;
+
+    if (userId == null || !_isOwner) {
+      return;
+    }
+
+    final category = await _selectPublishCategory();
+
+    if (category == null || !mounted) {
+      return;
+    }
+
+    final oldCategory = _category;
+
+    setState(() {
+      _category = category;
+    });
+
+    try {
+      await _noteService.updateNote(
+        noteId: widget.noteId,
+        userId: userId,
+        category: category,
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _category = oldCategory;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('修改分类失败：$error'),
+          backgroundColor: Colors.red,
         ),
       );
-    },
-  );
-}
+    }
+  }
 
-Future<LanguageConfig?>
-    _selectPublishLanguage() async {
-  final languages =
-      ForumLanguages
-          .supportedLanguages;
+  Future<LanguageConfig?> _selectPublishLanguage() async {
+    final languages = ForumLanguages.supportedLanguages;
 
-  final uiLanguageCode =
-      Localizations.localeOf(context)
-          .languageCode;
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
 
-  return showModalBottomSheet<
-      LanguageConfig>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
-    builder: (sheetContext) {
-      return SafeArea(
-        child: SizedBox(
-          height:
-              MediaQuery.sizeOf(context)
-                      .height *
-                  0.72,
-          child: Column(
-            children: [
-              const Padding(
-                padding:
-                    EdgeInsets.fromLTRB(
-                  20,
-                  8,
-                  20,
-                  12,
-                ),
-                child: Align(
-                  alignment:
-                      Alignment.centerLeft,
-                  child: Text(
-                    '选择主语言',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight:
-                          FontWeight.w700,
+    return showModalBottomSheet<LanguageConfig>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.72,
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '选择主语言',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              Expanded(
-                child: ListView.builder(
-                  itemCount:
-                      languages.length,
-                  itemBuilder:
-                      (context, index) {
-                    final language =
-                        languages[index];
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: languages.length,
+                    itemBuilder: (context, index) {
+                      final language = languages[index];
 
-                    return ListTile(
-                      leading: Text(
-                        language.flag,
-                        style:
-                            const TextStyle(
-                          fontSize: 22,
+                      return ListTile(
+                        leading: Text(
+                          language.flag,
+                          style: const TextStyle(fontSize: 22),
                         ),
-                      ),
-                      title: Text(
-                        language.nameOf(
-                          uiLanguageCode,
-                        ),
-                      ),
-                      trailing:
-                          const Icon(
-                        Icons
-                            .chevron_right,
-                      ),
-                      onTap: () {
-                        Navigator.pop(
-                          sheetContext,
-                          language,
-                        );
-                      },
-                    );
-                  },
+                        title: Text(language.nameOf(uiLanguageCode)),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          Navigator.pop(sheetContext, language);
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
-Future<void>
-    _publishAsPost() async {
-  // 共享成员不能把别人的笔记
-  // 直接公开发布。
+  Future<void> _publishAsPost() async {
+  // 只有笔记创建者可以发布
   if (!_isOwner) {
     return;
   }
 
-  FocusScope.of(context)
-      .unfocus();
+  final userId = _currentUserId;
 
-  // 先尽量把笔记当前修改保存。
+  if (userId == null) {
+    return;
+  }
+
+  FocusScope.of(context).unfocus();
+
+  // 先保存当前正在编辑的标题和正文
   await _saveNow();
 
   if (!mounted) {
     return;
   }
 
-  final category =
-      await _selectPublishCategory();
+  // =========================
+  // 分类
+  // =========================
+
+  String? category = _category?.trim();
+
+  // 笔记没有分类，发布时才要求选择
+  if (category == null || category.isEmpty) {
+    final selectedCategory =
+        await _selectPublishCategory();
+
+    if (selectedCategory == null || !mounted) {
+      return;
+    }
+
+    category = selectedCategory;
+
+    // 顺便保存到笔记
+    await _noteService.updateNote(
+      noteId: widget.noteId,
+      userId: userId,
+      category: selectedCategory,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _category = selectedCategory;
+    });
+  }
+
+  // =========================
+  // 语言
+  // =========================
+
+  String? languageCode =
+      _languageCode?.trim();
+
+  LanguageConfig? selectedLanguage;
+
+  // 笔记没有语言，发布时才要求选择
+  if (languageCode == null ||
+      languageCode.isEmpty) {
+    selectedLanguage =
+        await _selectPublishLanguage();
+
+    if (selectedLanguage == null ||
+        !mounted) {
+      return;
+    }
+
+    languageCode =
+        selectedLanguage.code;
+
+    // 顺便保存到笔记
+    await _noteService.updateNote(
+      noteId: widget.noteId,
+      userId: userId,
+      languageCode:
+          selectedLanguage.code,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _languageCode =
+          selectedLanguage!.code;
+    });
+  }
+
+  // =========================
+  // 到这里发布所需字段一定存在
+  // =========================
 
   if (category == null ||
-      !mounted) {
+      category.isEmpty ||
+      languageCode == null ||
+      languageCode.isEmpty) {
     return;
   }
 
-  final language =
-      await _selectPublishLanguage();
+  final String publishCategory =
+      category;
 
-  if (language == null ||
-      !mounted) {
-    return;
-  }
+  final String publishLanguageCode =
+      languageCode;
+
+  // =========================
+  // 获取语言显示名称
+  // =========================
 
   final uiLanguageCode =
-      Localizations.localeOf(context)
-          .languageCode;
+      Localizations.localeOf(
+        context,
+      ).languageCode;
+
+  String languageName =
+      publishLanguageCode;
+
+  // 如果刚才选择了语言，直接使用
+  if (selectedLanguage != null) {
+    languageName =
+        selectedLanguage.nameOf(
+          uiLanguageCode,
+        );
+  } else {
+    // 如果笔记本来就已经有语言，
+    // 根据 languageCode 找对应语言名称
+    for (final language
+        in ForumLanguages
+            .supportedLanguages) {
+      if (language.code ==
+          publishLanguageCode) {
+        languageName =
+            language.nameOf(
+              uiLanguageCode,
+            );
+
+        break;
+      }
+    }
+  }
+
+  // =========================
+  // 笔记正文
+  // =========================
 
   final bodyDelta =
       _bodyController.document
           .toDelta()
           .toJson();
 
+  // =========================
+  // 进入发帖页
+  // =========================
+
   final published =
       await Navigator.push<bool>(
-    context,
-    MaterialPageRoute(
-      builder: (_) =>
-          CreatePostScreen(
-        category:
-            category,
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              CreatePostScreen(
+                category:
+                    publishCategory,
 
-        languageCode:
-            language.code,
+                languageCode:
+                    publishLanguageCode,
 
-        languageName:
-            language.nameOf(
-          uiLanguageCode,
+                languageName:
+                    languageName,
+
+                initialTitle:
+                    _titleController
+                        .text
+                        .trim(),
+
+                initialBodyDelta:
+                    bodyDelta,
+
+                sourceNoteId:
+                    widget.noteId,
+              ),
         ),
-
-        initialTitle:
-            _titleController.text
-                .trim(),
-
-        initialBodyDelta:
-            bodyDelta,
-
-        sourceNoteId:
-            widget.noteId,
-      ),
-    ),
-  );
+      );
 
   if (published == true &&
       mounted) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(
       const SnackBar(
         content: Text(
           '笔记已发布为帖子',
@@ -989,6 +966,55 @@ Future<void>
             Colors.green,
         behavior:
             SnackBarBehavior.floating,
+      ),
+    );
+  }
+}
+
+Future<void> _changeLanguage() async {
+  final userId = _currentUserId;
+
+  if (userId == null || !_isOwner) {
+    return;
+  }
+
+  final language =
+      await _selectPublishLanguage();
+
+  if (language == null || !mounted) {
+    return;
+  }
+
+  final oldLanguageCode =
+      _languageCode;
+
+  setState(() {
+    _languageCode = language.code;
+  });
+
+  try {
+    await _noteService.updateNote(
+      noteId: widget.noteId,
+      userId: userId,
+      languageCode: language.code,
+    );
+  } catch (error) {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _languageCode =
+          oldLanguageCode;
+    });
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      SnackBar(
+        content: Text(
+          '修改语言失败：$error',
+        ),
+        backgroundColor: Colors.red,
       ),
     );
   }
@@ -1004,9 +1030,7 @@ Future<void>
       builder: (dialogContext) {
         return AlertDialog(
           title: const Text('删除共享笔记？'),
-          content: const Text(
-            '删除后，这条笔记会从双方的笔记列表中消失。',
-          ),
+          content: const Text('删除后，这条笔记会从双方的笔记列表中消失。'),
           actions: [
             TextButton(
               onPressed: () {
@@ -1015,9 +1039,7 @@ Future<void>
               child: const Text('取消'),
             ),
             FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () {
                 Navigator.pop(dialogContext, true);
               },
@@ -1046,173 +1068,125 @@ Future<void>
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('删除失败：$error'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('删除失败：$error'), backgroundColor: Colors.red),
       );
     }
   }
 
-void _showNoteSettings() {
-  showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    builder: (sheetContext) {
-      return StatefulBuilder(
-        builder: (
-          context,
-          setSheetState,
-        ) {
-          return SafeArea(
-            child: Column(
-              mainAxisSize:
-                  MainAxisSize.min,
-              children: [
+  void _showNoteSettings() {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_isOwner)
+                    ListTile(
+                      leading: const Icon(Icons.publish_outlined),
+                      title: const Text('发布为帖子'),
+                      subtitle: const Text('使用笔记分类，选择主语言后进入发帖页'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.pop(sheetContext);
 
-                if (_isOwner)
-  ListTile(
-    leading: const Icon(
-      Icons.publish_outlined,
-    ),
-    title: const Text(
-      '发布为帖子',
-    ),
-    subtitle: const Text(
-      '选择分类和主语言后进入发帖页',
-    ),
-    trailing: const Icon(
-      Icons.chevron_right,
-    ),
-    onTap: () {
-      Navigator.pop(
-        sheetContext,
-      );
+                        _publishAsPost();
+                      },
+                    ),
+                  if (_isOwner)
+                    ListTile(
+                      leading: const Icon(Icons.topic_outlined),
+                      title: const Text('帖子分类'),
+                      subtitle: Text(_categoryName(_category)),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.pop(sheetContext);
 
-      _publishAsPost();
-    },
-  ),
-                if (_isOwner)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.group_outlined,
+                        _changeCategory();
+                      },
                     ),
-                    title: const Text(
-                      '共享成员',
-                    ),
-                    subtitle: Text(
-                      _sharedUserIds.isEmpty
-                          ? '当前仅自己可见'
-                          : '已共享给 '
-                              '${_sharedUserIds.length} 人',
-                    ),
-                    trailing:
-                        _isUpdatingMembers
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child:
-                                    CircularProgressIndicator(
-                                  strokeWidth:
-                                      2,
-                                ),
-                              )
-                            : const Icon(
-                                Icons
-                                    .chevron_right,
-                              ),
-                    onTap:
-                        _isUpdatingMembers
-                            ? null
-                            : () {
-                                Navigator.pop(
-                                  sheetContext,
-                                );
+                  if (_isOwner)
+                    ListTile(
+                      leading: const Icon(Icons.group_outlined),
+                      title: const Text('共享成员'),
+                      subtitle: Text(
+                        _sharedUserIds.isEmpty
+                            ? '当前仅自己可见'
+                            : '已共享给 '
+                                  '${_sharedUserIds.length} 人',
+                      ),
+                      trailing: _isUpdatingMembers
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.chevron_right),
+                      onTap: _isUpdatingMembers
+                          ? null
+                          : () {
+                              Navigator.pop(sheetContext);
 
-                                _manageSharedUsers();
-                              },
-                  )
-                else
-                  ListTile(
-                    leading: const Icon(
-                      Icons.group_outlined,
+                              _manageSharedUsers();
+                            },
+                    )
+                  else
+                    ListTile(
+                      leading: const Icon(Icons.group_outlined),
+                      title: const Text('共享成员'),
+                      subtitle: Text('共 ${_sharedUserIds.length + 1} 人'),
                     ),
-                    title: const Text(
-                      '共享成员',
-                    ),
-                    subtitle: Text(
-                      '共 ${_sharedUserIds.length + 1} 人',
-                    ),
-                  ),
 
-                if (_isOwner)
-                  SwitchListTile(
-                    title: const Text(
-                      '允许共享成员编辑',
-                    ),
-                    subtitle: Text(
-                      _allowOthersEdit
-                          ? '共享成员可以修改文字和图片'
-                          : '共享成员只能查看这条笔记',
-                    ),
-                    value:
-                        _allowOthersEdit,
-                    onChanged:
-                        (value) async {
-                      setSheetState(() {
-                        _allowOthersEdit =
-                            value;
-                      });
+                  if (_isOwner)
+                    SwitchListTile(
+                      title: const Text('允许共享成员编辑'),
+                      subtitle: Text(
+                        _allowOthersEdit ? '共享成员可以修改文字和图片' : '共享成员只能查看这条笔记',
+                      ),
+                      value: _allowOthersEdit,
+                      onChanged: (value) async {
+                        setSheetState(() {
+                          _allowOthersEdit = value;
+                        });
 
-                      await _changeEditPermission(
-                        value,
-                      );
-                    },
-                  )
-                else
-                  ListTile(
-                    leading: Icon(
-                      _canEdit
-                          ? Icons
-                              .edit_outlined
-                          : Icons
-                              .lock_outline,
+                        await _changeEditPermission(value);
+                      },
+                    )
+                  else
+                    ListTile(
+                      leading: Icon(
+                        _canEdit ? Icons.edit_outlined : Icons.lock_outline,
+                      ),
+                      title: Text(_canEdit ? '你可以编辑这条笔记' : '这条笔记只能查看'),
                     ),
-                    title: Text(
-                      _canEdit
-                          ? '你可以编辑这条笔记'
-                          : '这条笔记只能查看',
-                    ),
-                  ),
 
-                if (_isOwner)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.delete_outline,
-                      color: Colors.red,
-                    ),
-                    title: const Text(
-                      '删除笔记',
-                      style: TextStyle(
+                  if (_isOwner)
+                    ListTile(
+                      leading: const Icon(
+                        Icons.delete_outline,
                         color: Colors.red,
                       ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(
-                        sheetContext,
-                      );
+                      title: const Text(
+                        '删除笔记',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      onTap: () {
+                        Navigator.pop(sheetContext);
 
-                      _deleteNote();
-                    },
-                  ),
-              ],
-            ),
-          );
-        },
-      );
-    },
-  );
-}
+                        _deleteNote();
+                      },
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   void dispose() {
@@ -1232,49 +1206,33 @@ void _showNoteSettings() {
   @override
   Widget build(BuildContext context) {
     if (!_isLoaded) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (_currentUserId == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('共享笔记'),
-        ),
-        body: const Center(
-          child: Text('请先登录'),
-        ),
+        appBar: AppBar(title: const Text('共享笔记')),
+        body: const Center(child: Text('请先登录')),
       );
     }
 
     if (_isDeleted) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('共享笔记'),
-        ),
-        body: const Center(
-          child: Text('这条笔记已被删除'),
-        ),
+        appBar: AppBar(title: const Text('共享笔记')),
+        body: const Center(child: Text('这条笔记已被删除')),
       );
     }
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
-      body: SafeArea(
-        child: _buildEditor(),
-      ),
+      body: SafeArea(child: _buildEditor()),
       bottomNavigationBar: _canEdit
           ? SafeArea(
               top: false,
               child: Material(
                 elevation: 8,
-                color: Theme.of(context)
-                    .colorScheme
-                    .surface,
+                color: Theme.of(context).colorScheme.surface,
                 child: _buildToolbar(),
               ),
             )
@@ -1288,22 +1246,16 @@ void _showNoteSettings() {
       actions: [
         IconButton(
           tooltip: '插入图片',
-          onPressed: _isUploadingImage
-              ? null
-              : _onImageButtonPressed,
+          onPressed: _isUploadingImage ? null : _onImageButtonPressed,
           icon: _isUploadingImage
               ? const SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                  ),
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 )
               : Icon(
                   Icons.add_photo_alternate_outlined,
-                  color: _canEdit
-                      ? null
-                      : Colors.grey,
+                  color: _canEdit ? null : Colors.grey,
                 ),
         ),
         IconButton(
@@ -1319,21 +1271,13 @@ void _showNoteSettings() {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            20,
-            14,
-            20,
-            6,
-          ),
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 6),
           child: TextField(
             controller: _titleController,
             readOnly: !_canEdit,
             onChanged: _onTitleChanged,
             maxLines: 1,
-            style: const TextStyle(
-              fontSize: 23,
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w600),
             decoration: const InputDecoration(
               hintText: '笔记标题',
               border: InputBorder.none,
@@ -1348,14 +1292,8 @@ void _showNoteSettings() {
             scrollController: _editorScrollController,
             config: quill.QuillEditorConfig(
               placeholder: '输入笔记内容……',
-              padding: const EdgeInsets.fromLTRB(
-                20,
-                18,
-                20,
-                120,
-              ),
-              embedBuilders:
-                  FlutterQuillEmbeds.editorBuilders(),
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 120),
+              embedBuilders: FlutterQuillEmbeds.editorBuilders(),
             ),
           ),
         ),
@@ -1398,8 +1336,8 @@ void _showNoteSettings() {
     );
   }
 }
-class _SharedMembersPicker
-    extends StatefulWidget {
+
+class _SharedMembersPicker extends StatefulWidget {
   final List<_NoteSharedUser> users;
   final Set<String> selectedUserIds;
 
@@ -1409,18 +1347,13 @@ class _SharedMembersPicker
   });
 
   @override
-  State<_SharedMembersPicker>
-      createState() =>
-          _SharedMembersPickerState();
+  State<_SharedMembersPicker> createState() => _SharedMembersPickerState();
 }
 
-class _SharedMembersPickerState
-    extends State<_SharedMembersPicker> {
-  final _searchController =
-      TextEditingController();
+class _SharedMembersPickerState extends State<_SharedMembersPicker> {
+  final _searchController = TextEditingController();
 
-  late final Set<String>
-      _selectedUserIds;
+  late final Set<String> _selectedUserIds;
 
   String _keyword = '';
 
@@ -1428,31 +1361,20 @@ class _SharedMembersPickerState
   void initState() {
     super.initState();
 
-    _selectedUserIds =
-        Set<String>.from(
-      widget.selectedUserIds,
-    );
+    _selectedUserIds = Set<String>.from(widget.selectedUserIds);
   }
 
-  List<_NoteSharedUser>
-      get _visibleUsers {
-    final keyword =
-        _keyword.trim().toLowerCase();
+  List<_NoteSharedUser> get _visibleUsers {
+    final keyword = _keyword.trim().toLowerCase();
 
     if (keyword.isEmpty) {
       return widget.users;
     }
 
-    return widget.users.where(
-      (user) {
-        return user.name
-                .toLowerCase()
-                .contains(keyword) ||
-            user.username
-                .toLowerCase()
-                .contains(keyword);
-      },
-    ).toList();
+    return widget.users.where((user) {
+      return user.name.toLowerCase().contains(keyword) ||
+          user.username.toLowerCase().contains(keyword);
+    }).toList();
   }
 
   @override
@@ -1467,20 +1389,11 @@ class _SharedMembersPickerState
 
     return SafeArea(
       child: SizedBox(
-        height:
-            MediaQuery.sizeOf(context)
-                    .height *
-                0.78,
+        height: MediaQuery.sizeOf(context).height * 0.78,
         child: Column(
           children: [
             Padding(
-              padding:
-                  const EdgeInsets.fromLTRB(
-                20,
-                0,
-                12,
-                12,
-              ),
+              padding: const EdgeInsets.fromLTRB(20, 0, 12, 12),
               child: Row(
                 children: [
                   const Expanded(
@@ -1488,55 +1401,36 @@ class _SharedMembersPickerState
                       '共享成员',
                       style: TextStyle(
                         fontSize: 20,
-                        fontWeight:
-                            FontWeight.w700,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.pop(
-                        context,
-                        _selectedUserIds,
-                      );
+                      Navigator.pop(context, _selectedUserIds);
                     },
-                    child: const Text(
-                      '完成',
-                    ),
+                    child: const Text('完成'),
                   ),
                 ],
               ),
             ),
 
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 16,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
-                controller:
-                    _searchController,
+                controller: _searchController,
                 onChanged: (value) {
                   setState(() {
                     _keyword = value;
                   });
                 },
-                decoration:
-                    InputDecoration(
-                  hintText:
-                      '搜索昵称或用户名',
-                  prefixIcon:
-                      const Icon(
-                    Icons.search,
-                  ),
+                decoration: InputDecoration(
+                  hintText: '搜索昵称或用户名',
+                  prefixIcon: const Icon(Icons.search),
                   filled: true,
-                  border:
-                      OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius
-                            .circular(16),
-                    borderSide:
-                        BorderSide.none,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),
@@ -1546,71 +1440,38 @@ class _SharedMembersPickerState
 
             Expanded(
               child: users.isEmpty
-                  ? const Center(
-                      child: Text(
-                        '没有找到用户',
-                      ),
-                    )
+                  ? const Center(child: Text('没有找到用户'))
                   : ListView.builder(
-                      itemCount:
-                          users.length,
-                      itemBuilder: (
-                        context,
-                        index,
-                      ) {
-                        final user =
-                            users[index];
+                      itemCount: users.length,
+                      itemBuilder: (context, index) {
+                        final user = users[index];
 
-                        final selected =
-                            _selectedUserIds
-                                .contains(
-                          user.id,
-                        );
+                        final selected = _selectedUserIds.contains(user.id);
 
                         return CheckboxListTile(
                           value: selected,
-                          secondary:
-                              CircleAvatar(
+                          secondary: CircleAvatar(
                             backgroundImage:
-                                user.avatarUrl !=
-                                            null &&
-                                        user.avatarUrl!
-                                            .isNotEmpty
-                                    ? NetworkImage(
-                                        user.avatarUrl!,
-                                      )
-                                    : null,
-                            child: user.avatarUrl ==
-                                        null ||
-                                    user.avatarUrl!
-                                        .isEmpty
-                                ? const Icon(
-                                    Icons.person,
-                                  )
+                                user.avatarUrl != null &&
+                                    user.avatarUrl!.isNotEmpty
+                                ? NetworkImage(user.avatarUrl!)
+                                : null,
+                            child:
+                                user.avatarUrl == null ||
+                                    user.avatarUrl!.isEmpty
+                                ? const Icon(Icons.person)
                                 : null,
                           ),
-                          title: Text(
-                            user.name,
-                          ),
-                          subtitle:
-                              user.username
-                                      .isEmpty
-                                  ? null
-                                  : Text(
-                                      '@${user.username}',
-                                    ),
+                          title: Text(user.name),
+                          subtitle: user.username.isEmpty
+                              ? null
+                              : Text('@${user.username}'),
                           onChanged: (value) {
                             setState(() {
                               if (value == true) {
-                                _selectedUserIds
-                                    .add(
-                                  user.id,
-                                );
+                                _selectedUserIds.add(user.id);
                               } else {
-                                _selectedUserIds
-                                    .remove(
-                                  user.id,
-                                );
+                                _selectedUserIds.remove(user.id);
                               }
                             });
                           },
@@ -1639,59 +1500,32 @@ class _NoteSharedUser {
   });
 
   factory _NoteSharedUser.fromDocument(
-    DocumentSnapshot<
-            Map<String, dynamic>>
-        document,
+    DocumentSnapshot<Map<String, dynamic>> document,
   ) {
-    final data =
-        document.data() ??
-            const <String, dynamic>{};
+    final data = document.data() ?? const <String, dynamic>{};
 
-    final nickname =
-        data['nickname']
-            ?.toString()
-            .trim();
+    final nickname = data['nickname']?.toString().trim();
 
-    final displayName =
-        data['displayName']
-            ?.toString()
-            .trim();
+    final displayName = data['displayName']?.toString().trim();
 
-    final username =
-        data['username']
-                ?.toString()
-                .trim() ??
-            '';
+    final username = data['username']?.toString().trim() ?? '';
 
-    final email =
-        data['email']
-            ?.toString()
-            .trim();
+    final email = data['email']?.toString().trim();
 
-    final name =
-        nickname != null &&
-                nickname.isNotEmpty
-            ? nickname
-            : displayName != null &&
-                    displayName.isNotEmpty
-                ? displayName
-                : username.isNotEmpty
-                    ? username
-                    : email != null &&
-                            email.isNotEmpty
-                        ? email
-                        : '用户';
+    final name = nickname != null && nickname.isNotEmpty
+        ? nickname
+        : displayName != null && displayName.isNotEmpty
+        ? displayName
+        : username.isNotEmpty
+        ? username
+        : email != null && email.isNotEmpty
+        ? email
+        : '用户';
 
     final avatarUrl =
-        data['avatarUrl']
-                ?.toString()
-                .trim() ??
-            data['avatar']
-                ?.toString()
-                .trim() ??
-            data['photoUrl']
-                ?.toString()
-                .trim();
+        data['avatarUrl']?.toString().trim() ??
+        data['avatar']?.toString().trim() ??
+        data['photoUrl']?.toString().trim();
 
     return _NoteSharedUser(
       id: document.id,

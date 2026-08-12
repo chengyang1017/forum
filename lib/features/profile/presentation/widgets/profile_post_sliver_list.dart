@@ -21,9 +21,7 @@ class ProfilePostSliverList extends StatelessWidget {
         child: Container(
           color: Colors.white,
           padding: const EdgeInsets.all(32),
-          child: const Center(
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
+          child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
         ),
       );
     }
@@ -70,27 +68,24 @@ class ProfilePostSliverList extends StatelessWidget {
     }
 
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final post = posts[index];
+      delegate: SliverChildBuilderDelegate((context, index) {
+        final post = posts[index];
 
-          return Container(
-            color: Colors.white,
-            child: Column(
-              children: [
-                PostItemCard(
-                  post: post,
-                  showUserInfo: false,
-                  showLanguageBadge: true,
-                ),
-                if (index < posts.length - 1)
-                  Divider(height: 1, thickness: 1, color: Colors.grey.shade100),
-              ],
-            ),
-          );
-        },
-        childCount: posts.length,
-      ),
+        return Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              PostItemCard(
+                post: post,
+                showUserInfo: false,
+                showLanguageBadge: true,
+              ),
+              if (index < posts.length - 1)
+                Divider(height: 1, thickness: 1, color: Colors.grey.shade100),
+            ],
+          ),
+        );
+      }, childCount: posts.length),
     );
   }
 }

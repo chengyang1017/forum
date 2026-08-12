@@ -9,10 +9,8 @@ import '../../../language/presentation/screens/language_select_screen.dart';
 import '../widgets/recommended_posts_view.dart';
 
 import '../../../language/data/forum_languages.dart';
-enum _HomeSection {
-  recommended,
-  categories,
-}
+
+enum _HomeSection { recommended, categories }
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -25,76 +23,32 @@ class _HomeTabState extends State<HomeTab> {
   _HomeSection _currentSection = _HomeSection.recommended;
   String _selectedChannelKey = 'zh';
   static const List<CategoryConfig> _categories = [
-    CategoryConfig(
-      id: 'language_learning',
-      icon: Icons.translate_rounded,
-    ),
-    CategoryConfig(
-      id: 'programming',
-      icon: Icons.code_rounded,
-    ),
-    CategoryConfig(
-      id: 'ai',
-      icon: Icons.smart_toy_rounded,
-    ),
-    CategoryConfig(
-      id: 'technology',
-      icon: Icons.devices_rounded,
-    ),
-    CategoryConfig(
-      id: 'gaming',
-      icon: Icons.sports_esports_rounded,
-    ),
-    CategoryConfig(
-      id: 'music',
-      icon: Icons.music_note_rounded,
-    ),
-    CategoryConfig(
-      id: 'movies',
-      icon: Icons.movie_rounded,
-    ),
-    CategoryConfig(
-      id: 'campus',
-      icon: Icons.school_rounded,
-    ),
-    CategoryConfig(
-      id: 'startup',
-      icon: Icons.rocket_launch_rounded,
-    ),
-    CategoryConfig(
-      id: 'friends',
-      icon: Icons.people_alt_rounded,
-    ),
-    CategoryConfig(
-      id: 'travel',
-      icon: Icons.flight_takeoff_rounded,
-    ),
-    CategoryConfig(
-      id: 'chat',
-      icon: Icons.forum_rounded,
-    ),
-    CategoryConfig(
-      id: 'love',
-      icon: Icons.favorite_rounded,
-    ),
-    CategoryConfig(
-      id: 'food',
-      icon: Icons.restaurant_rounded,
-    ),
+    CategoryConfig(id: 'language_learning', icon: Icons.translate_rounded),
+    CategoryConfig(id: 'programming', icon: Icons.code_rounded),
+    CategoryConfig(id: 'ai', icon: Icons.smart_toy_rounded),
+    CategoryConfig(id: 'technology', icon: Icons.devices_rounded),
+    CategoryConfig(id: 'gaming', icon: Icons.sports_esports_rounded),
+    CategoryConfig(id: 'music', icon: Icons.music_note_rounded),
+    CategoryConfig(id: 'movies', icon: Icons.movie_rounded),
+    CategoryConfig(id: 'campus', icon: Icons.school_rounded),
+    CategoryConfig(id: 'startup', icon: Icons.rocket_launch_rounded),
+    CategoryConfig(id: 'friends', icon: Icons.people_alt_rounded),
+    CategoryConfig(id: 'travel', icon: Icons.flight_takeoff_rounded),
+    CategoryConfig(id: 'chat', icon: Icons.forum_rounded),
+    CategoryConfig(id: 'love', icon: Icons.favorite_rounded),
+    CategoryConfig(id: 'food', icon: Icons.restaurant_rounded),
   ];
 
-ForumLanguageChannel get _currentChannel {
-  return ForumLanguages.channels.firstWhere(
-    (channel) =>
-        channel.key == _selectedChannelKey,
-    orElse: () {
-      return ForumLanguages.channels.firstWhere(
-        (channel) =>
-            channel.language.code == 'zh',
-      );
-    },
-  );
-}
+  ForumLanguageChannel get _currentChannel {
+    return ForumLanguages.channels.firstWhere(
+      (channel) => channel.key == _selectedChannelKey,
+      orElse: () {
+        return ForumLanguages.channels.firstWhere(
+          (channel) => channel.language.code == 'zh',
+        );
+      },
+    );
+  }
 
   void _selectSection(_HomeSection section) {
     if (_currentSection == section) {
@@ -106,82 +60,63 @@ ForumLanguageChannel get _currentChannel {
     });
   }
 
-  Future<void> _openLanguageSelect(
-  String uiLanguageCode,
-) async {
-  final selectedChannel =
-      await Navigator.of(context)
-          .push<ForumLanguageChannel>(
-    MaterialPageRoute<ForumLanguageChannel>(
-      builder: (_) => LanguageSelectScreen(
-        currentChannel: _currentChannel,
-        currentUiLanguageCode:
-            uiLanguageCode,
-      ),
-    ),
-  );
+  Future<void> _openLanguageSelect(String uiLanguageCode) async {
+    final selectedChannel = await Navigator.of(context)
+        .push<ForumLanguageChannel>(
+          MaterialPageRoute<ForumLanguageChannel>(
+            builder: (_) => LanguageSelectScreen(
+              currentChannel: _currentChannel,
+              currentUiLanguageCode: uiLanguageCode,
+            ),
+          ),
+        );
 
-  if (!mounted ||
-      selectedChannel == null) {
-    return;
+    if (!mounted || selectedChannel == null) {
+      return;
+    }
+
+    if (selectedChannel.key == _selectedChannelKey) {
+      return;
+    }
+
+    setState(() {
+      _selectedChannelKey = selectedChannel.key;
+    });
   }
-
-  if (selectedChannel.key ==
-      _selectedChannelKey) {
-    return;
-  }
-
-  setState(() {
-    _selectedChannelKey =
-        selectedChannel.key;
-  });
-}
 
   void _openCategory({
-  required CategoryConfig category,
-  required String uiLanguageCode,
-}) {
-  final channel =
-      _currentChannel;
+    required CategoryConfig category,
+    required String uiLanguageCode,
+  }) {
+    final channel = _currentChannel;
 
-  final languageName =
-      channel.nameOf(
-    uiLanguageCode,
-  );
+    final languageName = channel.nameOf(uiLanguageCode);
 
-  Navigator.of(context).push(
-    MaterialPageRoute<void>(
-      builder: (_) => FeedScreen(
-        category: category.id,
-        languageCode:
-            channel.contentLanguageCode,
-        languageName: languageName,
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => FeedScreen(
+          category: category.id,
+          languageCode: channel.contentLanguageCode,
+          languageName: languageName,
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
-    final uiLanguageCode =
-        Localizations.localeOf(context).languageCode;
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
 
-    final currentChannel =
-    _currentChannel;
+    final currentChannel = _currentChannel;
 
-    final currentLanguage =
-        currentChannel.language;
+    final currentLanguage = currentChannel.language;
 
-    final currentLanguageName =
-        currentChannel.nameOf(
-      uiLanguageCode,
-    );
+    final currentLanguageName = currentChannel.nameOf(uiLanguageCode);
 
-    final isRecommended =
-        _currentSection == _HomeSection.recommended;
+    final isRecommended = _currentSection == _HomeSection.recommended;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -194,13 +129,8 @@ ForumLanguageChannel get _currentChannel {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              isRecommended
-                  ? '为你推荐'
-                  : l10n.forumCategories,
-              style: const TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.w700,
-              ),
+              isRecommended ? '为你推荐' : l10n.forumCategories,
+              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
             ),
             Text(
               isRecommended
@@ -217,16 +147,12 @@ ForumLanguageChannel get _currentChannel {
         actions: [
           if (!isRecommended)
             Padding(
-              padding: const EdgeInsets.only(
-                right: 10,
-              ),
+              padding: const EdgeInsets.only(right: 10),
               child: _ChannelSelectorButton(
                 flag: currentLanguage.flag,
                 languageName: currentLanguageName,
                 onPressed: () {
-                  _openLanguageSelect(
-                    uiLanguageCode,
-                  );
+                  _openLanguageSelect(uiLanguageCode);
                 },
               ),
             ),
@@ -250,10 +176,7 @@ ForumLanguageChannel get _currentChannel {
               _openLanguageSelect(uiLanguageCode);
             },
             onCategorySelected: (category) {
-              _openCategory(
-                category: category,
-                uiLanguageCode: uiLanguageCode,
-              );
+              _openCategory(category: category, uiLanguageCode: uiLanguageCode);
             },
           ),
         ],
@@ -272,12 +195,7 @@ class _RecommendedSection extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            10,
-            16,
-            8,
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
@@ -289,9 +207,7 @@ class _RecommendedSection extends StatelessWidget {
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: colorScheme.primary.withOpacity(0.15),
-              ),
+              border: Border.all(color: colorScheme.primary.withOpacity(0.15)),
             ),
             child: Row(
               children: [
@@ -310,8 +226,7 @@ class _RecommendedSection extends StatelessWidget {
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         '你的兴趣主页',
@@ -324,8 +239,7 @@ class _RecommendedSection extends StatelessWidget {
                       Text(
                         '先到分类频道，把语言频道中的分类设为感兴趣',
                         style: TextStyle(
-                          color: colorScheme.onSurface
-                              .withOpacity(0.62),
+                          color: colorScheme.onSurface.withOpacity(0.62),
                           fontSize: 12,
                         ),
                       ),
@@ -336,9 +250,7 @@ class _RecommendedSection extends StatelessWidget {
             ),
           ),
         ),
-        const Expanded(
-          child: RecommendedPostsView(),
-        ),
+        const Expanded(child: RecommendedPostsView()),
       ],
     );
   }
@@ -353,10 +265,7 @@ class _HomeDrawer extends StatelessWidget {
     required this.onSectionSelected,
   });
 
-  void _select(
-    BuildContext context,
-    _HomeSection section,
-  ) {
+  void _select(BuildContext context, _HomeSection section) {
     Navigator.of(context).pop();
     onSectionSelected(section);
   }
@@ -387,8 +296,7 @@ class _HomeDrawer extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       width: 46,
@@ -425,40 +333,28 @@ class _HomeDrawer extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Column(
                 children: [
                   _DrawerNavigationItem(
-                    selected:
-                        currentSection ==
-                        _HomeSection.recommended,
+                    selected: currentSection == _HomeSection.recommended,
                     icon: Icons.home_rounded,
                     outlineIcon: Icons.home_outlined,
                     title: '推荐主页',
                     subtitle: '只显示已选择的兴趣',
                     onTap: () {
-                      _select(
-                        context,
-                        _HomeSection.recommended,
-                      );
+                      _select(context, _HomeSection.recommended);
                     },
                   ),
                   const SizedBox(height: 6),
                   _DrawerNavigationItem(
-                    selected:
-                        currentSection ==
-                        _HomeSection.categories,
+                    selected: currentSection == _HomeSection.categories,
                     icon: Icons.grid_view_rounded,
                     outlineIcon: Icons.grid_view_outlined,
                     title: '分类频道',
                     subtitle: '选择语言、浏览和设置兴趣',
                     onTap: () {
-                      _select(
-                        context,
-                        _HomeSection.categories,
-                      );
+                      _select(context, _HomeSection.categories);
                     },
                   ),
                 ],
@@ -472,15 +368,13 @@ class _HomeDrawer extends StatelessWidget {
                   Icon(
                     Icons.language_rounded,
                     size: 18,
-                    color: colorScheme.onSurface
-                        .withOpacity(0.45),
+                    color: colorScheme.onSurface.withOpacity(0.45),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     '探索不同语言的内容',
                     style: TextStyle(
-                      color: colorScheme.onSurface
-                          .withOpacity(0.45),
+                      color: colorScheme.onSurface.withOpacity(0.45),
                       fontSize: 12,
                     ),
                   ),
@@ -524,10 +418,7 @@ class _DrawerNavigationItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 12,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Row(
             children: [
               Container(
@@ -536,24 +427,21 @@ class _DrawerNavigationItem extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: selected
                       ? colorScheme.primary
-                      : colorScheme.onSurface
-                          .withOpacity(0.06),
+                      : colorScheme.onSurface.withOpacity(0.06),
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: Icon(
                   selected ? icon : outlineIcon,
                   color: selected
                       ? colorScheme.onPrimary
-                      : colorScheme.onSurface
-                          .withOpacity(0.65),
+                      : colorScheme.onSurface.withOpacity(0.65),
                   size: 22,
                 ),
               ),
               const SizedBox(width: 13),
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
@@ -569,8 +457,7 @@ class _DrawerNavigationItem extends StatelessWidget {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: colorScheme.onSurface
-                            .withOpacity(0.48),
+                        color: colorScheme.onSurface.withOpacity(0.48),
                         fontSize: 11,
                       ),
                     ),
@@ -578,10 +465,7 @@ class _DrawerNavigationItem extends StatelessWidget {
                 ),
               ),
               if (selected)
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: colorScheme.primary,
-                ),
+                Icon(Icons.chevron_right_rounded, color: colorScheme.primary),
             ],
           ),
         ),
@@ -597,8 +481,7 @@ class _CategorySection extends StatelessWidget {
   final List<CategoryConfig> categories;
   final List<String> categoryNames;
   final VoidCallback onChangeLanguage;
-  final ValueChanged<CategoryConfig>
-      onCategorySelected;
+  final ValueChanged<CategoryConfig> onCategorySelected;
 
   const _CategorySection({
     required this.language,
@@ -610,11 +493,9 @@ class _CategorySection extends StatelessWidget {
     required this.onCategorySelected,
   });
 
-String _interestKey(
-  String categoryId,
-) {
-  return '$channelKey::$categoryId';
-}
+  String _interestKey(String categoryId) {
+    return '$channelKey::$categoryId';
+  }
 
   Future<void> _toggleInterest({
     required BuildContext context,
@@ -624,11 +505,9 @@ String _interestKey(
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('请先登录后再设置兴趣'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('请先登录后再设置兴趣')));
       return;
     }
 
@@ -648,11 +527,9 @@ String _interestKey(
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('更新兴趣失败：$error'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('更新兴趣失败：$error')));
     }
   }
 
@@ -672,12 +549,7 @@ String _interestKey(
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            10,
-            16,
-            6,
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
           child: Material(
             color: colorScheme.primary.withOpacity(0.08),
             borderRadius: BorderRadius.circular(20),
@@ -694,12 +566,10 @@ String _interestKey(
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: colorScheme.surface,
-                        borderRadius:
-                            BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black
-                                .withOpacity(0.05),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -707,16 +577,13 @@ String _interestKey(
                       ),
                       child: Text(
                         language.flag,
-                        style: const TextStyle(
-                          fontSize: 27,
-                        ),
+                        style: const TextStyle(fontSize: 27),
                       ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             languageName,
@@ -729,8 +596,7 @@ String _interestKey(
                           Text(
                             '当前频道 · 点击切换语言',
                             style: TextStyle(
-                              color: colorScheme.onSurface
-                                  .withOpacity(0.56),
+                              color: colorScheme.onSurface.withOpacity(0.56),
                               fontSize: 12,
                             ),
                           ),
@@ -757,27 +623,18 @@ String _interestKey(
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            14,
-            16,
-            10,
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
           child: Row(
             children: [
               const Text(
                 '选择主题',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
               ),
               const Spacer(),
               Text(
                 '点击心形设为感兴趣',
                 style: TextStyle(
-                  color: colorScheme.onSurface
-                      .withOpacity(0.48),
+                  color: colorScheme.onSurface.withOpacity(0.48),
                   fontSize: 12,
                 ),
               ),
@@ -792,10 +649,8 @@ String _interestKey(
                   categories: categories,
                   categoryNames: categoryNames,
                   interests: const {},
-                  onCategorySelected:
-                      onCategorySelected,
-                  onInterestPressed:
-                      (category, isInterested) {
+                  onCategorySelected: onCategorySelected,
+                  onInterestPressed: (category, isInterested) {
                     _toggleInterest(
                       context: context,
                       category: category,
@@ -803,17 +658,14 @@ String _interestKey(
                     );
                   },
                 )
-              : StreamBuilder<
-                  DocumentSnapshot<Map<String, dynamic>>
-                >(
+              : StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                   stream: FirebaseFirestore.instance
                       .collection('users')
                       .doc(userId)
                       .snapshots(),
                   builder: (context, snapshot) {
                     final interests = _readInterests(
-                      snapshot.data
-                          ?.data()?['interests'],
+                      snapshot.data?.data()?['interests'],
                     );
 
                     return _CategoryGrid(
@@ -822,10 +674,8 @@ String _interestKey(
                       categories: categories,
                       categoryNames: categoryNames,
                       interests: interests,
-                      onCategorySelected:
-                          onCategorySelected,
-                      onInterestPressed:
-                          (category, isInterested) {
+                      onCategorySelected: onCategorySelected,
+                      onInterestPressed: (category, isInterested) {
                         _toggleInterest(
                           context: context,
                           category: category,
@@ -847,12 +697,9 @@ class _CategoryGrid extends StatelessWidget {
   final List<CategoryConfig> categories;
   final List<String> categoryNames;
   final Set<String> interests;
-  final ValueChanged<CategoryConfig>
-      onCategorySelected;
-  final void Function(
-    CategoryConfig category,
-    bool isInterested,
-  ) onInterestPressed;
+  final ValueChanged<CategoryConfig> onCategorySelected;
+  final void Function(CategoryConfig category, bool isInterested)
+  onInterestPressed;
 
   const _CategoryGrid({
     required this.language,
@@ -868,19 +715,12 @@ class _CategoryGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final crossAxisCount =
-            constraints.maxWidth >= 720 ? 4 : 2;
+        final crossAxisCount = constraints.maxWidth >= 720 ? 4 : 2;
 
         return GridView.builder(
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            0,
-            16,
-            20,
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
           itemCount: categories.length,
-          gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
@@ -889,16 +729,13 @@ class _CategoryGrid extends StatelessWidget {
           itemBuilder: (context, index) {
             final category = categories[index];
 
-            final categoryName =
-                index < categoryNames.length
+            final categoryName = index < categoryNames.length
                 ? categoryNames[index]
                 : category.id;
 
-            final key =
-                '$channelKey::${category.id}';
+            final key = '$channelKey::${category.id}';
 
-            final isInterested =
-                interests.contains(key);
+            final isInterested = interests.contains(key);
 
             return _CategoryCard(
               index: index,
@@ -909,10 +746,7 @@ class _CategoryGrid extends StatelessWidget {
                 onCategorySelected(category);
               },
               onInterestPressed: () {
-                onInterestPressed(
-                  category,
-                  isInterested,
-                );
+                onInterestPressed(category, isInterested);
               },
             );
           },
@@ -926,10 +760,7 @@ class CategoryConfig {
   final String id;
   final IconData icon;
 
-  const CategoryConfig({
-    required this.id,
-    required this.icon,
-  });
+  const CategoryConfig({required this.id, required this.icon});
 }
 
 class _ChannelSelectorButton extends StatelessWidget {
@@ -954,23 +785,14 @@ class _ChannelSelectorButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         onTap: onPressed,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 11,
-            vertical: 7,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                flag,
-                style: const TextStyle(
-                  fontSize: 18,
-                ),
-              ),
+              Text(flag, style: const TextStyle(fontSize: 18)),
               const SizedBox(width: 7),
               ConstrainedBox(
-                constraints:
-                    const BoxConstraints(maxWidth: 90),
+                constraints: const BoxConstraints(maxWidth: 90),
                 child: Text(
                   languageName,
                   maxLines: 1,
@@ -1016,10 +838,7 @@ class _CategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final accentColor = _accentColor(
-      colorScheme,
-      index,
-    );
+    final accentColor = _accentColor(colorScheme, index);
 
     return Material(
       color: colorScheme.surface,
@@ -1045,12 +864,7 @@ class _CategoryCard extends StatelessWidget {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              14,
-              12,
-              8,
-              12,
-            ),
+            padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
             child: Row(
               children: [
                 Container(
@@ -1060,11 +874,7 @@ class _CategoryCard extends StatelessWidget {
                     color: accentColor.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(
-                    icon,
-                    color: accentColor,
-                    size: 24,
-                  ),
+                  child: Icon(icon, color: accentColor, size: 24),
                 ),
                 const SizedBox(width: 11),
                 Expanded(
@@ -1079,9 +889,7 @@ class _CategoryCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  tooltip: isInterested
-                      ? '取消感兴趣'
-                      : '设为感兴趣',
+                  tooltip: isInterested ? '取消感兴趣' : '设为感兴趣',
                   onPressed: onInterestPressed,
                   icon: Icon(
                     isInterested
@@ -1089,8 +897,7 @@ class _CategoryCard extends StatelessWidget {
                         : Icons.favorite_border_rounded,
                     color: isInterested
                         ? colorScheme.primary
-                        : colorScheme.onSurface
-                            .withOpacity(0.34),
+                        : colorScheme.onSurface.withOpacity(0.34),
                   ),
                 ),
               ],
@@ -1101,10 +908,7 @@ class _CategoryCard extends StatelessWidget {
     );
   }
 
-  Color _accentColor(
-    ColorScheme colorScheme,
-    int index,
-  ) {
+  Color _accentColor(ColorScheme colorScheme, int index) {
     final colors = <Color>[
       colorScheme.primary,
       colorScheme.secondary,

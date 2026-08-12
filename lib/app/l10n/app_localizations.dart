@@ -28,42 +28,10 @@ class AppLocalizations {
   }
 
   /// 加载指定语言的 JSON 文件
-Future<bool> load() async {
-  try {
-    final String jsonString = await rootBundle.loadString(
-      'assets/l10n/$_fileName.json',
-    );
-
-    _data = jsonDecode(jsonString);
-
-    _strings = {};
-    _data.forEach((key, value) {
-      if (key != 'categoryNames' && key != 'languageTranslations') {
-        _strings[key] = value.toString();
-      }
-    });
-
-    if (_data['categoryNames'] is List) {
-      _categoryNames = List<String>.from(_data['categoryNames']);
-    } else {
-      _categoryNames = _getDefaultCategoryNames();
-    }
-
-    if (_data['languageTranslations'] is Map) {
-      _languageTranslations = Map<String, String>.from(
-        _data['languageTranslations'].map(
-          (k, v) => MapEntry(k, v.toString()),
-        ),
-      );
-    } else {
-      _languageTranslations = _getDefaultLanguageTranslations();
-    }
-
-    return true;
-  } catch (e) {
+  Future<bool> load() async {
     try {
       final String jsonString = await rootBundle.loadString(
-        'assets/l10n/en.json',
+        'assets/l10n/$_fileName.json',
       );
 
       _data = jsonDecode(jsonString);
@@ -92,17 +60,64 @@ Future<bool> load() async {
       }
 
       return true;
-    } catch (_) {
-      _strings = {};
-      _categoryNames = _getDefaultCategoryNames();
-      _languageTranslations = _getDefaultLanguageTranslations();
-      return false;
+    } catch (e) {
+      try {
+        final String jsonString = await rootBundle.loadString(
+          'assets/l10n/en.json',
+        );
+
+        _data = jsonDecode(jsonString);
+
+        _strings = {};
+        _data.forEach((key, value) {
+          if (key != 'categoryNames' && key != 'languageTranslations') {
+            _strings[key] = value.toString();
+          }
+        });
+
+        if (_data['categoryNames'] is List) {
+          _categoryNames = List<String>.from(_data['categoryNames']);
+        } else {
+          _categoryNames = _getDefaultCategoryNames();
+        }
+
+        if (_data['languageTranslations'] is Map) {
+          _languageTranslations = Map<String, String>.from(
+            _data['languageTranslations'].map(
+              (k, v) => MapEntry(k, v.toString()),
+            ),
+          );
+        } else {
+          _languageTranslations = _getDefaultLanguageTranslations();
+        }
+
+        return true;
+      } catch (_) {
+        _strings = {};
+        _categoryNames = _getDefaultCategoryNames();
+        _languageTranslations = _getDefaultLanguageTranslations();
+        return false;
+      }
     }
   }
-}
 
   List<String> _getDefaultCategoryNames() {
-    return ['语言学习', '编程开发', 'AI', '科技', '游戏', '音乐', '影视', '校园', '创业', '交友', '旅行', '闲聊', '爱情', '美食'];
+    return [
+      '语言学习',
+      '编程开发',
+      'AI',
+      '科技',
+      '游戏',
+      '音乐',
+      '影视',
+      '校园',
+      '创业',
+      '交友',
+      '旅行',
+      '闲聊',
+      '爱情',
+      '美食',
+    ];
   }
 
   Map<String, String> _getDefaultLanguageTranslations() {
@@ -123,7 +138,7 @@ Future<bool> load() async {
       'ms': 'Bahasa Melayu',
       'id': 'Bahasa Indonesia',
       'hi': 'हिन्दी',
-      'tr': 'Türkçe'
+      'tr': 'Türkçe',
     };
   }
 
@@ -142,7 +157,7 @@ Future<bool> load() async {
   }
 
   // ============ 所有 Getter ============
-  
+
   String get appTitle => get('appTitle');
   String get forumCategories => get('forumCategories');
   String get currentChannel => get('currentChannel');
@@ -276,27 +291,25 @@ Future<bool> load() async {
 
   /// 获取语言名称（显示用）
   String getLanguageName(String code) {
-  switch (code) {
-    case 'zh':
-      return '中文';
-    case 'en':
-      return 'English';
-    case 'ja':
-      return '日本語';
-    case 'ko':
-      return '한국어';
-    case 'ms':
-      return 'Bahasa Melayu';
-    case 'vi':
-      return 'Tiếng Việt';
-    case 'th':
-      return 'ภาษาไทย';
-    case 'chunom':
-      return '喃字';
-    default:
-      return code;
+    switch (code) {
+      case 'zh':
+        return '中文';
+      case 'en':
+        return 'English';
+      case 'ja':
+        return '日本語';
+      case 'ko':
+        return '한국어';
+      case 'ms':
+        return 'Bahasa Melayu';
+      case 'vi':
+        return 'Tiếng Việt';
+      case 'th':
+        return 'ภาษาไทย';
+      case 'chunom':
+        return '喃字';
+      default:
+        return code;
+    }
   }
-}
-
-  
 }

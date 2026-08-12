@@ -1,23 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum PostVersionType {
-  original,
-  manual,
-  ai,
-  aiAssisted,
-}
+enum PostVersionType { original, manual, ai, aiAssisted }
 
 class PostVersionModel {
   final String languageCode;
-
   final String title;
-
   final String content;
-
   final String authorId;
-
   final PostVersionType type;
-
   final DateTime? createdAt;
 
   final DateTime? updatedAt;
@@ -32,27 +22,15 @@ class PostVersionModel {
     this.updatedAt,
   });
 
-  factory PostVersionModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory PostVersionModel.fromJson(Map<String, dynamic> json) {
     return PostVersionModel(
-      languageCode:
-          json['languageCode']?.toString() ?? '',
-      title:
-          json['title']?.toString() ?? '',
-      content:
-          json['content']?.toString() ?? '',
-      authorId:
-          json['authorId']?.toString() ?? '',
-      type: _typeFromString(
-        json['type']?.toString(),
-      ),
-      createdAt: _toDateTime(
-        json['createdAt'],
-      ),
-      updatedAt: _toDateTime(
-        json['updatedAt'],
-      ),
+      languageCode: json['languageCode']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      content: json['content']?.toString() ?? '',
+      authorId: json['authorId']?.toString() ?? '',
+      type: _typeFromString(json['type']?.toString()),
+      createdAt: _toDateTime(json['createdAt']),
+      updatedAt: _toDateTime(json['updatedAt']),
     );
   }
 
@@ -63,20 +41,12 @@ class PostVersionModel {
       'content': content,
       'authorId': authorId,
       'type': _typeToString(type),
-      'createdAt': createdAt != null
-          ? Timestamp.fromDate(createdAt!)
-          : null,
-      'updatedAt': updatedAt != null
-          ? Timestamp.fromDate(updatedAt!)
-          : null,
-    }..removeWhere(
-        (key, value) => value == null,
-      );
+      'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
+      'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
+    }..removeWhere((key, value) => value == null);
   }
 
-  static PostVersionType _typeFromString(
-    String? value,
-  ) {
+  static PostVersionType _typeFromString(String? value) {
     switch (value) {
       case 'manual':
         return PostVersionType.manual;
@@ -92,9 +62,7 @@ class PostVersionModel {
     }
   }
 
-  static String _typeToString(
-    PostVersionType type,
-  ) {
+  static String _typeToString(PostVersionType type) {
     switch (type) {
       case PostVersionType.original:
         return 'original';
@@ -110,9 +78,7 @@ class PostVersionModel {
     }
   }
 
-  static DateTime? _toDateTime(
-    dynamic value,
-  ) {
+  static DateTime? _toDateTime(dynamic value) {
     if (value == null) {
       return null;
     }

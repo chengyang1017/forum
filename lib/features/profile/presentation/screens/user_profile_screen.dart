@@ -50,10 +50,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> _loadPageData() async {
-    await Future.wait([
-      loadUserData(),
-      checkFriendStatus(),
-    ]);
+    await Future.wait([loadUserData(), checkFriendStatus()]);
   }
 
   Future<void> loadUserData() async {
@@ -67,10 +64,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
       setState(() {
         if (doc.exists) {
-          _userProfile = UserModel.fromJson({
-            'uid': doc.id,
-            ...?doc.data(),
-          });
+          _userProfile = UserModel.fromJson({'uid': doc.id, ...?doc.data()});
         }
         isLoading = false;
       });
@@ -143,13 +137,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return PostModel.fromJson({
-          'id': doc.id,
-          ...doc.data(),
+          return snapshot.docs.map((doc) {
+            return PostModel.fromJson({'id': doc.id, ...doc.data()});
+          }).toList();
         });
-      }).toList();
-    });
   }
 
   int _totalLikesOf(List<PostModel> posts) {
@@ -197,7 +188,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       );
     }
 
-    final username = userProfile.username.isNotEmpty ? userProfile.username : '未知用户';
+    final username = userProfile.username.isNotEmpty
+        ? userProfile.username
+        : '未知用户';
     final nickname = userProfile.nicknameText;
     final displayName = userProfile.profileDisplayName.isNotEmpty
         ? userProfile.profileDisplayName
@@ -253,21 +246,19 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     child: _buildBioTagsSection(bio: bio, tags: tags),
                   ),
                 if (languages.isNotEmpty)
-  SliverToBoxAdapter(
-    child: ProfileLanguageSection(
-      languages: languages,
-      l10n: l10n,
+                  SliverToBoxAdapter(
+                    child: ProfileLanguageSection(
+                      languages: languages,
+                      l10n: l10n,
 
-      // 其他用户主页只能查看
-      onTap: null,
-    ),
-  ),
-                  if (_currentUserId != null && !isMe)
-  SliverToBoxAdapter(
-    child: _buildSharedNotesEntry(
-      displayName: displayName,
-    ),
-  ),
+                      // 其他用户主页只能查看
+                      onTap: null,
+                    ),
+                  ),
+                if (_currentUserId != null && !isMe)
+                  SliverToBoxAdapter(
+                    child: _buildSharedNotesEntry(displayName: displayName),
+                  ),
                 SliverToBoxAdapter(
                   child: Container(
                     margin: EdgeInsets.zero,
@@ -296,10 +287,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                   ),
                 ),
-                ProfilePostSliverList(
-                  snapshot: postSnapshot,
-                  l10n: l10n,
-                ),
+                ProfilePostSliverList(snapshot: postSnapshot, l10n: l10n),
               ],
             );
           },
@@ -508,7 +496,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               runSpacing: 8,
               children: tags.map((tag) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.blue.shade50.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(20),
@@ -528,7 +519,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       ),
     );
   }
-  
 
   Widget _buildLanguageSection(List<Map<String, dynamic>> languages) {
     return Container(
@@ -540,7 +530,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.translate_rounded, size: 18, color: Colors.green.shade600),
+              Icon(
+                Icons.translate_rounded,
+                size: 18,
+                color: Colors.green.shade600,
+              ),
               const SizedBox(width: 8),
               Text(
                 '语言能力',
@@ -627,58 +621,43 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildSharedNotesEntry({
-  required String displayName,
-}) {
-  final theme = Theme.of(context);
+  Widget _buildSharedNotesEntry({required String displayName}) {
+    final theme = Theme.of(context);
 
-  return Container(
-    margin: const EdgeInsets.only(
-      top: 10,
-    ),
-    color: Colors.white,
-    child: ListTile(
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 8,
-      ),
-      leading: CircleAvatar(
-        backgroundColor:
-            theme.colorScheme.primaryContainer,
-        child: Icon(
-          Icons.note_alt_outlined,
-          color: theme.colorScheme.primary,
-        ),
-      ),
-      title: const Text(
-        '共同笔记',
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      subtitle: Text(
-        '查看与 $displayName 共享的笔记',
-      ),
-      trailing: const Icon(
-        Icons.chevron_right,
-      ),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) {
-              return UserNotesScreen(
-                otherUserId: widget.uid,
-                otherUserName: displayName,
-              );
-            },
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      color: Colors.white,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        leading: CircleAvatar(
+          backgroundColor: theme.colorScheme.primaryContainer,
+          child: Icon(
+            Icons.note_alt_outlined,
+            color: theme.colorScheme.primary,
           ),
-        );
-      },
-    ),
-  );
-}
+        ),
+        title: const Text(
+          '共同笔记',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        subtitle: Text('查看与 $displayName 共享的笔记'),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) {
+                return UserNotesScreen(
+                  otherUserId: widget.uid,
+                  otherUserName: displayName,
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   Widget _buildStatItem(String label, String count) {
     return Column(
@@ -717,10 +696,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => ChatScreen(
-                      chatId: chatId,
-                      otherUserName: displayName,
-                    ),
+                    builder: (_) =>
+                        ChatScreen(chatId: chatId, otherUserName: displayName),
                   ),
                 );
               },
@@ -751,7 +728,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.check_rounded, size: 16, color: Colors.grey.shade600),
+                Icon(
+                  Icons.check_rounded,
+                  size: 16,
+                  color: Colors.grey.shade600,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   '已是好友',

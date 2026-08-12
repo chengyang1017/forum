@@ -49,7 +49,10 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
-        title: const Text('我的好友', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
+        title: const Text(
+          '我的好友',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+        ),
         centerTitle: true,
         actions: [
           Padding(
@@ -58,7 +61,11 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
               alignment: Alignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.person_add_rounded, size: 26, color: Colors.black87),
+                  icon: const Icon(
+                    Icons.person_add_rounded,
+                    size: 26,
+                    color: Colors.black87,
+                  ),
                   tooltip: '好友申请',
                   onPressed: () {
                     Navigator.push(
@@ -84,7 +91,10 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                       top: 4,
                       child: Container(
                         padding: const EdgeInsets.all(5),
-                        constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.redAccent,
                           shape: BoxShape.circle,
@@ -93,7 +103,12 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                         child: Center(
                           child: Text(
                             '${snapshot.data!.docs.length}',
-                            style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold, height: 1.0),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                              height: 1.0,
+                            ),
                           ),
                         ),
                       ),
@@ -109,7 +124,9 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
         stream: friendService.myFriends(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(strokeWidth: 2.5));
+            return const Center(
+              child: CircularProgressIndicator(strokeWidth: 2.5),
+            );
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
@@ -124,12 +141,29 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                         color: Colors.grey.shade50,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.people_alt_outlined, size: 72, color: Colors.grey.shade400),
+                      child: Icon(
+                        Icons.people_alt_outlined,
+                        size: 72,
+                        color: Colors.grey.shade400,
+                      ),
                     ),
                     const SizedBox(height: 20),
-                    const Text('暂无好友', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87)),
+                    const Text(
+                      '暂无好友',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
                     const SizedBox(height: 6),
-                    Text('去发现用户页面添加一些新朋友吧', style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+                    Text(
+                      '去发现用户页面添加一些新朋友吧',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -141,7 +175,12 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
           return ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: friendUids.length,
-            separatorBuilder: (context, index) => Divider(height: 1, thickness: 0.5, indent: 76, color: Colors.grey.shade100),
+            separatorBuilder: (context, index) => Divider(
+              height: 1,
+              thickness: 0.5,
+              indent: 76,
+              color: Colors.grey.shade100,
+            ),
             itemBuilder: (context, index) {
               final friendUid = friendUids[index];
 
@@ -168,7 +207,10 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                       );
                     },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       child: Row(
                         children: [
                           // 优雅的头像区
@@ -177,17 +219,25 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                             child: CircleAvatar(
                               radius: 24,
                               backgroundColor: Colors.blue.shade50,
-                              backgroundImage: avatar.isNotEmpty ? CachedNetworkImageProvider(avatar) : null,
+                              backgroundImage: avatar.isNotEmpty
+                                  ? CachedNetworkImageProvider(avatar)
+                                  : null,
                               child: avatar.isEmpty
                                   ? Text(
-                                      username.isNotEmpty ? username[0].toUpperCase() : 'U',
-                                      style: TextStyle(fontWeight: FontWeight.bold, color: theme.primaryColor, fontSize: 16),
+                                      username.isNotEmpty
+                                          ? username[0].toUpperCase()
+                                          : 'U',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: theme.primaryColor,
+                                        fontSize: 16,
+                                      ),
                                     )
                                   : null,
                             ),
                           ),
                           const SizedBox(width: 14),
-                          
+
                           // 用户名及邮箱
                           Expanded(
                             child: Column(
@@ -195,7 +245,11 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                               children: [
                                 Text(
                                   username,
-                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87),
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -203,7 +257,10 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                                   const SizedBox(height: 3),
                                   Text(
                                     email,
-                                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade500,
+                                    ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -211,14 +268,19 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                               ],
                             ),
                           ),
-                          
+
                           // 独立发消息动作按钮
                           IconButton(
-                            icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20),
+                            icon: const Icon(
+                              Icons.chat_bubble_outline_rounded,
+                              size: 20,
+                            ),
                             color: theme.primaryColor,
                             splashRadius: 24,
                             onPressed: () async {
-                              final chatId = await chatService.getOrCreateChat(friendUid);
+                              final chatId = await chatService.getOrCreateChat(
+                                friendUid,
+                              );
                               if (!mounted) return;
                               Navigator.push(
                                 context,
@@ -266,7 +328,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
             icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20),
             color: Colors.grey.shade200,
             onPressed: null,
-          )
+          ),
         ],
       ),
     );

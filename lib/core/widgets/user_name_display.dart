@@ -7,10 +7,7 @@ import '../../features/profile/presentation/screens/user_profile_screen.dart';
 class UserNameDisplay extends StatelessWidget {
   final String uid;
 
-  const UserNameDisplay({
-    super.key,
-    required this.uid,
-  });
+  const UserNameDisplay({super.key, required this.uid});
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +17,7 @@ class UserNameDisplay extends StatelessWidget {
       return const _AnonymousUserDisplay();
     }
 
-    return StreamBuilder<
-        DocumentSnapshot<Map<String, dynamic>>>(
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
           .collection('users')
           .doc(normalizedUid)
@@ -35,9 +31,7 @@ class UserNameDisplay extends StatelessWidget {
           return const SizedBox(
             width: 16,
             height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 1.5,
-            ),
+            child: CircularProgressIndicator(strokeWidth: 1.5),
           );
         }
 
@@ -53,35 +47,30 @@ class UserNameDisplay extends StatelessWidget {
           return const _AnonymousUserDisplay();
         }
 
-        final nickname =
-            data['nickname']?.toString().trim() ?? '';
+        final nickname = data['nickname']?.toString().trim() ?? '';
 
-        final username =
-            data['username']?.toString().trim() ?? '';
+        final username = data['username']?.toString().trim() ?? '';
 
-        final avatar =
-            data['avatar']?.toString().trim() ?? '';
+        final avatar = data['avatar']?.toString().trim() ?? '';
 
         final displayName = nickname.isNotEmpty
             ? nickname
             : username.isNotEmpty
-                ? '@$username'
-                : '匿名用户';
+            ? '@$username'
+            : '匿名用户';
 
         final avatarLetter = nickname.isNotEmpty
             ? nickname.characters.first.toUpperCase()
             : username.isNotEmpty
-                ? username.characters.first.toUpperCase()
-                : '匿';
+            ? username.characters.first.toUpperCase()
+            : '匿';
 
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute<void>(
-                builder: (_) => UserProfileScreen(
-                  uid: normalizedUid,
-                ),
+                builder: (_) => UserProfileScreen(uid: normalizedUid),
               ),
             );
           },
@@ -106,14 +95,10 @@ class UserNameDisplay extends StatelessWidget {
                             );
                           },
                           errorWidget: (_, __, ___) {
-                            return _AvatarFallback(
-                              letter: avatarLetter,
-                            );
+                            return _AvatarFallback(letter: avatarLetter);
                           },
                         )
-                      : _AvatarFallback(
-                          letter: avatarLetter,
-                        ),
+                      : _AvatarFallback(letter: avatarLetter),
                 ),
               ),
               const SizedBox(width: 6),
@@ -140,9 +125,7 @@ class UserNameDisplay extends StatelessWidget {
 class _AvatarFallback extends StatelessWidget {
   final String letter;
 
-  const _AvatarFallback({
-    required this.letter,
-  });
+  const _AvatarFallback({required this.letter});
 
   @override
   Widget build(BuildContext context) {
@@ -178,11 +161,7 @@ class _AnonymousUserDisplay extends StatelessWidget {
           child: CircleAvatar(
             radius: 8,
             backgroundColor: Color(0xFFE3F2FD),
-            child: Icon(
-              Icons.person,
-              size: 11,
-              color: Colors.blue,
-            ),
+            child: Icon(Icons.person, size: 11, color: Colors.blue),
           ),
         ),
         SizedBox(width: 6),
