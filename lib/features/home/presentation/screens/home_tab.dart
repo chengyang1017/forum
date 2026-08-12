@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:glyphora_language_core/glyphora_language_core.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
-import 'package:glyphora_language_core/glyphora_language_core.dart';
+import '../../../../core/constants/forum_categories.dart';
 import '../../../feed/presentation/screens/feed_screen.dart';
+import '../../../language/data/forum_languages.dart';
 import '../../../language/presentation/screens/language_select_screen.dart';
 import '../widgets/recommended_posts_view.dart';
-
-import '../../../language/data/forum_languages.dart';
 
 enum _HomeSection { recommended, categories }
 
@@ -22,6 +22,7 @@ class HomeTab extends StatefulWidget {
 class _HomeTabState extends State<HomeTab> {
   _HomeSection _currentSection = _HomeSection.recommended;
   String _selectedChannelKey = 'zh';
+
   static const List<CategoryConfig> _categories = [
     CategoryConfig(id: 'language_learning', icon: Icons.translate_rounded),
     CategoryConfig(id: 'programming', icon: Icons.code_rounded),
@@ -37,6 +38,7 @@ class _HomeTabState extends State<HomeTab> {
     CategoryConfig(id: 'chat', icon: Icons.forum_rounded),
     CategoryConfig(id: 'love', icon: Icons.favorite_rounded),
     CategoryConfig(id: 'food', icon: Icons.restaurant_rounded),
+    CategoryConfig(id: 'medicine', icon: Icons.medical_services_rounded),
   ];
 
   ForumLanguageChannel get _currentChannel {
@@ -89,7 +91,6 @@ class _HomeTabState extends State<HomeTab> {
     required String uiLanguageCode,
   }) {
     final channel = _currentChannel;
-
     final languageName = channel.nameOf(uiLanguageCode);
 
     Navigator.of(context).push(
@@ -107,15 +108,11 @@ class _HomeTabState extends State<HomeTab> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
-
     final uiLanguageCode = Localizations.localeOf(context).languageCode;
 
     final currentChannel = _currentChannel;
-
     final currentLanguage = currentChannel.language;
-
     final currentLanguageName = currentChannel.nameOf(uiLanguageCode);
-
     final isRecommended = _currentSection == _HomeSection.recommended;
 
     return Scaffold(
@@ -130,7 +127,10 @@ class _HomeTabState extends State<HomeTab> {
           children: [
             Text(
               isRecommended ? '为你推荐' : l10n.forumCategories,
-              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             Text(
               isRecommended
@@ -176,7 +176,10 @@ class _HomeTabState extends State<HomeTab> {
               _openLanguageSelect(uiLanguageCode);
             },
             onCategorySelected: (category) {
-              _openCategory(category: category, uiLanguageCode: uiLanguageCode);
+              _openCategory(
+                category: category,
+                uiLanguageCode: uiLanguageCode,
+              );
             },
           ),
         ],
@@ -207,7 +210,9 @@ class _RecommendedSection extends StatelessWidget {
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: colorScheme.primary.withOpacity(0.15)),
+              border: Border.all(
+                color: colorScheme.primary.withOpacity(0.15),
+              ),
             ),
             child: Row(
               children: [
@@ -465,7 +470,10 @@ class _DrawerNavigationItem extends StatelessWidget {
                 ),
               ),
               if (selected)
-                Icon(Icons.chevron_right_rounded, color: colorScheme.primary),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: colorScheme.primary,
+                ),
             ],
           ),
         ),
@@ -505,9 +513,9 @@ class _CategorySection extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('请先登录后再设置兴趣')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('请先登录后再设置兴趣')),
+      );
       return;
     }
 
@@ -527,9 +535,9 @@ class _CategorySection extends StatelessWidget {
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('更新兴趣失败：$error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('更新兴趣失败：$error')),
+      );
     }
   }
 
@@ -628,7 +636,10 @@ class _CategorySection extends StatelessWidget {
             children: [
               const Text(
                 '选择主题',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               const Spacer(),
               Text(
@@ -713,6 +724,8 @@ class _CategoryGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final crossAxisCount = constraints.maxWidth >= 720 ? 4 : 2;
@@ -731,10 +744,9 @@ class _CategoryGrid extends StatelessWidget {
 
             final categoryName = index < categoryNames.length
                 ? categoryNames[index]
-                : category.id;
+                : ForumCategories.nameOf(category.id, uiLanguageCode);
 
             final key = '$channelKey::${category.id}';
-
             final isInterested = interests.contains(key);
 
             return _CategoryCard(
@@ -760,7 +772,10 @@ class CategoryConfig {
   final String id;
   final IconData icon;
 
-  const CategoryConfig({required this.id, required this.icon});
+  const CategoryConfig({
+    required this.id,
+    required this.icon,
+  });
 }
 
 class _ChannelSelectorButton extends StatelessWidget {
@@ -785,7 +800,10 @@ class _ChannelSelectorButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         onTap: onPressed,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 11,
+            vertical: 7,
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -874,7 +892,11 @@ class _CategoryCard extends StatelessWidget {
                     color: accentColor.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(icon, color: accentColor, size: 24),
+                  child: Icon(
+                    icon,
+                    color: accentColor,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: 11),
                 Expanded(
