@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../../core/constants/forum_categories.dart';
+
 class PostModel {
   final String id;
   final String? userId; // Firestore 字段: uid
@@ -60,6 +62,10 @@ class PostModel {
             .toList() ??
         const <String>[];
 
+    final derivedCategoryPath = categoryId == null || categoryId.isEmpty
+        ? const <String>[]
+        : ForumCategories.pathOf(categoryId);
+
     return PostModel(
       id: json['id']?.toString() ?? '',
       userId: json['uid']?.toString() ?? json['userId']?.toString(),
@@ -72,7 +78,12 @@ class PostModel {
       categoryId: categoryId,
       categoryPath: rawCategoryPath.isNotEmpty
           ? rawCategoryPath
-          : [if (legacyCategory != null && legacyCategory.isNotEmpty) legacyCategory],
+          : derivedCategoryPath.isNotEmpty
+              ? derivedCategoryPath
+              : [
+                  if (legacyCategory != null && legacyCategory.isNotEmpty)
+                    legacyCategory,
+                ],
       languageCode: json['languageCode']?.toString(),
       primaryLanguageCode:
           json['primaryLanguageCode']?.toString() ?? json['languageCode']?.toString(),
