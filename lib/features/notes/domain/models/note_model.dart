@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../../core/constants/forum_categories.dart';
+
 class NoteModel {
   final String id;
   final String ownerId;
@@ -66,6 +68,10 @@ class NoteModel {
             .toList() ??
         const <String>[];
 
+    final derivedCategoryPath = categoryId == null || categoryId.isEmpty
+        ? const <String>[]
+        : ForumCategories.pathOf(categoryId);
+
     return NoteModel(
       id: document.id,
       ownerId: data['ownerId']?.toString() ?? '',
@@ -88,7 +94,12 @@ class NoteModel {
       categoryId: categoryId,
       categoryPath: rawCategoryPath.isNotEmpty
           ? rawCategoryPath
-          : [if (legacyCategory != null && legacyCategory.isNotEmpty) legacyCategory],
+          : derivedCategoryPath.isNotEmpty
+              ? derivedCategoryPath
+              : [
+                  if (legacyCategory != null && legacyCategory.isNotEmpty)
+                    legacyCategory,
+                ],
       languageCode: data['languageCode']?.toString(),
       allowOthersEdit: data['allowOthersEdit'] as bool? ?? false,
       createdAt: _readDateTime(data['createdAt']),
