@@ -36,5 +36,26 @@ void main() {
         'medicine',
       );
     });
+
+    test('detects branches and leaves', () {
+      expect(ForumCategories.hasChildren('programming'), isTrue);
+      expect(ForumCategories.hasChildren('mobile_development'), isTrue);
+      expect(ForumCategories.hasChildren('flutter'), isFalse);
+    });
+
+    test('returns localized names with fallback', () {
+      expect(
+        ForumCategories.nameOf('internal_medicine', 'zh'),
+        '内科',
+      );
+      expect(
+        ForumCategories.nameOf('internal_medicine', 'en'),
+        'Internal Medicine',
+      );
+      expect(
+        ForumCategories.nameOf('flutter', 'vi'),
+        'Flutter',
+      );
+    });
   });
 }
