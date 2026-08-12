@@ -35,6 +35,16 @@ class FeedScreen extends StatelessWidget {
     return ForumCategories.rootIdOf(_selectedCategoryId);
   }
 
+  List<String> get _selectedCategoryPath {
+    final path = ForumCategories.pathOf(_selectedCategoryId);
+
+    if (path.isNotEmpty) {
+      return path;
+    }
+
+    return <String>[_rootCategoryId];
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<authProv.AuthProvider>();
@@ -194,6 +204,8 @@ class FeedScreen extends StatelessWidget {
                 MaterialPageRoute<void>(
                   builder: (_) => CreatePostScreen(
                     category: _rootCategoryId,
+                    categoryId: _selectedCategoryId,
+                    categoryPath: _selectedCategoryPath,
                     languageCode: languageCode,
                     languageName: languageName,
                   ),
@@ -256,6 +268,8 @@ class FeedScreen extends StatelessWidget {
           MaterialPageRoute<void>(
             builder: (_) => CreatePostScreen(
               category: _rootCategoryId,
+              categoryId: _selectedCategoryId,
+              categoryPath: _selectedCategoryPath,
               languageCode: languageCode,
               languageName: languageName,
             ),
