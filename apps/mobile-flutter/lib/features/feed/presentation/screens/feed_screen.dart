@@ -47,6 +47,11 @@ class FeedScreen extends StatelessWidget {
       appBar: _buildAppBar(context),
       body: Column(
         children: [
+          _CategoryBreadcrumbBar(
+            categoryId: _selectedCategoryId,
+            languageCode: languageCode,
+            languageName: languageName,
+          ),
           if (children.isNotEmpty)
             _CategoryChildrenBar(
               parentCategoryId: _selectedCategoryId,
@@ -286,6 +291,86 @@ class FeedScreen extends StatelessWidget {
     }
 
     return '🌐';
+  }
+}
+
+class _CategoryBreadcrumbBar extends StatelessWidget {
+  final String categoryId;
+  final String languageCode;
+  final String languageName;
+
+  const _CategoryBreadcrumbBar({
+    required this.categoryId,
+    required this.languageCode,
+    required this.languageName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
+    final path = ForumCategories.pathOf(categoryId);
+
+    if (path.length <= 1) {
+      return const SizedBox.shrink();
+    }
+
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+      color: colorScheme.surface,
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 4,
+        runSpacing: 4,
+        children: [
+          for (var index = 0; index < path.length; index++) ...[
+            if (index > 0)
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 17,
+                color: colorScheme.onSurface.withOpacity(0.35),
+              ),
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: index == path.length - 1
+                  ? null
+                  : () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => FeedScreen(
+                            category: path.first,
+                            categoryId: path[index],
+                            languageCode: languageCode,
+                            languageName: languageName,
+                          ),
+                        ),
+                      );
+                    },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4,
+                  vertical: 3,
+                ),
+                child: Text(
+                  ForumCategories.nameOf(path[index], uiLanguageCode),
+                  style: TextStyle(
+                    color: index == path.length - 1
+                        ? colorScheme.primary
+                        : colorScheme.onSurface.withOpacity(0.60),
+                    fontSize: 12,
+                    fontWeight: index == path.length - 1
+                        ? FontWeight.w700
+                        : FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 }
 
