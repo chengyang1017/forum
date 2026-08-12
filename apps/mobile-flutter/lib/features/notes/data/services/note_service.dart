@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
+import '../../../../core/constants/forum_categories.dart';
 import '../../domain/models/note_model.dart';
 
 class UploadedNoteImage {
@@ -21,9 +22,11 @@ class NoteService {
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
 
-  NoteService({FirebaseFirestore? firestore, FirebaseStorage? storage})
-    : _firestore = firestore ?? FirebaseFirestore.instance,
-      _storage = storage ?? FirebaseStorage.instance;
+  NoteService({
+    FirebaseFirestore? firestore,
+    FirebaseStorage? storage,
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _storage = storage ?? FirebaseStorage.instance;
 
   CollectionReference<Map<String, dynamic>> get _notes {
     return _firestore.collection('notes');
@@ -67,209 +70,147 @@ class NoteService {
     });
   }
 
-Future<String> createNote({
-  required String ownerId,
-  List<String> sharedUserIds = const [],
-  String title = '',
-  String content = '',
-  List<dynamic>? bodyDelta,
-  String sourceType = 'manual',
-  String? sourceId,
-  String? category,
-  String? languageCode,
-}) async {
-  final cleanedSharedUserIds =
-      sharedUserIds
-          .where(
-            (userId) =>
-                userId.isNotEmpty &&
-                userId != ownerId,
-          )
-          .toSet()
-          .toList();
+  Future<String> createNote({
+    required String ownerId,
+    List<String> sharedUserIds = const [],
+    String title = '',
+    String content = '',
+    List<dynamic>? bodyDelta,
+    String sourceType = 'manual',
+    String? sourceId,
+    String? category,
+    String? categoryId,
+    List<String>? categoryPath,
+    String? languageCode,
+  }) async {
+    final cleanedSharedUserIds = sharedUserIds
+        .where(
+          (userId) => userId.isNotEmpty && userId != ownerId,
+        )
+        .toSet()
+        .toList();
 
-  final participantIds = <String>[
-    ownerId,
-    ...cleanedSharedUserIds,
-  ];
+    final participantIds = <String>[
+      ownerId,
+      ...cleanedSharedUserIds,
+    ];
 
-  final reference = _notes.doc();
+    final reference = _notes.doc();
+    final cleanedLanguageCode = languageCode?.trim();
+    final categoryData = _resolveCategoryData(
+      category: category,
+      categoryId: categoryId,
+      categoryPath: categoryPath,
+    );
 
-  final cleanedCategory =
-      category?.trim();
+    await reference.set({
+      'ownerId': ownerId,
+      'participantIds': participantIds,
+      'sharedUserIds': cleanedSharedUserIds,
+      'title': title,
+      'content': content,
+      'bodyDelta':
+          bodyDelta ??
+          const [
+            {'insert': '\n'},
+          ],
+      'sourceType': sourceType,
+      'sourceId': sourceId,
+      'category': categoryData.rootCategoryId,
+      'categoryId': categoryData.categoryId,
+      'categoryPath': categoryData.categoryPath,
+      'languageCode': cleanedLanguageCode == null || cleanedLanguageCode.isEmpty
+          ? null
+          : cleanedLanguageCode,
+      'allowOthersEdit': false,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+      'updatedBy': ownerId,
+    });
 
-  final cleanedLanguageCode =
-      languageCode?.trim();
-
-  await reference.set({
-    'ownerId': ownerId,
-
-    'participantIds':
-        participantIds,
-
-    'sharedUserIds':
-        cleanedSharedUserIds,
-
-    'title': title,
-
-    'content': content,
-
-    'bodyDelta':
-        bodyDelta ??
-        const [
-          {
-            'insert': '\n',
-          },
-        ],
-
-    'sourceType':
-        sourceType,
-
-    'sourceId':
-        sourceId,
-
-    'category':
-        cleanedCategory == null ||
-                cleanedCategory.isEmpty
-            ? null
-            : cleanedCategory,
-
-    'languageCode':
-        cleanedLanguageCode == null ||
-                cleanedLanguageCode.isEmpty
-            ? null
-            : cleanedLanguageCode,
-
-    'allowOthersEdit':
-        false,
-
-    'createdAt':
-        FieldValue.serverTimestamp(),
-
-    'updatedAt':
-        FieldValue.serverTimestamp(),
-
-    'updatedBy':
-        ownerId,
-  });
-
-  return reference.id;
-}
-
-Future<void> updateNote({
-  required String noteId,
-  required String userId,
-  String? title,
-  String? content,
-  List<dynamic>? bodyDelta,
-  String? category,
-  String? languageCode,
-}) async {
-  final reference = noteReference(noteId);
-
-  final updates = <String, dynamic>{};
-
-  if (title != null) {
-    updates['title'] = title;
+    return reference.id;
   }
 
-  if (content != null) {
-    updates['content'] = content;
-  }
+  Future<void> updateNote({
+    required String noteId,
+    required String userId,
+    String? title,
+    String? content,
+    List<dynamic>? bodyDelta,
+    String? category,
+    String? categoryId,
+    List<String>? categoryPath,
+    String? languageCode,
+  }) async {
+    final reference = noteReference(noteId);
+    final updates = <String, dynamic>{};
 
-  if (bodyDelta != null) {
-    updates['bodyDelta'] = bodyDelta;
-  }
+    if (title != null) {
+      updates['title'] = title;
+    }
 
-  if (category != null) {
-    final cleanedCategory =
-        category.trim();
+    if (content != null) {
+      updates['content'] = content;
+    }
 
-    updates['category'] =
-        cleanedCategory.isEmpty
-            ? null
-            : cleanedCategory;
-  }
+    if (bodyDelta != null) {
+      updates['bodyDelta'] = bodyDelta;
+    }
 
-  if (languageCode != null) {
-    final cleanedLanguageCode =
-        languageCode.trim();
+    if (category != null || categoryId != null || categoryPath != null) {
+      final categoryData = _resolveCategoryData(
+        category: category,
+        categoryId: categoryId,
+        categoryPath: categoryPath,
+      );
 
-    updates['languageCode'] =
-        cleanedLanguageCode.isEmpty
-            ? null
-            : cleanedLanguageCode;
-  }
+      updates['category'] = categoryData.rootCategoryId;
+      updates['categoryId'] = categoryData.categoryId;
+      updates['categoryPath'] = categoryData.categoryPath;
+    }
 
-  if (updates.isEmpty) {
-    return;
-  }
+    if (languageCode != null) {
+      final cleanedLanguageCode = languageCode.trim();
 
-  updates['updatedAt'] =
-      FieldValue.serverTimestamp();
+      updates['languageCode'] = cleanedLanguageCode.isEmpty
+          ? null
+          : cleanedLanguageCode;
+    }
 
-  updates['updatedBy'] =
-      userId;
+    if (updates.isEmpty) {
+      return;
+    }
 
-  await _firestore.runTransaction(
-    (transaction) async {
-      final snapshot =
-          await transaction.get(
-            reference,
-          );
+    updates['updatedAt'] = FieldValue.serverTimestamp();
+    updates['updatedBy'] = userId;
+
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(reference);
 
       if (!snapshot.exists) {
-        throw StateError(
-          '笔记不存在',
-        );
+        throw StateError('笔记不存在');
       }
 
-      final data =
-          snapshot.data() ??
-          const <String, dynamic>{};
+      final data = snapshot.data() ?? const <String, dynamic>{};
+      final ownerId = data['ownerId']?.toString() ?? '';
+      final allowOthersEdit = data['allowOthersEdit'] as bool? ?? false;
+      final participantIds = List<String>.from(
+        data['participantIds'] ?? const <String>[],
+      );
 
-      final ownerId =
-          data['ownerId']
-                  ?.toString() ??
-              '';
-
-      final allowOthersEdit =
-          data['allowOthersEdit']
-                  as bool? ??
-              false;
-
-      final participantIds =
-          List<String>.from(
-            data['participantIds'] ??
-                const <String>[],
-          );
-
-      final isOwner =
-          ownerId == userId;
-
-      final isParticipant =
-          participantIds.contains(
-            userId,
-          );
-
+      final isOwner = ownerId == userId;
+      final isParticipant = participantIds.contains(userId);
       final canEdit =
           isOwner ||
-          (isParticipant &&
-              allowOthersEdit);
+          (isParticipant && allowOthersEdit);
 
       if (!canEdit) {
-        throw StateError(
-          '无权编辑这条笔记',
-        );
+        throw StateError('无权编辑这条笔记');
       }
 
-      transaction.update(
-        reference,
-        updates,
-      );
-    },
-  );
-}
+      transaction.update(reference, updates);
+    });
+  }
 
   Future<void> updateEditPermission({
     required String noteId,
@@ -323,7 +264,6 @@ Future<void> updateNote({
     required File file,
   }) async {
     final imageReference = noteReference(noteId).collection('images').doc();
-
     final extension = _imageExtension(file.path);
     final storagePath = 'note_images/$noteId/${imageReference.id}.$extension';
     final storageReference = _storage.ref(storagePath);
@@ -390,6 +330,53 @@ Future<void> updateNote({
     }
   }
 
+  _ResolvedCategoryData _resolveCategoryData({
+    String? category,
+    String? categoryId,
+    List<String>? categoryPath,
+  }) {
+    final cleanedCategory = category?.trim();
+    final cleanedCategoryId = categoryId?.trim();
+    final suppliedPath = categoryPath
+        ?.map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+
+    final selectedCategoryId =
+        cleanedCategoryId != null && cleanedCategoryId.isNotEmpty
+        ? cleanedCategoryId
+        : cleanedCategory != null && cleanedCategory.isNotEmpty
+            ? cleanedCategory
+            : suppliedPath != null && suppliedPath.isNotEmpty
+                ? suppliedPath.last
+                : null;
+
+    if (selectedCategoryId == null) {
+      return const _ResolvedCategoryData(
+        rootCategoryId: null,
+        categoryId: null,
+        categoryPath: <String>[],
+      );
+    }
+
+    final derivedPath = ForumCategories.pathOf(selectedCategoryId);
+    final resolvedPath = suppliedPath != null && suppliedPath.isNotEmpty
+        ? suppliedPath
+        : derivedPath.isNotEmpty
+            ? derivedPath
+            : <String>[selectedCategoryId];
+
+    final rootCategoryId = resolvedPath.isNotEmpty
+        ? resolvedPath.first
+        : ForumCategories.rootIdOf(selectedCategoryId);
+
+    return _ResolvedCategoryData(
+      rootCategoryId: rootCategoryId,
+      categoryId: selectedCategoryId,
+      categoryPath: resolvedPath,
+    );
+  }
+
   String _imageExtension(String path) {
     final parts = path.split('.');
 
@@ -398,7 +385,6 @@ Future<void> updateNote({
     }
 
     final extension = parts.last.toLowerCase();
-
     const allowedExtensions = <String>{'jpg', 'jpeg', 'png', 'webp'};
 
     return allowedExtensions.contains(extension) ? extension : 'jpg';
@@ -414,4 +400,16 @@ Future<void> updateNote({
         return 'image/jpeg';
     }
   }
+}
+
+class _ResolvedCategoryData {
+  final String? rootCategoryId;
+  final String? categoryId;
+  final List<String> categoryPath;
+
+  const _ResolvedCategoryData({
+    required this.rootCategoryId,
+    required this.categoryId,
+    required this.categoryPath,
+  });
 }
