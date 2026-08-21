@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../../domain/models/user_model.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../data/services/user_api.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _authRepo = AuthRepository();
@@ -9,6 +10,21 @@ class AuthProvider extends ChangeNotifier {
 
   UserModel? get user => _user;
   bool get isLoading => _isLoading;
+  final UserApi _userApi = UserApi();
+
+  Future<void> _syncBackendUser() async {
+  final user = _user;
+
+  if (user == null) {
+    return;
+  }
+
+  try {
+    await _userApi.syncCurrentUser(user);
+  } catch (error) {
+    debugPrint('Node.js user sync failed: $error');
+  }
+}
 
   // ========== 登录 ==========
   Future<void> login(String email, String password) async {
@@ -36,15 +52,18 @@ class AuthProvider extends ChangeNotifier {
 
   // ========== 加载当前用户 ==========
   Future<void> loadUser() async {
-    _isLoading = true;
+  _isLoading = true;
+  notifyListeners();
+
+  try {
+    _user = await _authRepo.getCurrentUser();
+
+    await _syncBackendUser();
+  } finally {
+    _isLoading = false;
     notifyListeners();
-    try {
-      _user = await _authRepo.getCurrentUser();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
   }
+}
 
   // ========== 更新用户资料 ==========
   Future<void> updateUser(UserModel newUser) async {
