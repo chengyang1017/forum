@@ -12,7 +12,9 @@
     "migrate:users": "tsx src/scripts/migrate_users.ts",
     "migrate:user-profile": "tsx src/scripts/migrate_user_profile_relations.ts",
     "migrate:posts": "tsx src/scripts/migrate_posts.ts",
-    "migrate:post-likes": "tsx src/scripts/migrate_post_likes.ts"  },
+    "migrate:post-likes": "tsx src/scripts/migrate_post_likes.ts",
+    "migrate:post-comments": "tsx src/scripts/migrate_post_comments.ts"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

@@ -36,7 +36,8 @@ model User {
   languages    UserLanguage[]
   posts        Post[]
   postVersions PostVersion[]  @relation("PostVersionAuthor")
-  postLikes PostLike[]
+  postLikes    PostLike[]
+  postComments PostComment[]
 
   @@map("users")
 }
@@ -73,8 +74,8 @@ model UserLanguage {
 model Post {
   id String @id @default(uuid()) @db.Uuid
 
-  // 迁移期间保留旧 Firestore posts/{docId}
-  // 等 likes/comments 等全部迁走后再考虑删除。
+  // 迁移期间保留旧 Firestore posts/{docId}。
+  // 现有深链、Storage 路径和历史数据回填仍依赖这个兼容 ID。
   firestoreId String? @unique @db.VarChar(128)
 
   authorId String? @db.Uuid
@@ -91,7 +92,8 @@ model Post {
   author   User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
   versions PostVersion[]
   images   PostImage[]
-  likes PostLike[]
+  likes    PostLike[]
+  comments PostComment[]
 
   @@index([authorId])
   @@index([category, createdAt])
@@ -156,4 +158,36 @@ model PostLike {
   @@index([postId])
   @@index([userId])
   @@map("post_likes")
+}
+
+model PostComment {
+  id String @id @default(uuid()) @db.Uuid
+
+  // 迁移旧 Firestore 评论时保存完整来源路径。
+  // commentId / replyId 只在各自子集合内唯一，所以不能只保存 doc id。
+  firestorePath String? @unique @db.VarChar(512)
+
+  postId   String  @db.Uuid
+  authorId String? @db.Uuid
+  parentId String? @db.Uuid
+
+  // 保存发布当时的显示名，避免历史评论因为用户改名或用户缺失而失去作者文字。
+  authorName String @default("Guest") @db.VarChar(100)
+
+  text     String  @default("") @db.Text
+  imageUrl String? @db.Text
+  replyTo  String? @db.VarChar(100)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post   Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  parent  PostComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies PostComment[] @relation("CommentReplies")
+
+  @@index([postId, parentId, createdAt])
+  @@index([authorId])
+  @@map("post_comments")
 }

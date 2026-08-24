@@ -1575,6 +1575,9 @@ postRouter.get(
       limit,
     } = parsed.data;
 
+    const auth =
+      response.locals.auth;
+
     try {
       const posts =
         await prisma.post.findMany({
@@ -1592,7 +1595,24 @@ postRouter.get(
             },
           },
 
-          include: postInclude,
+          include: {
+            ...postInclude,
+
+            // 只查询“当前登录用户”自己的点赞记录。
+            // Flutter 不需要拿到所有点赞用户 UID。
+            likes: {
+              where: {
+                user: {
+                  firebaseUid:
+                    auth.firebaseUid,
+                },
+              },
+
+              select: {
+                id: true,
+              },
+            },
+          },
 
           orderBy: {
             createdAt: 'desc',
@@ -1602,13 +1622,31 @@ postRouter.get(
         });
 
       const result = posts
-        .map(
-          (post) =>
+        .map((post) => {
+          const serialized =
             serializePost(
               post,
               languageCode,
-            ),
-        )
+            );
+
+          if (serialized == null) {
+            return null;
+          }
+
+          return {
+            ...serialized,
+
+            // PostModel 目前仍用 likes.contains(currentUid)
+            // 判断当前用户有没有点赞。
+            //
+            // 这里不再返回“所有点赞用户”，
+            // 只把当前用户 UID 当成 liked marker。
+            likes:
+              post.likes.length > 0
+                ? [auth.firebaseUid]
+                : [],
+          };
+        })
         .filter(
           (
             post,
@@ -1688,6 +1726,9 @@ postRouter.get(
       return;
     }
 
+    const auth =
+      response.locals.auth;
+
     try {
       // --------------------------------------------------------
       // 目前 Flutter 使用的是 Firestore post id。
@@ -1717,7 +1758,22 @@ postRouter.get(
                   firestoreId: id,
                 },
 
-          include: postInclude,
+          include: {
+            ...postInclude,
+
+            likes: {
+              where: {
+                user: {
+                  firebaseUid:
+                    auth.firebaseUid,
+                },
+              },
+
+              select: {
+                id: true,
+              },
+            },
+          },
         });
 
       if (post == null) {
@@ -1753,7 +1809,14 @@ postRouter.get(
       }
 
       response.status(200).json({
-        post: result,
+        post: {
+          ...result,
+
+          likes:
+            post.likes.length > 0
+              ? [auth.firebaseUid]
+              : [],
+        },
       });
     } catch (error) {
       console.error(

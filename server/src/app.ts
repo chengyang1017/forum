@@ -9,6 +9,7 @@ import { authRouter } from './routes/auth_route.js';
 import { userRouter } from './routes/user_route.js';
 
 import { postRouter } from './routes/post_route.js';
+import { commentRouter } from './routes/comment_route.js';
 
 export const app = express();
 
@@ -21,6 +22,10 @@ app.use('/api/v1/users', userRouter);
 app.use(
   '/api/v1/posts',
   postRouter,
+);
+app.use(
+  '/api/v1/posts',
+  commentRouter,
 );
 
 app.get('/health', async (_request, response) => {

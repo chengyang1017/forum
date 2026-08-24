@@ -8,7 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 
-import 'comment_screen.dart';
+import 'node_comment_screen.dart';
 import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../providers/post_provider.dart' as postProv;
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
@@ -50,6 +50,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   bool _isLiked = false;
   List<String> _likes = [];
+  int _likeCount = 0;
   List<String> _images = [];
   int _currentIndex = 0;
   bool _isUploadingImage = false;
@@ -69,6 +70,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     _post = widget.post;
     _currentUserId = context.read<authProv.AuthProvider>().user?.id;
     _likes = List<String>.from(_post.likes ?? []);
+    _likeCount = _post.likeCount;
     _images = List<String>.from(_post.imageUrls ?? []);
     _isLiked = _currentUserId != null && _likes.contains(_currentUserId);
     _loadCurrentVersionCreatedAt();
@@ -297,32 +299,60 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   Future<void> _toggleLike() async {
     if (_currentUserId == null) return;
 
+    final previousLiked = _isLiked;
+    final previousLikeCount = _likeCount;
+    final nextLiked = !previousLiked;
+
     setState(() {
-      _isLiked = !_isLiked;
-      if (_isLiked) {
-        _likes.add(_currentUserId!);
-      } else {
-        _likes.remove(_currentUserId);
-      }
+      _isLiked = nextLiked;
+      _likeCount = nextLiked
+          ? previousLikeCount + 1
+          : (previousLikeCount > 0
+                ? previousLikeCount - 1
+                : 0);
+
+      _likes = nextLiked
+          ? <String>[_currentUserId!]
+          : <String>[];
     });
 
     try {
-      final postProvider = context.read<postProv.PostProvider>();
-      await postProvider.toggleLike(widget.postId, _currentUserId!);
-    } catch (e) {
+      final postProvider =
+          context.read<postProv.PostProvider>();
+
+      final confirmedLikeCount =
+          await postProvider.toggleLike(
+        widget.postId,
+        liked: nextLiked,
+      );
+
+      if (!mounted) return;
+
       setState(() {
-        _isLiked = !_isLiked;
-        if (_isLiked) {
-          _likes.add(_currentUserId!);
-        } else {
-          _likes.remove(_currentUserId);
-        }
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('操作失败: $e'), backgroundColor: Colors.red),
+        _likeCount = confirmedLikeCount;
+
+        _post = _post.copyWith(
+          likes: List<String>.from(_likes),
+          likeCount: confirmedLikeCount,
         );
-      }
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLiked = previousLiked;
+        _likeCount = previousLikeCount;
+        _likes = previousLiked
+            ? <String>[_currentUserId!]
+            : <String>[];
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('操作失败: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -1522,7 +1552,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     _isLiked
                         ? Icons.favorite_rounded
                         : Icons.favorite_outline_rounded,
-                    _likes.isNotEmpty ? '${_likes.length} 赞同' : '赞同',
+                    _likeCount > 0 ? '$_likeCount 赞同' : '赞同',
                     _isLiked,
                   ),
                 ),

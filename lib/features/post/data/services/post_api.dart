@@ -234,6 +234,51 @@ class PostApi {
         .map((item) => item.toString())
         .toList(growable: false);
   }
+
+  // ============================================================
+  // 点赞 / 取消点赞
+  // ============================================================
+
+  Future<PostLikeResult> likePost(
+    String postId,
+  ) async {
+    final response = await _apiClient.put(
+      '/posts/${Uri.encodeComponent(postId)}/like',
+      const <String, dynamic>{},
+    );
+
+    return PostLikeResult.fromJson(response);
+  }
+
+  Future<PostLikeResult> unlikePost(
+    String postId,
+  ) async {
+    final response = await _apiClient.delete(
+      '/posts/${Uri.encodeComponent(postId)}/like',
+    );
+
+    return PostLikeResult.fromJson(response);
+  }
+}
+
+class PostLikeResult {
+  final bool liked;
+  final int likeCount;
+
+  const PostLikeResult({
+    required this.liked,
+    required this.likeCount,
+  });
+
+  factory PostLikeResult.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return PostLikeResult(
+      liked: json['liked'] == true,
+      likeCount:
+          (json['likeCount'] as num?)?.toInt() ?? 0,
+    );
+  }
 }
 
 class PostApiException implements Exception {

@@ -64,8 +64,14 @@ class PostRepository {
   }
 
   // ========== 点赞/取消点赞 ==========
-  Future<void> toggleLike(String postId, String userId) async {
-    await _postService.toggleLike(postId, userId);
+  Future<int> toggleLike(
+    String postId, {
+    required bool liked,
+  }) {
+    return _postService.toggleLike(
+      postId,
+      liked: liked,
+    );
   }
 
   // ========== 删除帖子 ==========

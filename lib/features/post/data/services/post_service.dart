@@ -85,125 +85,25 @@ class PostService {
   // }
 
   Stream<List<PostModel>> watchPosts({
-  required String category,
-  required String languageCode,
-}) {
-  // Firestore 在迁移期间只负责：
-  // 1. 点赞/评论实时状态
-  // 2. 作为帖子变更通知源
-  //
-  // 帖子的 title/content/bodyDelta/versions/images
-  // 已经以 PostgreSQL 为主。
+    required String category,
+    required String languageCode,
+  }) async* {
+    // 帖子列表的数据已经全部从 Node/PostgreSQL 读取。
+    //
+    // 目前后端还没有 SSE / WebSocket，
+    // 所以暂时每 15 秒刷新一次，替代原本用 Firestore
+    // snapshot 充当“刷新触发器”的过渡方案。
+    while (true) {
+      yield await _postApi.getPosts(
+        category: category,
+        languageCode: languageCode,
+      );
 
-  return _firestore
-      .collection('posts')
-      .where(
-        'category',
-        isEqualTo: category,
-      )
-      .orderBy(
-        'timestamp',
-        descending: true,
-      )
-      .limit(50)
-      .snapshots()
-      .asyncMap((snapshot) async {
-        // ======================================================
-        // 1. PostgreSQL 读取帖子主体
-        // ======================================================
-
-        final posts =
-            await _postApi.getPosts(
-          category: category,
-          languageCode: languageCode,
-        );
-
-        // ======================================================
-        // 2. Firestore shadow 数据建立索引
-        // ======================================================
-
-        final firestorePosts =
-            <String, Map<String, dynamic>>{
-          for (final doc in snapshot.docs)
-            doc.id: doc.data(),
-        };
-
-        // ======================================================
-        // 3. 给 PostgreSQL 帖子覆盖尚未迁移的社交字段
-        //
-        // core data:
-        // PostgreSQL
-        //
-        // likes/comments:
-        // Firestore
-        // ======================================================
-
-        final result =
-            <PostModel>[];
-
-        for (final post in posts) {
-          Map<String, dynamic>? shadow =
-              firestorePosts[post.id];
-
-          // 极少数情况下：
-          // Node 返回的语言帖子不在 Firestore 当前 limit(50)
-          // snapshot 中。
-          //
-          // 直接按 ID 补查，避免 likes/count 数据丢失。
-          if (shadow == null) {
-            try {
-              final doc =
-                  await _firestore
-                      .collection('posts')
-                      .doc(post.id)
-                      .get();
-
-              if (doc.exists) {
-                shadow = doc.data();
-              }
-            } catch (e) {
-              debugPrint(
-                'Load post shadow failed: $e',
-              );
-            }
-          }
-
-          if (shadow == null) {
-            result.add(post);
-            continue;
-          }
-
-          final likes =
-              (shadow['likes'] as List<dynamic>?)
-                      ?.map(
-                        (item) =>
-                            item.toString(),
-                      )
-                      .toList() ??
-                  const <String>[];
-
-          final likeCount =
-              (shadow['likeCount'] as num?)
-                      ?.toInt() ??
-                  post.likeCount;
-
-          final commentCount =
-              (shadow['commentCount'] as num?)
-                      ?.toInt() ??
-                  post.commentCount;
-
-          result.add(
-            post.copyWith(
-              likes: likes,
-              likeCount: likeCount,
-              commentCount: commentCount,
-            ),
-          );
-        }
-
-        return result;
-      });
-}
+      await Future<void>.delayed(
+        const Duration(seconds: 15),
+      );
+    }
+  }
 
   // ========== 刷新帖子列表 ==========
   Future<void> refreshPosts({
@@ -282,65 +182,9 @@ class PostService {
   //   return {'id': doc.id, ...doc.data()!};
   // }
 
-  Future<PostModel> getPost(String postId) async {
-  // ============================================================
-  // 1. PostgreSQL 主读取
-  // ============================================================
-
-  final post = await _postApi.getPost(postId);
-
-  // ============================================================
-  // 2. Firestore 暂时只补尚未迁移的社交状态
-  // ============================================================
-
-  try {
-    final doc = await _firestore
-        .collection('posts')
-        .doc(postId)
-        .get();
-
-    if (!doc.exists) {
-      return post;
-    }
-
-    final data = doc.data();
-
-    if (data == null) {
-      return post;
-    }
-
-    final likes =
-        (data['likes'] as List<dynamic>?)
-            ?.map(
-              (item) => item.toString(),
-            )
-            .toList() ??
-        const <String>[];
-
-    final likeCount =
-        (data['likeCount'] as num?)
-            ?.toInt() ??
-        post.likeCount;
-
-    final commentCount =
-        (data['commentCount'] as num?)
-            ?.toInt() ??
-        post.commentCount;
-
-    return post.copyWith(
-      likes: likes,
-      likeCount: likeCount,
-      commentCount: commentCount,
-    );
-  } catch (e) {
-    debugPrint(
-      'Load post social shadow failed: $e',
-    );
-
-    // Firestore shadow 出问题不能影响帖子主体读取。
-    return post;
+  Future<PostModel> getPost(String postId) {
+    return _postApi.getPost(postId);
   }
-}
 
   // ========== 添加语言版本 ==========
   // Future<void> addLanguageVersion({
@@ -497,22 +341,15 @@ class PostService {
   }
 
   // ========== 点赞/取消点赞 ==========
-  Future<void> toggleLike(String postId, String userId) async {
-    final doc = _firestore.collection('posts').doc(postId);
-    await _firestore.runTransaction((transaction) async {
-      final snapshot = await transaction.get(doc);
-      if (!snapshot.exists) return;
-      final likes = List<String>.from(snapshot.data()?['likes'] ?? []);
-      if (likes.contains(userId)) {
-        transaction.update(doc, {
-          'likes': FieldValue.arrayRemove([userId]),
-        });
-      } else {
-        transaction.update(doc, {
-          'likes': FieldValue.arrayUnion([userId]),
-        });
-      }
-    });
+  Future<int> toggleLike(
+    String postId, {
+    required bool liked,
+  }) async {
+    final result = liked
+        ? await _postApi.likePost(postId)
+        : await _postApi.unlikePost(postId);
+
+    return result.likeCount;
   }
 
   // ========== 删除帖子 ==========
