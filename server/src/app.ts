@@ -8,6 +8,8 @@ import { authRouter } from './routes/auth_route.js';
 
 import { userRouter } from './routes/user_route.js';
 
+import { postRouter } from './routes/post_route.js';
+
 export const app = express();
 
 app.use(helmet());
@@ -16,6 +18,10 @@ app.use(express.json());
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
+app.use(
+  '/api/v1/posts',
+  postRouter,
+);
 
 app.get('/health', async (_request, response) => {
   try {

@@ -21,4 +21,55 @@ class UserApi {
       },
     );
   }
+
+  Future<UserModel?> getCurrentUser() async {
+  final response = await _client.get(
+    '/users/me',
+  );
+
+  final data = response['user'];
+
+  if (data is! Map) {
+    return null;
+  }
+
+  return UserModel.fromJson(
+    Map<String, dynamic>.from(data),
+  );
+}
+
+Future<UserModel> updateCurrentUser(
+  Map<String, dynamic> data,
+) async {
+  final response = await _client.patch(
+    '/users/me',
+    data,
+  );
+
+  final userData = response['user'];
+
+  if (userData is! Map) {
+    throw Exception('Invalid user response');
+  }
+
+  return UserModel.fromJson(
+    Map<String, dynamic>.from(userData),
+  );
+}
+
+Future<UserModel?> getUser(String uid) async {
+  final response = await _client.get(
+    '/users/$uid',
+  );
+
+  final data = response['user'];
+
+  if (data is! Map) {
+    return null;
+  }
+
+  return UserModel.fromJson(
+    Map<String, dynamic>.from(data),
+  );
+}
 }

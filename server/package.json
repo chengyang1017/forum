@@ -8,8 +8,11 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "typecheck": "tsc --noEmit"
-  },
+    "typecheck": "tsc --noEmit",
+    "migrate:users": "tsx src/scripts/migrate_users.ts",
+    "migrate:user-profile": "tsx src/scripts/migrate_user_profile_relations.ts",
+    "migrate:posts": "tsx src/scripts/migrate_posts.ts",
+    "migrate:post-likes": "tsx src/scripts/migrate_post_likes.ts"  },
   "keywords": [],
   "author": "",
   "license": "ISC",

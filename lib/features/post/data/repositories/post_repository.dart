@@ -35,16 +35,32 @@ class PostRepository {
   }
 
   // ========== 获取单篇帖子 ==========
-  Future<PostModel> getPost(String postId) async {
-    final data = await _postService.getPost(postId);
-    return PostModel.fromJson(data);
+  // Future<PostModel> getPost(String postId) async {
+  //   final data = await _postService.getPost(postId);
+  //   return PostModel.fromJson(data);
+  // }
+
+  Future<PostModel> getPost(String postId) {
+    return _postService.getPost(postId);
   }
 
   // ========== 更新帖子 ==========
-  Future<PostModel> updatePost(String postId, {required String content}) async {
-    await _postService.updatePost(postId, content: content);
-    final data = await _postService.getPost(postId);
-    return PostModel.fromJson(data);
+  // Future<PostModel> updatePost(String postId, {required String content}) async {
+  //   await _postService.updatePost(postId, content: content);
+  //   final data = await _postService.getPost(postId);
+  //   return PostModel.fromJson(data);
+  // }
+
+  Future<PostModel> updatePost(
+    String postId, {
+    required String content,
+  }) async {
+    await _postService.updatePost(
+      postId,
+      content: content,
+    );
+
+    return _postService.getPost(postId);
   }
 
   // ========== 点赞/取消点赞 ==========

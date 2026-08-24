@@ -145,6 +145,22 @@ class _HomeTabState extends State<HomeTab> {
           ],
         ),
         actions: [
+          ElevatedButton(
+  onPressed: () async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      debugPrint('当前没有登录用户');
+      return;
+    }
+
+    final token = await user.getIdToken();
+
+    debugPrint('Firebase ID Token:');
+    debugPrint(token);
+  },
+  child: const Text('获取 Firebase Token'),
+),
           if (!isRecommended)
             Padding(
               padding: const EdgeInsets.only(right: 10),

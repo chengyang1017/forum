@@ -9,4 +9,10 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User.ts'
+export type * from './models/UserTag.ts'
+export type * from './models/UserLanguage.ts'
+export type * from './models/Post.ts'
+export type * from './models/PostVersion.ts'
+export type * from './models/PostImage.ts'
+export type * from './models/PostLike.ts'
 export type * from './commonInputTypes.ts'

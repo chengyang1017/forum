@@ -276,7 +276,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         ],
       ),
     );
-    controller.dispose();
+    //controller.dispose(); //这里太早
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.dispose();
+    });
 
     if (newNickname == null) return;
 
@@ -317,7 +321,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         ],
       ),
     );
-    controller.dispose();
+
+    //controller.dispose();//这里太早
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.dispose();
+    });
 
     if (newUsername == null || newUsername.isEmpty) return;
 
@@ -359,7 +368,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         ],
       ),
     );
-    controller.dispose();
+    //controller.dispose();//这里太早
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.dispose();
+    });
 
     if (newBio == null) return;
 

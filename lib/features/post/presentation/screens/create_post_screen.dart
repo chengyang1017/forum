@@ -13,6 +13,8 @@ import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
+import '../../data/services/post_service.dart';
+import '../../domain/models/post_model.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final String category;
@@ -48,6 +50,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   final _bodyScrollController = ScrollController();
 
   final _imagePicker = ImagePicker();
+
+  final PostService _postService = PostService();
 
   late final DocumentReference<Map<String, dynamic>> _draftPostRef;
 
@@ -469,10 +473,36 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
       final doc = _draftPostRef;
 
-      final imageUrls = await uploadImages(doc.id);
+final imageUrls = await uploadImages(doc.id);
 
-      final versionRef = doc.collection('versions').doc(widget.languageCode);
+// ============================================================
+// PostgreSQL 主写入
+// ============================================================
 
+await _postService.createPost(
+  PostModel(
+    id: doc.id,
+    userId: user.uid,
+    title: title.text.trim(),
+    content: plainContent,
+    bodyDelta: bodyDelta,
+    category: widget.category,
+    languageCode: widget.languageCode,
+    primaryLanguageCode: widget.languageCode,
+    availableLanguageCodes: [
+      widget.languageCode,
+    ],
+    imageUrls: imageUrls,
+  ),
+);
+
+// ============================================================
+// Firestore 迁移期 shadow
+// likes / comments / editHistory 暂时仍依赖这里。
+// ============================================================
+
+final versionRef =
+    doc.collection('versions').doc(widget.languageCode);
       // 原始发布版本
       final historyRef = doc.collection('editHistory').doc();
 

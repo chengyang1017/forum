@@ -13,18 +13,18 @@ class AuthProvider extends ChangeNotifier {
   final UserApi _userApi = UserApi();
 
   Future<void> _syncBackendUser() async {
-  final user = _user;
+    final user = _user;
 
-  if (user == null) {
-    return;
-  }
+    if (user == null) {
+      return;
+    }
 
-  try {
-    await _userApi.syncCurrentUser(user);
-  } catch (error) {
-    debugPrint('Node.js user sync failed: $error');
+    try {
+      await _userApi.syncCurrentUser(user);
+    } catch (error) {
+      debugPrint('Node.js user sync failed: $error');
+    }
   }
-}
 
   // ========== 登录 ==========
   Future<void> login(String email, String password) async {
@@ -51,14 +51,44 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // ========== 加载当前用户 ==========
-  Future<void> loadUser() async {
+Future<void> loadUser() async {
   _isLoading = true;
   notifyListeners();
 
   try {
-    _user = await _authRepo.getCurrentUser();
+    final legacyUser =
+        await _authRepo.getCurrentUser();
+
+    _user = legacyUser;
+
+    if (legacyUser == null) {
+      return;
+    }
 
     await _syncBackendUser();
+
+    final backendUser =
+        await _userApi.getCurrentUser();
+
+    if (backendUser == null) {
+      return;
+    }
+
+    _user = legacyUser.copyWith(
+      username: backendUser.username,
+      email: backendUser.email,
+      nickname: backendUser.nickname,
+      avatar: backendUser.avatar,
+      bio: backendUser.bio,
+      birthday: backendUser.birthday,
+      showAge: backendUser.showAge,
+      createdAt: backendUser.createdAt,
+      lastActive: backendUser.lastActive,
+    );
+  } catch (error) {
+    debugPrint(
+      'Load backend user failed: $error',
+    );
   } finally {
     _isLoading = false;
     notifyListeners();

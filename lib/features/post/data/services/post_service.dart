@@ -1,87 +1,209 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart'; // ✅ 导入 XFile
 import '../../domain/models/post_model.dart';
-
+import 'post_api.dart';
 class PostService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-
+  final PostApi _postApi = PostApi();
   // ========== 监听帖子列表（实时） ==========
+  // Stream<List<PostModel>> watchPosts({
+  //   required String category,
+  //   required String languageCode,
+  // }) {
+  //   return _firestore
+  //       .collection('posts')
+  //       .where('category', isEqualTo: category)
+  //       .orderBy('timestamp', descending: true)
+  //       .limit(50)
+  //       .snapshots()
+  //       .asyncMap((snapshot) async {
+  //         final posts = await Future.wait(
+  //           snapshot.docs.map((doc) async {
+  //             final data = doc.data();
+
+  //             final availableLanguageCodes =
+  //                 (data['availableLanguageCodes'] as List<dynamic>?)
+  //                     ?.map((e) => e.toString())
+  //                     .toList() ??
+  //                 [];
+
+  //             final oldLanguageCode = data['languageCode']?.toString();
+
+  //             // 兼容旧帖子
+  //             final hasLanguage = availableLanguageCodes.isNotEmpty
+  //                 ? availableLanguageCodes.contains(languageCode)
+  //                 : oldLanguageCode == languageCode;
+
+  //             if (!hasLanguage) {
+  //               return null;
+  //             }
+
+  //             final post = PostModel.fromJson({'id': doc.id, ...data});
+
+  //             final primaryLanguage =
+  //                 post.primaryLanguageCode ?? post.languageCode;
+
+  //             // 主语言直接使用根帖子内容
+  //             if (languageCode == primaryLanguage) {
+  //               return post;
+  //             }
+
+  //             // 其他语言读取 versions/{languageCode}
+  //             final versionDoc = await doc.reference
+  //                 .collection('versions')
+  //                 .doc(languageCode)
+  //                 .get();
+
+  //             if (!versionDoc.exists) {
+  //               return null;
+  //             }
+
+  //             final version = versionDoc.data()!;
+
+  //             return post.copyWith(
+  //               title: version['title']?.toString() ?? '',
+  //               content: version['content']?.toString() ?? '',
+  //               bodyDelta:
+  //                   (version['bodyDelta'] as List<dynamic>?)
+  //                       ?.map((e) => e)
+  //                       .toList() ??
+  //                   const [],
+  //               languageCode: languageCode,
+  //             );
+  //           }),
+  //         );
+
+  //         return posts.whereType<PostModel>().toList();
+  //       });
+  // }
+
   Stream<List<PostModel>> watchPosts({
-    required String category,
-    required String languageCode,
-  }) {
-    return _firestore
-        .collection('posts')
-        .where('category', isEqualTo: category)
-        .orderBy('timestamp', descending: true)
-        .limit(50)
-        .snapshots()
-        .asyncMap((snapshot) async {
-          final posts = await Future.wait(
-            snapshot.docs.map((doc) async {
-              final data = doc.data();
+  required String category,
+  required String languageCode,
+}) {
+  // Firestore 在迁移期间只负责：
+  // 1. 点赞/评论实时状态
+  // 2. 作为帖子变更通知源
+  //
+  // 帖子的 title/content/bodyDelta/versions/images
+  // 已经以 PostgreSQL 为主。
 
-              final availableLanguageCodes =
-                  (data['availableLanguageCodes'] as List<dynamic>?)
-                      ?.map((e) => e.toString())
-                      .toList() ??
-                  [];
+  return _firestore
+      .collection('posts')
+      .where(
+        'category',
+        isEqualTo: category,
+      )
+      .orderBy(
+        'timestamp',
+        descending: true,
+      )
+      .limit(50)
+      .snapshots()
+      .asyncMap((snapshot) async {
+        // ======================================================
+        // 1. PostgreSQL 读取帖子主体
+        // ======================================================
 
-              final oldLanguageCode = data['languageCode']?.toString();
+        final posts =
+            await _postApi.getPosts(
+          category: category,
+          languageCode: languageCode,
+        );
 
-              // 兼容旧帖子
-              final hasLanguage = availableLanguageCodes.isNotEmpty
-                  ? availableLanguageCodes.contains(languageCode)
-                  : oldLanguageCode == languageCode;
+        // ======================================================
+        // 2. Firestore shadow 数据建立索引
+        // ======================================================
 
-              if (!hasLanguage) {
-                return null;
+        final firestorePosts =
+            <String, Map<String, dynamic>>{
+          for (final doc in snapshot.docs)
+            doc.id: doc.data(),
+        };
+
+        // ======================================================
+        // 3. 给 PostgreSQL 帖子覆盖尚未迁移的社交字段
+        //
+        // core data:
+        // PostgreSQL
+        //
+        // likes/comments:
+        // Firestore
+        // ======================================================
+
+        final result =
+            <PostModel>[];
+
+        for (final post in posts) {
+          Map<String, dynamic>? shadow =
+              firestorePosts[post.id];
+
+          // 极少数情况下：
+          // Node 返回的语言帖子不在 Firestore 当前 limit(50)
+          // snapshot 中。
+          //
+          // 直接按 ID 补查，避免 likes/count 数据丢失。
+          if (shadow == null) {
+            try {
+              final doc =
+                  await _firestore
+                      .collection('posts')
+                      .doc(post.id)
+                      .get();
+
+              if (doc.exists) {
+                shadow = doc.data();
               }
-
-              final post = PostModel.fromJson({'id': doc.id, ...data});
-
-              final primaryLanguage =
-                  post.primaryLanguageCode ?? post.languageCode;
-
-              // 主语言直接使用根帖子内容
-              if (languageCode == primaryLanguage) {
-                return post;
-              }
-
-              // 其他语言读取 versions/{languageCode}
-              final versionDoc = await doc.reference
-                  .collection('versions')
-                  .doc(languageCode)
-                  .get();
-
-              if (!versionDoc.exists) {
-                return null;
-              }
-
-              final version = versionDoc.data()!;
-
-              return post.copyWith(
-                title: version['title']?.toString() ?? '',
-                content: version['content']?.toString() ?? '',
-                bodyDelta:
-                    (version['bodyDelta'] as List<dynamic>?)
-                        ?.map((e) => e)
-                        .toList() ??
-                    const [],
-                languageCode: languageCode,
+            } catch (e) {
+              debugPrint(
+                'Load post shadow failed: $e',
               );
-            }),
-          );
+            }
+          }
 
-          return posts.whereType<PostModel>().toList();
-        });
-  }
+          if (shadow == null) {
+            result.add(post);
+            continue;
+          }
+
+          final likes =
+              (shadow['likes'] as List<dynamic>?)
+                      ?.map(
+                        (item) =>
+                            item.toString(),
+                      )
+                      .toList() ??
+                  const <String>[];
+
+          final likeCount =
+              (shadow['likeCount'] as num?)
+                      ?.toInt() ??
+                  post.likeCount;
+
+          final commentCount =
+              (shadow['commentCount'] as num?)
+                      ?.toInt() ??
+                  post.commentCount;
+
+          result.add(
+            post.copyWith(
+              likes: likes,
+              likeCount: likeCount,
+              commentCount: commentCount,
+            ),
+          );
+        }
+
+        return result;
+      });
+}
 
   // ========== 刷新帖子列表 ==========
   Future<void> refreshPosts({
@@ -93,61 +215,219 @@ class PostService {
   }
 
   // ========== 创建帖子 ==========
-  Future<void> createPost(PostModel post) async {
-    final currentUid = _auth.currentUser?.uid;
-    if (currentUid == null) throw Exception('未登录');
+  // Future<void> createPost(PostModel post) async {
+  //   final currentUid = _auth.currentUser?.uid;
+  //   if (currentUid == null) throw Exception('未登录');
 
-    await _firestore.collection('posts').add({
-      'uid': currentUid,
-      'content': post.content,
-      'images': post.imageUrls ?? [],
-      'category': post.category,
-      'languageCode': post.languageCode,
-      'timestamp': FieldValue.serverTimestamp(),
-      'likeCount': 0,
-      'commentCount': 0,
-      'likes': [],
-    });
+  //   await _firestore.collection('posts').add({
+  //     'uid': currentUid,
+  //     'content': post.content,
+  //     'images': post.imageUrls ?? [],
+  //     'category': post.category,
+  //     'languageCode': post.languageCode,
+  //     'timestamp': FieldValue.serverTimestamp(),
+  //     'likeCount': 0,
+  //     'commentCount': 0,
+  //     'likes': [],
+  //   });
+  // }
+
+  Future<void> createPost(PostModel post) async {
+  final currentUid = _auth.currentUser?.uid;
+
+  if (currentUid == null) {
+    throw Exception('未登录');
   }
+
+  final title = post.title?.trim() ?? '';
+
+  final category = post.category?.trim() ?? '';
+
+  final languageCode =
+      post.primaryLanguageCode?.trim().isNotEmpty == true
+      ? post.primaryLanguageCode!.trim()
+      : post.languageCode?.trim() ?? '';
+
+  if (post.id.isEmpty) {
+    throw Exception('帖子 ID 不能为空');
+  }
+
+  if (title.isEmpty) {
+    throw Exception('标题不能为空');
+  }
+
+  if (category.isEmpty) {
+    throw Exception('帖子分类不能为空');
+  }
+
+  if (languageCode.isEmpty) {
+    throw Exception('帖子语言不能为空');
+  }
+
+  await _postApi.createPost(
+    firestoreId: post.id,
+    title: title,
+    content: post.content ?? '',
+    bodyDelta: post.bodyDelta,
+    category: category,
+    languageCode: languageCode,
+    images: post.imageUrls ?? const [],
+  );
+}
 
   // ========== 获取单篇帖子 ==========
-  Future<Map<String, dynamic>> getPost(String postId) async {
-    final doc = await _firestore.collection('posts').doc(postId).get();
-    if (!doc.exists) throw Exception('帖子不存在');
-    return {'id': doc.id, ...doc.data()!};
-  }
+  // Future<Map<String, dynamic>> getPost(String postId) async {
+  //   final doc = await _firestore.collection('posts').doc(postId).get();
+  //   if (!doc.exists) throw Exception('帖子不存在');
+  //   return {'id': doc.id, ...doc.data()!};
+  // }
 
-  // ========== 添加语言版本 ==========
-  Future<void> addLanguageVersion({
-    required String postId,
-    required String languageCode,
-    required String languageName,
-    required String title,
-    required String content,
-    required String type,
-    List<dynamic> bodyDelta = const [],
-  }) async {
-    final currentUid = _auth.currentUser?.uid;
+  Future<PostModel> getPost(String postId) async {
+  // ============================================================
+  // 1. PostgreSQL 主读取
+  // ============================================================
 
-    if (currentUid == null) {
-      throw Exception('未登录');
+  final post = await _postApi.getPost(postId);
+
+  // ============================================================
+  // 2. Firestore 暂时只补尚未迁移的社交状态
+  // ============================================================
+
+  try {
+    final doc = await _firestore
+        .collection('posts')
+        .doc(postId)
+        .get();
+
+    if (!doc.exists) {
+      return post;
     }
 
-    final postRef = _firestore.collection('posts').doc(postId);
+    final data = doc.data();
 
+    if (data == null) {
+      return post;
+    }
+
+    final likes =
+        (data['likes'] as List<dynamic>?)
+            ?.map(
+              (item) => item.toString(),
+            )
+            .toList() ??
+        const <String>[];
+
+    final likeCount =
+        (data['likeCount'] as num?)
+            ?.toInt() ??
+        post.likeCount;
+
+    final commentCount =
+        (data['commentCount'] as num?)
+            ?.toInt() ??
+        post.commentCount;
+
+    return post.copyWith(
+      likes: likes,
+      likeCount: likeCount,
+      commentCount: commentCount,
+    );
+  } catch (e) {
+    debugPrint(
+      'Load post social shadow failed: $e',
+    );
+
+    // Firestore shadow 出问题不能影响帖子主体读取。
+    return post;
+  }
+}
+
+  // ========== 添加语言版本 ==========
+  // Future<void> addLanguageVersion({
+  //   required String postId,
+  //   required String languageCode,
+  //   required String languageName,
+  //   required String title,
+  //   required String content,
+  //   required String type,
+  //   List<dynamic> bodyDelta = const [],
+  // }) async {
+  //   final currentUid = _auth.currentUser?.uid;
+
+  //   if (currentUid == null) {
+  //     throw Exception('未登录');
+  //   }
+
+  //   final postRef = _firestore.collection('posts').doc(postId);
+
+  //   final versionRef = postRef.collection('versions').doc(languageCode);
+
+  //   await _firestore.runTransaction((transaction) async {
+  //     final postSnapshot = await transaction.get(postRef);
+
+  //     if (!postSnapshot.exists) {
+  //       throw Exception('帖子不存在');
+  //     }
+
+  //     final versionSnapshot = await transaction.get(versionRef);
+
+  //     if (versionSnapshot.exists) {
+  //       throw Exception('该语言版本已经存在');
+  //     }
+
+  //     transaction.set(versionRef, {
+  //       'languageCode': languageCode,
+  //       'languageName': languageName,
+  //       'title': title.trim(),
+  //       'content': content.trim(),
+  //       'bodyDelta': bodyDelta,
+  //       'authorId': currentUid,
+  //       'type': type,
+  //       'createdAt': FieldValue.serverTimestamp(),
+  //       'updatedAt': FieldValue.serverTimestamp(),
+  //     });
+
+  //     transaction.update(postRef, {
+  //       'availableLanguageCodes': FieldValue.arrayUnion([languageCode]),
+  //     });
+  //   });
+  // }
+
+  Future<void> addLanguageVersion({
+  required String postId,
+  required String languageCode,
+  required String languageName,
+  required String title,
+  required String content,
+  required String type,
+  List<dynamic> bodyDelta = const [],
+}) async {
+  final currentUid = _auth.currentUser?.uid;
+
+  if (currentUid == null) {
+    throw Exception('未登录');
+  }
+
+  // 1. PostgreSQL 主写入
+  await _postApi.addLanguageVersion(
+    postId: postId,
+    languageCode: languageCode,
+    title: title.trim(),
+    content: content.trim(),
+    type: type,
+    bodyDelta: bodyDelta,
+  );
+
+  // 2. Firestore 迁移期镜像
+  try {
+    final postRef = _firestore.collection('posts').doc(postId);
     final versionRef = postRef.collection('versions').doc(languageCode);
 
     await _firestore.runTransaction((transaction) async {
       final postSnapshot = await transaction.get(postRef);
 
       if (!postSnapshot.exists) {
-        throw Exception('帖子不存在');
-      }
-
-      final versionSnapshot = await transaction.get(versionRef);
-
-      if (versionSnapshot.exists) {
-        throw Exception('该语言版本已经存在');
+        return;
       }
 
       transaction.set(versionRef, {
@@ -163,10 +443,17 @@ class PostService {
       });
 
       transaction.update(postRef, {
-        'availableLanguageCodes': FieldValue.arrayUnion([languageCode]),
+        'availableLanguageCodes': FieldValue.arrayUnion([
+          languageCode,
+        ]),
       });
     });
+  } catch (e) {
+    debugPrint(
+      'Firestore post version mirror failed: $e',
+    );
   }
+}
 
   // ========== 获取指定语言版本 ==========
   Future<Map<String, dynamic>?> getLanguageVersion({
@@ -229,20 +516,55 @@ class PostService {
   }
 
   // ========== 删除帖子 ==========
+  // Future<void> deletePost(String postId) async {
+  //   final postRef = _firestore.collection('posts').doc(postId);
+
+  //   final doc = await postRef.get();
+
+  //   final images = List<String>.from(doc.data()?['images'] ?? []);
+
+  //   for (final url in images) {
+  //     try {
+  //       await _storage.refFromURL(url).delete();
+  //     } catch (_) {}
+  //   }
+
+  //   final versions = await postRef.collection('versions').get();
+
+  //   final batch = _firestore.batch();
+
+  //   for (final version in versions.docs) {
+  //     batch.delete(version.reference);
+  //   }
+
+  //   batch.delete(postRef);
+
+  //   await batch.commit();
+  // }
+
   Future<void> deletePost(String postId) async {
-    final postRef = _firestore.collection('posts').doc(postId);
+  // 1. PostgreSQL 主删除
+  final imageUrls =
+      await _postApi.deletePost(postId);
 
-    final doc = await postRef.get();
-
-    final images = List<String>.from(doc.data()?['images'] ?? []);
-
-    for (final url in images) {
-      try {
-        await _storage.refFromURL(url).delete();
-      } catch (_) {}
+  // 2. 清理 Firebase Storage
+  for (final url in imageUrls) {
+    try {
+      await _storage.refFromURL(url).delete();
+    } catch (e) {
+      debugPrint(
+        'Delete post storage image failed: $e',
+      );
     }
+  }
 
-    final versions = await postRef.collection('versions').get();
+  // 3. Firestore 迁移期清理
+  try {
+    final postRef =
+        _firestore.collection('posts').doc(postId);
+
+    final versions =
+        await postRef.collection('versions').get();
 
     final batch = _firestore.batch();
 
@@ -253,7 +575,12 @@ class PostService {
     batch.delete(postRef);
 
     await batch.commit();
+  } catch (e) {
+    debugPrint(
+      'Firestore post delete mirror failed: $e',
+    );
   }
+}
 
   // ========== 上传图片 ==========
   Future<List<String>> uploadImages(String postId, List<XFile> images) async {
@@ -270,11 +597,36 @@ class PostService {
   }
 
   // ========== 更新图片列表 ==========
-  Future<void> updateImages(String postId, List<String> imageUrls) async {
-    await _firestore.collection('posts').doc(postId).update({
+  // Future<void> updateImages(String postId, List<String> imageUrls) async {
+  //   await _firestore.collection('posts').doc(postId).update({
+  //     'images': imageUrls,
+  //   });
+  // }
+
+  Future<void> updateImages(
+  String postId,
+  List<String> imageUrls,
+) async {
+  // 1. PostgreSQL 主写入
+  await _postApi.updateImages(
+    postId: postId,
+    images: imageUrls,
+  );
+
+  // 2. Firestore 镜像
+  try {
+    await _firestore
+        .collection('posts')
+        .doc(postId)
+        .update({
       'images': imageUrls,
     });
+  } catch (e) {
+    debugPrint(
+      'Firestore post images mirror failed: $e',
+    );
   }
+}
 
   // ========== 删除图片（存储） ==========
   Future<void> deleteImageFromStorage(String imageUrl) async {
@@ -284,104 +636,227 @@ class PostService {
   }
 
   // ========== 移除图片（Firestore） ==========
-  Future<void> removeImage(String postId, List<String> imageUrls) async {
-    await _firestore.collection('posts').doc(postId).update({
-      'images': imageUrls,
-    });
-  }
+  // Future<void> removeImage(String postId, List<String> imageUrls) async {
+  //   await _firestore.collection('posts').doc(postId).update({
+  //     'images': imageUrls,
+  //   });
+  // }
+
+  Future<void> removeImage(
+  String postId,
+  List<String> imageUrls,
+) async {
+  await updateImages(
+    postId,
+    imageUrls,
+  );
+}
+
+  // Future<void> updateLanguageVersionContent({
+  //   required String postId,
+  //   required String languageCode,
+  //   required String title,
+  //   required String content,
+  //   List<dynamic>? bodyDelta,
+  // }) async {
+  //   final currentUid = _auth.currentUser?.uid;
+
+  //   if (currentUid == null) {
+  //     throw Exception('未登录');
+  //   }
+  //   final trimmedTitle = title.trim();
+  //   if (trimmedTitle.isEmpty) {
+  //     throw Exception('标题不能为空');
+  //   }
+  //   final trimmedContent = content.trim();
+
+  //   if (trimmedContent.isEmpty) {
+  //     throw Exception('内容不能为空');
+  //   }
+
+  //   final postRef = _firestore.collection('posts').doc(postId);
+
+  //   final versionRef = postRef.collection('versions').doc(languageCode);
+
+  //   await _firestore.runTransaction((transaction) async {
+  //     final postSnapshot = await transaction.get(postRef);
+
+  //     if (!postSnapshot.exists) {
+  //       throw Exception('帖子不存在');
+  //     }
+
+  //     final postData = postSnapshot.data()!;
+
+  //     final ownerId = (postData['uid'] ?? postData['userId'])?.toString();
+
+  //     if (ownerId != currentUid) {
+  //       throw Exception('无权编辑该帖子');
+  //     }
+
+  //     final primaryLanguageCode =
+  //         (postData['primaryLanguageCode'] ?? postData['languageCode'])
+  //             ?.toString();
+
+  //     final isPrimaryLanguage = languageCode == primaryLanguageCode;
+
+  //     final versionSnapshot = await transaction.get(versionRef);
+
+  //     if (versionSnapshot.exists) {
+  //       transaction.update(versionRef, {
+  //         'title': trimmedTitle,
+  //         'content': trimmedContent,
+
+  //         if (bodyDelta != null) 'bodyDelta': bodyDelta,
+
+  //         'updatedAt': FieldValue.serverTimestamp(),
+  //       });
+  //     } else {
+  //       // 兼容以前没有 versions/{主语言} 的旧帖子
+  //       if (!isPrimaryLanguage) {
+  //         throw Exception('该语言版本不存在');
+  //       }
+
+  //       transaction.set(versionRef, {
+  //         'languageCode': languageCode,
+  //         'languageName': postData['languageName'] ?? languageCode,
+  //         'title': trimmedTitle,
+  //         'content': trimmedContent,
+  //         'bodyDelta': bodyDelta ?? const [],
+  //         'authorId': currentUid,
+  //         'type': 'original',
+  //         'createdAt': FieldValue.serverTimestamp(),
+  //         'updatedAt': FieldValue.serverTimestamp(),
+  //       });
+  //     }
+
+  //     // 主语言同时更新 root。
+  //     if (isPrimaryLanguage) {
+  //       transaction.update(postRef, {
+  //         'title': trimmedTitle,
+  //         'content': trimmedContent,
+
+  //         if (bodyDelta != null) 'bodyDelta': bodyDelta,
+
+  //         'availableLanguageCodes': FieldValue.arrayUnion([languageCode]),
+
+  //         'updatedAt': FieldValue.serverTimestamp(),
+  //       });
+  //     }
+  //   });
+  // }
 
   Future<void> updateLanguageVersionContent({
-    required String postId,
-    required String languageCode,
-    required String title,
-    required String content,
-    List<dynamic>? bodyDelta,
-  }) async {
-    final currentUid = _auth.currentUser?.uid;
+  required String postId,
+  required String languageCode,
+  required String title,
+  required String content,
+  List<dynamic>? bodyDelta,
+}) async {
+  final currentUid = _auth.currentUser?.uid;
 
-    if (currentUid == null) {
-      throw Exception('未登录');
-    }
-    final trimmedTitle = title.trim();
-    if (trimmedTitle.isEmpty) {
-      throw Exception('标题不能为空');
-    }
-    final trimmedContent = content.trim();
+  if (currentUid == null) {
+    throw Exception('未登录');
+  }
 
-    if (trimmedContent.isEmpty) {
-      throw Exception('内容不能为空');
-    }
+  final trimmedTitle = title.trim();
+  final trimmedContent = content.trim();
 
-    final postRef = _firestore.collection('posts').doc(postId);
+  if (trimmedTitle.isEmpty) {
+    throw Exception('标题不能为空');
+  }
 
-    final versionRef = postRef.collection('versions').doc(languageCode);
+  if (trimmedContent.isEmpty) {
+    throw Exception('内容不能为空');
+  }
+
+  // 1. PostgreSQL 主写入
+  await _postApi.updateLanguageVersion(
+    postId: postId,
+    languageCode: languageCode,
+    title: trimmedTitle,
+    content: trimmedContent,
+    bodyDelta: bodyDelta,
+  );
+
+  // 2. Firestore 迁移期镜像
+  try {
+    final postRef =
+        _firestore.collection('posts').doc(postId);
+
+    final versionRef =
+        postRef.collection('versions').doc(languageCode);
 
     await _firestore.runTransaction((transaction) async {
-      final postSnapshot = await transaction.get(postRef);
+      final postSnapshot =
+          await transaction.get(postRef);
 
       if (!postSnapshot.exists) {
-        throw Exception('帖子不存在');
+        return;
       }
 
       final postData = postSnapshot.data()!;
 
-      final ownerId = (postData['uid'] ?? postData['userId'])?.toString();
-
-      if (ownerId != currentUid) {
-        throw Exception('无权编辑该帖子');
-      }
-
       final primaryLanguageCode =
-          (postData['primaryLanguageCode'] ?? postData['languageCode'])
-              ?.toString();
+          (
+            postData['primaryLanguageCode'] ??
+            postData['languageCode']
+          )?.toString();
 
-      final isPrimaryLanguage = languageCode == primaryLanguageCode;
+      final isPrimaryLanguage =
+          languageCode == primaryLanguageCode;
 
-      final versionSnapshot = await transaction.get(versionRef);
+      final versionSnapshot =
+          await transaction.get(versionRef);
 
       if (versionSnapshot.exists) {
         transaction.update(versionRef, {
           'title': trimmedTitle,
           'content': trimmedContent,
-
-          if (bodyDelta != null) 'bodyDelta': bodyDelta,
-
-          'updatedAt': FieldValue.serverTimestamp(),
+          if (bodyDelta != null)
+            'bodyDelta': bodyDelta,
+          'updatedAt':
+              FieldValue.serverTimestamp(),
         });
-      } else {
-        // 兼容以前没有 versions/{主语言} 的旧帖子
-        if (!isPrimaryLanguage) {
-          throw Exception('该语言版本不存在');
-        }
-
+      } else if (isPrimaryLanguage) {
         transaction.set(versionRef, {
           'languageCode': languageCode,
-          'languageName': postData['languageName'] ?? languageCode,
+          'languageName':
+              postData['languageName'] ??
+              languageCode,
           'title': trimmedTitle,
           'content': trimmedContent,
-          'bodyDelta': bodyDelta ?? const [],
+          'bodyDelta':
+              bodyDelta ?? const [],
           'authorId': currentUid,
           'type': 'original',
-          'createdAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
+          'createdAt':
+              FieldValue.serverTimestamp(),
+          'updatedAt':
+              FieldValue.serverTimestamp(),
         });
       }
 
-      // 主语言同时更新 root。
       if (isPrimaryLanguage) {
         transaction.update(postRef, {
           'title': trimmedTitle,
           'content': trimmedContent,
-
-          if (bodyDelta != null) 'bodyDelta': bodyDelta,
-
-          'availableLanguageCodes': FieldValue.arrayUnion([languageCode]),
-
-          'updatedAt': FieldValue.serverTimestamp(),
+          if (bodyDelta != null)
+            'bodyDelta': bodyDelta,
+          'availableLanguageCodes':
+              FieldValue.arrayUnion([
+                languageCode,
+              ]),
+          'updatedAt':
+              FieldValue.serverTimestamp(),
         });
       }
     });
+  } catch (e) {
+    debugPrint(
+      'Firestore post edit mirror failed: $e',
+    );
   }
+}
 
   Future<void> ensureOriginalEditHistory({
     required String postId,
