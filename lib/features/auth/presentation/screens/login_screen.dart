@@ -95,6 +95,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final authProvider = context.read<authProv.AuthProvider>();
       await authProvider.login(email, password);
 
+      // 登录完成后同步 Node 用户，并加载当前账号 interests。
+      await authProvider.loadUser();
+
       final firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser != null) {
         await _saveAccount(firebaseUser);
