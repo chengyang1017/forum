@@ -1,32 +1,63 @@
 import {
+  Suspense,
+  type ReactNode,
+} from 'react';
+import { Spin } from 'antd';
+import {
   createBrowserRouter,
 } from 'react-router-dom';
 
-import { AdminLayout } from '../layouts/AdminLayout';
-import { DashboardPage } from '../pages/dashboard/DashboardPage';
-import { LoginPage } from '../pages/login/LoginPage';
-import { ReportsPage } from '../pages/reports/ReportsPage';
+import {
+  AdminLayout,
+  DashboardPage,
+  LoginPage,
+  ReportsPage,
+} from './lazyRoutes';
 import { ProtectedRoute } from './ProtectedRoute';
+
+function suspense(
+  element: ReactNode,
+) {
+  return (
+    <Suspense
+      fallback={
+        <div className="route-loading">
+          <Spin size="large" />
+        </div>
+      }
+    >
+      {element}
+    </Suspense>
+  );
+}
 
 export const router =
   createBrowserRouter([
     {
       path: '/login',
-      element: <LoginPage />,
+      element: suspense(
+        <LoginPage />,
+      ),
     },
     {
       element: <ProtectedRoute />,
       children: [
         {
-          element: <AdminLayout />,
+          element: suspense(
+            <AdminLayout />,
+          ),
           children: [
             {
               path: '/',
-              element: <DashboardPage />,
+              element: suspense(
+                <DashboardPage />,
+              ),
             },
             {
               path: '/reports',
-              element: <ReportsPage />,
+              element: suspense(
+                <ReportsPage />,
+              ),
             },
           ],
         },
