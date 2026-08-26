@@ -76,16 +76,23 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     _images = List<String>.from(_post.imageUrls ?? []);
     _isLiked = _currentUserId != null && _likes.contains(_currentUserId);
 
-    final postProvider = context.read<postProv.PostProvider>();
+    final postProvider =
+        context.read<postProv.PostProvider>();
 
-    postProvider.seedBookmarkState(_post.id, _post.isBookmarked);
+    postProvider.seedBookmarkState(
+      _post.id,
+      _post.isBookmarked,
+    );
 
-    _isBookmarked = postProvider.bookmarkState(
+    _isBookmarked =
+        postProvider.bookmarkState(
       _post.id,
       fallback: _post.isBookmarked,
     );
 
-    _post = _post.copyWith(isBookmarked: _isBookmarked);
+    _post = _post.copyWith(
+      isBookmarked: _isBookmarked,
+    );
 
     _loadCurrentVersionCreatedAt();
   }
@@ -264,15 +271,21 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       _isLiked = nextLiked;
       _likeCount = nextLiked
           ? previousLikeCount + 1
-          : (previousLikeCount > 0 ? previousLikeCount - 1 : 0);
+          : (previousLikeCount > 0
+                ? previousLikeCount - 1
+                : 0);
 
-      _likes = nextLiked ? <String>[_currentUserId!] : <String>[];
+      _likes = nextLiked
+          ? <String>[_currentUserId!]
+          : <String>[];
     });
 
     try {
-      final postProvider = context.read<postProv.PostProvider>();
+      final postProvider =
+          context.read<postProv.PostProvider>();
 
-      final confirmedLikeCount = await postProvider.toggleLike(
+      final confirmedLikeCount =
+          await postProvider.toggleLike(
         widget.postId,
         liked: nextLiked,
       );
@@ -293,11 +306,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       setState(() {
         _isLiked = previousLiked;
         _likeCount = previousLikeCount;
-        _likes = previousLiked ? <String>[_currentUserId!] : <String>[];
+        _likes = previousLiked
+            ? <String>[_currentUserId!]
+            : <String>[];
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('操作失败: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('操作失败: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -310,24 +328,30 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       return;
     }
 
-    final postProvider = context.read<postProv.PostProvider>();
+    final postProvider =
+        context.read<postProv.PostProvider>();
 
-    final previousBookmarked = postProvider.bookmarkState(
+    final previousBookmarked =
+        postProvider.bookmarkState(
       widget.postId,
       fallback: _isBookmarked,
     );
 
-    final nextBookmarked = !previousBookmarked;
+    final nextBookmarked =
+        !previousBookmarked;
 
     // 乐观更新：先让按钮立即响应。
     setState(() {
       _isBookmarked = nextBookmarked;
       _isBookmarkBusy = true;
-      _post = _post.copyWith(isBookmarked: nextBookmarked);
+      _post = _post.copyWith(
+        isBookmarked: nextBookmarked,
+      );
     });
 
     try {
-      final confirmedBookmarked = await postProvider.toggleBookmark(
+      final confirmedBookmarked =
+          await postProvider.toggleBookmark(
         widget.postId,
         bookmarked: nextBookmarked,
       );
@@ -339,7 +363,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       setState(() {
         _isBookmarked = confirmedBookmarked;
         _isBookmarkBusy = false;
-        _post = _post.copyWith(isBookmarked: confirmedBookmarked);
+        _post = _post.copyWith(
+          isBookmarked: confirmedBookmarked,
+        );
       });
     } catch (e) {
       if (!mounted) {
@@ -350,11 +376,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       setState(() {
         _isBookmarked = previousBookmarked;
         _isBookmarkBusy = false;
-        _post = _post.copyWith(isBookmarked: previousBookmarked);
+        _post = _post.copyWith(
+          isBookmarked: previousBookmarked,
+        );
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('收藏操作失败: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('收藏操作失败: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -957,6 +988,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     );
   }
 
+
   // ============================================================
   // 举报帖子
   // ============================================================
@@ -988,7 +1020,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('举报已提交，感谢你的反馈'),
+          content: Text(
+            '举报已提交，感谢你的反馈',
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -1179,7 +1213,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       color: Colors.redAccent,
                     ),
                     SizedBox(width: 8),
-                    Text('举报帖子', style: TextStyle(color: Colors.redAccent)),
+                    Text(
+                      '举报帖子',
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -1581,9 +1620,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   // 底部操作栏
   // ============================================================
   Widget _buildBottomBar() {
-    final globalBookmarked = context
-        .watch<postProv.PostProvider>()
-        .bookmarkState(widget.postId, fallback: _isBookmarked);
+    final globalBookmarked =
+        context.watch<postProv.PostProvider>()
+            .bookmarkState(
+      widget.postId,
+      fallback: _isBookmarked,
+    );
 
     return Container(
       decoration: BoxDecoration(
@@ -1598,7 +1640,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 12,
+          ),
           child: Row(
             children: [
               Expanded(
@@ -1608,7 +1653,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     _isLiked
                         ? Icons.favorite_rounded
                         : Icons.favorite_outline_rounded,
-                    _likeCount > 0 ? '$_likeCount 赞同' : '赞同',
+                    _likeCount > 0
+                        ? '$_likeCount 赞同'
+                        : '赞同',
                     _isLiked,
                   ),
                 ),
@@ -1616,12 +1663,19 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               Expanded(
                 child: _buildBottomAction(
                   onTap: _openComments,
-                  child: _buildAction(Icons.mode_comment_outlined, '评论', false),
+                  child: _buildAction(
+                    Icons.mode_comment_outlined,
+                    '评论',
+                    false,
+                  ),
                 ),
               ),
               Expanded(
                 child: _buildBottomAction(
-                  onTap: _isBookmarkBusy ? null : _toggleBookmark,
+                  onTap:
+                      _isBookmarkBusy
+                          ? null
+                          : _toggleBookmark,
                   child: _buildAction(
                     globalBookmarked
                         ? Icons.bookmark_rounded
@@ -1634,13 +1688,21 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               Expanded(
                 child: _buildBottomAction(
                   onTap: _openTranslation,
-                  child: _buildAction(Icons.translate_rounded, '翻译', false),
+                  child: _buildAction(
+                    Icons.translate_rounded,
+                    '翻译',
+                    false,
+                  ),
                 ),
               ),
               Expanded(
                 child: _buildBottomAction(
                   onTap: _showShareOptions,
-                  child: _buildAction(Icons.ios_share_rounded, '分享', false),
+                  child: _buildAction(
+                    Icons.ios_share_rounded,
+                    '分享',
+                    false,
+                  ),
                 ),
               ),
             ],
@@ -1658,9 +1720,15 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       borderRadius: BorderRadius.circular(20),
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 3,
+          vertical: 8,
+        ),
         child: Center(
-          child: FittedBox(fit: BoxFit.scaleDown, child: child),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: child,
+          ),
         ),
       ),
     );
