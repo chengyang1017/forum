@@ -122,6 +122,16 @@ postDataRouter.get(
               id: true,
             },
           },
+          bookmarks: {
+            where: {
+              user: {
+                firebaseUid: auth.firebaseUid,
+              },
+            },
+            select: {
+              id: true,
+            },
+          },
         },
         orderBy: {
           createdAt: 'desc',
@@ -130,13 +140,22 @@ postDataRouter.get(
       });
 
       const result = posts
-        .map((post) =>
-          serializePost(
+        .map((post) => {
+          const serialized = serializePost(
             post,
             post.primaryLanguageCode,
             post.likes.length > 0 ? auth.firebaseUid : null,
-          ),
-        )
+          );
+
+          if (serialized == null) {
+            return null;
+          }
+
+          return {
+            ...serialized,
+            isBookmarked: post.bookmarks.length > 0,
+          };
+        })
         .filter(
           (post): post is NonNullable<typeof post> => post != null,
         );

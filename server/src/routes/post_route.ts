@@ -1354,10 +1354,6 @@ postRouter.get(
           where: {
             category,
 
-            // -----------------------------------------------
-            // 只返回存在目标语言版本的帖子。
-            // -----------------------------------------------
-
             versions: {
               some: {
                 languageCode,
@@ -1368,9 +1364,22 @@ postRouter.get(
           include: {
             ...postInclude,
 
-            // 只查询“当前登录用户”自己的点赞记录。
-            // Flutter 不需要拿到所有点赞用户 UID。
+            // 当前用户自己的点赞
             likes: {
+              where: {
+                user: {
+                  firebaseUid:
+                    auth.firebaseUid,
+                },
+              },
+
+              select: {
+                id: true,
+              },
+            },
+
+            // 当前用户自己的收藏
+            bookmarks: {
               where: {
                 user: {
                   firebaseUid:
@@ -1406,15 +1415,13 @@ postRouter.get(
           return {
             ...serialized,
 
-            // PostModel 目前仍用 likes.contains(currentUid)
-            // 判断当前用户有没有点赞。
-            //
-            // 这里不再返回“所有点赞用户”，
-            // 只把当前用户 UID 当成 liked marker。
             likes:
               post.likes.length > 0
                 ? [auth.firebaseUid]
                 : [],
+
+            isBookmarked:
+              post.bookmarks.length > 0,
           };
         })
         .filter(
@@ -1500,15 +1507,10 @@ postRouter.get(
       response.locals.auth;
 
     try {
-      // --------------------------------------------------------
-      // 目前 Flutter 使用的是 Firestore post id。
-      //
-      // 同时允许 PostgreSQL UUID，
-      // 方便以后完全切库之后继续使用这个接口。
-      // --------------------------------------------------------
-
       const validDatabaseId =
-        z.string().uuid().safeParse(id);
+        z.string()
+          .uuid()
+          .safeParse(id);
 
       const post =
         await prisma.post.findFirst({
@@ -1531,7 +1533,22 @@ postRouter.get(
           include: {
             ...postInclude,
 
+            // 当前用户自己的点赞
             likes: {
+              where: {
+                user: {
+                  firebaseUid:
+                    auth.firebaseUid,
+                },
+              },
+
+              select: {
+                id: true,
+              },
+            },
+
+            // 当前用户自己的收藏
+            bookmarks: {
               where: {
                 user: {
                   firebaseUid:
@@ -1586,6 +1603,9 @@ postRouter.get(
             post.likes.length > 0
               ? [auth.firebaseUid]
               : [],
+
+          isBookmarked:
+            post.bookmarks.length > 0,
         },
       });
     } catch (error) {
