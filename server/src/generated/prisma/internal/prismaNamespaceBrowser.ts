@@ -193,6 +193,9 @@ export const PostReportScalarFieldEnum = {
   reason: 'reason',
   details: 'details',
   status: 'status',
+  handledById: 'handledById',
+  handledAt: 'handledAt',
+  adminNote: 'adminNote',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

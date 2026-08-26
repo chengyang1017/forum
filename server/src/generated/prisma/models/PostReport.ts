@@ -31,6 +31,9 @@ export type PostReportMinAggregateOutputType = {
   reason: string | null
   details: string | null
   status: string | null
+  handledById: string | null
+  handledAt: Date | null
+  adminNote: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -42,6 +45,9 @@ export type PostReportMaxAggregateOutputType = {
   reason: string | null
   details: string | null
   status: string | null
+  handledById: string | null
+  handledAt: Date | null
+  adminNote: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,6 +59,9 @@ export type PostReportCountAggregateOutputType = {
   reason: number
   details: number
   status: number
+  handledById: number
+  handledAt: number
+  adminNote: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -66,6 +75,9 @@ export type PostReportMinAggregateInputType = {
   reason?: true
   details?: true
   status?: true
+  handledById?: true
+  handledAt?: true
+  adminNote?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -77,6 +89,9 @@ export type PostReportMaxAggregateInputType = {
   reason?: true
   details?: true
   status?: true
+  handledById?: true
+  handledAt?: true
+  adminNote?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +103,9 @@ export type PostReportCountAggregateInputType = {
   reason?: true
   details?: true
   status?: true
+  handledById?: true
+  handledAt?: true
+  adminNote?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -172,6 +190,9 @@ export type PostReportGroupByOutputType = {
   reason: string
   details: string | null
   status: string
+  handledById: string | null
+  handledAt: Date | null
+  adminNote: string | null
   createdAt: Date
   updatedAt: Date
   _count: PostReportCountAggregateOutputType | null
@@ -204,9 +225,13 @@ export type PostReportWhereInput = {
   reason?: Prisma.StringFilter<"PostReport"> | string
   details?: Prisma.StringNullableFilter<"PostReport"> | string | null
   status?: Prisma.StringFilter<"PostReport"> | string
+  handledById?: Prisma.UuidNullableFilter<"PostReport"> | string | null
+  handledAt?: Prisma.DateTimeNullableFilter<"PostReport"> | Date | string | null
+  adminNote?: Prisma.StringNullableFilter<"PostReport"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PostReport"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PostReport"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  handledBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   post?: Prisma.XOR<Prisma.PostScalarRelationFilter, Prisma.PostWhereInput>
 }
 
@@ -217,9 +242,13 @@ export type PostReportOrderByWithRelationInput = {
   reason?: Prisma.SortOrder
   details?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  handledById?: Prisma.SortOrderInput | Prisma.SortOrder
+  handledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  adminNote?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  handledBy?: Prisma.UserOrderByWithRelationInput
   post?: Prisma.PostOrderByWithRelationInput
 }
 
@@ -234,9 +263,13 @@ export type PostReportWhereUniqueInput = Prisma.AtLeast<{
   reason?: Prisma.StringFilter<"PostReport"> | string
   details?: Prisma.StringNullableFilter<"PostReport"> | string | null
   status?: Prisma.StringFilter<"PostReport"> | string
+  handledById?: Prisma.UuidNullableFilter<"PostReport"> | string | null
+  handledAt?: Prisma.DateTimeNullableFilter<"PostReport"> | Date | string | null
+  adminNote?: Prisma.StringNullableFilter<"PostReport"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PostReport"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PostReport"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  handledBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   post?: Prisma.XOR<Prisma.PostScalarRelationFilter, Prisma.PostWhereInput>
 }, "id" | "userId_postId">
 
@@ -247,6 +280,9 @@ export type PostReportOrderByWithAggregationInput = {
   reason?: Prisma.SortOrder
   details?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  handledById?: Prisma.SortOrderInput | Prisma.SortOrder
+  handledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  adminNote?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PostReportCountOrderByAggregateInput
@@ -264,6 +300,9 @@ export type PostReportScalarWhereWithAggregatesInput = {
   reason?: Prisma.StringWithAggregatesFilter<"PostReport"> | string
   details?: Prisma.StringNullableWithAggregatesFilter<"PostReport"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"PostReport"> | string
+  handledById?: Prisma.UuidNullableWithAggregatesFilter<"PostReport"> | string | null
+  handledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PostReport"> | Date | string | null
+  adminNote?: Prisma.StringNullableWithAggregatesFilter<"PostReport"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PostReport"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PostReport"> | Date | string
 }
@@ -273,9 +312,12 @@ export type PostReportCreateInput = {
   reason: string
   details?: string | null
   status?: string
+  handledAt?: Date | string | null
+  adminNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPostReportsInput
+  handledBy?: Prisma.UserCreateNestedOneWithoutHandledPostReportsInput
   post: Prisma.PostCreateNestedOneWithoutReportsInput
 }
 
@@ -286,6 +328,9 @@ export type PostReportUncheckedCreateInput = {
   reason: string
   details?: string | null
   status?: string
+  handledById?: string | null
+  handledAt?: Date | string | null
+  adminNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -295,9 +340,12 @@ export type PostReportUpdateInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPostReportsNestedInput
+  handledBy?: Prisma.UserUpdateOneWithoutHandledPostReportsNestedInput
   post?: Prisma.PostUpdateOneRequiredWithoutReportsNestedInput
 }
 
@@ -308,6 +356,9 @@ export type PostReportUncheckedUpdateInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -319,6 +370,9 @@ export type PostReportCreateManyInput = {
   reason: string
   details?: string | null
   status?: string
+  handledById?: string | null
+  handledAt?: Date | string | null
+  adminNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -328,6 +382,8 @@ export type PostReportUpdateManyMutationInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -339,6 +395,9 @@ export type PostReportUncheckedUpdateManyInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -365,6 +424,9 @@ export type PostReportCountOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   details?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  handledById?: Prisma.SortOrder
+  handledAt?: Prisma.SortOrder
+  adminNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -376,6 +438,9 @@ export type PostReportMaxOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   details?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  handledById?: Prisma.SortOrder
+  handledAt?: Prisma.SortOrder
+  adminNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -387,6 +452,9 @@ export type PostReportMinOrderByAggregateInput = {
   reason?: Prisma.SortOrder
   details?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  handledById?: Prisma.SortOrder
+  handledAt?: Prisma.SortOrder
+  adminNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -398,10 +466,24 @@ export type PostReportCreateNestedManyWithoutUserInput = {
   connect?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
 }
 
+export type PostReportCreateNestedManyWithoutHandledByInput = {
+  create?: Prisma.XOR<Prisma.PostReportCreateWithoutHandledByInput, Prisma.PostReportUncheckedCreateWithoutHandledByInput> | Prisma.PostReportCreateWithoutHandledByInput[] | Prisma.PostReportUncheckedCreateWithoutHandledByInput[]
+  connectOrCreate?: Prisma.PostReportCreateOrConnectWithoutHandledByInput | Prisma.PostReportCreateOrConnectWithoutHandledByInput[]
+  createMany?: Prisma.PostReportCreateManyHandledByInputEnvelope
+  connect?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
+}
+
 export type PostReportUncheckedCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.PostReportCreateWithoutUserInput, Prisma.PostReportUncheckedCreateWithoutUserInput> | Prisma.PostReportCreateWithoutUserInput[] | Prisma.PostReportUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.PostReportCreateOrConnectWithoutUserInput | Prisma.PostReportCreateOrConnectWithoutUserInput[]
   createMany?: Prisma.PostReportCreateManyUserInputEnvelope
+  connect?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
+}
+
+export type PostReportUncheckedCreateNestedManyWithoutHandledByInput = {
+  create?: Prisma.XOR<Prisma.PostReportCreateWithoutHandledByInput, Prisma.PostReportUncheckedCreateWithoutHandledByInput> | Prisma.PostReportCreateWithoutHandledByInput[] | Prisma.PostReportUncheckedCreateWithoutHandledByInput[]
+  connectOrCreate?: Prisma.PostReportCreateOrConnectWithoutHandledByInput | Prisma.PostReportCreateOrConnectWithoutHandledByInput[]
+  createMany?: Prisma.PostReportCreateManyHandledByInputEnvelope
   connect?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
 }
 
@@ -419,6 +501,20 @@ export type PostReportUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.PostReportScalarWhereInput | Prisma.PostReportScalarWhereInput[]
 }
 
+export type PostReportUpdateManyWithoutHandledByNestedInput = {
+  create?: Prisma.XOR<Prisma.PostReportCreateWithoutHandledByInput, Prisma.PostReportUncheckedCreateWithoutHandledByInput> | Prisma.PostReportCreateWithoutHandledByInput[] | Prisma.PostReportUncheckedCreateWithoutHandledByInput[]
+  connectOrCreate?: Prisma.PostReportCreateOrConnectWithoutHandledByInput | Prisma.PostReportCreateOrConnectWithoutHandledByInput[]
+  upsert?: Prisma.PostReportUpsertWithWhereUniqueWithoutHandledByInput | Prisma.PostReportUpsertWithWhereUniqueWithoutHandledByInput[]
+  createMany?: Prisma.PostReportCreateManyHandledByInputEnvelope
+  set?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
+  disconnect?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
+  delete?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
+  connect?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
+  update?: Prisma.PostReportUpdateWithWhereUniqueWithoutHandledByInput | Prisma.PostReportUpdateWithWhereUniqueWithoutHandledByInput[]
+  updateMany?: Prisma.PostReportUpdateManyWithWhereWithoutHandledByInput | Prisma.PostReportUpdateManyWithWhereWithoutHandledByInput[]
+  deleteMany?: Prisma.PostReportScalarWhereInput | Prisma.PostReportScalarWhereInput[]
+}
+
 export type PostReportUncheckedUpdateManyWithoutUserNestedInput = {
   create?: Prisma.XOR<Prisma.PostReportCreateWithoutUserInput, Prisma.PostReportUncheckedCreateWithoutUserInput> | Prisma.PostReportCreateWithoutUserInput[] | Prisma.PostReportUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.PostReportCreateOrConnectWithoutUserInput | Prisma.PostReportCreateOrConnectWithoutUserInput[]
@@ -430,6 +526,20 @@ export type PostReportUncheckedUpdateManyWithoutUserNestedInput = {
   connect?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
   update?: Prisma.PostReportUpdateWithWhereUniqueWithoutUserInput | Prisma.PostReportUpdateWithWhereUniqueWithoutUserInput[]
   updateMany?: Prisma.PostReportUpdateManyWithWhereWithoutUserInput | Prisma.PostReportUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.PostReportScalarWhereInput | Prisma.PostReportScalarWhereInput[]
+}
+
+export type PostReportUncheckedUpdateManyWithoutHandledByNestedInput = {
+  create?: Prisma.XOR<Prisma.PostReportCreateWithoutHandledByInput, Prisma.PostReportUncheckedCreateWithoutHandledByInput> | Prisma.PostReportCreateWithoutHandledByInput[] | Prisma.PostReportUncheckedCreateWithoutHandledByInput[]
+  connectOrCreate?: Prisma.PostReportCreateOrConnectWithoutHandledByInput | Prisma.PostReportCreateOrConnectWithoutHandledByInput[]
+  upsert?: Prisma.PostReportUpsertWithWhereUniqueWithoutHandledByInput | Prisma.PostReportUpsertWithWhereUniqueWithoutHandledByInput[]
+  createMany?: Prisma.PostReportCreateManyHandledByInputEnvelope
+  set?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
+  disconnect?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
+  delete?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
+  connect?: Prisma.PostReportWhereUniqueInput | Prisma.PostReportWhereUniqueInput[]
+  update?: Prisma.PostReportUpdateWithWhereUniqueWithoutHandledByInput | Prisma.PostReportUpdateWithWhereUniqueWithoutHandledByInput[]
+  updateMany?: Prisma.PostReportUpdateManyWithWhereWithoutHandledByInput | Prisma.PostReportUpdateManyWithWhereWithoutHandledByInput[]
   deleteMany?: Prisma.PostReportScalarWhereInput | Prisma.PostReportScalarWhereInput[]
 }
 
@@ -480,8 +590,11 @@ export type PostReportCreateWithoutUserInput = {
   reason: string
   details?: string | null
   status?: string
+  handledAt?: Date | string | null
+  adminNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  handledBy?: Prisma.UserCreateNestedOneWithoutHandledPostReportsInput
   post: Prisma.PostCreateNestedOneWithoutReportsInput
 }
 
@@ -491,6 +604,9 @@ export type PostReportUncheckedCreateWithoutUserInput = {
   reason: string
   details?: string | null
   status?: string
+  handledById?: string | null
+  handledAt?: Date | string | null
+  adminNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -502,6 +618,42 @@ export type PostReportCreateOrConnectWithoutUserInput = {
 
 export type PostReportCreateManyUserInputEnvelope = {
   data: Prisma.PostReportCreateManyUserInput | Prisma.PostReportCreateManyUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type PostReportCreateWithoutHandledByInput = {
+  id?: string
+  reason: string
+  details?: string | null
+  status?: string
+  handledAt?: Date | string | null
+  adminNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutPostReportsInput
+  post: Prisma.PostCreateNestedOneWithoutReportsInput
+}
+
+export type PostReportUncheckedCreateWithoutHandledByInput = {
+  id?: string
+  userId: string
+  postId: string
+  reason: string
+  details?: string | null
+  status?: string
+  handledAt?: Date | string | null
+  adminNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PostReportCreateOrConnectWithoutHandledByInput = {
+  where: Prisma.PostReportWhereUniqueInput
+  create: Prisma.XOR<Prisma.PostReportCreateWithoutHandledByInput, Prisma.PostReportUncheckedCreateWithoutHandledByInput>
+}
+
+export type PostReportCreateManyHandledByInputEnvelope = {
+  data: Prisma.PostReportCreateManyHandledByInput | Prisma.PostReportCreateManyHandledByInput[]
   skipDuplicates?: boolean
 }
 
@@ -531,8 +683,27 @@ export type PostReportScalarWhereInput = {
   reason?: Prisma.StringFilter<"PostReport"> | string
   details?: Prisma.StringNullableFilter<"PostReport"> | string | null
   status?: Prisma.StringFilter<"PostReport"> | string
+  handledById?: Prisma.UuidNullableFilter<"PostReport"> | string | null
+  handledAt?: Prisma.DateTimeNullableFilter<"PostReport"> | Date | string | null
+  adminNote?: Prisma.StringNullableFilter<"PostReport"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PostReport"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PostReport"> | Date | string
+}
+
+export type PostReportUpsertWithWhereUniqueWithoutHandledByInput = {
+  where: Prisma.PostReportWhereUniqueInput
+  update: Prisma.XOR<Prisma.PostReportUpdateWithoutHandledByInput, Prisma.PostReportUncheckedUpdateWithoutHandledByInput>
+  create: Prisma.XOR<Prisma.PostReportCreateWithoutHandledByInput, Prisma.PostReportUncheckedCreateWithoutHandledByInput>
+}
+
+export type PostReportUpdateWithWhereUniqueWithoutHandledByInput = {
+  where: Prisma.PostReportWhereUniqueInput
+  data: Prisma.XOR<Prisma.PostReportUpdateWithoutHandledByInput, Prisma.PostReportUncheckedUpdateWithoutHandledByInput>
+}
+
+export type PostReportUpdateManyWithWhereWithoutHandledByInput = {
+  where: Prisma.PostReportScalarWhereInput
+  data: Prisma.XOR<Prisma.PostReportUpdateManyMutationInput, Prisma.PostReportUncheckedUpdateManyWithoutHandledByInput>
 }
 
 export type PostReportCreateWithoutPostInput = {
@@ -540,9 +711,12 @@ export type PostReportCreateWithoutPostInput = {
   reason: string
   details?: string | null
   status?: string
+  handledAt?: Date | string | null
+  adminNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPostReportsInput
+  handledBy?: Prisma.UserCreateNestedOneWithoutHandledPostReportsInput
 }
 
 export type PostReportUncheckedCreateWithoutPostInput = {
@@ -551,6 +725,9 @@ export type PostReportUncheckedCreateWithoutPostInput = {
   reason: string
   details?: string | null
   status?: string
+  handledById?: string | null
+  handledAt?: Date | string | null
+  adminNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -587,6 +764,22 @@ export type PostReportCreateManyUserInput = {
   reason: string
   details?: string | null
   status?: string
+  handledById?: string | null
+  handledAt?: Date | string | null
+  adminNote?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PostReportCreateManyHandledByInput = {
+  id?: string
+  userId: string
+  postId: string
+  reason: string
+  details?: string | null
+  status?: string
+  handledAt?: Date | string | null
+  adminNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -596,8 +789,11 @@ export type PostReportUpdateWithoutUserInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  handledBy?: Prisma.UserUpdateOneWithoutHandledPostReportsNestedInput
   post?: Prisma.PostUpdateOneRequiredWithoutReportsNestedInput
 }
 
@@ -607,6 +803,9 @@ export type PostReportUncheckedUpdateWithoutUserInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -617,6 +816,48 @@ export type PostReportUncheckedUpdateManyWithoutUserInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PostReportUpdateWithoutHandledByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutPostReportsNestedInput
+  post?: Prisma.PostUpdateOneRequiredWithoutReportsNestedInput
+}
+
+export type PostReportUncheckedUpdateWithoutHandledByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  postId?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PostReportUncheckedUpdateManyWithoutHandledByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  postId?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -627,6 +868,9 @@ export type PostReportCreateManyPostInput = {
   reason: string
   details?: string | null
   status?: string
+  handledById?: string | null
+  handledAt?: Date | string | null
+  adminNote?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -636,9 +880,12 @@ export type PostReportUpdateWithoutPostInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPostReportsNestedInput
+  handledBy?: Prisma.UserUpdateOneWithoutHandledPostReportsNestedInput
 }
 
 export type PostReportUncheckedUpdateWithoutPostInput = {
@@ -647,6 +894,9 @@ export type PostReportUncheckedUpdateWithoutPostInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -657,6 +907,9 @@ export type PostReportUncheckedUpdateManyWithoutPostInput = {
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  handledById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  adminNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -670,9 +923,13 @@ export type PostReportSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   reason?: boolean
   details?: boolean
   status?: boolean
+  handledById?: boolean
+  handledAt?: boolean
+  adminNote?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  handledBy?: boolean | Prisma.PostReport$handledByArgs<ExtArgs>
   post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["postReport"]>
 
@@ -683,9 +940,13 @@ export type PostReportSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   reason?: boolean
   details?: boolean
   status?: boolean
+  handledById?: boolean
+  handledAt?: boolean
+  adminNote?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  handledBy?: boolean | Prisma.PostReport$handledByArgs<ExtArgs>
   post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["postReport"]>
 
@@ -696,9 +957,13 @@ export type PostReportSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   reason?: boolean
   details?: boolean
   status?: boolean
+  handledById?: boolean
+  handledAt?: boolean
+  adminNote?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  handledBy?: boolean | Prisma.PostReport$handledByArgs<ExtArgs>
   post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["postReport"]>
 
@@ -709,21 +974,27 @@ export type PostReportSelectScalar = {
   reason?: boolean
   details?: boolean
   status?: boolean
+  handledById?: boolean
+  handledAt?: boolean
+  adminNote?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PostReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "postId" | "reason" | "details" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["postReport"]>
+export type PostReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "postId" | "reason" | "details" | "status" | "handledById" | "handledAt" | "adminNote" | "createdAt" | "updatedAt", ExtArgs["result"]["postReport"]>
 export type PostReportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  handledBy?: boolean | Prisma.PostReport$handledByArgs<ExtArgs>
   post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }
 export type PostReportIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  handledBy?: boolean | Prisma.PostReport$handledByArgs<ExtArgs>
   post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }
 export type PostReportIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  handledBy?: boolean | Prisma.PostReport$handledByArgs<ExtArgs>
   post?: boolean | Prisma.PostDefaultArgs<ExtArgs>
 }
 
@@ -731,6 +1002,7 @@ export type $PostReportPayload<ExtArgs extends runtime.Types.Extensions.Internal
   name: "PostReport"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    handledBy: Prisma.$UserPayload<ExtArgs> | null
     post: Prisma.$PostPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -740,6 +1012,9 @@ export type $PostReportPayload<ExtArgs extends runtime.Types.Extensions.Internal
     reason: string
     details: string | null
     status: string
+    handledById: string | null
+    handledAt: Date | null
+    adminNote: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["postReport"]>
@@ -1137,6 +1412,7 @@ readonly fields: PostReportFieldRefs;
 export interface Prisma__PostReportClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  handledBy<T extends Prisma.PostReport$handledByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PostReport$handledByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   post<T extends Prisma.PostDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PostDefaultArgs<ExtArgs>>): Prisma.Prisma__PostClient<runtime.Types.Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1173,6 +1449,9 @@ export interface PostReportFieldRefs {
   readonly reason: Prisma.FieldRef<"PostReport", 'String'>
   readonly details: Prisma.FieldRef<"PostReport", 'String'>
   readonly status: Prisma.FieldRef<"PostReport", 'String'>
+  readonly handledById: Prisma.FieldRef<"PostReport", 'String'>
+  readonly handledAt: Prisma.FieldRef<"PostReport", 'DateTime'>
+  readonly adminNote: Prisma.FieldRef<"PostReport", 'String'>
   readonly createdAt: Prisma.FieldRef<"PostReport", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PostReport", 'DateTime'>
 }
@@ -1573,6 +1852,25 @@ export type PostReportDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many PostReports to delete.
    */
   limit?: number
+}
+
+/**
+ * PostReport.handledBy
+ */
+export type PostReport$handledByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**
