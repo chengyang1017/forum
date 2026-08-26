@@ -1283,6 +1283,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const UserScalarFieldEnum = {
   id: 'id',
   firebaseUid: 'firebaseUid',
+  role: 'role',
   username: 'username',
   email: 'email',
   nickname: 'nickname',
@@ -1392,6 +1393,9 @@ export const PostReportScalarFieldEnum = {
   reason: 'reason',
   details: 'details',
   status: 'status',
+  handledById: 'handledById',
+  handledAt: 'handledAt',
+  adminNote: 'adminNote',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1491,6 +1495,20 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
  * Reference to a field of type 'String[]'
  */
 export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+/**
+ * Reference to a field of type 'UserRole'
+ */
+export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole'>
+    
+
+
+/**
+ * Reference to a field of type 'UserRole[]'
+ */
+export type ListEnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole[]'>
     
 
 

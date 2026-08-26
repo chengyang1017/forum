@@ -1,0 +1,132 @@
+html,
+body,
+#root {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background: #f5f5f5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.admin-shell {
+  min-height: 100vh;
+}
+
+.admin-brand {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+}
+
+.admin-header {
+  padding: 0 24px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-content {
+  padding: 24px;
+}
+
+.route-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+.login-page {
+  min-height: 100vh;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+}
+
+.login-card {
+  width: min(100%, 420px);
+}
+
+.login-error {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 575px) {
+  .admin-content {
+    padding: 16px;
+  }
+
+  .admin-header {
+    padding: 0 16px;
+  }
+}
+
+.report-alert {
+  margin-bottom: 16px;
+}
+
+.report-table-row {
+  cursor: pointer;
+}
+
+.report-post-cell {
+  max-width: 420px;
+}
+
+.report-post-cell .ant-typography {
+  margin-bottom: 0;
+}
+
+.report-pagination {
+  margin-top: 16px;
+}
+
+.report-drawer-content {
+  width: 100%;
+}
+
+.report-post-content {
+  white-space: pre-wrap;
+}
+
+.report-detail-box {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f5f5f5;
+  white-space: pre-wrap;
+}
+
+.report-note {
+  width: 100%;
+  min-height: 120px;
+  margin-top: 8px;
+  padding: 12px;
+  resize: vertical;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  font: inherit;
+  outline: none;
+}
+
+.report-note:focus {
+  border-color: #1677ff;
+}

@@ -27,6 +27,7 @@ export type AggregateUser = {
 export type UserMinAggregateOutputType = {
   id: string | null
   firebaseUid: string | null
+  role: $Enums.UserRole | null
   username: string | null
   email: string | null
   nickname: string | null
@@ -43,6 +44,7 @@ export type UserMinAggregateOutputType = {
 export type UserMaxAggregateOutputType = {
   id: string | null
   firebaseUid: string | null
+  role: $Enums.UserRole | null
   username: string | null
   email: string | null
   nickname: string | null
@@ -59,6 +61,7 @@ export type UserMaxAggregateOutputType = {
 export type UserCountAggregateOutputType = {
   id: number
   firebaseUid: number
+  role: number
   username: number
   email: number
   nickname: number
@@ -78,6 +81,7 @@ export type UserCountAggregateOutputType = {
 export type UserMinAggregateInputType = {
   id?: true
   firebaseUid?: true
+  role?: true
   username?: true
   email?: true
   nickname?: true
@@ -94,6 +98,7 @@ export type UserMinAggregateInputType = {
 export type UserMaxAggregateInputType = {
   id?: true
   firebaseUid?: true
+  role?: true
   username?: true
   email?: true
   nickname?: true
@@ -110,6 +115,7 @@ export type UserMaxAggregateInputType = {
 export type UserCountAggregateInputType = {
   id?: true
   firebaseUid?: true
+  role?: true
   username?: true
   email?: true
   nickname?: true
@@ -200,6 +206,7 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type UserGroupByOutputType = {
   id: string
   firebaseUid: string
+  role: $Enums.UserRole
   username: string
   email: string | null
   nickname: string | null
@@ -238,6 +245,7 @@ export type UserWhereInput = {
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   id?: Prisma.UuidFilter<"User"> | string
   firebaseUid?: Prisma.StringFilter<"User"> | string
+  role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   username?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringNullableFilter<"User"> | string | null
   nickname?: Prisma.StringNullableFilter<"User"> | string | null
@@ -257,6 +265,7 @@ export type UserWhereInput = {
   postLikes?: Prisma.PostLikeListRelationFilter
   postBookmarks?: Prisma.PostBookmarkListRelationFilter
   postReports?: Prisma.PostReportListRelationFilter
+  handledPostReports?: Prisma.PostReportListRelationFilter
   postComments?: Prisma.PostCommentListRelationFilter
   postEditHistory?: Prisma.PostEditHistoryListRelationFilter
 }
@@ -264,6 +273,7 @@ export type UserWhereInput = {
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   nickname?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -283,6 +293,7 @@ export type UserOrderByWithRelationInput = {
   postLikes?: Prisma.PostLikeOrderByRelationAggregateInput
   postBookmarks?: Prisma.PostBookmarkOrderByRelationAggregateInput
   postReports?: Prisma.PostReportOrderByRelationAggregateInput
+  handledPostReports?: Prisma.PostReportOrderByRelationAggregateInput
   postComments?: Prisma.PostCommentOrderByRelationAggregateInput
   postEditHistory?: Prisma.PostEditHistoryOrderByRelationAggregateInput
 }
@@ -295,6 +306,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
+  role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   nickname?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   bio?: Prisma.StringNullableFilter<"User"> | string | null
@@ -312,6 +324,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   postLikes?: Prisma.PostLikeListRelationFilter
   postBookmarks?: Prisma.PostBookmarkListRelationFilter
   postReports?: Prisma.PostReportListRelationFilter
+  handledPostReports?: Prisma.PostReportListRelationFilter
   postComments?: Prisma.PostCommentListRelationFilter
   postEditHistory?: Prisma.PostEditHistoryListRelationFilter
 }, "id" | "firebaseUid" | "username" | "email">
@@ -319,6 +332,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   nickname?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -342,6 +356,7 @@ export type UserScalarWhereWithAggregatesInput = {
   NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"User"> | string
   firebaseUid?: Prisma.StringWithAggregatesFilter<"User"> | string
+  role?: Prisma.EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
   username?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   nickname?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -359,6 +374,7 @@ export type UserScalarWhereWithAggregatesInput = {
 export type UserCreateInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -378,6 +394,7 @@ export type UserCreateInput = {
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -385,6 +402,7 @@ export type UserCreateInput = {
 export type UserUncheckedCreateInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -404,6 +422,7 @@ export type UserUncheckedCreateInput = {
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -411,6 +430,7 @@ export type UserUncheckedCreateInput = {
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -430,6 +450,7 @@ export type UserUpdateInput = {
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -437,6 +458,7 @@ export type UserUpdateInput = {
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -456,6 +478,7 @@ export type UserUncheckedUpdateInput = {
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUncheckedUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -463,6 +486,7 @@ export type UserUncheckedUpdateInput = {
 export type UserCreateManyInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -480,6 +504,7 @@ export type UserCreateManyInput = {
 export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -497,6 +522,7 @@ export type UserUpdateManyMutationInput = {
 export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -522,6 +548,7 @@ export type StringNullableListFilter<$PrismaModel = never> = {
 export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrder
   nickname?: Prisma.SortOrder
@@ -539,6 +566,7 @@ export type UserCountOrderByAggregateInput = {
 export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrder
   nickname?: Prisma.SortOrder
@@ -555,6 +583,7 @@ export type UserMaxOrderByAggregateInput = {
 export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrder
   nickname?: Prisma.SortOrder
@@ -584,6 +613,10 @@ export type UserCreateinterestsInput = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type EnumUserRoleFieldUpdateOperationsInput = {
+  set?: $Enums.UserRole
 }
 
 export type NullableStringFieldUpdateOperationsInput = {
@@ -701,12 +734,28 @@ export type UserCreateNestedOneWithoutPostReportsInput = {
   connect?: Prisma.UserWhereUniqueInput
 }
 
+export type UserCreateNestedOneWithoutHandledPostReportsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutHandledPostReportsInput, Prisma.UserUncheckedCreateWithoutHandledPostReportsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutHandledPostReportsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
 export type UserUpdateOneRequiredWithoutPostReportsNestedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutPostReportsInput, Prisma.UserUncheckedCreateWithoutPostReportsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutPostReportsInput
   upsert?: Prisma.UserUpsertWithoutPostReportsInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPostReportsInput, Prisma.UserUpdateWithoutPostReportsInput>, Prisma.UserUncheckedUpdateWithoutPostReportsInput>
+}
+
+export type UserUpdateOneWithoutHandledPostReportsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutHandledPostReportsInput, Prisma.UserUncheckedCreateWithoutHandledPostReportsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutHandledPostReportsInput
+  upsert?: Prisma.UserUpsertWithoutHandledPostReportsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutHandledPostReportsInput, Prisma.UserUpdateWithoutHandledPostReportsInput>, Prisma.UserUncheckedUpdateWithoutHandledPostReportsInput>
 }
 
 export type UserCreateNestedOneWithoutPostCommentsInput = {
@@ -744,6 +793,7 @@ export type UserUpdateOneWithoutPostEditHistoryNestedInput = {
 export type UserCreateWithoutTagsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -762,6 +812,7 @@ export type UserCreateWithoutTagsInput = {
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -769,6 +820,7 @@ export type UserCreateWithoutTagsInput = {
 export type UserUncheckedCreateWithoutTagsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -787,6 +839,7 @@ export type UserUncheckedCreateWithoutTagsInput = {
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -810,6 +863,7 @@ export type UserUpdateToOneWithWhereWithoutTagsInput = {
 export type UserUpdateWithoutTagsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -828,6 +882,7 @@ export type UserUpdateWithoutTagsInput = {
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -835,6 +890,7 @@ export type UserUpdateWithoutTagsInput = {
 export type UserUncheckedUpdateWithoutTagsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -853,6 +909,7 @@ export type UserUncheckedUpdateWithoutTagsInput = {
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUncheckedUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -860,6 +917,7 @@ export type UserUncheckedUpdateWithoutTagsInput = {
 export type UserCreateWithoutLanguagesInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -878,6 +936,7 @@ export type UserCreateWithoutLanguagesInput = {
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -885,6 +944,7 @@ export type UserCreateWithoutLanguagesInput = {
 export type UserUncheckedCreateWithoutLanguagesInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -903,6 +963,7 @@ export type UserUncheckedCreateWithoutLanguagesInput = {
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -926,6 +987,7 @@ export type UserUpdateToOneWithWhereWithoutLanguagesInput = {
 export type UserUpdateWithoutLanguagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -944,6 +1006,7 @@ export type UserUpdateWithoutLanguagesInput = {
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -951,6 +1014,7 @@ export type UserUpdateWithoutLanguagesInput = {
 export type UserUncheckedUpdateWithoutLanguagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -969,6 +1033,7 @@ export type UserUncheckedUpdateWithoutLanguagesInput = {
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUncheckedUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -976,6 +1041,7 @@ export type UserUncheckedUpdateWithoutLanguagesInput = {
 export type UserCreateWithoutPostsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -994,6 +1060,7 @@ export type UserCreateWithoutPostsInput = {
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -1001,6 +1068,7 @@ export type UserCreateWithoutPostsInput = {
 export type UserUncheckedCreateWithoutPostsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1019,6 +1087,7 @@ export type UserUncheckedCreateWithoutPostsInput = {
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -1042,6 +1111,7 @@ export type UserUpdateToOneWithWhereWithoutPostsInput = {
 export type UserUpdateWithoutPostsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1060,6 +1130,7 @@ export type UserUpdateWithoutPostsInput = {
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -1067,6 +1138,7 @@ export type UserUpdateWithoutPostsInput = {
 export type UserUncheckedUpdateWithoutPostsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1085,6 +1157,7 @@ export type UserUncheckedUpdateWithoutPostsInput = {
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUncheckedUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -1092,6 +1165,7 @@ export type UserUncheckedUpdateWithoutPostsInput = {
 export type UserCreateWithoutPostVersionsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1110,6 +1184,7 @@ export type UserCreateWithoutPostVersionsInput = {
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -1117,6 +1192,7 @@ export type UserCreateWithoutPostVersionsInput = {
 export type UserUncheckedCreateWithoutPostVersionsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1135,6 +1211,7 @@ export type UserUncheckedCreateWithoutPostVersionsInput = {
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -1158,6 +1235,7 @@ export type UserUpdateToOneWithWhereWithoutPostVersionsInput = {
 export type UserUpdateWithoutPostVersionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1176,6 +1254,7 @@ export type UserUpdateWithoutPostVersionsInput = {
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -1183,6 +1262,7 @@ export type UserUpdateWithoutPostVersionsInput = {
 export type UserUncheckedUpdateWithoutPostVersionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1201,6 +1281,7 @@ export type UserUncheckedUpdateWithoutPostVersionsInput = {
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUncheckedUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -1208,6 +1289,7 @@ export type UserUncheckedUpdateWithoutPostVersionsInput = {
 export type UserCreateWithoutPostLikesInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1226,6 +1308,7 @@ export type UserCreateWithoutPostLikesInput = {
   postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -1233,6 +1316,7 @@ export type UserCreateWithoutPostLikesInput = {
 export type UserUncheckedCreateWithoutPostLikesInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1251,6 +1335,7 @@ export type UserUncheckedCreateWithoutPostLikesInput = {
   postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -1274,6 +1359,7 @@ export type UserUpdateToOneWithWhereWithoutPostLikesInput = {
 export type UserUpdateWithoutPostLikesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1292,6 +1378,7 @@ export type UserUpdateWithoutPostLikesInput = {
   postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -1299,6 +1386,7 @@ export type UserUpdateWithoutPostLikesInput = {
 export type UserUncheckedUpdateWithoutPostLikesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1317,6 +1405,7 @@ export type UserUncheckedUpdateWithoutPostLikesInput = {
   postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUncheckedUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -1324,6 +1413,7 @@ export type UserUncheckedUpdateWithoutPostLikesInput = {
 export type UserCreateWithoutPostBookmarksInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1342,6 +1432,7 @@ export type UserCreateWithoutPostBookmarksInput = {
   postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -1349,6 +1440,7 @@ export type UserCreateWithoutPostBookmarksInput = {
 export type UserUncheckedCreateWithoutPostBookmarksInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1367,6 +1459,7 @@ export type UserUncheckedCreateWithoutPostBookmarksInput = {
   postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -1390,6 +1483,7 @@ export type UserUpdateToOneWithWhereWithoutPostBookmarksInput = {
 export type UserUpdateWithoutPostBookmarksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1408,6 +1502,7 @@ export type UserUpdateWithoutPostBookmarksInput = {
   postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -1415,6 +1510,7 @@ export type UserUpdateWithoutPostBookmarksInput = {
 export type UserUncheckedUpdateWithoutPostBookmarksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1433,6 +1529,7 @@ export type UserUncheckedUpdateWithoutPostBookmarksInput = {
   postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUncheckedUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -1440,6 +1537,7 @@ export type UserUncheckedUpdateWithoutPostBookmarksInput = {
 export type UserCreateWithoutPostReportsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1458,6 +1556,7 @@ export type UserCreateWithoutPostReportsInput = {
   postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -1465,6 +1564,7 @@ export type UserCreateWithoutPostReportsInput = {
 export type UserUncheckedCreateWithoutPostReportsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1483,6 +1583,7 @@ export type UserUncheckedCreateWithoutPostReportsInput = {
   postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -1492,70 +1593,10 @@ export type UserCreateOrConnectWithoutPostReportsInput = {
   create: Prisma.XOR<Prisma.UserCreateWithoutPostReportsInput, Prisma.UserUncheckedCreateWithoutPostReportsInput>
 }
 
-export type UserUpsertWithoutPostReportsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutPostReportsInput, Prisma.UserUncheckedUpdateWithoutPostReportsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutPostReportsInput, Prisma.UserUncheckedCreateWithoutPostReportsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutPostReportsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutPostReportsInput, Prisma.UserUncheckedUpdateWithoutPostReportsInput>
-}
-
-export type UserUpdateWithoutPostReportsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  interests?: Prisma.UserUpdateinterestsInput | string[]
-  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  tags?: Prisma.UserTagUpdateManyWithoutUserNestedInput
-  languages?: Prisma.UserLanguageUpdateManyWithoutUserNestedInput
-  posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
-  postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
-  postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
-  postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
-  postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
-  postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
-}
-
-export type UserUncheckedUpdateWithoutPostReportsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  interests?: Prisma.UserUpdateinterestsInput | string[]
-  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  tags?: Prisma.UserTagUncheckedUpdateManyWithoutUserNestedInput
-  languages?: Prisma.UserLanguageUncheckedUpdateManyWithoutUserNestedInput
-  posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
-  postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
-  postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
-  postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
-  postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
-  postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
-}
-
-export type UserCreateWithoutPostCommentsInput = {
+export type UserCreateWithoutHandledPostReportsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1575,12 +1616,14 @@ export type UserCreateWithoutPostCommentsInput = {
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
+  postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
 
-export type UserUncheckedCreateWithoutPostCommentsInput = {
+export type UserUncheckedCreateWithoutHandledPostReportsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1600,6 +1643,196 @@ export type UserUncheckedCreateWithoutPostCommentsInput = {
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
+  postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
+  postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
+}
+
+export type UserCreateOrConnectWithoutHandledPostReportsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutHandledPostReportsInput, Prisma.UserUncheckedCreateWithoutHandledPostReportsInput>
+}
+
+export type UserUpsertWithoutPostReportsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPostReportsInput, Prisma.UserUncheckedUpdateWithoutPostReportsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPostReportsInput, Prisma.UserUncheckedCreateWithoutPostReportsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPostReportsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPostReportsInput, Prisma.UserUncheckedUpdateWithoutPostReportsInput>
+}
+
+export type UserUpdateWithoutPostReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.UserTagUpdateManyWithoutUserNestedInput
+  languages?: Prisma.UserLanguageUpdateManyWithoutUserNestedInput
+  posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
+  postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
+  postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
+  postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUpdateManyWithoutHandledByNestedInput
+  postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
+  postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPostReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.UserTagUncheckedUpdateManyWithoutUserNestedInput
+  languages?: Prisma.UserLanguageUncheckedUpdateManyWithoutUserNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
+  postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
+  postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
+  postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUncheckedUpdateManyWithoutHandledByNestedInput
+  postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
+}
+
+export type UserUpsertWithoutHandledPostReportsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutHandledPostReportsInput, Prisma.UserUncheckedUpdateWithoutHandledPostReportsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutHandledPostReportsInput, Prisma.UserUncheckedCreateWithoutHandledPostReportsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutHandledPostReportsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutHandledPostReportsInput, Prisma.UserUncheckedUpdateWithoutHandledPostReportsInput>
+}
+
+export type UserUpdateWithoutHandledPostReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.UserTagUpdateManyWithoutUserNestedInput
+  languages?: Prisma.UserLanguageUpdateManyWithoutUserNestedInput
+  posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
+  postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
+  postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
+  postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
+  postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
+  postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutHandledPostReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.UserTagUncheckedUpdateManyWithoutUserNestedInput
+  languages?: Prisma.UserLanguageUncheckedUpdateManyWithoutUserNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
+  postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
+  postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
+  postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
+  postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
+}
+
+export type UserCreateWithoutPostCommentsInput = {
+  id?: string
+  firebaseUid: string
+  role?: $Enums.UserRole
+  username: string
+  email?: string | null
+  nickname?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  showAge?: boolean
+  lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tags?: Prisma.UserTagCreateNestedManyWithoutUserInput
+  languages?: Prisma.UserLanguageCreateNestedManyWithoutUserInput
+  posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
+  postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
+  postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
+  postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportCreateNestedManyWithoutHandledByInput
+  postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
+}
+
+export type UserUncheckedCreateWithoutPostCommentsInput = {
+  id?: string
+  firebaseUid: string
+  role?: $Enums.UserRole
+  username: string
+  email?: string | null
+  nickname?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  showAge?: boolean
+  lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tags?: Prisma.UserTagUncheckedCreateNestedManyWithoutUserInput
+  languages?: Prisma.UserLanguageUncheckedCreateNestedManyWithoutUserInput
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
+  postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
+  postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
+  postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutHandledByInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
 
@@ -1622,6 +1855,7 @@ export type UserUpdateToOneWithWhereWithoutPostCommentsInput = {
 export type UserUpdateWithoutPostCommentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1641,12 +1875,14 @@ export type UserUpdateWithoutPostCommentsInput = {
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUpdateManyWithoutHandledByNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPostCommentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1666,12 +1902,14 @@ export type UserUncheckedUpdateWithoutPostCommentsInput = {
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUncheckedUpdateManyWithoutHandledByNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
 
 export type UserCreateWithoutPostEditHistoryInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1691,12 +1929,14 @@ export type UserCreateWithoutPostEditHistoryInput = {
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
 }
 
 export type UserUncheckedCreateWithoutPostEditHistoryInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1716,6 +1956,7 @@ export type UserUncheckedCreateWithoutPostEditHistoryInput = {
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
   postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
+  handledPostReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutHandledByInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
 }
 
@@ -1738,6 +1979,7 @@ export type UserUpdateToOneWithWhereWithoutPostEditHistoryInput = {
 export type UserUpdateWithoutPostEditHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1757,12 +1999,14 @@ export type UserUpdateWithoutPostEditHistoryInput = {
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPostEditHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1782,6 +2026,7 @@ export type UserUncheckedUpdateWithoutPostEditHistoryInput = {
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
   postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
+  handledPostReports?: Prisma.PostReportUncheckedUpdateManyWithoutHandledByNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
 }
 
@@ -1798,6 +2043,7 @@ export type UserCountOutputType = {
   postLikes: number
   postBookmarks: number
   postReports: number
+  handledPostReports: number
   postComments: number
   postEditHistory: number
 }
@@ -1810,6 +2056,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   postLikes?: boolean | UserCountOutputTypeCountPostLikesArgs
   postBookmarks?: boolean | UserCountOutputTypeCountPostBookmarksArgs
   postReports?: boolean | UserCountOutputTypeCountPostReportsArgs
+  handledPostReports?: boolean | UserCountOutputTypeCountHandledPostReportsArgs
   postComments?: boolean | UserCountOutputTypeCountPostCommentsArgs
   postEditHistory?: boolean | UserCountOutputTypeCountPostEditHistoryArgs
 }
@@ -1876,6 +2123,13 @@ export type UserCountOutputTypeCountPostReportsArgs<ExtArgs extends runtime.Type
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountHandledPostReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PostReportWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountPostCommentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PostCommentWhereInput
 }
@@ -1891,6 +2145,7 @@ export type UserCountOutputTypeCountPostEditHistoryArgs<ExtArgs extends runtime.
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   firebaseUid?: boolean
+  role?: boolean
   username?: boolean
   email?: boolean
   nickname?: boolean
@@ -1910,6 +2165,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   postLikes?: boolean | Prisma.User$postLikesArgs<ExtArgs>
   postBookmarks?: boolean | Prisma.User$postBookmarksArgs<ExtArgs>
   postReports?: boolean | Prisma.User$postReportsArgs<ExtArgs>
+  handledPostReports?: boolean | Prisma.User$handledPostReportsArgs<ExtArgs>
   postComments?: boolean | Prisma.User$postCommentsArgs<ExtArgs>
   postEditHistory?: boolean | Prisma.User$postEditHistoryArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1918,6 +2174,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   firebaseUid?: boolean
+  role?: boolean
   username?: boolean
   email?: boolean
   nickname?: boolean
@@ -1935,6 +2192,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   firebaseUid?: boolean
+  role?: boolean
   username?: boolean
   email?: boolean
   nickname?: boolean
@@ -1952,6 +2210,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type UserSelectScalar = {
   id?: boolean
   firebaseUid?: boolean
+  role?: boolean
   username?: boolean
   email?: boolean
   nickname?: boolean
@@ -1966,7 +2225,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firebaseUid" | "username" | "email" | "nickname" | "avatarUrl" | "bio" | "birthday" | "showAge" | "lastActiveAt" | "interests" | "interestsMigratedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firebaseUid" | "role" | "username" | "email" | "nickname" | "avatarUrl" | "bio" | "birthday" | "showAge" | "lastActiveAt" | "interests" | "interestsMigratedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tags?: boolean | Prisma.User$tagsArgs<ExtArgs>
   languages?: boolean | Prisma.User$languagesArgs<ExtArgs>
@@ -1975,6 +2234,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   postLikes?: boolean | Prisma.User$postLikesArgs<ExtArgs>
   postBookmarks?: boolean | Prisma.User$postBookmarksArgs<ExtArgs>
   postReports?: boolean | Prisma.User$postReportsArgs<ExtArgs>
+  handledPostReports?: boolean | Prisma.User$handledPostReportsArgs<ExtArgs>
   postComments?: boolean | Prisma.User$postCommentsArgs<ExtArgs>
   postEditHistory?: boolean | Prisma.User$postEditHistoryArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1992,12 +2252,14 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     postLikes: Prisma.$PostLikePayload<ExtArgs>[]
     postBookmarks: Prisma.$PostBookmarkPayload<ExtArgs>[]
     postReports: Prisma.$PostReportPayload<ExtArgs>[]
+    handledPostReports: Prisma.$PostReportPayload<ExtArgs>[]
     postComments: Prisma.$PostCommentPayload<ExtArgs>[]
     postEditHistory: Prisma.$PostEditHistoryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     firebaseUid: string
+    role: $Enums.UserRole
     username: string
     email: string | null
     nickname: string | null
@@ -2411,6 +2673,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   postLikes<T extends Prisma.User$postLikesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$postLikesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostLikePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   postBookmarks<T extends Prisma.User$postBookmarksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$postBookmarksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostBookmarkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   postReports<T extends Prisma.User$postReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$postReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  handledPostReports<T extends Prisma.User$handledPostReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$handledPostReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   postComments<T extends Prisma.User$postCommentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$postCommentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostCommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   postEditHistory<T extends Prisma.User$postEditHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$postEditHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostEditHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2444,6 +2707,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<"User", 'String'>
   readonly firebaseUid: Prisma.FieldRef<"User", 'String'>
+  readonly role: Prisma.FieldRef<"User", 'UserRole'>
   readonly username: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly nickname: Prisma.FieldRef<"User", 'String'>
@@ -2996,6 +3260,30 @@ export type User$postBookmarksArgs<ExtArgs extends runtime.Types.Extensions.Inte
  * User.postReports
  */
 export type User$postReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PostReport
+   */
+  select?: Prisma.PostReportSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PostReport
+   */
+  omit?: Prisma.PostReportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PostReportInclude<ExtArgs> | null
+  where?: Prisma.PostReportWhereInput
+  orderBy?: Prisma.PostReportOrderByWithRelationInput | Prisma.PostReportOrderByWithRelationInput[]
+  cursor?: Prisma.PostReportWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PostReportScalarFieldEnum | Prisma.PostReportScalarFieldEnum[]
+}
+
+/**
+ * User.handledPostReports
+ */
+export type User$handledPostReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the PostReport
    */
