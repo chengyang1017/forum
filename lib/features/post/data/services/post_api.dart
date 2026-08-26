@@ -284,6 +284,61 @@ class PostApi {
     return PostLikeResult.fromJson(response);
   }
 
+  // ============================================================
+  // 收藏 / 取消收藏 / 我的收藏
+  // ============================================================
+
+  Future<bool> bookmarkPost(
+    String postId,
+  ) async {
+    final response = await _apiClient.post(
+      '/posts/${Uri.encodeComponent(postId)}/bookmark',
+      data: const <String, dynamic>{},
+    );
+
+    return response['isBookmarked'] == true;
+  }
+
+  Future<bool> removeBookmark(
+    String postId,
+  ) async {
+    final response = await _apiClient.delete(
+      '/posts/${Uri.encodeComponent(postId)}/bookmark',
+    );
+
+    return response['isBookmarked'] == true;
+  }
+
+  Future<List<PostModel>> getBookmarkedPosts() async {
+    final response = await _apiClient.get(
+      '/users/me/bookmarks',
+    );
+
+    final data = response['posts'];
+
+    if (data is! List) {
+      throw const PostApiException(
+        '服务器返回的收藏列表格式无效',
+      );
+    }
+
+    try {
+      return data
+          .map(
+            (item) => PostModel.fromJson(
+              Map<String, dynamic>.from(
+                item as Map,
+              ),
+            ),
+          )
+          .toList(growable: false);
+    } catch (_) {
+      throw const PostApiException(
+        '服务器返回的收藏资料格式无效',
+      );
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getEditHistory(
     String postId,
   ) async {

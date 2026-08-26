@@ -14,6 +14,7 @@ class PostModel {
   final List<String>? likes;
   final int likeCount;
   final int commentCount;
+  final bool isBookmarked;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -31,6 +32,7 @@ class PostModel {
     this.likes,
     this.likeCount = 0,
     this.commentCount = 0,
+    this.isBookmarked = false,
     this.createdAt,
     this.updatedAt,
   });
@@ -66,6 +68,7 @@ class PostModel {
           .toList(),
       likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
       commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
+      isBookmarked: json['isBookmarked'] == true,
       createdAt: _toDateTime(json['timestamp'] ?? json['createdAt']),
       updatedAt: _toDateTime(json['updatedAt']),
     );
@@ -86,6 +89,7 @@ class PostModel {
       'likes': likes,
       'likeCount': likeCount,
       'commentCount': commentCount,
+      'isBookmarked': isBookmarked,
       'timestamp': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
     }..removeWhere((key, value) => value == null);
@@ -107,6 +111,7 @@ class PostModel {
     List<String>? likes,
     int? likeCount,
     int? commentCount,
+    bool? isBookmarked,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -128,28 +133,29 @@ class PostModel {
       likes: likes ?? this.likes,
       likeCount: likeCount ?? this.likeCount,
       commentCount: commentCount ?? this.commentCount,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
   static DateTime? _toDateTime(dynamic value) {
-  if (value == null) {
+    if (value == null) {
+      return null;
+    }
+
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+
+    if (value is DateTime) {
+      return value;
+    }
+
+    if (value is String) {
+      return DateTime.tryParse(value);
+    }
+
     return null;
   }
-
-  if (value is Timestamp) {
-    return value.toDate();
-  }
-
-  if (value is DateTime) {
-    return value;
-  }
-
-  if (value is String) {
-    return DateTime.tryParse(value);
-  }
-
-  return null;
-}
 }

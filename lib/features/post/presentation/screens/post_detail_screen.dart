@@ -47,6 +47,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   );
 
   bool _isLiked = false;
+  bool _isBookmarked = false;
+  bool _isBookmarkBusy = false;
   List<String> _likes = [];
   int _likeCount = 0;
   List<String> _images = [];
@@ -71,6 +73,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     _likeCount = _post.likeCount;
     _images = List<String>.from(_post.imageUrls ?? []);
     _isLiked = _currentUserId != null && _likes.contains(_currentUserId);
+    _isBookmarked = _post.isBookmarked;
     _loadCurrentVersionCreatedAt();
   }
 
@@ -291,6 +294,67 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('操作失败: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  // ============================================================
+  // 收藏
+  // ============================================================
+  Future<void> _toggleBookmark() async {
+    if (_currentUserId == null || _isBookmarkBusy) {
+      return;
+    }
+
+    final previousBookmarked = _isBookmarked;
+    final nextBookmarked = !previousBookmarked;
+
+    // 乐观更新：先让按钮立即响应。
+    setState(() {
+      _isBookmarked = nextBookmarked;
+      _isBookmarkBusy = true;
+      _post = _post.copyWith(
+        isBookmarked: nextBookmarked,
+      );
+    });
+
+    try {
+      final confirmedBookmarked =
+          await _postService.toggleBookmark(
+        widget.postId,
+        bookmarked: nextBookmarked,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isBookmarked = confirmedBookmarked;
+        _isBookmarkBusy = false;
+        _post = _post.copyWith(
+          isBookmarked: confirmedBookmarked,
+        );
+      });
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      // 请求失败：回滚到操作前状态。
+      setState(() {
+        _isBookmarked = previousBookmarked;
+        _isBookmarkBusy = false;
+        _post = _post.copyWith(
+          isBookmarked: previousBookmarked,
+        );
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('收藏操作失败: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -1445,61 +1509,94 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 12,
+          ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: _toggleLike,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
+              Expanded(
+                child: _buildBottomAction(
+                  onTap: _toggleLike,
                   child: _buildAction(
                     _isLiked
                         ? Icons.favorite_rounded
                         : Icons.favorite_outline_rounded,
-                    _likeCount > 0 ? '$_likeCount 赞同' : '赞同',
+                    _likeCount > 0
+                        ? '$_likeCount 赞同'
+                        : '赞同',
                     _isLiked,
                   ),
                 ),
               ),
-              InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: _openComments,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
+              Expanded(
+                child: _buildBottomAction(
+                  onTap: _openComments,
+                  child: _buildAction(
+                    Icons.mode_comment_outlined,
+                    '评论',
+                    false,
                   ),
-                  child: _buildAction(Icons.mode_comment_outlined, '评论', false),
                 ),
               ),
-              InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: _openTranslation,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 8,
+              Expanded(
+                child: _buildBottomAction(
+                  onTap:
+                      _isBookmarkBusy
+                          ? null
+                          : _toggleBookmark,
+                  child: _buildAction(
+                    _isBookmarked
+                        ? Icons.bookmark_rounded
+                        : Icons.bookmark_border_rounded,
+                    '收藏',
+                    _isBookmarked,
                   ),
-                  child: _buildAction(Icons.translate_rounded, '翻译', false),
                 ),
               ),
-              InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: _showShareOptions,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
+              Expanded(
+                child: _buildBottomAction(
+                  onTap: _openTranslation,
+                  child: _buildAction(
+                    Icons.translate_rounded,
+                    '翻译',
+                    false,
                   ),
-                  child: _buildAction(Icons.ios_share_rounded, '分享', false),
+                ),
+              ),
+              Expanded(
+                child: _buildBottomAction(
+                  onTap: _showShareOptions,
+                  child: _buildAction(
+                    Icons.ios_share_rounded,
+                    '分享',
+                    false,
+                  ),
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomAction({
+    required VoidCallback? onTap,
+    required Widget child,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 3,
+          vertical: 8,
+        ),
+        child: Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: child,
           ),
         ),
       ),
