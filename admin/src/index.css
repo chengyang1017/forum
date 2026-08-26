@@ -78,3 +78,55 @@ body {
     padding: 0 16px;
   }
 }
+
+.report-alert {
+  margin-bottom: 16px;
+}
+
+.report-table-row {
+  cursor: pointer;
+}
+
+.report-post-cell {
+  max-width: 420px;
+}
+
+.report-post-cell .ant-typography {
+  margin-bottom: 0;
+}
+
+.report-pagination {
+  margin-top: 16px;
+}
+
+.report-drawer-content {
+  width: 100%;
+}
+
+.report-post-content {
+  white-space: pre-wrap;
+}
+
+.report-detail-box {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f5f5f5;
+  white-space: pre-wrap;
+}
+
+.report-note {
+  width: 100%;
+  min-height: 120px;
+  margin-top: 8px;
+  padding: 12px;
+  resize: vertical;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  font: inherit;
+  outline: none;
+}
+
+.report-note:focus {
+  border-color: #1677ff;
+}
