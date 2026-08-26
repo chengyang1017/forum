@@ -75,7 +75,7 @@ class AdminApi {
       final rawReport = response['report'];
 
       if (rawReport is! Map) {
-        throw const AdminApiException('??????????????');
+        throw const AdminApiException('服务器返回的审核资料格式无效');
       }
 
       return AdminReport.fromJson(Map<String, dynamic>.from(rawReport));
@@ -95,28 +95,28 @@ class AdminApi {
 
     switch (code) {
       case 'ADMIN_REQUIRED':
-        return '????????';
+        return '你没有管理员权限';
 
       case 'INVALID_REPORT_QUERY':
-        return '????????';
+        return '举报筛选条件无效';
 
       case 'INVALID_REPORT_ID':
-        return '?? ID ??';
+        return '举报 ID 无效';
 
       case 'REPORT_NOT_FOUND':
-        return '?????';
+        return '举报不存在';
 
       case 'INVALID_REPORT_STATUS':
-        return '??????';
+        return '审核状态无效';
 
       case 'ADMIN_GET_REPORTS_FAILED':
-        return '??????';
+        return '加载举报失败';
 
       case 'ADMIN_UPDATE_REPORT_FAILED':
-        return '????????';
+        return '更新举报状态失败';
 
       default:
-        return '?????????????';
+        return '管理员请求失败，请稍后重试';
     }
   }
 }
