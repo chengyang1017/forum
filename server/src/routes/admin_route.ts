@@ -276,6 +276,78 @@ adminRouter.get(
 );
 
 // ============================================================
+// GET /api/v1/admin/dashboard
+// ============================================================
+
+adminRouter.get(
+  '/dashboard',
+  async (_request, response) => {
+    try {
+      const statusGroups =
+        await prisma.postReport.groupBy({
+          by: [
+            'status',
+          ],
+
+          _count: {
+            _all: true,
+          },
+        });
+
+      const reports = {
+        total: 0,
+        pending: 0,
+        reviewed: 0,
+        dismissed: 0,
+        actioned: 0,
+      };
+
+      for (const group of statusGroups) {
+        const count =
+          group._count._all;
+
+        reports.total += count;
+
+        switch (group.status) {
+          case 'pending':
+            reports.pending = count;
+            break;
+
+          case 'reviewed':
+            reports.reviewed = count;
+            break;
+
+          case 'dismissed':
+            reports.dismissed = count;
+            break;
+
+          case 'actioned':
+            reports.actioned = count;
+            break;
+        }
+      }
+
+      response.status(200).json({
+        reports,
+      });
+    } catch (error) {
+      console.error(
+        'Admin dashboard failed:',
+        error,
+      );
+
+      response.status(500).json({
+        error:
+          'ADMIN_DASHBOARD_FAILED',
+
+        message:
+          'Unable to load admin dashboard',
+      });
+    }
+  },
+);
+
+// ============================================================
 // GET /api/v1/admin/reports
 //
 // ????? pending?

@@ -6,6 +6,9 @@ import type {
   GetAdminReportsParams,
   UpdateAdminReportInput,
 } from '../types/report';
+import type {
+  AdminDashboard,
+} from '../types/dashboard';
 
 export interface AdminIdentity {
   id: string;
@@ -28,6 +31,15 @@ export async function getAdminMe(): Promise<AdminIdentity> {
     );
 
   return response.data.admin;
+}
+
+export async function getAdminDashboard(): Promise<AdminDashboard> {
+  const response =
+    await http.get<AdminDashboard>(
+      '/admin/dashboard',
+    );
+
+  return response.data;
 }
 
 export async function getAdminReports({
