@@ -1,8 +1,6 @@
-import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart'; // ✅ 导入 XFile
 import '../../domain/models/post_model.dart';
-import '../services/post_service.dart';
+import '../services/post_node_service.dart';
 
 class PostRepository {
   final PostService _postService = PostService();
@@ -35,21 +33,43 @@ class PostRepository {
   }
 
   // ========== 获取单篇帖子 ==========
-  Future<PostModel> getPost(String postId) async {
-    final data = await _postService.getPost(postId);
-    return PostModel.fromJson(data);
+  // Future<PostModel> getPost(String postId) async {
+  //   final data = await _postService.getPost(postId);
+  //   return PostModel.fromJson(data);
+  // }
+
+  Future<PostModel> getPost(String postId) {
+    return _postService.getPost(postId);
   }
 
   // ========== 更新帖子 ==========
-  Future<PostModel> updatePost(String postId, {required String content}) async {
-    await _postService.updatePost(postId, content: content);
-    final data = await _postService.getPost(postId);
-    return PostModel.fromJson(data);
+  // Future<PostModel> updatePost(String postId, {required String content}) async {
+  //   await _postService.updatePost(postId, content: content);
+  //   final data = await _postService.getPost(postId);
+  //   return PostModel.fromJson(data);
+  // }
+
+  Future<PostModel> updatePost(
+    String postId, {
+    required String content,
+  }) async {
+    await _postService.updatePost(
+      postId,
+      content: content,
+    );
+
+    return _postService.getPost(postId);
   }
 
   // ========== 点赞/取消点赞 ==========
-  Future<void> toggleLike(String postId, String userId) async {
-    await _postService.toggleLike(postId, userId);
+  Future<int> toggleLike(
+    String postId, {
+    required bool liked,
+  }) {
+    return _postService.toggleLike(
+      postId,
+      liked: liked,
+    );
   }
 
   // ========== 删除帖子 ==========
@@ -72,7 +92,7 @@ class PostRepository {
     await _postService.deleteImageFromStorage(imageUrl);
   }
 
-  // ========== 移除图片（Firestore） ==========
+  // ========== 移除图片 ==========
   Future<void> removeImage(String postId, List<String> imageUrls) async {
     await _postService.removeImage(postId, imageUrls);
   }

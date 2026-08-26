@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:flutter_quill/flutter_quill.dart' as quill;
@@ -13,6 +12,8 @@ import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
+import '../../data/services/post_node_service.dart';
+import '../../domain/models/post_model.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final String category;
@@ -49,7 +50,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   final _imagePicker = ImagePicker();
 
-  late final DocumentReference<Map<String, dynamic>> _draftPostRef;
+  final PostService _postService = PostService();
+
+  late final String _draftPostId;
 
   List<File> images = [];
 
@@ -79,7 +82,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   void initState() {
     super.initState();
 
-    _draftPostRef = FirebaseFirestore.instance.collection('posts').doc();
+    _draftPostId =
+    '${DateTime.now().microsecondsSinceEpoch}_'
+    '${Random.secure().nextInt(1 << 32)}';
 
     // 从笔记进入时自动带入标题
     final initialTitle = widget.initialTitle;
@@ -237,7 +242,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     try {
       final ref = FirebaseStorage.instance.ref().child(
         'posts/'
-        '${_draftPostRef.id}/'
+        '${_draftPostId}/'
         'inline/'
         '${DateTime.now().millisecondsSinceEpoch}_'
         '${selectedImage.name}',
@@ -330,8 +335,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             final sourceRef = FirebaseStorage.instance.refFromURL(oldUrl);
 
             final currentPostPrefix =
-                'posts/'
-                '${_draftPostRef.id}/';
+              'posts/'
+              '$_draftPostId/';
 
             // 如果这张图是在发帖页里
             // 新插入的，它已经属于帖子，
@@ -352,7 +357,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
                 final targetRef = FirebaseStorage.instance.ref().child(
                   'posts/'
-                  '${_draftPostRef.id}/'
+                  '$_draftPostId/'
                   'inline/'
                   'note_'
                   '${DateTime.now().microsecondsSinceEpoch}_'
@@ -458,96 +463,30 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         _bodyController.document = quill.Document.fromJson(bodyDelta);
       }
 
-      // 获取用户信息
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-      final userData = userDoc.data();
-      final username = userData?['username'] ?? '匿名用户';
-      final nickname = userData?['nickname'] ?? '';
+      final postId = _draftPostId;
 
-      final doc = _draftPostRef;
+      final imageUrls = await uploadImages(postId);
 
-      final imageUrls = await uploadImages(doc.id);
+// ============================================================
+// PostgreSQL 主写入
+// ============================================================
 
-      final versionRef = doc.collection('versions').doc(widget.languageCode);
-
-      // 原始发布版本
-      final historyRef = doc.collection('editHistory').doc();
-
-      final batch = FirebaseFirestore.instance.batch();
-
-      batch.set(doc, {
-        'title': title.text.trim(),
-
-        'content': plainContent,
-
-        'bodyDelta': bodyDelta,
-
-        'category': widget.category,
-
-        // 兼容旧代码
-        'languageCode': widget.languageCode,
-        'languageName': widget.languageName,
-
-        // 一帖多语言
-        'primaryLanguageCode': widget.languageCode,
-
-        'availableLanguageCodes': [widget.languageCode],
-
-        'uid': user.uid,
-        'username': username,
-        'nickname': nickname,
-
-        'images': imageUrls,
-
-        'likes': [],
-        'likeCount': 0,
-        'commentCount': 0,
-
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-
-      batch.set(versionRef, {
-        'languageCode': widget.languageCode,
-
-        'languageName': widget.languageName,
-
-        'title': title.text.trim(),
-
-        'content': plainContent,
-
-        'bodyDelta': bodyDelta,
-
-        'authorId': user.uid,
-
-        'type': 'original',
-
-        'createdAt': FieldValue.serverTimestamp(),
-
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
-      batch.set(historyRef, {
-        'type': 'original',
-
-        'languageCode': widget.languageCode,
-
-        'content': plainContent,
-
-        'bodyDelta': bodyDelta,
-
-        'imageUrls': imageUrls,
-
-        'editedBy': user.uid,
-
-        // 对 original 来说，
-        // 这个时间就是首次发布时间
-        'editedAt': FieldValue.serverTimestamp(),
-      });
-
-      await batch.commit();
+await _postService.createPost(
+  PostModel(
+    id: postId,
+    userId: user.uid,
+    title: title.text.trim(),
+    content: plainContent,
+    bodyDelta: bodyDelta,
+    category: widget.category,
+    languageCode: widget.languageCode,
+    primaryLanguageCode: widget.languageCode,
+    availableLanguageCodes: [
+      widget.languageCode,
+    ],
+    imageUrls: imageUrls,
+  ),
+);
 
       if (!mounted) return;
 

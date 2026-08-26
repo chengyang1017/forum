@@ -1,6 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 
 import '../../../../app/l10n/app_localizations.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
@@ -499,29 +500,29 @@ class _CategorySection extends StatelessWidget {
 
   Future<void> _toggleInterest({
     required BuildContext context,
+    required authProv.AuthProvider authProvider,
     required CategoryConfig category,
-    required bool isInterested,
   }) async {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
+    if (authProvider.user == null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('请先登录后再设置兴趣')));
+
+      return;
+    }
+
+    if (!authProvider.interestsLoaded) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('兴趣设置正在加载，请稍后再试')));
+
       return;
     }
 
     final key = _interestKey(category.id);
-    final userReference = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid);
 
     try {
-      await userReference.set({
-        'interests': isInterested
-            ? FieldValue.arrayRemove([key])
-            : FieldValue.arrayUnion([key]),
-      }, SetOptions(merge: true));
+      await authProvider.toggleInterest(key);
     } catch (error) {
       if (!context.mounted) {
         return;
@@ -533,18 +534,13 @@ class _CategorySection extends StatelessWidget {
     }
   }
 
-  Set<String> _readInterests(Object? value) {
-    if (value is! Iterable) {
-      return {};
-    }
-
-    return value.whereType<String>().toSet();
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+
+    final authProvider = context.watch<authProv.AuthProvider>();
+
+    final interests = authProvider.interests;
 
     return Column(
       children: [
@@ -632,7 +628,7 @@ class _CategorySection extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '点击心形设为感兴趣',
+                authProvider.interestsLoaded ? '点击心形设为感兴趣' : '正在加载兴趣设置…',
                 style: TextStyle(
                   color: colorScheme.onSurface.withOpacity(0.48),
                   fontSize: 12,
@@ -642,49 +638,21 @@ class _CategorySection extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: userId == null
-              ? _CategoryGrid(
-                  language: language,
-                  channelKey: channelKey,
-                  categories: categories,
-                  categoryNames: categoryNames,
-                  interests: const {},
-                  onCategorySelected: onCategorySelected,
-                  onInterestPressed: (category, isInterested) {
-                    _toggleInterest(
-                      context: context,
-                      category: category,
-                      isInterested: isInterested,
-                    );
-                  },
-                )
-              : StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                  stream: FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(userId)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    final interests = _readInterests(
-                      snapshot.data?.data()?['interests'],
-                    );
-
-                    return _CategoryGrid(
-                      language: language,
-                      channelKey: channelKey,
-                      categories: categories,
-                      categoryNames: categoryNames,
-                      interests: interests,
-                      onCategorySelected: onCategorySelected,
-                      onInterestPressed: (category, isInterested) {
-                        _toggleInterest(
-                          context: context,
-                          category: category,
-                          isInterested: isInterested,
-                        );
-                      },
-                    );
-                  },
-                ),
+          child: _CategoryGrid(
+            language: language,
+            channelKey: channelKey,
+            categories: categories,
+            categoryNames: categoryNames,
+            interests: interests,
+            onCategorySelected: onCategorySelected,
+            onInterestPressed: (category, _) {
+              _toggleInterest(
+                context: context,
+                authProvider: authProvider,
+                category: category,
+              );
+            },
+          ),
         ),
       ],
     );

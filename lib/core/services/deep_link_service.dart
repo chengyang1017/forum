@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../../features/post/domain/models/post_model.dart';
+import '../../features/post/data/services/post_node_service.dart';
 import '../../features/post/presentation/screens/post_detail_screen.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -15,6 +14,7 @@ class DeepLinkService {
   static final DeepLinkService instance = DeepLinkService._();
 
   final AppLinks _appLinks = AppLinks();
+  final PostService _postService = PostService();
 
   StreamSubscription<Uri>? _subscription;
   String? _openingPostId;
@@ -31,11 +31,7 @@ class DeepLinkService {
   void _handleUri(Uri uri) {
     debugPrint('收到链接：$uri');
 
-    if (uri.scheme != 'forum') {
-      return;
-    }
-
-    if (uri.host != 'post') {
+    if (uri.scheme != 'forum' || uri.host != 'post') {
       return;
     }
 
@@ -49,7 +45,6 @@ class DeepLinkService {
       return;
     }
 
-    // 等 MaterialApp 和 Navigator 完成第一帧。
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _openPost(postId);
     });
@@ -69,25 +64,14 @@ class DeepLinkService {
     _openingPostId = postId;
 
     try {
-      final document = await FirebaseFirestore.instance
-          .collection('posts')
-          .doc(postId)
-          .get();
-
-      final data = document.data();
-
-      if (!document.exists || data == null) {
-        ScaffoldMessenger.of(
-          navigator.context,
-        ).showSnackBar(const SnackBar(content: Text('这个帖子不存在或已经被删除')));
-        return;
-      }
-
-      final post = PostModel.fromJson({...data, 'id': document.id});
+      final post = await _postService.getPost(postId);
 
       await navigator.push(
         MaterialPageRoute<void>(
-          builder: (_) => PostDetailScreen(postId: document.id, post: post),
+          builder: (_) => PostDetailScreen(
+            postId: post.id,
+            post: post,
+          ),
         ),
       );
     } catch (error) {
@@ -96,7 +80,9 @@ class DeepLinkService {
       if (rootNavigatorKey.currentContext != null) {
         ScaffoldMessenger.of(
           rootNavigatorKey.currentContext!,
-        ).showSnackBar(SnackBar(content: Text('打开帖子失败：$error')));
+        ).showSnackBar(
+          const SnackBar(content: Text('这个帖子不存在或已经被删除')),
+        );
       }
     } finally {
       _openingPostId = null;

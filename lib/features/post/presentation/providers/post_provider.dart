@@ -37,8 +37,14 @@ class PostProvider extends ChangeNotifier {
   }
 
   // ========== 点赞/取消点赞 ==========
-  Future<void> toggleLike(String postId, String userId) async {
-    await _postRepo.toggleLike(postId, userId);
+  Future<int> toggleLike(
+    String postId, {
+    required bool liked,
+  }) {
+    return _postRepo.toggleLike(
+      postId,
+      liked: liked,
+    );
   }
 
   // ========== 删除帖子 ==========

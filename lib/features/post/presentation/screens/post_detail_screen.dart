@@ -1,14 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 
-import 'comment_screen.dart';
+import 'node_comment_screen.dart';
 import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../providers/post_provider.dart' as postProv;
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
@@ -18,7 +16,7 @@ import '../../domain/models/post_model.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
 import '../../../translation/presentation/screens/post_translation_screen.dart';
 import 'package:flutter/services.dart';
-import '../../data/services/post_service.dart';
+import '../../data/services/post_node_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
@@ -50,6 +48,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   bool _isLiked = false;
   List<String> _likes = [];
+  int _likeCount = 0;
   List<String> _images = [];
   int _currentIndex = 0;
   bool _isUploadingImage = false;
@@ -69,18 +68,19 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     _post = widget.post;
     _currentUserId = context.read<authProv.AuthProvider>().user?.id;
     _likes = List<String>.from(_post.likes ?? []);
+    _likeCount = _post.likeCount;
     _images = List<String>.from(_post.imageUrls ?? []);
     _isLiked = _currentUserId != null && _likes.contains(_currentUserId);
     _loadCurrentVersionCreatedAt();
   }
 
   DateTime? _toDateTime(dynamic value) {
-    if (value is Timestamp) {
-      return value.toDate();
-    }
-
     if (value is DateTime) {
       return value;
+    }
+
+    if (value is String) {
+      return DateTime.tryParse(value);
     }
 
     return null;
@@ -186,75 +186,18 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       return;
     }
 
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return;
-    }
-
-    await _postService.ensureOriginalEditHistory(
-      postId: widget.postId,
-      languageCode: currentLanguageCode,
-      title: previousTitle,
-      content: previousContent,
-      bodyDelta: previousBodyDelta,
-      imageUrls: previousImageUrls,
-      editedBy: user.uid,
-      originalTime: _currentVersionCreatedAt ?? _post.createdAt,
-    );
-
     try {
-      // ===== 1. 保存新的正文版本 =====
-
+      // 正文、图片和“修改前历史快照”由 Node 在同一个事务中处理。
       await _postService.updateLanguageVersionContent(
         postId: widget.postId,
         languageCode: currentLanguageCode,
-
         title: result.title,
         content: result.content,
         bodyDelta: result.bodyDelta,
+        imageUrls: result.imageUrls,
       );
 
       if (!mounted) return;
-
-      // ===== 2. 更新新的顶部图片 =====
-
-      if (!listEquals(_images, result.imageUrls)) {
-        final postProvider = context.read<postProv.PostProvider>();
-
-        await postProvider.updateImages(widget.postId, result.imageUrls);
-
-        // 注意：
-        // 不要在这里删除旧图片的 Storage 文件。
-        //
-        // 因为历史版本还需要显示这些图片。
-      }
-
-      // ===== 3. 保存“编辑前”的版本 =====
-
-      final user = FirebaseAuth.instance.currentUser;
-
-      if (user != null) {
-        await _postService.addEditHistory(
-          postId: widget.postId,
-          languageCode: currentLanguageCode,
-
-          title: previousTitle,
-
-          // 全部使用 previous
-          content: previousContent,
-
-          bodyDelta: previousBodyDelta,
-
-          imageUrls: previousImageUrls,
-
-          editedBy: user.uid,
-        );
-      }
-
-      if (!mounted) return;
-
-      // ===== 4. 页面切换到新版本 =====
 
       setState(() {
         _images = List<String>.from(result.imageUrls);
@@ -297,32 +240,60 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   Future<void> _toggleLike() async {
     if (_currentUserId == null) return;
 
+    final previousLiked = _isLiked;
+    final previousLikeCount = _likeCount;
+    final nextLiked = !previousLiked;
+
     setState(() {
-      _isLiked = !_isLiked;
-      if (_isLiked) {
-        _likes.add(_currentUserId!);
-      } else {
-        _likes.remove(_currentUserId);
-      }
+      _isLiked = nextLiked;
+      _likeCount = nextLiked
+          ? previousLikeCount + 1
+          : (previousLikeCount > 0
+                ? previousLikeCount - 1
+                : 0);
+
+      _likes = nextLiked
+          ? <String>[_currentUserId!]
+          : <String>[];
     });
 
     try {
-      final postProvider = context.read<postProv.PostProvider>();
-      await postProvider.toggleLike(widget.postId, _currentUserId!);
-    } catch (e) {
+      final postProvider =
+          context.read<postProv.PostProvider>();
+
+      final confirmedLikeCount =
+          await postProvider.toggleLike(
+        widget.postId,
+        liked: nextLiked,
+      );
+
+      if (!mounted) return;
+
       setState(() {
-        _isLiked = !_isLiked;
-        if (_isLiked) {
-          _likes.add(_currentUserId!);
-        } else {
-          _likes.remove(_currentUserId);
-        }
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('操作失败: $e'), backgroundColor: Colors.red),
+        _likeCount = confirmedLikeCount;
+
+        _post = _post.copyWith(
+          likes: List<String>.from(_likes),
+          likeCount: confirmedLikeCount,
         );
-      }
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLiked = previousLiked;
+        _likeCount = previousLikeCount;
+        _likes = previousLiked
+            ? <String>[_currentUserId!]
+            : <String>[];
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('操作失败: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -634,38 +605,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           _currentVersionCreatedAt = language.code == primaryLanguageCode
               ? _post.createdAt
               : versionCreatedAt;
-        });
-
-        return;
-      }
-
-      // 兼容旧帖子：
-      // 旧帖子的主语言可能还没有 versions/{主语言}
-      if (language.code == primaryLanguageCode) {
-        final snapshot = await FirebaseFirestore.instance
-            .collection('posts')
-            .doc(widget.postId)
-            .get();
-
-        final data = snapshot.data();
-
-        if (data == null) {
-          throw Exception('帖子不存在');
-        }
-
-        if (!mounted) return;
-
-        setState(() {
-          _post = _post.copyWith(
-            title: data['title']?.toString(),
-            content: data['content']?.toString(),
-            bodyDelta:
-                (data['bodyDelta'] as List<dynamic>?)?.map((e) => e).toList() ??
-                const [],
-            languageCode: primaryLanguageCode,
-          );
-
-          _currentVersionCreatedAt = _post.createdAt;
         });
 
         return;
@@ -1522,7 +1461,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     _isLiked
                         ? Icons.favorite_rounded
                         : Icons.favorite_outline_rounded,
-                    _likes.isNotEmpty ? '${_likes.length} 赞同' : '赞同',
+                    _likeCount > 0 ? '$_likeCount 赞同' : '赞同',
                     _isLiked,
                   ),
                 ),

@@ -1,0 +1,653 @@
+import { Router } from 'express';
+import { z } from 'zod';
+
+import { prisma } from '../lib/prisma.js';
+import { requireAuth } from '../middleware/require_auth.js';
+
+export const userRouter = Router();
+
+// ============================================================
+// 类型
+// ============================================================
+
+type UserWithProfileRelations = {
+  id: string;
+  firebaseUid: string;
+
+  username: string;
+  email: string | null;
+
+  nickname: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+
+  birthday: Date | null;
+  showAge: boolean;
+
+  lastActiveAt: Date | null;
+  createdAt: Date;
+
+  tags: Array<{
+    value: string;
+  }>;
+
+  languages: Array<{
+    languageCode: string;
+    scriptCode: string;
+    level: number;
+  }>;
+};
+
+// ============================================================
+// Response 转换
+//
+// PostgreSQL 的字段结构
+// ↓
+// Flutter UserModel 能直接读取的结构
+// ============================================================
+
+function serializeUser(
+  user: UserWithProfileRelations,
+  options?: {
+    includeBirthday?: boolean;
+  },
+) {
+  const includeBirthday =
+    options?.includeBirthday ?? true;
+
+  return {
+    databaseId: user.id,
+
+    // Flutter 当前仍然使用 Firebase UID 作为 UserModel.id
+    uid: user.firebaseUid,
+
+    username: user.username,
+    email: user.email,
+
+    nickname: user.nickname,
+    avatar: user.avatarUrl,
+    bio: user.bio,
+
+    birthday:
+      includeBirthday && user.birthday != null
+        ? user.birthday.toISOString()
+        : null,
+
+    showAge: user.showAge,
+
+    createdAt: user.createdAt.toISOString(),
+
+    lastActive:
+      user.lastActiveAt?.toISOString() ?? null,
+
+    tags: user.tags.map(
+      (tag) => tag.value,
+    ),
+
+    languages: user.languages.map(
+      (language) => ({
+        name: language.languageCode,
+
+        ...(language.scriptCode.length > 0
+          ? {
+              scriptCode: language.scriptCode,
+            }
+          : {}),
+
+        level: language.level,
+      }),
+    ),
+  };
+}
+
+// ============================================================
+// Prisma 错误 code
+// ============================================================
+
+function prismaErrorCode(
+  error: unknown,
+): string | null {
+  if (
+    typeof error !== 'object' ||
+    error == null ||
+    !('code' in error)
+  ) {
+    return null;
+  }
+
+  const code = (error as { code?: unknown }).code;
+
+  return typeof code === 'string'
+    ? code
+    : null;
+}
+
+// ============================================================
+// PUT /api/v1/users/me
+//
+// 迁移阶段：
+// Flutter 从旧 Firestore 用户同步到 PostgreSQL。
+// 用户不存在 → create
+// 用户已存在   → update
+// ============================================================
+
+const syncUserSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(1)
+    .max(50),
+
+  nickname: z
+    .string()
+    .trim()
+    .max(100)
+    .nullable()
+    .optional(),
+
+  avatarUrl: z
+    .string()
+    .trim()
+    .url()
+    .nullable()
+    .optional(),
+
+  bio: z
+    .string()
+    .max(5000)
+    .nullable()
+    .optional(),
+
+  showAge: z
+    .boolean()
+    .optional(),
+});
+
+userRouter.put(
+  '/me',
+  requireAuth,
+  async (request, response) => {
+    //拿 request.body 去按照刚才那个 syncUserSchema 做校验。
+    const parsed = syncUserSchema.safeParse(request.body);
+
+    if (!parsed.success) {
+      response.status(400).json({
+        error: 'INVALID_REQUEST',
+        message: 'Invalid user data',
+      });
+
+      return;
+    }
+
+    const auth = response.locals.auth;
+
+    try {
+      const user = await prisma.user.upsert({
+        where: {
+          firebaseUid: auth.firebaseUid,
+        },
+
+        update: {
+          email: auth.email,
+
+          username:
+            parsed.data.username,
+
+          nickname:
+            parsed.data.nickname,
+
+          avatarUrl:
+            parsed.data.avatarUrl,
+
+          bio:
+            parsed.data.bio,
+
+          showAge:
+            parsed.data.showAge,
+        },
+
+        create: {
+          firebaseUid:
+            auth.firebaseUid,
+
+          email:
+            auth.email,
+
+          username:
+            parsed.data.username,
+
+          nickname:
+            parsed.data.nickname,
+
+          avatarUrl:
+            parsed.data.avatarUrl,
+
+          bio:
+            parsed.data.bio,
+
+          showAge:
+            parsed.data.showAge ?? true,
+        },
+
+        include: {
+          tags: true,
+          languages: true,
+        },
+      });
+
+      response.status(200).json({
+        user: serializeUser(user),
+      });
+    } catch (error) {
+      console.error(
+        'Sync user failed:',
+        error,
+      );
+
+      const code =
+        prismaErrorCode(error);
+
+      if (code === 'P2002') {
+        response.status(409).json({
+          error: 'USER_CONFLICT',
+          message:
+            'Username or email already exists',
+        });
+
+        return;
+      }
+
+      response.status(500).json({
+        error: 'SYNC_USER_FAILED',
+        message:
+          'Unable to sync user',
+      });
+    }
+  },
+);
+
+// ============================================================
+// GET /api/v1/users/me
+//
+// 获取当前登录用户。
+// 现在从 PostgreSQL 读取。
+// ============================================================
+
+userRouter.get(
+  '/me',
+  requireAuth,
+  async (_request, response) => {
+    const auth = response.locals.auth;
+
+    try {
+      const user =
+        await prisma.user.findUnique({
+          where: {
+            firebaseUid:
+              auth.firebaseUid,
+          },
+
+          include: {
+            tags: true,
+            languages: true,
+          },
+        });
+
+      if (user == null) {
+        response.status(404).json({
+          error: 'USER_NOT_FOUND',
+          message:
+            'Backend user does not exist',
+        });
+
+        return;
+      }
+
+      response.status(200).json({
+        user: serializeUser(user),
+      });
+    } catch (error) {
+      console.error(
+        'Get current user failed:',
+        error,
+      );
+
+      response.status(500).json({
+        error: 'GET_USER_FAILED',
+        message:
+          'Unable to load user',
+      });
+    }
+  },
+);
+
+// ============================================================
+// PATCH /api/v1/users/me
+//
+// 修改当前用户资料。
+// username / nickname / bio / avatar / birthday
+// tags / languages
+// 全部写 PostgreSQL。
+// ============================================================
+
+const updateUserSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(1)
+    .max(50)
+    .optional(),
+
+  nickname: z
+    .string()
+    .trim()
+    .max(100)
+    .nullable()
+    .optional(),
+
+  avatarUrl: z
+    .string()
+    .trim()
+    .url()
+    .nullable()
+    .optional(),
+
+  bio: z
+    .string()
+    .max(5000)
+    .nullable()
+    .optional(),
+
+  birthday: z
+    .coerce
+    .date()
+    .nullable()
+    .optional(),
+
+  showAge: z
+    .boolean()
+    .optional(),
+
+  tags: z
+    .array(
+      z
+        .string()
+        .trim()
+        .min(1)
+        .max(50),
+    )
+    .optional(),
+
+  languages: z
+    .array(
+      z.object({
+        name: z
+          .string()
+          .trim()
+          .min(1)
+          .max(32),
+
+        scriptCode: z
+          .string()
+          .trim()
+          .max(32)
+          .optional(),
+
+        level: z
+          .number()
+          .int()
+          .min(0)
+          .max(100),
+      }),
+    )
+    .optional(),
+});
+
+userRouter.patch(
+  '/me',
+  requireAuth,
+  async (request, response) => {
+    const parsed =
+      updateUserSchema.safeParse(request.body);
+
+    if (!parsed.success) {
+      response.status(400).json({
+        error: 'INVALID_REQUEST',
+        message: 'Invalid user data',
+        details: parsed.error.flatten(),
+      });
+
+      return;
+    }
+
+    const auth = response.locals.auth;
+
+    const {
+      tags,
+      languages,
+      ...profileData
+    } = parsed.data;
+
+    try {
+      const user =
+        await prisma.$transaction(
+          async (transaction) => {
+            // --------------------------------------------
+            // 1. 更新 users 主表
+            // --------------------------------------------
+
+            const currentUser =
+              await transaction.user.update({
+                where: {
+                  firebaseUid:
+                    auth.firebaseUid,
+                },
+
+                data: profileData,
+
+                select: {
+                  id: true,
+                },
+              });
+
+            // --------------------------------------------
+            // 2. 如果请求带 tags
+            //    就完整替换当前用户 tags
+            // --------------------------------------------
+
+            if (tags !== undefined) {
+              await transaction.userTag.deleteMany({
+                where: {
+                  userId:
+                    currentUser.id,
+                },
+              });
+
+              if (tags.length > 0) {
+                await transaction.userTag.createMany({
+                  data: tags.map(
+                    (value) => ({
+                      userId:
+                        currentUser.id,
+                      value,
+                    }),
+                  ),
+
+                  skipDuplicates: true,
+                });
+              }
+            }
+
+            // --------------------------------------------
+            // 3. 如果请求带 languages
+            //    就完整替换当前用户 languages
+            // --------------------------------------------
+
+            if (languages !== undefined) {
+              await transaction.userLanguage.deleteMany({
+                where: {
+                  userId:
+                    currentUser.id,
+                },
+              });
+
+              if (languages.length > 0) {
+                await transaction.userLanguage.createMany({
+                  data: languages.map(
+                    (language) => ({
+                      userId:
+                        currentUser.id,
+
+                      languageCode:
+                        language.name,
+
+                      scriptCode:
+                        language.scriptCode ?? '',
+
+                      level:
+                        language.level,
+                    }),
+                  ),
+
+                  skipDuplicates: true,
+                });
+              }
+            }
+
+            // --------------------------------------------
+            // 4. 更新完成后重新读取完整 User
+            // --------------------------------------------
+
+            return transaction.user.findUniqueOrThrow({
+              where: {
+                firebaseUid:
+                  auth.firebaseUid,
+              },
+
+              include: {
+                tags: true,
+                languages: true,
+              },
+            });
+          },
+        );
+
+      response.status(200).json({
+        user: serializeUser(user),
+      });
+    } catch (error) {
+      console.error(
+        'Update user failed:',
+        error,
+      );
+
+      const code =
+        prismaErrorCode(error);
+
+      // username / email 唯一约束冲突
+      if (code === 'P2002') {
+        response.status(409).json({
+          error: 'USER_CONFLICT',
+          message:
+            'Username or email already exists',
+        });
+
+        return;
+      }
+
+      // PostgreSQL 找不到该用户
+      if (code === 'P2025') {
+        response.status(404).json({
+          error: 'USER_NOT_FOUND',
+          message:
+            'Backend user does not exist',
+        });
+
+        return;
+      }
+
+      response.status(500).json({
+        error: 'UPDATE_USER_FAILED',
+        message:
+          'Unable to update user',
+      });
+    }
+  },
+);
+
+// ============================================================
+// GET /api/v1/users/:uid
+//
+// 获取任意用户公开资料。
+// 注意：这个动态路由必须放在 /me 后面。
+// ============================================================
+
+userRouter.get(
+  '/:uid',
+  requireAuth,
+  async (request, response) => {
+    const uid = request.params.uid;
+
+    // Express 5 类型里 params 可能不是单纯 string，
+    // 所以必须先收窄。
+    if (typeof uid !== 'string') {
+      response.status(400).json({
+        error: 'INVALID_USER_ID',
+        message: 'Invalid user id',
+      });
+
+      return;
+    }
+
+    try {
+      const user =
+        await prisma.user.findUnique({
+          where: {
+            firebaseUid: uid,
+          },
+
+          include: {
+            tags: true,
+            languages: true,
+          },
+        });
+
+      if (user == null) {
+        response.status(404).json({
+          error: 'USER_NOT_FOUND',
+          message:
+            'User does not exist',
+        });
+
+        return;
+      }
+
+      const isSelf =
+        response.locals.auth.firebaseUid ===
+        user.firebaseUid;
+
+      response.status(200).json({
+        user: serializeUser(
+          user,
+          {
+            // 自己可以看自己的生日；
+            // 其他用户只有 showAge=true 才返回生日。
+            includeBirthday:
+              isSelf || user.showAge,
+          },
+        ),
+      });
+    } catch (error) {
+      console.error(
+        'Get user failed:',
+        error,
+      );
+
+      response.status(500).json({
+        error: 'GET_USER_FAILED',
+        message:
+          'Unable to load user',
+      });
+    }
+  },
+);
