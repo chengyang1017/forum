@@ -73,7 +73,25 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     _likeCount = _post.likeCount;
     _images = List<String>.from(_post.imageUrls ?? []);
     _isLiked = _currentUserId != null && _likes.contains(_currentUserId);
-    _isBookmarked = _post.isBookmarked;
+
+    final postProvider =
+        context.read<postProv.PostProvider>();
+
+    postProvider.seedBookmarkState(
+      _post.id,
+      _post.isBookmarked,
+    );
+
+    _isBookmarked =
+        postProvider.bookmarkState(
+      _post.id,
+      fallback: _post.isBookmarked,
+    );
+
+    _post = _post.copyWith(
+      isBookmarked: _isBookmarked,
+    );
+
     _loadCurrentVersionCreatedAt();
   }
 
@@ -308,8 +326,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       return;
     }
 
-    final previousBookmarked = _isBookmarked;
-    final nextBookmarked = !previousBookmarked;
+    final postProvider =
+        context.read<postProv.PostProvider>();
+
+    final previousBookmarked =
+        postProvider.bookmarkState(
+      widget.postId,
+      fallback: _isBookmarked,
+    );
+
+    final nextBookmarked =
+        !previousBookmarked;
 
     // 乐观更新：先让按钮立即响应。
     setState(() {
@@ -322,7 +349,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
     try {
       final confirmedBookmarked =
-          await _postService.toggleBookmark(
+          await postProvider.toggleBookmark(
         widget.postId,
         bookmarked: nextBookmarked,
       );
@@ -1496,6 +1523,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   // 底部操作栏
   // ============================================================
   Widget _buildBottomBar() {
+    final globalBookmarked =
+        context.watch<postProv.PostProvider>()
+            .bookmarkState(
+      widget.postId,
+      fallback: _isBookmarked,
+    );
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1546,11 +1580,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           ? null
                           : _toggleBookmark,
                   child: _buildAction(
-                    _isBookmarked
+                    globalBookmarked
                         ? Icons.bookmark_rounded
                         : Icons.bookmark_border_rounded,
                     '收藏',
-                    _isBookmarked,
+                    globalBookmarked,
                   ),
                 ),
               ),

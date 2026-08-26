@@ -48,6 +48,11 @@ app.use(
 
 app.use(
   '/api/v1/posts',
+  postBookmarkRouter,
+);
+
+app.use(
+  '/api/v1/posts',
   postRouter,
 );
 

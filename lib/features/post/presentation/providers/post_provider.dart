@@ -10,8 +10,28 @@ class PostProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+  final Map<String, bool> _bookmarkStates =
+      <String, bool>{};
+
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  bool bookmarkState(
+    String postId, {
+    required bool fallback,
+  }) {
+    return _bookmarkStates[postId] ?? fallback;
+  }
+
+  void seedBookmarkState(
+    String postId,
+    bool bookmarked,
+  ) {
+    _bookmarkStates.putIfAbsent(
+      postId,
+      () => bookmarked,
+    );
+  }
 
   // ========== 获取单篇帖子 ==========
   Future<PostModel> getPost(String postId) async {
@@ -45,6 +65,45 @@ class PostProvider extends ChangeNotifier {
       postId,
       liked: liked,
     );
+  }
+
+  // ========== 收藏/取消收藏 ==========
+  Future<bool> toggleBookmark(
+    String postId, {
+    required bool bookmarked,
+  }) async {
+    final hadPrevious =
+        _bookmarkStates.containsKey(postId);
+
+    final previous =
+        _bookmarkStates[postId];
+
+    // 全局乐观更新。
+    // 所有正在监听 PostProvider 的页面立即同步。
+    _bookmarkStates[postId] = bookmarked;
+    notifyListeners();
+
+    try {
+      final confirmed =
+          await _postRepo.toggleBookmark(
+        postId,
+        bookmarked: bookmarked,
+      );
+
+      _bookmarkStates[postId] = confirmed;
+      notifyListeners();
+
+      return confirmed;
+    } catch (_) {
+      if (hadPrevious) {
+        _bookmarkStates[postId] = previous!;
+      } else {
+        _bookmarkStates.remove(postId);
+      }
+
+      notifyListeners();
+      rethrow;
+    }
   }
 
   // ========== 删除帖子 ==========
@@ -87,6 +146,7 @@ class PostProvider extends ChangeNotifier {
   void clear() {
     _isLoading = false;
     _error = null;
+    _bookmarkStates.clear();
     notifyListeners();
   }
 }
