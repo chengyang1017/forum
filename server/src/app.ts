@@ -13,6 +13,11 @@ import { postDataRouter } from './routes/post_data_route.js';
 import { postRouter } from './routes/post_route.js';
 import { commentRouter } from './routes/comment_route.js';
 
+import {
+  postBookmarkRouter,
+  userBookmarkRouter,
+} from './routes/bookmark_route.js';
+
 export const app = express();
 
 app.use(helmet());
@@ -27,6 +32,11 @@ app.use(
 );
 
 app.use(
+  '/api/v1/users/me/bookmarks',
+  userBookmarkRouter,
+);
+
+app.use(
   '/api/v1/users',
   userRouter,
 );
@@ -34,6 +44,11 @@ app.use(
 app.use(
   '/api/v1/posts',
   postDataRouter,
+);
+
+app.use(
+  '/api/v1/posts',
+  postBookmarkRouter,
 );
 
 app.use(

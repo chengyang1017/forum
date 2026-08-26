@@ -169,6 +169,19 @@ Future<void> refreshPosts({
     return result.likeCount;
   }
 
+  Future<bool> toggleBookmark(
+    String postId, {
+    required bool bookmarked,
+  }) {
+    return bookmarked
+        ? _postApi.bookmarkPost(postId)
+        : _postApi.removeBookmark(postId);
+  }
+
+  Future<List<PostModel>> getBookmarkedPosts() {
+    return _postApi.getBookmarkedPosts();
+  }
+
   Future<void> deletePost(String postId) async {
     final imageUrls = await _postApi.deletePost(postId);
 

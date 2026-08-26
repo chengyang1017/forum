@@ -35,12 +35,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tags         UserTag[]
-  languages    UserLanguage[]
-  posts        Post[]
-  postVersions PostVersion[]  @relation("PostVersionAuthor")
-  postLikes    PostLike[]
-  postComments PostComment[]
+  tags            UserTag[]
+  languages       UserLanguage[]
+  posts           Post[]
+  postVersions    PostVersion[]     @relation("PostVersionAuthor")
+  postLikes       PostLike[]
+  postBookmarks   PostBookmark[]
+  postComments    PostComment[]
   postEditHistory PostEditHistory[] @relation("PostEditHistoryEditor")
 
   @@map("users")
@@ -93,11 +94,12 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  author   User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  versions PostVersion[]
-  images   PostImage[]
-  likes    PostLike[]
-  comments PostComment[]
+  author      User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  versions    PostVersion[]
+  images      PostImage[]
+  likes       PostLike[]
+  bookmarks   PostBookmark[]
+  comments    PostComment[]
   editHistory PostEditHistory[]
 
   @@index([authorId])
@@ -163,6 +165,23 @@ model PostLike {
   @@index([postId])
   @@index([userId])
   @@map("post_likes")
+}
+
+model PostBookmark {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId String @db.Uuid
+  postId String @db.Uuid
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId, createdAt])
+  @@index([postId])
+  @@map("post_bookmarks")
 }
 
 model PostComment {

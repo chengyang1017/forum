@@ -15,6 +15,7 @@ import '../widgets/profile_bio_tags_section.dart';
 import '../widgets/profile_header.dart';
 import '../widgets/profile_language_section.dart';
 import '../../../post/presentation/widgets/post_item_card.dart';
+import '../../../post/presentation/screens/bookmarked_posts_screen.dart';
 import '../widgets/tag_editor_sheet.dart';
 import 'settings_screen.dart';
 import '../../../notes/presentation/screens/all_notes_screen.dart';
@@ -542,6 +543,61 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           MaterialPageRoute(
                             builder: (_) {
                               return const AllNotesScreen();
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                // 我的收藏
+                SliverToBoxAdapter(
+                  child: Container(
+                    margin:
+                        const EdgeInsets.only(top: 10),
+                    color: Colors.white,
+                    child: ListTile(
+                      contentPadding:
+                          const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      leading: CircleAvatar(
+                        backgroundColor:
+                            Theme.of(context)
+                                .colorScheme
+                                .secondaryContainer,
+                        child: Icon(
+                          Icons.bookmark_outline_rounded,
+                          color:
+                              Theme.of(context)
+                                  .colorScheme
+                                  .secondary,
+                        ),
+                      ),
+                      title: const Text(
+                        '我的收藏',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight:
+                              FontWeight.w600,
+                        ),
+                      ),
+                      subtitle:
+                          const Text(
+                        '查看收藏的帖子',
+                      ),
+                      trailing:
+                          const Icon(
+                        Icons.chevron_right,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) {
+                              return const BookmarkedPostsScreen();
                             },
                           ),
                         );

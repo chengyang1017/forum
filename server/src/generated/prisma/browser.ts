@@ -53,6 +53,11 @@ export type PostImage = Prisma.PostImageModel
  */
 export type PostLike = Prisma.PostLikeModel
 /**
+ * Model PostBookmark
+ * 
+ */
+export type PostBookmark = Prisma.PostBookmarkModel
+/**
  * Model PostComment
  * 
  */

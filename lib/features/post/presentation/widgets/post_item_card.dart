@@ -1,12 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../domain/models/post_model.dart';
+import '../providers/post_provider.dart' as postProv;
 import '../screens/post_detail_screen.dart';
 import '../../../../core/widgets/user_name_display.dart';
 
 class PostItemCard extends StatelessWidget {
   final PostModel post;
+
+  /// 自定义点击行为。
+  /// 不传时保持原本行为：打开帖子详情页。
+  final VoidCallback? onTap;
 
   /// FeedScreen 传 true：
   /// 显示帖子发布者的用户名。
@@ -24,6 +30,7 @@ class PostItemCard extends StatelessWidget {
   const PostItemCard({
     super.key,
     required this.post,
+    this.onTap,
     this.showUserInfo = true,
     this.showLanguageBadge = true,
     this.languageCode = 'zh',
@@ -99,16 +106,33 @@ class PostItemCard extends StatelessWidget {
         : languageCode;
 
     return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) {
-              return PostDetailScreen(postId: post.id, post: post);
-            },
-          ),
-        );
-      },
+      onTap:
+          onTap ??
+          () {
+            final postProvider =
+                context.read<postProv.PostProvider>();
+
+            final latestBookmarked =
+                postProvider.bookmarkState(
+              post.id,
+              fallback: post.isBookmarked,
+            );
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) {
+                  return PostDetailScreen(
+                    postId: post.id,
+                    post: post.copyWith(
+                      isBookmarked:
+                          latestBookmarked,
+                    ),
+                  );
+                },
+              ),
+            );
+          },
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
         child: Column(

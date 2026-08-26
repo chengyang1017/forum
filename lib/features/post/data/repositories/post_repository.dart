@@ -72,6 +72,17 @@ class PostRepository {
     );
   }
 
+  // ========== 收藏/取消收藏 ==========
+  Future<bool> toggleBookmark(
+    String postId, {
+    required bool bookmarked,
+  }) {
+    return _postService.toggleBookmark(
+      postId,
+      bookmarked: bookmarked,
+    );
+  }
+
   // ========== 删除帖子 ==========
   Future<void> deletePost(String postId) async {
     await _postService.deletePost(postId);
