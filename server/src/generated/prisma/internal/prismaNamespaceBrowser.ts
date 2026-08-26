@@ -58,7 +58,8 @@ export const ModelName = {
   PostVersion: 'PostVersion',
   PostImage: 'PostImage',
   PostLike: 'PostLike',
-  PostComment: 'PostComment'
+  PostComment: 'PostComment',
+  PostEditHistory: 'PostEditHistory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -185,6 +186,24 @@ export const PostCommentScalarFieldEnum = {
 } as const
 
 export type PostCommentScalarFieldEnum = (typeof PostCommentScalarFieldEnum)[keyof typeof PostCommentScalarFieldEnum]
+
+
+export const PostEditHistoryScalarFieldEnum = {
+  id: 'id',
+  firestorePath: 'firestorePath',
+  postId: 'postId',
+  editedById: 'editedById',
+  languageCode: 'languageCode',
+  type: 'type',
+  title: 'title',
+  content: 'content',
+  bodyDelta: 'bodyDelta',
+  imageUrls: 'imageUrls',
+  editedAt: 'editedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PostEditHistoryScalarFieldEnum = (typeof PostEditHistoryScalarFieldEnum)[keyof typeof PostEditHistoryScalarFieldEnum]
 
 
 export const SortOrder = {

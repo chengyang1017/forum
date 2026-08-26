@@ -1,8 +1,6 @@
-import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart'; // ✅ 导入 XFile
 import '../../domain/models/post_model.dart';
-import '../services/post_service.dart';
+import '../services/post_node_service.dart';
 
 class PostRepository {
   final PostService _postService = PostService();
@@ -94,7 +92,7 @@ class PostRepository {
     await _postService.deleteImageFromStorage(imageUrl);
   }
 
-  // ========== 移除图片（Firestore） ==========
+  // ========== 移除图片 ==========
   Future<void> removeImage(String postId, List<String> imageUrls) async {
     await _postService.removeImage(postId, imageUrls);
   }

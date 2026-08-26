@@ -13,7 +13,8 @@
     "migrate:user-profile": "tsx src/scripts/migrate_user_profile_relations.ts",
     "migrate:posts": "tsx src/scripts/migrate_posts.ts",
     "migrate:post-likes": "tsx src/scripts/migrate_post_likes.ts",
-    "migrate:post-comments": "tsx src/scripts/migrate_post_comments.ts"
+    "migrate:post-comments": "tsx src/scripts/migrate_post_comments.ts",
+    "migrate:post-edit-history": "tsx src/scripts/migrate_post_edit_history.ts"
   },
   "keywords": [],
   "author": "",

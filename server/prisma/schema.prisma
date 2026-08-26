@@ -38,6 +38,7 @@ model User {
   postVersions PostVersion[]  @relation("PostVersionAuthor")
   postLikes    PostLike[]
   postComments PostComment[]
+  postEditHistory PostEditHistory[] @relation("PostEditHistoryEditor")
 
   @@map("users")
 }
@@ -94,6 +95,7 @@ model Post {
   images   PostImage[]
   likes    PostLike[]
   comments PostComment[]
+  editHistory PostEditHistory[]
 
   @@index([authorId])
   @@index([category, createdAt])
@@ -190,4 +192,32 @@ model PostComment {
   @@index([postId, parentId, createdAt])
   @@index([authorId])
   @@map("post_comments")
+}
+
+model PostEditHistory {
+  id String @id @default(uuid()) @db.Uuid
+
+  firestorePath String? @unique @db.VarChar(512)
+
+  postId     String  @db.Uuid
+  editedById String? @db.Uuid
+
+  languageCode String @db.VarChar(32)
+  type         String @default("edit") @db.VarChar(32)
+
+  title   String @default("") @db.Text
+  content String @default("") @db.Text
+
+  bodyDelta Json
+  imageUrls Json
+
+  editedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  post     Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  editedBy User? @relation("PostEditHistoryEditor", fields: [editedById], references: [id], onDelete: SetNull)
+
+  @@index([postId, languageCode, editedAt])
+  @@index([editedById])
+  @@map("post_edit_history")
 }

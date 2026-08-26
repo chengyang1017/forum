@@ -76,6 +76,26 @@ class PostApi {
     );
   }
 
+  Future<Map<String, dynamic>> getLanguageVersion({
+    required String postId,
+    required String languageCode,
+  }) async {
+    final response = await _apiClient.get(
+      '/posts/${Uri.encodeComponent(postId)}/versions/'
+      '${Uri.encodeComponent(languageCode)}',
+    );
+
+    final data = response['version'];
+
+    if (data is! Map) {
+      throw const PostApiException(
+        '服务器返回的语言版本格式无效',
+      );
+    }
+
+    return Map<String, dynamic>.from(data);
+  }
+
   // ============================================================
   // 创建帖子
   // ============================================================
@@ -161,14 +181,18 @@ class PostApi {
     required String title,
     required String content,
     List<dynamic>? bodyDelta,
+    List<String>? images,
   }) async {
     final response = await _apiClient.patch(
-      '/posts/$postId/versions/$languageCode',
+      '/posts/${Uri.encodeComponent(postId)}/versions/'
+      '${Uri.encodeComponent(languageCode)}',
       {
         'title': title,
         'content': content,
         if (bodyDelta != null)
           'bodyDelta': bodyDelta,
+        if (images != null)
+          'images': images,
       },
     );
 
@@ -258,6 +282,58 @@ class PostApi {
     );
 
     return PostLikeResult.fromJson(response);
+  }
+
+  Future<List<Map<String, dynamic>>> getEditHistory(
+    String postId,
+  ) async {
+    final response = await _apiClient.get(
+      '/posts/${Uri.encodeComponent(postId)}/edit-history',
+    );
+
+    final data = response['history'];
+
+    if (data is! List) {
+      throw const PostApiException(
+        '服务器返回的编辑历史格式无效',
+      );
+    }
+
+    return data
+        .whereType<Map>()
+        .map(
+          (item) => Map<String, dynamic>.from(item),
+        )
+        .toList(growable: false);
+  }
+
+  Future<List<PostModel>> getPostsByUser(
+    String firebaseUid, {
+    int limit = 50,
+  }) async {
+    final response = await _apiClient.get(
+      '/posts/by-user/${Uri.encodeComponent(firebaseUid)}',
+      queryParameters: {
+        'limit': limit,
+      },
+    );
+
+    final data = response['posts'];
+
+    if (data is! List) {
+      throw const PostApiException(
+        '服务器返回的用户帖子格式无效',
+      );
+    }
+
+    return data
+        .whereType<Map>()
+        .map(
+          (item) => PostModel.fromJson(
+            Map<String, dynamic>.from(item),
+          ),
+        )
+        .toList(growable: false);
   }
 }
 

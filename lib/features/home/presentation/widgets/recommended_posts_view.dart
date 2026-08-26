@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../../post/presentation/widgets/post_item_card.dart';
+
+import '../../../post/data/services/post_node_service.dart';
 import '../../../post/domain/models/post_model.dart';
+import '../../../post/presentation/widgets/post_item_card.dart';
 
 class RecommendedPostsView extends StatelessWidget {
   const RecommendedPostsView({super.key});
@@ -27,6 +29,8 @@ class RecommendedPostsView extends StatelessWidget {
       );
     }
 
+    // 兴趣设置暂时仍属于用户偏好数据，继续由 Firestore 管理。
+    // 帖子内容本身已经全部从 Node/PostgreSQL 读取。
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
           .collection('users')
@@ -49,7 +53,6 @@ class RecommendedPostsView extends StatelessWidget {
           userSnapshot.data?.data()?['interests'],
         );
 
-        // 没有主动选择任何兴趣时，不监听 posts，也不展示任何帖子。
         if (interests.isEmpty) {
           return const _InterestEmptyState(
             icon: Icons.favorite_border_rounded,
@@ -69,22 +72,72 @@ class _InterestedPostList extends StatelessWidget {
 
   const _InterestedPostList({required this.interests});
 
-  String _postInterestKey(Map<String, dynamic> data) {
-    final languageCode = data['languageCode'] as String? ?? '';
+  Future<List<PostModel>> _loadPosts() async {
+    final service = PostService();
+    final orderedInterests = interests.toList()..sort();
 
-    final category = data['category'] as String? ?? '';
+    final requests = <Future<List<PostModel>>>[];
 
-    return '$languageCode::$category';
+    for (final interest in orderedInterests) {
+      final separatorIndex = interest.indexOf('::');
+
+      if (separatorIndex <= 0 || separatorIndex >= interest.length - 2) {
+        continue;
+      }
+
+      final languageCode = interest.substring(0, separatorIndex).trim();
+      final category = interest.substring(separatorIndex + 2).trim();
+
+      if (languageCode.isEmpty || category.isEmpty) {
+        continue;
+      }
+
+      requests.add(
+        service.getPosts(
+          category: category,
+          languageCode: languageCode,
+        ),
+      );
+    }
+
+    if (requests.isEmpty) {
+      return const [];
+    }
+
+    final batches = await Future.wait(requests);
+    final byPostId = <String, PostModel>{};
+
+    for (final batch in batches) {
+      for (final post in batch) {
+        byPostId.putIfAbsent(post.id, () => post);
+      }
+    }
+
+    final posts = byPostId.values.toList();
+
+    posts.sort((a, b) {
+      final aTime = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final bTime = b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+      return bTime.compareTo(aTime);
+    });
+
+    return posts;
+  }
+
+  Stream<List<PostModel>> _watchPosts() async* {
+    while (true) {
+      yield await _loadPosts();
+
+      await Future<void>.delayed(
+        const Duration(seconds: 15),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance
-          .collection('posts')
-          .orderBy('timestamp', descending: true)
-          .limit(100)
-          .snapshots(),
+    return StreamBuilder<List<PostModel>>(
+      stream: _watchPosts(),
       builder: (context, postSnapshot) {
         if (postSnapshot.hasError) {
           return _InterestEmptyState(
@@ -98,13 +151,9 @@ class _InterestedPostList extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final matchingPosts = postSnapshot.data!.docs.where((document) {
-          final key = _postInterestKey(document.data());
+        final posts = postSnapshot.data!;
 
-          return interests.contains(key);
-        }).toList();
-
-        if (matchingPosts.isEmpty) {
+        if (posts.isEmpty) {
           return const _InterestEmptyState(
             icon: Icons.inbox_outlined,
             title: '这些兴趣暂时没有帖子',
@@ -114,23 +163,11 @@ class _InterestedPostList extends StatelessWidget {
 
         return ListView.separated(
           padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
-          itemCount: matchingPosts.length,
+          itemCount: posts.length,
           separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
-            final document = matchingPosts[index];
-            //final post = PostModel.fromDocument(document);
-
-            //测试数据
-            final data = document.data();
-            debugPrint('帖子原始数据：$data');
-            //测试数据
-
-            final post = PostModel.fromJson({
-              ...document.data(),
-              'id': document.id,
-            });
             return PostItemCard(
-              post: post,
+              post: posts[index],
               showUserInfo: true,
               showLanguageBadge: true,
             );

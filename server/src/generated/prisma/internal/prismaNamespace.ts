@@ -404,7 +404,8 @@ export const ModelName = {
   PostVersion: 'PostVersion',
   PostImage: 'PostImage',
   PostLike: 'PostLike',
-  PostComment: 'PostComment'
+  PostComment: 'PostComment',
+  PostEditHistory: 'PostEditHistory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -420,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userTag" | "userLanguage" | "post" | "postVersion" | "postImage" | "postLike" | "postComment"
+    modelProps: "user" | "userTag" | "userLanguage" | "post" | "postVersion" | "postImage" | "postLike" | "postComment" | "postEditHistory"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1016,6 +1017,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PostEditHistory: {
+      payload: Prisma.$PostEditHistoryPayload<ExtArgs>
+      fields: Prisma.PostEditHistoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PostEditHistoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostEditHistoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PostEditHistoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostEditHistoryPayload>
+        }
+        findFirst: {
+          args: Prisma.PostEditHistoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostEditHistoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PostEditHistoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostEditHistoryPayload>
+        }
+        findMany: {
+          args: Prisma.PostEditHistoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostEditHistoryPayload>[]
+        }
+        create: {
+          args: Prisma.PostEditHistoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostEditHistoryPayload>
+        }
+        createMany: {
+          args: Prisma.PostEditHistoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PostEditHistoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostEditHistoryPayload>[]
+        }
+        delete: {
+          args: Prisma.PostEditHistoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostEditHistoryPayload>
+        }
+        update: {
+          args: Prisma.PostEditHistoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostEditHistoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.PostEditHistoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PostEditHistoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PostEditHistoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostEditHistoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.PostEditHistoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostEditHistoryPayload>
+        }
+        aggregate: {
+          args: Prisma.PostEditHistoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePostEditHistory>
+        }
+        groupBy: {
+          args: Prisma.PostEditHistoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PostEditHistoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PostEditHistoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PostEditHistoryCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1163,6 +1238,24 @@ export const PostCommentScalarFieldEnum = {
 } as const
 
 export type PostCommentScalarFieldEnum = (typeof PostCommentScalarFieldEnum)[keyof typeof PostCommentScalarFieldEnum]
+
+
+export const PostEditHistoryScalarFieldEnum = {
+  id: 'id',
+  firestorePath: 'firestorePath',
+  postId: 'postId',
+  editedById: 'editedById',
+  languageCode: 'languageCode',
+  type: 'type',
+  title: 'title',
+  content: 'content',
+  bodyDelta: 'bodyDelta',
+  imageUrls: 'imageUrls',
+  editedAt: 'editedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PostEditHistoryScalarFieldEnum = (typeof PostEditHistoryScalarFieldEnum)[keyof typeof PostEditHistoryScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1446,6 +1539,7 @@ export type GlobalOmitConfig = {
   postImage?: Prisma.PostImageOmit
   postLike?: Prisma.PostLikeOmit
   postComment?: Prisma.PostCommentOmit
+  postEditHistory?: Prisma.PostEditHistoryOmit
 }
 
 /* Types for Logging */

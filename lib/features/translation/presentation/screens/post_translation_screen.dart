@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../notes/data/services/note_service.dart';
-import '../../../post/data/services/post_service.dart';
+import '../../../post/data/services/post_node_service.dart';
 import '../../../post/domain/models/post_model.dart';
 import '../../data/services/ai_translation_service.dart';
 

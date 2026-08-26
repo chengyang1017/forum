@@ -57,3 +57,8 @@ export type PostLike = Prisma.PostLikeModel
  * 
  */
 export type PostComment = Prisma.PostCommentModel
+/**
+ * Model PostEditHistory
+ * 
+ */
+export type PostEditHistory = Prisma.PostEditHistoryModel

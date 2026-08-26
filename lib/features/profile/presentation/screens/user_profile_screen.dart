@@ -14,6 +14,7 @@ import '../widgets/profile_post_sliver_list.dart';
 import '../../../notes/presentation/screens/user_notes_screen.dart';
 import '../widgets/profile_language_section.dart';
 import '../../../auth/data/services/user_api.dart';
+import '../../../post/data/services/post_node_service.dart';
 class UserProfileScreen extends StatefulWidget {
   final String uid;
 
@@ -27,6 +28,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   final FriendService friendService = FriendService();
   final ChatService chatService = ChatService();
   final UserApi _userApi = UserApi();
+  final PostService _postService = PostService();
   String? _currentUserId;
   UserModel? _userProfile;
 
@@ -327,21 +329,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Stream<List<PostModel>> _watchUserPosts() {
-    return FirebaseFirestore.instance
-        .collection('posts')
-        .where('uid', isEqualTo: widget.uid)
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            return PostModel.fromJson({'id': doc.id, ...doc.data()});
-          }).toList();
-        });
+    return _postService.watchUserPosts(widget.uid);
   }
 
   int _totalLikesOf(List<PostModel> posts) {
     return posts.fold<int>(0, (total, post) {
-      return total + (post.likes?.length ?? post.likeCount);
+      return total + post.likeCount;
     });
   }
 
