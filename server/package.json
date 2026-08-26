@@ -9,6 +9,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
+    "admin:set-role": "tsx src/scripts/set_user_role.ts",
     "migrate:users": "tsx src/scripts/migrate_users.ts",
     "migrate:user-profile": "tsx src/scripts/migrate_user_profile_relations.ts",
     "migrate:posts": "tsx src/scripts/migrate_posts.ts",
