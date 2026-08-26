@@ -18,6 +18,11 @@ import {
   userBookmarkRouter,
 } from './routes/bookmark_route.js';
 
+import {
+  postReportRouter,
+  userReportRouter,
+} from './routes/report_route.js';
+
 export const app = express();
 
 app.use(helmet());
@@ -37,6 +42,11 @@ app.use(
 );
 
 app.use(
+  '/api/v1/users/me/reports',
+  userReportRouter,
+);
+
+app.use(
   '/api/v1/users',
   userRouter,
 );
@@ -49,6 +59,11 @@ app.use(
 app.use(
   '/api/v1/posts',
   postBookmarkRouter,
+);
+
+app.use(
+  '/api/v1/posts',
+  postReportRouter,
 );
 
 app.use(

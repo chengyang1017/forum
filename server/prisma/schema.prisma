@@ -41,6 +41,7 @@ model User {
   postVersions    PostVersion[]     @relation("PostVersionAuthor")
   postLikes       PostLike[]
   postBookmarks   PostBookmark[]
+  postReports     PostReport[]
   postComments    PostComment[]
   postEditHistory PostEditHistory[] @relation("PostEditHistoryEditor")
 
@@ -99,6 +100,7 @@ model Post {
   images      PostImage[]
   likes       PostLike[]
   bookmarks   PostBookmark[]
+  reports     PostReport[]
   comments    PostComment[]
   editHistory PostEditHistory[]
 
@@ -184,6 +186,40 @@ model PostBookmark {
   @@map("post_bookmarks")
 }
 
+model PostReport {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId String @db.Uuid
+  postId String @db.Uuid
+
+  // spam / harassment / hate / sexual / violence /
+  // misinformation / copyright / other
+  reason String @db.VarChar(32)
+
+  // 用户可选的补充说明。
+  details String? @db.Text
+
+  // pending / reviewed / dismissed / actioned
+  // 具体管理员处理流程在 Admin 功能阶段实现。
+  status String @default("pending") @db.VarChar(32)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  // 同一用户不能重复举报同一帖子。
+  @@unique([userId, postId])
+  // 我的举报。
+  @@index([userId, createdAt])
+  // 某篇帖子收到的举报。
+  @@index([postId, createdAt])
+  // 管理员待处理队列。
+  @@index([status, createdAt])
+  @@map("post_reports")
+}
+
 model PostComment {
   id String @id @default(uuid()) @db.Uuid
 
@@ -233,7 +269,7 @@ model PostEditHistory {
   bodyDelta Json
   imageUrls Json
 
-  editedAt DateTime @default(now())
+  editedAt  DateTime @default(now())
   createdAt DateTime @default(now())
 
   post     Post  @relation(fields: [postId], references: [id], onDelete: Cascade)

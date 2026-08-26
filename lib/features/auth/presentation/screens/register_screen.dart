@@ -63,6 +63,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final authProvider = context.read<authProv.AuthProvider>();
       await authProvider.register(email, password, username);
 
+      // 注册完成后建立/同步 Node 用户，并初始化 interests。
+      await authProvider.loadUser();
+
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(

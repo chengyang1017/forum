@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../../../../core/network/api_client.dart';
 import '../../domain/models/post_model.dart';
 
@@ -339,6 +341,81 @@ class PostApi {
     }
   }
 
+
+  // ============================================================
+  // 举报帖子
+  // ============================================================
+
+  Future<PostReportResult> reportPost({
+    required String postId,
+    required String reason,
+    String? details,
+  }) async {
+    final trimmedDetails = details?.trim();
+
+    try {
+      final response = await _apiClient.post(
+        '/posts/${Uri.encodeComponent(postId)}/reports',
+        data: {
+          'reason': reason,
+          if (trimmedDetails != null &&
+              trimmedDetails.isNotEmpty)
+            'details': trimmedDetails,
+        },
+      );
+
+      final data = response['report'];
+
+      if (data is! Map) {
+        throw const PostApiException(
+          '服务器返回的举报资料格式无效',
+        );
+      }
+
+      return PostReportResult.fromJson(
+        Map<String, dynamic>.from(data),
+      );
+    } on DioException catch (error) {
+      final responseData = error.response?.data;
+
+      final code = responseData is Map
+          ? responseData['error']?.toString()
+          : null;
+
+      switch (code) {
+        case 'REPORT_ALREADY_EXISTS':
+          throw const PostApiException(
+            '你已经举报过这篇帖子',
+          );
+
+        case 'SELF_REPORT_NOT_ALLOWED':
+          throw const PostApiException(
+            '不能举报自己的帖子',
+          );
+
+        case 'POST_NOT_FOUND':
+          throw const PostApiException(
+            '帖子不存在或已被删除',
+          );
+
+        case 'INVALID_REPORT':
+          throw const PostApiException(
+            '举报内容无效',
+          );
+
+        case 'USER_NOT_FOUND':
+          throw const PostApiException(
+            '用户资料尚未同步',
+          );
+
+        default:
+          throw const PostApiException(
+            '举报失败，请稍后重试',
+          );
+      }
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getEditHistory(
     String postId,
   ) async {
@@ -389,6 +466,45 @@ class PostApi {
           ),
         )
         .toList(growable: false);
+  }
+}
+
+
+class PostReportResult {
+  final String id;
+  final String postId;
+  final String reason;
+  final String? details;
+  final String status;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  const PostReportResult({
+    required this.id,
+    required this.postId,
+    required this.reason,
+    required this.details,
+    required this.status,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory PostReportResult.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return PostReportResult(
+      id: json['id']?.toString() ?? '',
+      postId: json['postId']?.toString() ?? '',
+      reason: json['reason']?.toString() ?? '',
+      details: json['details']?.toString(),
+      status: json['status']?.toString() ?? '',
+      createdAt: DateTime.tryParse(
+        json['createdAt']?.toString() ?? '',
+      ),
+      updatedAt: DateTime.tryParse(
+        json['updatedAt']?.toString() ?? '',
+      ),
+    );
   }
 }
 

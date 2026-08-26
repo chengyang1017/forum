@@ -405,6 +405,7 @@ export const ModelName = {
   PostImage: 'PostImage',
   PostLike: 'PostLike',
   PostBookmark: 'PostBookmark',
+  PostReport: 'PostReport',
   PostComment: 'PostComment',
   PostEditHistory: 'PostEditHistory'
 } as const
@@ -422,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userTag" | "userLanguage" | "post" | "postVersion" | "postImage" | "postLike" | "postBookmark" | "postComment" | "postEditHistory"
+    modelProps: "user" | "userTag" | "userLanguage" | "post" | "postVersion" | "postImage" | "postLike" | "postBookmark" | "postReport" | "postComment" | "postEditHistory"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1018,6 +1019,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PostReport: {
+      payload: Prisma.$PostReportPayload<ExtArgs>
+      fields: Prisma.PostReportFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PostReportFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostReportPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PostReportFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostReportPayload>
+        }
+        findFirst: {
+          args: Prisma.PostReportFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostReportPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PostReportFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostReportPayload>
+        }
+        findMany: {
+          args: Prisma.PostReportFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostReportPayload>[]
+        }
+        create: {
+          args: Prisma.PostReportCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostReportPayload>
+        }
+        createMany: {
+          args: Prisma.PostReportCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PostReportCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostReportPayload>[]
+        }
+        delete: {
+          args: Prisma.PostReportDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostReportPayload>
+        }
+        update: {
+          args: Prisma.PostReportUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostReportPayload>
+        }
+        deleteMany: {
+          args: Prisma.PostReportDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PostReportUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PostReportUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostReportPayload>[]
+        }
+        upsert: {
+          args: Prisma.PostReportUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PostReportPayload>
+        }
+        aggregate: {
+          args: Prisma.PostReportAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePostReport>
+        }
+        groupBy: {
+          args: Prisma.PostReportGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PostReportGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PostReportCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PostReportCountAggregateOutputType> | number
+        }
+      }
+    }
     PostComment: {
       payload: Prisma.$PostCommentPayload<ExtArgs>
       fields: Prisma.PostCommentFieldRefs
@@ -1308,6 +1383,20 @@ export const PostBookmarkScalarFieldEnum = {
 } as const
 
 export type PostBookmarkScalarFieldEnum = (typeof PostBookmarkScalarFieldEnum)[keyof typeof PostBookmarkScalarFieldEnum]
+
+
+export const PostReportScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  postId: 'postId',
+  reason: 'reason',
+  details: 'details',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PostReportScalarFieldEnum = (typeof PostReportScalarFieldEnum)[keyof typeof PostReportScalarFieldEnum]
 
 
 export const PostCommentScalarFieldEnum = {
@@ -1626,6 +1715,7 @@ export type GlobalOmitConfig = {
   postImage?: Prisma.PostImageOmit
   postLike?: Prisma.PostLikeOmit
   postBookmark?: Prisma.PostBookmarkOmit
+  postReport?: Prisma.PostReportOmit
   postComment?: Prisma.PostCommentOmit
   postEditHistory?: Prisma.PostEditHistoryOmit
 }

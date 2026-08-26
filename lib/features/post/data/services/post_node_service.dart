@@ -182,6 +182,19 @@ Future<void> refreshPosts({
     return _postApi.getBookmarkedPosts();
   }
 
+
+  Future<PostReportResult> reportPost({
+    required String postId,
+    required String reason,
+    String? details,
+  }) {
+    return _postApi.reportPost(
+      postId: postId,
+      reason: reason,
+      details: details,
+    );
+  }
+
   Future<void> deletePost(String postId) async {
     final imageUrls = await _postApi.deletePost(postId);
 

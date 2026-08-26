@@ -59,6 +59,7 @@ export const ModelName = {
   PostImage: 'PostImage',
   PostLike: 'PostLike',
   PostBookmark: 'PostBookmark',
+  PostReport: 'PostReport',
   PostComment: 'PostComment',
   PostEditHistory: 'PostEditHistory'
 } as const
@@ -182,6 +183,20 @@ export const PostBookmarkScalarFieldEnum = {
 } as const
 
 export type PostBookmarkScalarFieldEnum = (typeof PostBookmarkScalarFieldEnum)[keyof typeof PostBookmarkScalarFieldEnum]
+
+
+export const PostReportScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  postId: 'postId',
+  reason: 'reason',
+  details: 'details',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PostReportScalarFieldEnum = (typeof PostReportScalarFieldEnum)[keyof typeof PostReportScalarFieldEnum]
 
 
 export const PostCommentScalarFieldEnum = {

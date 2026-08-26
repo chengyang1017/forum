@@ -21,6 +21,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'post_edit_history_screen.dart';
+import '../widgets/post_report_dialog.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final String postId;
@@ -49,6 +50,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   bool _isLiked = false;
   bool _isBookmarked = false;
   bool _isBookmarkBusy = false;
+  bool _isReportBusy = false;
   List<String> _likes = [];
   int _likeCount = 0;
   List<String> _images = [];
@@ -986,6 +988,64 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     );
   }
 
+
+  // ============================================================
+  // 举报帖子
+  // ============================================================
+  Future<void> _reportPost() async {
+    if (_isReportBusy) {
+      return;
+    }
+
+    final draft = await showPostReportDialog(context);
+
+    if (draft == null || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _isReportBusy = true;
+    });
+
+    try {
+      await _postService.reportPost(
+        postId: widget.postId,
+        reason: draft.reason,
+        details: draft.details,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            '举报已提交，感谢你的反馈',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString()),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isReportBusy = false;
+        });
+      }
+    }
+  }
+
   // ============================================================
   // 导航到用户主页
   // ============================================================
@@ -1122,6 +1182,43 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     ),
                     SizedBox(width: 8),
                     Text('删除帖子', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        if (!isOwner && _currentUserId != null)
+          PopupMenuButton<String>(
+            icon: const Icon(
+              Icons.more_horiz_rounded,
+              color: Color(0xFF64748B),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            enabled: !_isReportBusy,
+            onSelected: (value) {
+              if (value == 'report') {
+                _reportPost();
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'report',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.flag_outlined,
+                      size: 18,
+                      color: Colors.redAccent,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      '举报帖子',
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                      ),
+                    ),
                   ],
                 ),
               ),

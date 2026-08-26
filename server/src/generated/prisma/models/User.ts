@@ -256,6 +256,7 @@ export type UserWhereInput = {
   postVersions?: Prisma.PostVersionListRelationFilter
   postLikes?: Prisma.PostLikeListRelationFilter
   postBookmarks?: Prisma.PostBookmarkListRelationFilter
+  postReports?: Prisma.PostReportListRelationFilter
   postComments?: Prisma.PostCommentListRelationFilter
   postEditHistory?: Prisma.PostEditHistoryListRelationFilter
 }
@@ -281,6 +282,7 @@ export type UserOrderByWithRelationInput = {
   postVersions?: Prisma.PostVersionOrderByRelationAggregateInput
   postLikes?: Prisma.PostLikeOrderByRelationAggregateInput
   postBookmarks?: Prisma.PostBookmarkOrderByRelationAggregateInput
+  postReports?: Prisma.PostReportOrderByRelationAggregateInput
   postComments?: Prisma.PostCommentOrderByRelationAggregateInput
   postEditHistory?: Prisma.PostEditHistoryOrderByRelationAggregateInput
 }
@@ -309,6 +311,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   postVersions?: Prisma.PostVersionListRelationFilter
   postLikes?: Prisma.PostLikeListRelationFilter
   postBookmarks?: Prisma.PostBookmarkListRelationFilter
+  postReports?: Prisma.PostReportListRelationFilter
   postComments?: Prisma.PostCommentListRelationFilter
   postEditHistory?: Prisma.PostEditHistoryListRelationFilter
 }, "id" | "firebaseUid" | "username" | "email">
@@ -374,6 +377,7 @@ export type UserCreateInput = {
   postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -399,6 +403,7 @@ export type UserUncheckedCreateInput = {
   postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -424,6 +429,7 @@ export type UserUpdateInput = {
   postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -449,6 +455,7 @@ export type UserUncheckedUpdateInput = {
   postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -688,6 +695,20 @@ export type UserUpdateOneRequiredWithoutPostBookmarksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPostBookmarksInput, Prisma.UserUpdateWithoutPostBookmarksInput>, Prisma.UserUncheckedUpdateWithoutPostBookmarksInput>
 }
 
+export type UserCreateNestedOneWithoutPostReportsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPostReportsInput, Prisma.UserUncheckedCreateWithoutPostReportsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPostReportsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPostReportsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPostReportsInput, Prisma.UserUncheckedCreateWithoutPostReportsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPostReportsInput
+  upsert?: Prisma.UserUpsertWithoutPostReportsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPostReportsInput, Prisma.UserUpdateWithoutPostReportsInput>, Prisma.UserUncheckedUpdateWithoutPostReportsInput>
+}
+
 export type UserCreateNestedOneWithoutPostCommentsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutPostCommentsInput, Prisma.UserUncheckedCreateWithoutPostCommentsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutPostCommentsInput
@@ -740,6 +761,7 @@ export type UserCreateWithoutTagsInput = {
   postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -764,6 +786,7 @@ export type UserUncheckedCreateWithoutTagsInput = {
   postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -804,6 +827,7 @@ export type UserUpdateWithoutTagsInput = {
   postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -828,6 +852,7 @@ export type UserUncheckedUpdateWithoutTagsInput = {
   postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -852,6 +877,7 @@ export type UserCreateWithoutLanguagesInput = {
   postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -876,6 +902,7 @@ export type UserUncheckedCreateWithoutLanguagesInput = {
   postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -916,6 +943,7 @@ export type UserUpdateWithoutLanguagesInput = {
   postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -940,6 +968,7 @@ export type UserUncheckedUpdateWithoutLanguagesInput = {
   postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -964,6 +993,7 @@ export type UserCreateWithoutPostsInput = {
   postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -988,6 +1018,7 @@ export type UserUncheckedCreateWithoutPostsInput = {
   postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -1028,6 +1059,7 @@ export type UserUpdateWithoutPostsInput = {
   postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -1052,6 +1084,7 @@ export type UserUncheckedUpdateWithoutPostsInput = {
   postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -1076,6 +1109,7 @@ export type UserCreateWithoutPostVersionsInput = {
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -1100,6 +1134,7 @@ export type UserUncheckedCreateWithoutPostVersionsInput = {
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -1140,6 +1175,7 @@ export type UserUpdateWithoutPostVersionsInput = {
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -1164,6 +1200,7 @@ export type UserUncheckedUpdateWithoutPostVersionsInput = {
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -1188,6 +1225,7 @@ export type UserCreateWithoutPostLikesInput = {
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
   postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -1212,6 +1250,7 @@ export type UserUncheckedCreateWithoutPostLikesInput = {
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
   postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -1252,6 +1291,7 @@ export type UserUpdateWithoutPostLikesInput = {
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
   postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -1276,6 +1316,7 @@ export type UserUncheckedUpdateWithoutPostLikesInput = {
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
   postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -1300,6 +1341,7 @@ export type UserCreateWithoutPostBookmarksInput = {
   posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
   postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
@@ -1324,6 +1366,7 @@ export type UserUncheckedCreateWithoutPostBookmarksInput = {
   posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
   postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
@@ -1364,6 +1407,7 @@ export type UserUpdateWithoutPostBookmarksInput = {
   posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
   postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
@@ -1388,6 +1432,123 @@ export type UserUncheckedUpdateWithoutPostBookmarksInput = {
   posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
   postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
+  postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
+  postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
+}
+
+export type UserCreateWithoutPostReportsInput = {
+  id?: string
+  firebaseUid: string
+  username: string
+  email?: string | null
+  nickname?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  showAge?: boolean
+  lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tags?: Prisma.UserTagCreateNestedManyWithoutUserInput
+  languages?: Prisma.UserLanguageCreateNestedManyWithoutUserInput
+  posts?: Prisma.PostCreateNestedManyWithoutAuthorInput
+  postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
+  postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
+  postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
+  postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
+  postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
+}
+
+export type UserUncheckedCreateWithoutPostReportsInput = {
+  id?: string
+  firebaseUid: string
+  username: string
+  email?: string | null
+  nickname?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  showAge?: boolean
+  lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tags?: Prisma.UserTagUncheckedCreateNestedManyWithoutUserInput
+  languages?: Prisma.UserLanguageUncheckedCreateNestedManyWithoutUserInput
+  posts?: Prisma.PostUncheckedCreateNestedManyWithoutAuthorInput
+  postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
+  postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
+  postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
+  postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
+  postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
+}
+
+export type UserCreateOrConnectWithoutPostReportsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPostReportsInput, Prisma.UserUncheckedCreateWithoutPostReportsInput>
+}
+
+export type UserUpsertWithoutPostReportsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPostReportsInput, Prisma.UserUncheckedUpdateWithoutPostReportsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPostReportsInput, Prisma.UserUncheckedCreateWithoutPostReportsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPostReportsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPostReportsInput, Prisma.UserUncheckedUpdateWithoutPostReportsInput>
+}
+
+export type UserUpdateWithoutPostReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.UserTagUpdateManyWithoutUserNestedInput
+  languages?: Prisma.UserLanguageUpdateManyWithoutUserNestedInput
+  posts?: Prisma.PostUpdateManyWithoutAuthorNestedInput
+  postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
+  postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
+  postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
+  postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
+  postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPostReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.UserTagUncheckedUpdateManyWithoutUserNestedInput
+  languages?: Prisma.UserLanguageUncheckedUpdateManyWithoutUserNestedInput
+  posts?: Prisma.PostUncheckedUpdateManyWithoutAuthorNestedInput
+  postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
+  postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
+  postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
@@ -1413,6 +1574,7 @@ export type UserCreateWithoutPostCommentsInput = {
   postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
   postEditHistory?: Prisma.PostEditHistoryCreateNestedManyWithoutEditedByInput
 }
 
@@ -1437,6 +1599,7 @@ export type UserUncheckedCreateWithoutPostCommentsInput = {
   postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedCreateNestedManyWithoutEditedByInput
 }
 
@@ -1477,6 +1640,7 @@ export type UserUpdateWithoutPostCommentsInput = {
   postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
   postEditHistory?: Prisma.PostEditHistoryUpdateManyWithoutEditedByNestedInput
 }
 
@@ -1501,6 +1665,7 @@ export type UserUncheckedUpdateWithoutPostCommentsInput = {
   postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
   postEditHistory?: Prisma.PostEditHistoryUncheckedUpdateManyWithoutEditedByNestedInput
 }
 
@@ -1525,6 +1690,7 @@ export type UserCreateWithoutPostEditHistoryInput = {
   postVersions?: Prisma.PostVersionCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentCreateNestedManyWithoutAuthorInput
 }
 
@@ -1549,6 +1715,7 @@ export type UserUncheckedCreateWithoutPostEditHistoryInput = {
   postVersions?: Prisma.PostVersionUncheckedCreateNestedManyWithoutAuthorInput
   postLikes?: Prisma.PostLikeUncheckedCreateNestedManyWithoutUserInput
   postBookmarks?: Prisma.PostBookmarkUncheckedCreateNestedManyWithoutUserInput
+  postReports?: Prisma.PostReportUncheckedCreateNestedManyWithoutUserInput
   postComments?: Prisma.PostCommentUncheckedCreateNestedManyWithoutAuthorInput
 }
 
@@ -1589,6 +1756,7 @@ export type UserUpdateWithoutPostEditHistoryInput = {
   postVersions?: Prisma.PostVersionUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUpdateManyWithoutAuthorNestedInput
 }
 
@@ -1613,6 +1781,7 @@ export type UserUncheckedUpdateWithoutPostEditHistoryInput = {
   postVersions?: Prisma.PostVersionUncheckedUpdateManyWithoutAuthorNestedInput
   postLikes?: Prisma.PostLikeUncheckedUpdateManyWithoutUserNestedInput
   postBookmarks?: Prisma.PostBookmarkUncheckedUpdateManyWithoutUserNestedInput
+  postReports?: Prisma.PostReportUncheckedUpdateManyWithoutUserNestedInput
   postComments?: Prisma.PostCommentUncheckedUpdateManyWithoutAuthorNestedInput
 }
 
@@ -1628,6 +1797,7 @@ export type UserCountOutputType = {
   postVersions: number
   postLikes: number
   postBookmarks: number
+  postReports: number
   postComments: number
   postEditHistory: number
 }
@@ -1639,6 +1809,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   postVersions?: boolean | UserCountOutputTypeCountPostVersionsArgs
   postLikes?: boolean | UserCountOutputTypeCountPostLikesArgs
   postBookmarks?: boolean | UserCountOutputTypeCountPostBookmarksArgs
+  postReports?: boolean | UserCountOutputTypeCountPostReportsArgs
   postComments?: boolean | UserCountOutputTypeCountPostCommentsArgs
   postEditHistory?: boolean | UserCountOutputTypeCountPostEditHistoryArgs
 }
@@ -1698,6 +1869,13 @@ export type UserCountOutputTypeCountPostBookmarksArgs<ExtArgs extends runtime.Ty
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountPostReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PostReportWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountPostCommentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PostCommentWhereInput
 }
@@ -1731,6 +1909,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   postVersions?: boolean | Prisma.User$postVersionsArgs<ExtArgs>
   postLikes?: boolean | Prisma.User$postLikesArgs<ExtArgs>
   postBookmarks?: boolean | Prisma.User$postBookmarksArgs<ExtArgs>
+  postReports?: boolean | Prisma.User$postReportsArgs<ExtArgs>
   postComments?: boolean | Prisma.User$postCommentsArgs<ExtArgs>
   postEditHistory?: boolean | Prisma.User$postEditHistoryArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1795,6 +1974,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   postVersions?: boolean | Prisma.User$postVersionsArgs<ExtArgs>
   postLikes?: boolean | Prisma.User$postLikesArgs<ExtArgs>
   postBookmarks?: boolean | Prisma.User$postBookmarksArgs<ExtArgs>
+  postReports?: boolean | Prisma.User$postReportsArgs<ExtArgs>
   postComments?: boolean | Prisma.User$postCommentsArgs<ExtArgs>
   postEditHistory?: boolean | Prisma.User$postEditHistoryArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1811,6 +1991,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     postVersions: Prisma.$PostVersionPayload<ExtArgs>[]
     postLikes: Prisma.$PostLikePayload<ExtArgs>[]
     postBookmarks: Prisma.$PostBookmarkPayload<ExtArgs>[]
+    postReports: Prisma.$PostReportPayload<ExtArgs>[]
     postComments: Prisma.$PostCommentPayload<ExtArgs>[]
     postEditHistory: Prisma.$PostEditHistoryPayload<ExtArgs>[]
   }
@@ -2229,6 +2410,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   postVersions<T extends Prisma.User$postVersionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$postVersionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   postLikes<T extends Prisma.User$postLikesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$postLikesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostLikePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   postBookmarks<T extends Prisma.User$postBookmarksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$postBookmarksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostBookmarkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  postReports<T extends Prisma.User$postReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$postReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   postComments<T extends Prisma.User$postCommentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$postCommentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostCommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   postEditHistory<T extends Prisma.User$postEditHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$postEditHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PostEditHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2808,6 +2990,30 @@ export type User$postBookmarksArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.PostBookmarkScalarFieldEnum | Prisma.PostBookmarkScalarFieldEnum[]
+}
+
+/**
+ * User.postReports
+ */
+export type User$postReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PostReport
+   */
+  select?: Prisma.PostReportSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PostReport
+   */
+  omit?: Prisma.PostReportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PostReportInclude<ExtArgs> | null
+  where?: Prisma.PostReportWhereInput
+  orderBy?: Prisma.PostReportOrderByWithRelationInput | Prisma.PostReportOrderByWithRelationInput[]
+  cursor?: Prisma.PostReportWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PostReportScalarFieldEnum | Prisma.PostReportScalarFieldEnum[]
 }
 
 /**
