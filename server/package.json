@@ -15,7 +15,8 @@
     "migrate:posts": "tsx src/scripts/migrate_posts.ts",
     "migrate:post-likes": "tsx src/scripts/migrate_post_likes.ts",
     "migrate:post-comments": "tsx src/scripts/migrate_post_comments.ts",
-    "migrate:post-edit-history": "tsx src/scripts/migrate_post_edit_history.ts"
+    "migrate:post-edit-history": "tsx src/scripts/migrate_post_edit_history.ts",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",
@@ -36,8 +37,11 @@
     "@types/express": "^5.0.6",
     "@types/node": "^26.2.0",
     "@types/pg": "^8.23.1",
+    "@types/supertest": "^7.2.1",
     "prisma": "^7.9.1",
+    "supertest": "^7.2.2",
     "tsx": "^4.23.12",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
   }
 }
