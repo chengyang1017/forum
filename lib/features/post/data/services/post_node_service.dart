@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,50 +17,58 @@ class PostService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final PostApi _postApi = PostApi();
+  final StreamController<void> _refreshController =
+      StreamController<void>.broadcast();
 
   Stream<List<PostModel>> watchPosts({
     required String category,
     required String languageCode,
   }) async* {
     while (true) {
-      yield await getPosts(
-        category: category,
-        languageCode: languageCode,
-      );
+      yield await getPosts(category: category, languageCode: languageCode);
 
-      await Future<void>.delayed(
-        const Duration(seconds: 15),
-      );
+      await for (final _
+          in _refreshController.stream
+              .timeout(
+                const Duration(seconds: 15),
+                onTimeout: (sink) {
+                  sink.add(null);
+                },
+              )
+              .take(1)) {
+        break;
+      }
     }
   }
 
-  Future<List<PostModel>> getPosts({
-    required String category,
-    required String languageCode,
-  }) {
-    return _postApi.getPosts(
-      category: category,
-      languageCode: languageCode,
+ Future<List<PostModel>> getPosts({
+  required String category,
+  required String languageCode,
+}) {
+  return _postApi.getPosts(
+    category: category,
+    languageCode: languageCode,
+  );
+}
+
+Stream<List<PostModel>> watchUserPosts(
+  String firebaseUid,
+) async* {
+  while (true) {
+    yield await _postApi.getPostsByUser(firebaseUid);
+
+    await Future<void>.delayed(
+      const Duration(seconds: 15),
     );
   }
+}
 
-  Stream<List<PostModel>> watchUserPosts(
-    String firebaseUid,
-  ) async* {
-    while (true) {
-      yield await _postApi.getPostsByUser(firebaseUid);
-
-      await Future<void>.delayed(
-        const Duration(seconds: 15),
-      );
-    }
-  }
-
-  Future<void> refreshPosts({
-    required String category,
-    required String languageCode,
-  }) async {}
-
+Future<void> refreshPosts({
+  required String category,
+  required String languageCode,
+}) async {
+  _refreshController.add(null);
+}
   Future<void> createPost(PostModel post) async {
     if (_auth.currentUser == null) {
       throw Exception('未登录');
@@ -67,8 +76,7 @@ class PostService {
 
     final title = post.title?.trim() ?? '';
     final category = post.category?.trim() ?? '';
-    final languageCode =
-        post.primaryLanguageCode?.trim().isNotEmpty == true
+    final languageCode = post.primaryLanguageCode?.trim().isNotEmpty == true
         ? post.primaryLanguageCode!.trim()
         : post.languageCode?.trim() ?? '';
 
@@ -136,13 +144,9 @@ class PostService {
     );
   }
 
-  Future<void> updatePost(
-    String postId, {
-    required String content,
-  }) async {
+  Future<void> updatePost(String postId, {required String content}) async {
     final post = await _postApi.getPost(postId);
-    final languageCode =
-        post.languageCode ?? post.primaryLanguageCode;
+    final languageCode = post.languageCode ?? post.primaryLanguageCode;
 
     if (languageCode == null || languageCode.isEmpty) {
       throw Exception('无法确定帖子语言');
@@ -157,10 +161,7 @@ class PostService {
     );
   }
 
-  Future<int> toggleLike(
-    String postId, {
-    required bool liked,
-  }) async {
+  Future<int> toggleLike(String postId, {required bool liked}) async {
     final result = liked
         ? await _postApi.likePost(postId)
         : await _postApi.unlikePost(postId);
@@ -181,10 +182,7 @@ class PostService {
     }
   }
 
-  Future<List<String>> uploadImages(
-    String postId,
-    List<XFile> images,
-  ) async {
+  Future<List<String>> uploadImages(String postId, List<XFile> images) async {
     final urls = <String>[];
 
     for (final file in images) {
@@ -200,14 +198,8 @@ class PostService {
     return urls;
   }
 
-  Future<void> updateImages(
-    String postId,
-    List<String> imageUrls,
-  ) async {
-    await _postApi.updateImages(
-      postId: postId,
-      images: imageUrls,
-    );
+  Future<void> updateImages(String postId, List<String> imageUrls) async {
+    await _postApi.updateImages(postId: postId, images: imageUrls);
   }
 
   Future<void> deleteImageFromStorage(String imageUrl) async {
@@ -216,10 +208,7 @@ class PostService {
     } catch (_) {}
   }
 
-  Future<void> removeImage(
-    String postId,
-    List<String> imageUrls,
-  ) {
+  Future<void> removeImage(String postId, List<String> imageUrls) {
     return updateImages(postId, imageUrls);
   }
 
@@ -256,9 +245,7 @@ class PostService {
     );
   }
 
-  Future<List<Map<String, dynamic>>> getEditHistory(
-    String postId,
-  ) {
+  Future<List<Map<String, dynamic>>> getEditHistory(String postId) {
     return _postApi.getEditHistory(postId);
   }
 }

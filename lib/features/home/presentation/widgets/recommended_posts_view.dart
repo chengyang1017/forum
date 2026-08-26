@@ -1,7 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 import '../../../post/data/services/post_node_service.dart';
 import '../../../post/domain/models/post_model.dart';
 import '../../../post/presentation/widgets/post_item_card.dart';
@@ -9,19 +9,11 @@ import '../../../post/presentation/widgets/post_item_card.dart';
 class RecommendedPostsView extends StatelessWidget {
   const RecommendedPostsView({super.key});
 
-  Set<String> _readInterests(Object? value) {
-    if (value is! Iterable) {
-      return {};
-    }
-
-    return value.whereType<String>().toSet();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final authProvider = context.watch<authProv.AuthProvider>();
 
-    if (user == null) {
+    if (authProvider.user == null) {
       return const _InterestEmptyState(
         icon: Icons.login_rounded,
         title: '登录后使用推荐主页',
@@ -29,41 +21,21 @@ class RecommendedPostsView extends StatelessWidget {
       );
     }
 
-    // 兴趣设置暂时仍属于用户偏好数据，继续由 Firestore 管理。
-    // 帖子内容本身已经全部从 Node/PostgreSQL 读取。
-    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .snapshots(),
-      builder: (context, userSnapshot) {
-        if (userSnapshot.hasError) {
-          return _InterestEmptyState(
-            icon: Icons.error_outline_rounded,
-            title: '无法读取兴趣设置',
-            description: '${userSnapshot.error}',
-          );
-        }
+    if (!authProvider.interestsLoaded) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-        if (!userSnapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    final interests = authProvider.interests;
 
-        final interests = _readInterests(
-          userSnapshot.data?.data()?['interests'],
-        );
+    if (interests.isEmpty) {
+      return const _InterestEmptyState(
+        icon: Icons.favorite_border_rounded,
+        title: '还没有感兴趣的分类',
+        description: '进入分类频道，选择一个语言，再点击分类右侧的心形。',
+      );
+    }
 
-        if (interests.isEmpty) {
-          return const _InterestEmptyState(
-            icon: Icons.favorite_border_rounded,
-            title: '还没有感兴趣的分类',
-            description: '进入分类频道，选择一个语言，再点击分类右侧的心形。',
-          );
-        }
-
-        return _InterestedPostList(interests: interests);
-      },
-    );
+    return _InterestedPostList(interests: interests);
   }
 }
 
@@ -74,6 +46,7 @@ class _InterestedPostList extends StatelessWidget {
 
   Future<List<PostModel>> _loadPosts() async {
     final service = PostService();
+
     final orderedInterests = interests.toList()..sort();
 
     final requests = <Future<List<PostModel>>>[];
@@ -86,6 +59,7 @@ class _InterestedPostList extends StatelessWidget {
       }
 
       final languageCode = interest.substring(0, separatorIndex).trim();
+
       final category = interest.substring(separatorIndex + 2).trim();
 
       if (languageCode.isEmpty || category.isEmpty) {
@@ -93,10 +67,7 @@ class _InterestedPostList extends StatelessWidget {
       }
 
       requests.add(
-        service.getPosts(
-          category: category,
-          languageCode: languageCode,
-        ),
+        service.getPosts(category: category, languageCode: languageCode),
       );
     }
 
@@ -105,6 +76,7 @@ class _InterestedPostList extends StatelessWidget {
     }
 
     final batches = await Future.wait(requests);
+
     final byPostId = <String, PostModel>{};
 
     for (final batch in batches) {
@@ -117,7 +89,9 @@ class _InterestedPostList extends StatelessWidget {
 
     posts.sort((a, b) {
       final aTime = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+
       final bTime = b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+
       return bTime.compareTo(aTime);
     });
 
@@ -128,9 +102,7 @@ class _InterestedPostList extends StatelessWidget {
     while (true) {
       yield await _loadPosts();
 
-      await Future<void>.delayed(
-        const Duration(seconds: 15),
-      );
+      await Future<void>.delayed(const Duration(seconds: 15));
     }
   }
 

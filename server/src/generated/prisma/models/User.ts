@@ -35,6 +35,7 @@ export type UserMinAggregateOutputType = {
   birthday: Date | null
   showAge: boolean | null
   lastActiveAt: Date | null
+  interestsMigratedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +51,7 @@ export type UserMaxAggregateOutputType = {
   birthday: Date | null
   showAge: boolean | null
   lastActiveAt: Date | null
+  interestsMigratedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -65,6 +67,8 @@ export type UserCountAggregateOutputType = {
   birthday: number
   showAge: number
   lastActiveAt: number
+  interests: number
+  interestsMigratedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -82,6 +86,7 @@ export type UserMinAggregateInputType = {
   birthday?: true
   showAge?: true
   lastActiveAt?: true
+  interestsMigratedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -97,6 +102,7 @@ export type UserMaxAggregateInputType = {
   birthday?: true
   showAge?: true
   lastActiveAt?: true
+  interestsMigratedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -112,6 +118,8 @@ export type UserCountAggregateInputType = {
   birthday?: true
   showAge?: true
   lastActiveAt?: true
+  interests?: true
+  interestsMigratedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -200,6 +208,8 @@ export type UserGroupByOutputType = {
   birthday: Date | null
   showAge: boolean
   lastActiveAt: Date | null
+  interests: string[]
+  interestsMigratedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -236,6 +246,8 @@ export type UserWhereInput = {
   birthday?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   showAge?: Prisma.BoolFilter<"User"> | boolean
   lastActiveAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  interests?: Prisma.StringNullableListFilter<"User">
+  interestsMigratedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   tags?: Prisma.UserTagListRelationFilter
@@ -258,6 +270,8 @@ export type UserOrderByWithRelationInput = {
   birthday?: Prisma.SortOrderInput | Prisma.SortOrder
   showAge?: Prisma.SortOrder
   lastActiveAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  interests?: Prisma.SortOrder
+  interestsMigratedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   tags?: Prisma.UserTagOrderByRelationAggregateInput
@@ -283,6 +297,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   birthday?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   showAge?: Prisma.BoolFilter<"User"> | boolean
   lastActiveAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  interests?: Prisma.StringNullableListFilter<"User">
+  interestsMigratedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   tags?: Prisma.UserTagListRelationFilter
@@ -305,6 +321,8 @@ export type UserOrderByWithAggregationInput = {
   birthday?: Prisma.SortOrderInput | Prisma.SortOrder
   showAge?: Prisma.SortOrder
   lastActiveAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  interests?: Prisma.SortOrder
+  interestsMigratedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -326,6 +344,8 @@ export type UserScalarWhereWithAggregatesInput = {
   birthday?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   showAge?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   lastActiveAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  interests?: Prisma.StringNullableListFilter<"User">
+  interestsMigratedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -341,6 +361,8 @@ export type UserCreateInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagCreateNestedManyWithoutUserInput
@@ -363,6 +385,8 @@ export type UserUncheckedCreateInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagUncheckedCreateNestedManyWithoutUserInput
@@ -385,6 +409,8 @@ export type UserUpdateInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUpdateManyWithoutUserNestedInput
@@ -407,6 +433,8 @@ export type UserUncheckedUpdateInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUncheckedUpdateManyWithoutUserNestedInput
@@ -429,6 +457,8 @@ export type UserCreateManyInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -444,6 +474,8 @@ export type UserUpdateManyMutationInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -459,8 +491,18 @@ export type UserUncheckedUpdateManyInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StringNullableListFilter<$PrismaModel = never> = {
+  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
+  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
+  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -474,6 +516,8 @@ export type UserCountOrderByAggregateInput = {
   birthday?: Prisma.SortOrder
   showAge?: Prisma.SortOrder
   lastActiveAt?: Prisma.SortOrder
+  interests?: Prisma.SortOrder
+  interestsMigratedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -489,6 +533,7 @@ export type UserMaxOrderByAggregateInput = {
   birthday?: Prisma.SortOrder
   showAge?: Prisma.SortOrder
   lastActiveAt?: Prisma.SortOrder
+  interestsMigratedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -504,6 +549,7 @@ export type UserMinOrderByAggregateInput = {
   birthday?: Prisma.SortOrder
   showAge?: Prisma.SortOrder
   lastActiveAt?: Prisma.SortOrder
+  interestsMigratedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -516,6 +562,10 @@ export type UserScalarRelationFilter = {
 export type UserNullableScalarRelationFilter = {
   is?: Prisma.UserWhereInput | null
   isNot?: Prisma.UserWhereInput | null
+}
+
+export type UserCreateinterestsInput = {
+  set: string[]
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -532,6 +582,11 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type UserUpdateinterestsInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -655,6 +710,8 @@ export type UserCreateWithoutTagsInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   languages?: Prisma.UserLanguageCreateNestedManyWithoutUserInput
@@ -676,6 +733,8 @@ export type UserUncheckedCreateWithoutTagsInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   languages?: Prisma.UserLanguageUncheckedCreateNestedManyWithoutUserInput
@@ -713,6 +772,8 @@ export type UserUpdateWithoutTagsInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   languages?: Prisma.UserLanguageUpdateManyWithoutUserNestedInput
@@ -734,6 +795,8 @@ export type UserUncheckedUpdateWithoutTagsInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   languages?: Prisma.UserLanguageUncheckedUpdateManyWithoutUserNestedInput
@@ -755,6 +818,8 @@ export type UserCreateWithoutLanguagesInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagCreateNestedManyWithoutUserInput
@@ -776,6 +841,8 @@ export type UserUncheckedCreateWithoutLanguagesInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagUncheckedCreateNestedManyWithoutUserInput
@@ -813,6 +880,8 @@ export type UserUpdateWithoutLanguagesInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUpdateManyWithoutUserNestedInput
@@ -834,6 +903,8 @@ export type UserUncheckedUpdateWithoutLanguagesInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUncheckedUpdateManyWithoutUserNestedInput
@@ -855,6 +926,8 @@ export type UserCreateWithoutPostsInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagCreateNestedManyWithoutUserInput
@@ -876,6 +949,8 @@ export type UserUncheckedCreateWithoutPostsInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagUncheckedCreateNestedManyWithoutUserInput
@@ -913,6 +988,8 @@ export type UserUpdateWithoutPostsInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUpdateManyWithoutUserNestedInput
@@ -934,6 +1011,8 @@ export type UserUncheckedUpdateWithoutPostsInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUncheckedUpdateManyWithoutUserNestedInput
@@ -955,6 +1034,8 @@ export type UserCreateWithoutPostVersionsInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagCreateNestedManyWithoutUserInput
@@ -976,6 +1057,8 @@ export type UserUncheckedCreateWithoutPostVersionsInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagUncheckedCreateNestedManyWithoutUserInput
@@ -1013,6 +1096,8 @@ export type UserUpdateWithoutPostVersionsInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUpdateManyWithoutUserNestedInput
@@ -1034,6 +1119,8 @@ export type UserUncheckedUpdateWithoutPostVersionsInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUncheckedUpdateManyWithoutUserNestedInput
@@ -1055,6 +1142,8 @@ export type UserCreateWithoutPostLikesInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagCreateNestedManyWithoutUserInput
@@ -1076,6 +1165,8 @@ export type UserUncheckedCreateWithoutPostLikesInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagUncheckedCreateNestedManyWithoutUserInput
@@ -1113,6 +1204,8 @@ export type UserUpdateWithoutPostLikesInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUpdateManyWithoutUserNestedInput
@@ -1134,6 +1227,8 @@ export type UserUncheckedUpdateWithoutPostLikesInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUncheckedUpdateManyWithoutUserNestedInput
@@ -1155,6 +1250,8 @@ export type UserCreateWithoutPostCommentsInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagCreateNestedManyWithoutUserInput
@@ -1176,6 +1273,8 @@ export type UserUncheckedCreateWithoutPostCommentsInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagUncheckedCreateNestedManyWithoutUserInput
@@ -1213,6 +1312,8 @@ export type UserUpdateWithoutPostCommentsInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUpdateManyWithoutUserNestedInput
@@ -1234,6 +1335,8 @@ export type UserUncheckedUpdateWithoutPostCommentsInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUncheckedUpdateManyWithoutUserNestedInput
@@ -1255,6 +1358,8 @@ export type UserCreateWithoutPostEditHistoryInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagCreateNestedManyWithoutUserInput
@@ -1276,6 +1381,8 @@ export type UserUncheckedCreateWithoutPostEditHistoryInput = {
   birthday?: Date | string | null
   showAge?: boolean
   lastActiveAt?: Date | string | null
+  interests?: Prisma.UserCreateinterestsInput | string[]
+  interestsMigratedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.UserTagUncheckedCreateNestedManyWithoutUserInput
@@ -1313,6 +1420,8 @@ export type UserUpdateWithoutPostEditHistoryInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUpdateManyWithoutUserNestedInput
@@ -1334,6 +1443,8 @@ export type UserUncheckedUpdateWithoutPostEditHistoryInput = {
   birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   showAge?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastActiveAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interests?: Prisma.UserUpdateinterestsInput | string[]
+  interestsMigratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.UserTagUncheckedUpdateManyWithoutUserNestedInput
@@ -1440,6 +1551,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   birthday?: boolean
   showAge?: boolean
   lastActiveAt?: boolean
+  interests?: boolean
+  interestsMigratedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tags?: boolean | Prisma.User$tagsArgs<ExtArgs>
@@ -1463,6 +1576,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   birthday?: boolean
   showAge?: boolean
   lastActiveAt?: boolean
+  interests?: boolean
+  interestsMigratedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1478,6 +1593,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   birthday?: boolean
   showAge?: boolean
   lastActiveAt?: boolean
+  interests?: boolean
+  interestsMigratedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1493,11 +1610,13 @@ export type UserSelectScalar = {
   birthday?: boolean
   showAge?: boolean
   lastActiveAt?: boolean
+  interests?: boolean
+  interestsMigratedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firebaseUid" | "username" | "email" | "nickname" | "avatarUrl" | "bio" | "birthday" | "showAge" | "lastActiveAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firebaseUid" | "username" | "email" | "nickname" | "avatarUrl" | "bio" | "birthday" | "showAge" | "lastActiveAt" | "interests" | "interestsMigratedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tags?: boolean | Prisma.User$tagsArgs<ExtArgs>
   languages?: boolean | Prisma.User$languagesArgs<ExtArgs>
@@ -1533,6 +1652,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     birthday: Date | null
     showAge: boolean
     lastActiveAt: Date | null
+    interests: string[]
+    interestsMigratedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1975,6 +2096,8 @@ export interface UserFieldRefs {
   readonly birthday: Prisma.FieldRef<"User", 'DateTime'>
   readonly showAge: Prisma.FieldRef<"User", 'Boolean'>
   readonly lastActiveAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly interests: Prisma.FieldRef<"User", 'String[]'>
+  readonly interestsMigratedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
