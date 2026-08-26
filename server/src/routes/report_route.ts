@@ -90,6 +90,7 @@ async function findPost(
     select: {
       id: true,
       firestoreId: true,
+      authorId: true,
     },
   });
 }
@@ -348,6 +349,17 @@ postReportRouter.post(
             'POST_NOT_FOUND',
           message:
             'Post does not exist',
+        });
+
+        return;
+      }
+
+      if (post.authorId === user.id) {
+        response.status(403).json({
+          error:
+            'SELF_REPORT_NOT_ALLOWED',
+          message:
+            'You cannot report your own post',
         });
 
         return;
