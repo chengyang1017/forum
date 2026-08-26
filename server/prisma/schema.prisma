@@ -13,9 +13,15 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  user
+  admin
+}
+
 model User {
   id          String @id @default(uuid()) @db.Uuid
   firebaseUid String @unique @db.VarChar(128)
+  role        UserRole @default(user)
 
   username String  @unique @db.VarChar(50)
   email    String? @unique @db.VarChar(320)

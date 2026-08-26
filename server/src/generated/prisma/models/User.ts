@@ -27,6 +27,7 @@ export type AggregateUser = {
 export type UserMinAggregateOutputType = {
   id: string | null
   firebaseUid: string | null
+  role: $Enums.UserRole | null
   username: string | null
   email: string | null
   nickname: string | null
@@ -43,6 +44,7 @@ export type UserMinAggregateOutputType = {
 export type UserMaxAggregateOutputType = {
   id: string | null
   firebaseUid: string | null
+  role: $Enums.UserRole | null
   username: string | null
   email: string | null
   nickname: string | null
@@ -59,6 +61,7 @@ export type UserMaxAggregateOutputType = {
 export type UserCountAggregateOutputType = {
   id: number
   firebaseUid: number
+  role: number
   username: number
   email: number
   nickname: number
@@ -78,6 +81,7 @@ export type UserCountAggregateOutputType = {
 export type UserMinAggregateInputType = {
   id?: true
   firebaseUid?: true
+  role?: true
   username?: true
   email?: true
   nickname?: true
@@ -94,6 +98,7 @@ export type UserMinAggregateInputType = {
 export type UserMaxAggregateInputType = {
   id?: true
   firebaseUid?: true
+  role?: true
   username?: true
   email?: true
   nickname?: true
@@ -110,6 +115,7 @@ export type UserMaxAggregateInputType = {
 export type UserCountAggregateInputType = {
   id?: true
   firebaseUid?: true
+  role?: true
   username?: true
   email?: true
   nickname?: true
@@ -200,6 +206,7 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type UserGroupByOutputType = {
   id: string
   firebaseUid: string
+  role: $Enums.UserRole
   username: string
   email: string | null
   nickname: string | null
@@ -238,6 +245,7 @@ export type UserWhereInput = {
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   id?: Prisma.UuidFilter<"User"> | string
   firebaseUid?: Prisma.StringFilter<"User"> | string
+  role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   username?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringNullableFilter<"User"> | string | null
   nickname?: Prisma.StringNullableFilter<"User"> | string | null
@@ -264,6 +272,7 @@ export type UserWhereInput = {
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   nickname?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -295,6 +304,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
+  role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   nickname?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   bio?: Prisma.StringNullableFilter<"User"> | string | null
@@ -319,6 +329,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   nickname?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -342,6 +353,7 @@ export type UserScalarWhereWithAggregatesInput = {
   NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"User"> | string
   firebaseUid?: Prisma.StringWithAggregatesFilter<"User"> | string
+  role?: Prisma.EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
   username?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   nickname?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -359,6 +371,7 @@ export type UserScalarWhereWithAggregatesInput = {
 export type UserCreateInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -385,6 +398,7 @@ export type UserCreateInput = {
 export type UserUncheckedCreateInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -411,6 +425,7 @@ export type UserUncheckedCreateInput = {
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -437,6 +452,7 @@ export type UserUpdateInput = {
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -463,6 +479,7 @@ export type UserUncheckedUpdateInput = {
 export type UserCreateManyInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -480,6 +497,7 @@ export type UserCreateManyInput = {
 export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -497,6 +515,7 @@ export type UserUpdateManyMutationInput = {
 export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -522,6 +541,7 @@ export type StringNullableListFilter<$PrismaModel = never> = {
 export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrder
   nickname?: Prisma.SortOrder
@@ -539,6 +559,7 @@ export type UserCountOrderByAggregateInput = {
 export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrder
   nickname?: Prisma.SortOrder
@@ -555,6 +576,7 @@ export type UserMaxOrderByAggregateInput = {
 export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   firebaseUid?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   username?: Prisma.SortOrder
   email?: Prisma.SortOrder
   nickname?: Prisma.SortOrder
@@ -584,6 +606,10 @@ export type UserCreateinterestsInput = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type EnumUserRoleFieldUpdateOperationsInput = {
+  set?: $Enums.UserRole
 }
 
 export type NullableStringFieldUpdateOperationsInput = {
@@ -744,6 +770,7 @@ export type UserUpdateOneWithoutPostEditHistoryNestedInput = {
 export type UserCreateWithoutTagsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -769,6 +796,7 @@ export type UserCreateWithoutTagsInput = {
 export type UserUncheckedCreateWithoutTagsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -810,6 +838,7 @@ export type UserUpdateToOneWithWhereWithoutTagsInput = {
 export type UserUpdateWithoutTagsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -835,6 +864,7 @@ export type UserUpdateWithoutTagsInput = {
 export type UserUncheckedUpdateWithoutTagsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -860,6 +890,7 @@ export type UserUncheckedUpdateWithoutTagsInput = {
 export type UserCreateWithoutLanguagesInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -885,6 +916,7 @@ export type UserCreateWithoutLanguagesInput = {
 export type UserUncheckedCreateWithoutLanguagesInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -926,6 +958,7 @@ export type UserUpdateToOneWithWhereWithoutLanguagesInput = {
 export type UserUpdateWithoutLanguagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -951,6 +984,7 @@ export type UserUpdateWithoutLanguagesInput = {
 export type UserUncheckedUpdateWithoutLanguagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -976,6 +1010,7 @@ export type UserUncheckedUpdateWithoutLanguagesInput = {
 export type UserCreateWithoutPostsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1001,6 +1036,7 @@ export type UserCreateWithoutPostsInput = {
 export type UserUncheckedCreateWithoutPostsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1042,6 +1078,7 @@ export type UserUpdateToOneWithWhereWithoutPostsInput = {
 export type UserUpdateWithoutPostsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1067,6 +1104,7 @@ export type UserUpdateWithoutPostsInput = {
 export type UserUncheckedUpdateWithoutPostsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1092,6 +1130,7 @@ export type UserUncheckedUpdateWithoutPostsInput = {
 export type UserCreateWithoutPostVersionsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1117,6 +1156,7 @@ export type UserCreateWithoutPostVersionsInput = {
 export type UserUncheckedCreateWithoutPostVersionsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1158,6 +1198,7 @@ export type UserUpdateToOneWithWhereWithoutPostVersionsInput = {
 export type UserUpdateWithoutPostVersionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1183,6 +1224,7 @@ export type UserUpdateWithoutPostVersionsInput = {
 export type UserUncheckedUpdateWithoutPostVersionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1208,6 +1250,7 @@ export type UserUncheckedUpdateWithoutPostVersionsInput = {
 export type UserCreateWithoutPostLikesInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1233,6 +1276,7 @@ export type UserCreateWithoutPostLikesInput = {
 export type UserUncheckedCreateWithoutPostLikesInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1274,6 +1318,7 @@ export type UserUpdateToOneWithWhereWithoutPostLikesInput = {
 export type UserUpdateWithoutPostLikesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1299,6 +1344,7 @@ export type UserUpdateWithoutPostLikesInput = {
 export type UserUncheckedUpdateWithoutPostLikesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1324,6 +1370,7 @@ export type UserUncheckedUpdateWithoutPostLikesInput = {
 export type UserCreateWithoutPostBookmarksInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1349,6 +1396,7 @@ export type UserCreateWithoutPostBookmarksInput = {
 export type UserUncheckedCreateWithoutPostBookmarksInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1390,6 +1438,7 @@ export type UserUpdateToOneWithWhereWithoutPostBookmarksInput = {
 export type UserUpdateWithoutPostBookmarksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1415,6 +1464,7 @@ export type UserUpdateWithoutPostBookmarksInput = {
 export type UserUncheckedUpdateWithoutPostBookmarksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1440,6 +1490,7 @@ export type UserUncheckedUpdateWithoutPostBookmarksInput = {
 export type UserCreateWithoutPostReportsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1465,6 +1516,7 @@ export type UserCreateWithoutPostReportsInput = {
 export type UserUncheckedCreateWithoutPostReportsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1506,6 +1558,7 @@ export type UserUpdateToOneWithWhereWithoutPostReportsInput = {
 export type UserUpdateWithoutPostReportsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1531,6 +1584,7 @@ export type UserUpdateWithoutPostReportsInput = {
 export type UserUncheckedUpdateWithoutPostReportsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1556,6 +1610,7 @@ export type UserUncheckedUpdateWithoutPostReportsInput = {
 export type UserCreateWithoutPostCommentsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1581,6 +1636,7 @@ export type UserCreateWithoutPostCommentsInput = {
 export type UserUncheckedCreateWithoutPostCommentsInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1622,6 +1678,7 @@ export type UserUpdateToOneWithWhereWithoutPostCommentsInput = {
 export type UserUpdateWithoutPostCommentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1647,6 +1704,7 @@ export type UserUpdateWithoutPostCommentsInput = {
 export type UserUncheckedUpdateWithoutPostCommentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1672,6 +1730,7 @@ export type UserUncheckedUpdateWithoutPostCommentsInput = {
 export type UserCreateWithoutPostEditHistoryInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1697,6 +1756,7 @@ export type UserCreateWithoutPostEditHistoryInput = {
 export type UserUncheckedCreateWithoutPostEditHistoryInput = {
   id?: string
   firebaseUid: string
+  role?: $Enums.UserRole
   username: string
   email?: string | null
   nickname?: string | null
@@ -1738,6 +1798,7 @@ export type UserUpdateToOneWithWhereWithoutPostEditHistoryInput = {
 export type UserUpdateWithoutPostEditHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1763,6 +1824,7 @@ export type UserUpdateWithoutPostEditHistoryInput = {
 export type UserUncheckedUpdateWithoutPostEditHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firebaseUid?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   username?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1891,6 +1953,7 @@ export type UserCountOutputTypeCountPostEditHistoryArgs<ExtArgs extends runtime.
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   firebaseUid?: boolean
+  role?: boolean
   username?: boolean
   email?: boolean
   nickname?: boolean
@@ -1918,6 +1981,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   firebaseUid?: boolean
+  role?: boolean
   username?: boolean
   email?: boolean
   nickname?: boolean
@@ -1935,6 +1999,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   firebaseUid?: boolean
+  role?: boolean
   username?: boolean
   email?: boolean
   nickname?: boolean
@@ -1952,6 +2017,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type UserSelectScalar = {
   id?: boolean
   firebaseUid?: boolean
+  role?: boolean
   username?: boolean
   email?: boolean
   nickname?: boolean
@@ -1966,7 +2032,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firebaseUid" | "username" | "email" | "nickname" | "avatarUrl" | "bio" | "birthday" | "showAge" | "lastActiveAt" | "interests" | "interestsMigratedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firebaseUid" | "role" | "username" | "email" | "nickname" | "avatarUrl" | "bio" | "birthday" | "showAge" | "lastActiveAt" | "interests" | "interestsMigratedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tags?: boolean | Prisma.User$tagsArgs<ExtArgs>
   languages?: boolean | Prisma.User$languagesArgs<ExtArgs>
@@ -1998,6 +2064,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     firebaseUid: string
+    role: $Enums.UserRole
     username: string
     email: string | null
     nickname: string | null
@@ -2444,6 +2511,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<"User", 'String'>
   readonly firebaseUid: Prisma.FieldRef<"User", 'String'>
+  readonly role: Prisma.FieldRef<"User", 'UserRole'>
   readonly username: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly nickname: Prisma.FieldRef<"User", 'String'>
