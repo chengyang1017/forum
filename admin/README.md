@@ -1,75 +1,83 @@
-# React + TypeScript + Vite
+# Glyphora Admin
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Administrative and moderation console for Glyphora.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React
+- TypeScript
+- Vite
+- React Router
+- TanStack Query
+- Ant Design
+- Firebase Authentication
+- Axios
 
-## React Compiler
+## Responsibilities
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Administrator authentication
+- Server-side administrator authorization
+- Moderation dashboard
+- Report status statistics
+- Report filtering
+- Report review drawer
+- Administrator notes
+- Report status transitions
+- Cursor-based report pagination
 
-## Expanding the ESLint configuration
+## Architecture
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+React Admin
+-> Firebase ID token
+-> Node.js / Express API
+-> requireAuth
+-> requireAdmin
+-> Prisma
+-> PostgreSQL
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Firebase Authentication identifies the signed-in user.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Administrator authorization is determined by the backend user role stored in PostgreSQL. Client-side route protection is only a UI guard and is not the security boundary.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Development
 
-```
+Install dependencies:
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+    npm install
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Start development:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+    npm run dev
 
-```
+Run lint:
+
+    npm run lint
+
+Build production bundle:
+
+    npm run build
+
+## Environment
+
+Create admin/.env based on .env.example.
+
+Required variables:
+
+    VITE_API_BASE_URL
+    VITE_FIREBASE_API_KEY
+    VITE_FIREBASE_AUTH_DOMAIN
+    VITE_FIREBASE_PROJECT_ID
+    VITE_FIREBASE_STORAGE_BUCKET
+    VITE_FIREBASE_MESSAGING_SENDER_ID
+    VITE_FIREBASE_APP_ID
+
+The local .env file is ignored by Git.
+
+## Moderation statuses
+
+- pending: awaiting review
+- reviewed: reviewed by an administrator
+- dismissed: no moderation action required
+- actioned: moderation decision recorded
+
+actioned currently records the moderation decision only. It does not delete or hide the reported post.
