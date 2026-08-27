@@ -75,4 +75,3 @@
 5. 測試 Rules 拒絕未授權 UID/path；不修改 Rules 來讓測試通過。
 6. 確認 Storage object path 與 Functions 依賴字段。
 7. 僅在該垂直切片通過後進下一功能。
-

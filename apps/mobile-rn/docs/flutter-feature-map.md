@@ -79,4 +79,3 @@
 ## Cloud Functions
 
 `functions/index.js` 僅匯出 `cleanupExpiredChatMessages`。它每小時在 `asia-southeast1` 執行，清理符合聊天刪除語義且 `cleanupAt` 到期的 message 及其 Storage 圖片，並維護 chat preview。RN message writer 必須維持 `status`, `hiddenFor`, `cleanupAt`, `imagePath`, `timestamp`，否則 cleanup/query/preview 會失效。
-
