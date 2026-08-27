@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_application_3/features/language/data/forum_languages.dart';
+import 'package:glyphora_mobile/features/language/data/forum_languages.dart';
 
 void main() {
   group('ForumLanguages', () {
