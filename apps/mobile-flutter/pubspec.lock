@@ -650,8 +650,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: c1fd65c324c7a4386a3d9cc77b6d3bec3da83f5f
-      resolved-ref: c1fd65c324c7a4386a3d9cc77b6d3bec3da83f5f
+      ref: ec5c4c6966a5834c2f00ffc3bc277c3457bdde34
+      resolved-ref: ec5c4c6966a5834c2f00ffc3bc277c3457bdde34
       url: "https://github.com/chengyang1017/glyphora_ui.git"
     source: git
     version: "0.1.0"

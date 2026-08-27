@@ -32,7 +32,7 @@ dependencies:
   glyphora_ui:
     git:
       url: https://github.com/chengyang1017/glyphora_ui.git
-      ref: c1fd65c324c7a4386a3d9cc77b6d3bec3da83f5f
+      ref: ec5c4c6966a5834c2f00ffc3bc277c3457bdde34
   flutter_quill: 11.5.1
   flutter_quill_extensions: 11.0.0
   glyphora_language_core:
