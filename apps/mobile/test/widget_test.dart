@@ -1,30 +1,29 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_application_3/main.dart';
+import 'package:flutter_application_3/features/language/data/forum_languages.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('ForumLanguages', () {
+    test('creates separate Vietnamese script channels', () {
+      final vietnameseChannels = ForumLanguages.channels
+          .where((channel) => channel.languageCode == 'vi')
+          .toList(growable: false);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      expect(vietnameseChannels, hasLength(2));
+      expect(
+        vietnameseChannels.map((channel) => channel.scriptCode),
+        containsAll(<String>['Latn', 'Hnom']),
+      );
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('resolves the Hnom channel through the shared language core', () {
+      final hnomChannel = ForumLanguages.channels.firstWhere(
+        (channel) => channel.key == 'vi:Hnom',
+      );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      expect(hnomChannel.contentLanguageCode, 'chunom');
+      expect(hnomChannel.nameOf('zh'), '越南语-喃字');
+      expect(hnomChannel.nameOf('vi-VN'), 'Tiếng Việt-Chữ Nôm');
+    });
   });
 }
