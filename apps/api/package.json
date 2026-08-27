@@ -16,7 +16,9 @@
     "migrate:post-likes": "tsx src/scripts/migrate_post_likes.ts",
     "migrate:post-comments": "tsx src/scripts/migrate_post_comments.ts",
     "migrate:post-edit-history": "tsx src/scripts/migrate_post_edit_history.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "job:cleanup-chat-messages": "node dist/jobs/run_cleanup_expired_chat_messages.js",
+    "job:cleanup-chat-messages:dev": "tsx src/jobs/run_cleanup_expired_chat_messages.ts"
   },
   "keywords": [],
   "author": "",
