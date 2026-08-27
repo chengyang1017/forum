@@ -5,11 +5,11 @@
         "default": {
           "projectId": "forum-3b899",
           "appId": "1:448948961427:android:f4c40027f9b9dea04fcd66",
-          "fileOutput": "android/app/google-services.json"
+          "fileOutput": "apps/mobile/android/app/google-services.json"
         }
       },
       "dart": {
-        "lib/firebase_options.dart": {
+        "apps/mobile/lib/firebase_options.dart": {
           "projectId": "forum-3b899",
           "configurations": {
             "android": "1:448948961427:android:f4c40027f9b9dea04fcd66",
@@ -24,7 +24,7 @@
   },
   "functions": [
     {
-      "source": "functions",
+      "source": "apps/functions",
       "codebase": "default",
       "disallowLegacyRuntimeConfig": true,
       "ignore": [
