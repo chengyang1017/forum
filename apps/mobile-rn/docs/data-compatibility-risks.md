@@ -20,7 +20,7 @@
 - **arrays/maps 深層內容**：`languages` 是 array of map，舊項目可能只是 string；`bodyDelta` 是 Quill operation map array，可能含嵌套 attributes/embed。不得 JSON stringify 後存 string。
 - **推薦 interest key 是複合字串**：`users.interests[]` 的元素是 `{languageCode}::{categoryId}`，不是 map；不得拆欄、改 delimiter 或只存 category。
 - **DocumentReference**：現況未持久化 reference。RN SDK 的 DocumentReference 不能轉成 path string寫入；若遇到線上舊資料 reference，先記錄再決定兼容策略。
-- **Storage URL 不是 path**：chat/note 同時保留 download URL 和 full path；Cloud Function 優先用 `imagePath`。不可將 URL 填到 `imagePath`，也不可自行 decode token 後改名 object。
+- **Storage URL 不是 path**：chat/note 同時保留 download URL 和 full path；Node cleanup job 優先用 `imagePath`。不可將 URL 填到 `imagePath`，也不可自行 decode token 後改名 object。
 - **Storage 命名碰撞**：comment image 只用 epoch ms；chat image只用 UID+epoch ms；avatar固定覆寫。RN 必須沿用精確路徑，但應避免同毫秒重複上傳。
 - **副檔名/contentType**：avatar/post/comment/chat 固定 `.jpg`，但來源可能非 JPEG；notes 才根據 jpg/jpeg/png/webp 設 metadata。改變編碼或 suffix 可能影響 Rules/content rendering。
 - **Auth UID 不可替代**：不要以 email、username、RN 本地 ID 取代 UID，也不要在 RN 重新註冊既有帳號；登入相同 project 才能取得相同 UID。

@@ -1,2 +1,0 @@
-# Keep Firebase Functions JavaScript on Unix line endings so ESLint is stable across platforms.
-apps/functions/**/*.js text eol=lf

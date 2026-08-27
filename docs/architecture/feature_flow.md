@@ -125,7 +125,7 @@ deletedAt = now
 ↓
 cleanupAt = now + 7 days
 ↓
-Cloud Function
+Node cleanup job
 ↓
 到期物理删除
 ```

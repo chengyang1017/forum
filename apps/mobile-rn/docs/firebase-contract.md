@@ -154,7 +154,7 @@
 
 member 設定路徑：`chats/{chatId}/memberSettings/{uid}`，字段 `shareLiveDraft: boolean`，merge 寫入。
 
-來源：`lib/shared/services/chat_service.dart`、`lib/features/chat/providers/chat_provider.dart`、`lib/features/chat/screens/chat_screen.dart`、`functions/index.js`。`data/models/chat_model*.dart` 與 `chat_message_model*.dart` 使用 `participants`、ISO string 日期、`roomId/content/sentAt/read`，未被目前 ChatService writer 採用，不能作為實際 Firestore 契約。
+來源：`lib/shared/services/chat_service.dart`、`lib/features/chat/providers/chat_provider.dart`、`lib/features/chat/screens/chat_screen.dart`。`data/models/chat_model*.dart` 與 `chat_message_model*.dart` 使用 `participants`、ISO string 日期、`roomId/content/sentAt/read`，未被目前 ChatService writer 採用，不能作為實際 Firestore 契約。
 
 ## 筆記
 
@@ -203,7 +203,7 @@ member 設定路徑：`chats/{chatId}/memberSettings/{uid}`，字段 `shareLiveD
 
 刪除策略：post 刪除/移圖以 download URL `refFromURL` 刪 object；avatar 更新先刪舊 URL；note 刪除先 batch 刪 metadata/note 再逐個刪 Storage；chat 圖片由排程依 `imagePath` 或從 URL 解析後刪除。
 
-## Rules 與 Functions 邊界
+## Rules 與後端清理邊界
 
 - repository 中沒有 `.rules` 檔案；`firebase.json` 沒有 `firestore.rules`/`storage.rules` 宣告。既有部署端 Firestore Rules、Storage Rules 必須原封不動沿用，但本地分析無法確認其內容。
-- 唯一 Cloud Function 是 v2 scheduled `cleanupExpiredChatMessages`：region `asia-southeast1`、timezone `Asia/Kuala_Lumpur`、每 60 分鐘、每批 200。以 collection group `messages` 查 `cleanupAt <= Timestamp.now()`，只接受父路徑為 `chats/{chatId}`；僅在 `status == deleted` 或所有 chat users 都在 `hiddenFor` 時物理刪除，先刪圖片，再刪 message，必要時重算 chat preview；偽造 cleanupAt 會被移除。
+- 聊天物理清理由 Node.js standalone job `apps/api/src/jobs/cleanup_expired_chat_messages.ts` 負責。每批最多處理 200 筆，以 collection group `messages` 查 `cleanupAt <= Timestamp.now()`，只接受父路徑為 `chats/{chatId}`；僅在 `status == deleted` 或所有 chat users 都在 `hiddenFor` 時物理刪除，先刪圖片，再刪 message，必要時重算 chat preview；偽造 cleanupAt 會被移除。執行頻率由部署平台 Cron / Scheduler 管理。

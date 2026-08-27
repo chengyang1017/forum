@@ -76,6 +76,6 @@
 5. 改密碼先以目前 email/password 建 credential reauthenticate，再 `updatePassword()`。
 6. 密保找回僅查 Firestore email、明文比對 answer；程式未呼叫 Auth password reset，因此不可誤認為完整重設流程。
 
-## Cloud Functions
+## Backend Cleanup Job
 
-`functions/index.js` 僅匯出 `cleanupExpiredChatMessages`。它每小時在 `asia-southeast1` 執行，清理符合聊天刪除語義且 `cleanupAt` 到期的 message 及其 Storage 圖片，並維護 chat preview。RN message writer 必須維持 `status`, `hiddenFor`, `cleanupAt`, `imagePath`, `timestamp`，否則 cleanup/query/preview 會失效。
+聊天延遲物理清理已遷移到 `apps/api/src/jobs/cleanup_expired_chat_messages.ts`。部署平台的 Cron / Scheduler 負責定期執行 Node job，清理符合聊天刪除語義且 `cleanupAt` 到期的 message 及其 Storage 圖片，並維護 chat preview。RN message writer 必須維持 `status`, `hiddenFor`, `cleanupAt`, `imagePath`, `timestamp`，否則 cleanup/query/preview 會失效。
