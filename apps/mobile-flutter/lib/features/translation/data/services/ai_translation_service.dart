@@ -1,39 +1,53 @@
-import 'package:cloud_functions/cloud_functions.dart';
+import '../../../../core/network/api_client.dart';
 
 class AiTranslationResult {
   final String title;
   final String content;
 
-  const AiTranslationResult({required this.title, required this.content});
+  const AiTranslationResult({
+    required this.title,
+    required this.content,
+  });
 }
 
 class AiTranslationService {
-  final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
-    region: 'asia-southeast1',
-  );
+  AiTranslationService({
+    ApiClient? apiClient,
+  }) : _apiClient =
+           apiClient ?? ApiClient();
 
-  Future<AiTranslationResult> translatePost({
+  final ApiClient _apiClient;
+
+  Future<AiTranslationResult>
+  translatePost({
     required String title,
     required String content,
     required String sourceLanguageCode,
     required String targetLanguageCode,
     required String targetLanguageName,
   }) async {
-    final callable = _functions.httpsCallable('translatePost');
-
-    final result = await callable.call({
-      'title': title,
-      'content': content,
-      'sourceLanguageCode': sourceLanguageCode,
-      'targetLanguageCode': targetLanguageCode,
-      'targetLanguageName': targetLanguageName,
-    });
-
-    final data = Map<String, dynamic>.from(result.data as Map);
+    final data =
+        await _apiClient.post(
+      '/translations/posts',
+      data: {
+        'title': title,
+        'content': content,
+        'sourceLanguageCode':
+            sourceLanguageCode,
+        'targetLanguageCode':
+            targetLanguageCode,
+        'targetLanguageName':
+            targetLanguageName,
+      },
+    );
 
     return AiTranslationResult(
-      title: data['title']?.toString() ?? '',
-      content: data['content']?.toString() ?? '',
+      title:
+          data['title']?.toString() ??
+          '',
+      content:
+          data['content']?.toString() ??
+          '',
     );
   }
 }

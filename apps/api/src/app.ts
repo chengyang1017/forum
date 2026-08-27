@@ -24,6 +24,10 @@ import {
 } from './routes/report_route.js';
 
 
+import {
+  translationRouter,
+} from './routes/translation_route.js';
+
 import { adminRouter } from './routes/admin_route.js';
 
 export const app = express();
@@ -33,6 +37,11 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/v1/auth', authRouter);
+
+app.use(
+  '/api/v1/translations',
+  translationRouter,
+);
 
 
 app.use(

@@ -39,7 +39,6 @@ dependencies:
     git:
       url: https://github.com/chengyang1017/flutter-languages-config.git
       ref: ff9aab0ccfe92b0180a9ee77c161ba6ffef69d4a
-  cloud_functions: ^5.6.2
   dio: ^5.11.0
 
 dev_dependencies:
