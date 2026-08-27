@@ -5,11 +5,11 @@
         "default": {
           "projectId": "forum-3b899",
           "appId": "1:448948961427:android:f4c40027f9b9dea04fcd66",
-          "fileOutput": "apps/mobile/android/app/google-services.json"
+          "fileOutput": "apps/mobile-flutter/android/app/google-services.json"
         }
       },
       "dart": {
-        "apps/mobile/lib/firebase_options.dart": {
+        "apps/mobile-flutter/lib/firebase_options.dart": {
           "projectId": "forum-3b899",
           "configurations": {
             "android": "1:448948961427:android:f4c40027f9b9dea04fcd66",
