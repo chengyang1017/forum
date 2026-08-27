@@ -640,16 +640,20 @@ packages:
   glyphora_language_core:
     dependency: "direct main"
     description:
-      path: "C:/Users/USER/Documents/服务/glyphora_language_core"
-      relative: false
-    source: path
+      path: "."
+      ref: ff9aab0ccfe92b0180a9ee77c161ba6ffef69d4a
+      resolved-ref: ff9aab0ccfe92b0180a9ee77c161ba6ffef69d4a
+      url: "https://github.com/chengyang1017/flutter-languages-config.git"
+    source: git
     version: "0.1.0"
   glyphora_ui:
     dependency: "direct main"
     description:
-      path: "C:/Users/USER/Documents/服务/glyphora_ui"
-      relative: false
-    source: path
+      path: "."
+      ref: c1fd65c324c7a4386a3d9cc77b6d3bec3da83f5f
+      resolved-ref: c1fd65c324c7a4386a3d9cc77b6d3bec3da83f5f
+      url: "https://github.com/chengyang1017/glyphora_ui.git"
+    source: git
     version: "0.1.0"
   graphs:
     dependency: transitive
@@ -934,9 +938,11 @@ packages:
   nestless_flutter:
     dependency: transitive
     description:
-      path: "../../服务/nestless_flutter"
-      relative: true
-    source: path
+      path: "."
+      ref: "7ce8913bcaff1e1dcd5c5139a60fd9b579cc900b"
+      resolved-ref: "7ce8913bcaff1e1dcd5c5139a60fd9b579cc900b"
+      url: "https://github.com/chengyang1017/nestless.git"
+    source: git
     version: "0.1.0"
   objective_c:
     dependency: transitive
