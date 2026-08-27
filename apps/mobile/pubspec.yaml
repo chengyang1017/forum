@@ -38,7 +38,7 @@ dependencies:
   glyphora_language_core:
     git:
       url: https://github.com/chengyang1017/flutter-languages-config.git
-      ref: fb7abd2abcc4d86c465f855d1c8738a62e374e46
+      ref: ff9aab0ccfe92b0180a9ee77c161ba6ffef69d4a
   cloud_functions: ^5.6.2
   dio: ^5.11.0
 
