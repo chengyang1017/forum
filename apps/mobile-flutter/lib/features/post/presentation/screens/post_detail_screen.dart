@@ -959,7 +959,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Future<void> _reorderImages(int oldIndex, int newIndex) async {
-    if (newIndex > oldIndex) newIndex--;
     setState(() {
       final img = _images.removeAt(oldIndex);
       _images.insert(newIndex, img);
@@ -1469,7 +1468,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _images.length,
-            onReorder: _reorderImages,
+            onReorderItem: _reorderImages,
             buildDefaultDragHandles: false,
             itemBuilder: (context, index) {
               return Container(
@@ -2047,10 +2046,6 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
   }
 
   void _reorderTopImages(int oldIndex, int newIndex) {
-    if (newIndex > oldIndex) {
-      newIndex--;
-    }
-
     setState(() {
       final image = _topImages.removeAt(oldIndex);
 
@@ -2301,7 +2296,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
                       scrollDirection: Axis.horizontal,
                       buildDefaultDragHandles: false,
                       itemCount: _topImages.length,
-                      onReorder: _reorderTopImages,
+                      onReorderItem: _reorderTopImages,
                       itemBuilder: (context, index) {
                         final imageUrl = _topImages[index];
 
