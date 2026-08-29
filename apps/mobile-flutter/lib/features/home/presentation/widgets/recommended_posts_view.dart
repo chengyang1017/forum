@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +24,16 @@ class RecommendedPostsView extends StatelessWidget {
     }
 
     if (!authProvider.interestsLoaded) {
+      if (authProvider.interestsError != null) {
+        return _InterestEmptyState(
+          icon: Icons.error_outline_rounded,
+          title: '兴趣加载失败',
+          description: '无法加载你的兴趣设置，请检查网络或后端连接后重试。',
+          actionLabel: '重试',
+          onAction: authProvider.retryLoadInterests,
+        );
+      }
+
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -39,15 +51,57 @@ class RecommendedPostsView extends StatelessWidget {
   }
 }
 
-class _InterestedPostList extends StatelessWidget {
+class _InterestedPostList extends StatefulWidget {
   final Set<String> interests;
 
   const _InterestedPostList({required this.interests});
 
+  @override
+  State<_InterestedPostList> createState() => _InterestedPostListState();
+}
+
+class _InterestedPostListState extends State<_InterestedPostList> {
+  Timer? _refreshTimer;
+
+  List<PostModel>? _posts;
+  Object? _error;
+
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _refresh(showLoading: true);
+
+    _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      _refresh();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _InterestedPostList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final interestsChanged =
+        oldWidget.interests.length != widget.interests.length ||
+        !oldWidget.interests.containsAll(widget.interests);
+
+    if (interestsChanged) {
+      _refresh(showLoading: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
   Future<List<PostModel>> _loadPosts() async {
     final service = PostService();
 
-    final orderedInterests = interests.toList()..sort();
+    final orderedInterests = widget.interests.toList()..sort();
 
     final requests = <Future<List<PostModel>>>[];
 
@@ -72,7 +126,7 @@ class _InterestedPostList extends StatelessWidget {
     }
 
     if (requests.isEmpty) {
-      return const [];
+      return const <PostModel>[];
     }
 
     final batches = await Future.wait(requests);
@@ -98,54 +152,97 @@ class _InterestedPostList extends StatelessWidget {
     return posts;
   }
 
-  Stream<List<PostModel>> _watchPosts() async* {
-    while (true) {
-      yield await _loadPosts();
-
-      await Future<void>.delayed(const Duration(seconds: 15));
+  Future<void> _refresh({bool showLoading = false}) async {
+    if (showLoading && mounted) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
     }
+
+    try {
+      final posts = await _loadPosts();
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _posts = posts;
+        _error = null;
+        _isLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _error = error;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Widget _refreshableState({required Widget child}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return RefreshIndicator(
+          onRefresh: _refresh,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [SizedBox(height: constraints.maxHeight, child: child)],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<PostModel>>(
-      stream: _watchPosts(),
-      builder: (context, postSnapshot) {
-        if (postSnapshot.hasError) {
-          return _InterestEmptyState(
-            icon: Icons.error_outline_rounded,
-            title: '帖子加载失败',
-            description: '${postSnapshot.error}',
+    if (_isLoading && _posts == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null && _posts == null) {
+      return _refreshableState(
+        child: _InterestEmptyState(
+          icon: Icons.error_outline_rounded,
+          title: '帖子加载失败',
+          description: '$_error',
+        ),
+      );
+    }
+
+    final posts = _posts ?? const <PostModel>[];
+
+    if (posts.isEmpty) {
+      return _refreshableState(
+        child: const _InterestEmptyState(
+          icon: Icons.inbox_outlined,
+          title: '这些兴趣暂时没有帖子',
+          description:
+              '已选择的语言频道和分类中，目前还没有可显示的内容。\n'
+              '你也可以下拉重新加载。',
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _refresh,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
+        itemCount: posts.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          return PostItemCard(
+            post: posts[index],
+            showUserInfo: true,
+            showLanguageBadge: true,
           );
-        }
-
-        if (!postSnapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        final posts = postSnapshot.data!;
-
-        if (posts.isEmpty) {
-          return const _InterestEmptyState(
-            icon: Icons.inbox_outlined,
-            title: '这些兴趣暂时没有帖子',
-            description: '已选择的语言频道和分类中，目前还没有可显示的内容。',
-          );
-        }
-
-        return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
-          itemCount: posts.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            return PostItemCard(
-              post: posts[index],
-              showUserInfo: true,
-              showLanguageBadge: true,
-            );
-          },
-        );
-      },
+        },
+      ),
     );
   }
 }
@@ -154,11 +251,15 @@ class _InterestEmptyState extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   const _InterestEmptyState({
     required this.icon,
     required this.title,
     required this.description,
+    this.actionLabel,
+    this.onAction,
   });
 
   @override
@@ -195,6 +296,14 @@ class _InterestEmptyState extends StatelessWidget {
                 height: 1.45,
               ),
             ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: 18),
+              FilledButton.icon(
+                onPressed: onAction,
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text(actionLabel!),
+              ),
+            ],
           ],
         ),
       ),
