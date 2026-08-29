@@ -8,7 +8,6 @@ import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 import '../providers/discover_provider.dart' as discoverProv;
 import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_routes.dart';
-import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../../../../core/widgets/user_avatar.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/empty_state.dart';
@@ -81,10 +80,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   // ========== 跳转到用户主页 ==========
   void _navigateToProfile(String userId) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => UserProfileScreen(uid: userId)),
-    );
+    context.push(AppRoutes.userProfileLocation(uid: userId));
   }
 
   @override

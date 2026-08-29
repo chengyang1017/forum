@@ -5,10 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/app_routes.dart';
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 import '../providers/chat_provider.dart' as chatProv;
-import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/emoji_picker.dart';
 import '../widgets/chat_input_bar.dart';
@@ -939,10 +940,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _navigateToProfile() {
     if (_otherUid != null && mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => UserProfileScreen(uid: _otherUid!)),
-      );
+      context.push(AppRoutes.userProfileLocation(uid: _otherUid!));
     }
   }
 
@@ -1059,11 +1057,9 @@ class _ChatScreenState extends State<ChatScreen> {
                             imageUrl: avatar,
                             radius: 18,
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      UserProfileScreen(uid: draft.userId),
+                              context.push(
+                                AppRoutes.userProfileLocation(
+                                  uid: draft.userId,
                                 ),
                               );
                             },
@@ -1297,13 +1293,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         onTap: senderId.isEmpty
                             ? null
                             : () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) {
-                                      return UserProfileScreen(uid: senderId);
-                                    },
-                                  ),
+                                context.push(
+                                  AppRoutes.userProfileLocation(uid: senderId),
                                 );
                               },
                       ),

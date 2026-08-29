@@ -9,7 +9,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 import 'friend_requests_screen.dart';
-import '../../../profile/presentation/screens/user_profile_screen.dart';
 
 class FriendsListScreen extends StatefulWidget {
   const FriendsListScreen({super.key});
@@ -201,11 +200,8 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
 
                   return InkWell(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => UserProfileScreen(uid: friendUid),
-                        ),
+                      context.push(
+                        AppRoutes.userProfileLocation(uid: friendUid),
                       );
                     },
                     child: Padding(

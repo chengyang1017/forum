@@ -5,9 +5,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/app_routes.dart';
 import 'node_comment_screen.dart';
-import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../providers/post_provider.dart' as postProv;
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 import '../../../../core/widgets/user_name_display.dart';
@@ -1133,10 +1134,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   void _navigateToProfile() {
     final uid = _post.userId;
     if (uid != null && uid.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => UserProfileScreen(uid: uid)),
-      );
+      context.push(AppRoutes.userProfileLocation(uid: uid));
     }
   }
 
