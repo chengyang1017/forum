@@ -26,47 +26,17 @@ import '../../features/post/presentation/screens/post_edit_history_screen.dart';
 import '../../features/profile/presentation/screens/user_profile_screen.dart';
 import '../../features/social/presentation/screens/friend_requests_screen.dart';
 import 'app_routes.dart';
+import 'auth_route_guard.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   redirect: (context, state) {
-    final authState = context.read<AuthCubit>().state;
-    final path = state.uri.path;
-
-    // Auth 还没完成初始化时不要乱跳。
-    // 等 loadUser() 完成后，main.dart 会主动 refresh router。
-    if (!authState.isInitialized) {
-      return null;
-    }
-
-    final isAuthRoute =
-        path == AppRoutes.login ||
-        path == AppRoutes.register ||
-        path == AppRoutes.forgotPassword;
-
-    // 未登录用户不能进入受保护页面。
-    if (authState.user == null) {
-      if (path == AppRoutes.root) {
-        return AppRoutes.login;
-      }
-
-      if (!isAuthRoute) {
-        return AppRoutes.login;
-      }
-
-      return null;
-    }
-
-    // App 启动并确认已有登录用户后进入首页。
-    if (path == AppRoutes.root) {
-      return AppRoutes.home;
-    }
-
-    // 已登录时访问 login/register 不强制跳转，
-    // 避免打断登录/注册页面自身的异步收尾流程。
-    return null;
+    return authRouteRedirect(
+      authState: context.read<AuthCubit>().state,
+      path: state.uri.path,
+    );
   },
   routes: [
     GoRoute(
