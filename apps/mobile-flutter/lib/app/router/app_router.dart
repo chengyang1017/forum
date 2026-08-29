@@ -1,7 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/change_password_screen.dart';
 import '../../features/profile/presentation/screens/security_settings_screen.dart';
@@ -25,19 +26,22 @@ import '../../features/post/presentation/screens/post_edit_history_screen.dart';
 import '../../features/profile/presentation/screens/user_profile_screen.dart';
 import '../../features/social/presentation/screens/friend_requests_screen.dart';
 import 'app_routes.dart';
+import 'auth_route_guard.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
+  redirect: (context, state) {
+    return authRouteRedirect(
+      authState: context.read<AuthCubit>().state,
+      path: state.uri.path,
+    );
+  },
   routes: [
     GoRoute(
       path: AppRoutes.root,
-      redirect: (context, state) {
-        final isLoggedIn = FirebaseAuth.instance.currentUser != null;
-
-        return isLoggedIn ? AppRoutes.home : AppRoutes.login;
-      },
+      builder: (context, state) => const SizedBox.shrink(),
     ),
     GoRoute(
       path: AppRoutes.login,

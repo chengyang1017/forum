@@ -10,7 +10,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_routes.dart';
 import 'node_comment_screen.dart';
 import '../providers/post_provider.dart' as post_prov;
-import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../../../core/widgets/user_name_display.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../domain/models/post_model.dart';
@@ -185,7 +185,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   void _initializeData() {
     // ✅ 安全初始化
     _post = widget.post;
-    _currentUserId = context.read<auth_prov.AuthProvider>().user?.id;
+    _currentUserId = context.read<auth_cubit.AuthCubit>().user?.id;
     _likes = List<String>.from(_post.likes ?? []);
     _likeCount = _post.likeCount;
     _images = List<String>.from(_post.imageUrls ?? []);

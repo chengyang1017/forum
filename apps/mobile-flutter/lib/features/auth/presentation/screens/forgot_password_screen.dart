@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
-import '../providers/auth_provider.dart' as auth_prov;
+import '../cubit/auth_cubit.dart' as auth_cubit;
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -34,7 +34,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() => isLoading = true);
 
     try {
-      final authProvider = context.read<auth_prov.AuthProvider>();
+      final authProvider = context.read<auth_cubit.AuthCubit>();
       final result = await authProvider.getSecurityQuestion(email);
 
       if (!mounted) return;
@@ -77,7 +77,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() => isLoading = true);
 
     try {
-      final authProvider = context.read<auth_prov.AuthProvider>();
+      final authProvider = context.read<auth_cubit.AuthCubit>();
       final isValid = await authProvider.verifySecurityAnswer(uid!, answer);
       if (!isValid) {
         setState(() => isLoading = false);

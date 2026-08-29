@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../../chat/presentation/providers/chat_provider.dart' as chat_prov;
 import '../../../chat/presentation/screens/chat_list_screen.dart';
 import '../../../profile/presentation/screens/my_profile_screen.dart';
@@ -44,7 +44,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    final currentUserId = context.select<auth_prov.AuthProvider, String?>(
+    final currentUserId = context.select<auth_cubit.AuthCubit, String?>(
       (provider) => provider.user?.id,
     );
 

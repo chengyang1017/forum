@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/providers/app_language.dart';
 import '../../../../app/router/app_routes.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -34,7 +34,7 @@ class SettingsScreen extends StatelessWidget {
 
     if (shouldLogout == true && context.mounted) {
       try {
-        await context.read<auth_prov.AuthProvider>().logout();
+        await context.read<auth_cubit.AuthCubit>().logout();
 
         if (context.mounted) {
           context.go(AppRoutes.login);

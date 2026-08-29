@@ -8,7 +8,7 @@ import '../../../post/domain/models/post_model.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../chat/data/services/chat_service.dart';
 import '../../../social/data/services/friend_service.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_routes.dart';
 import '../widgets/profile_post_sliver_list.dart';
@@ -45,7 +45,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   void _loadCurrentUser() {
-    final authProvider = context.read<auth_prov.AuthProvider>();
+    final authProvider = context.read<auth_cubit.AuthCubit>();
     final user = authProvider.user;
     if (user != null) {
       _currentUserId = user.id;

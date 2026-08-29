@@ -7,7 +7,7 @@ import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/forum_categories.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/loading_indicator.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../../post/domain/models/post_model.dart';
 import '../../../post/presentation/widgets/post_item_card.dart';
 import '../providers/feed_provider.dart' as feed_prov;
@@ -34,7 +34,7 @@ class FeedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<auth_prov.AuthProvider>();
+    final authProvider = context.watch<auth_cubit.AuthCubit>();
     final currentUserId = authProvider.user?.id;
 
     final children = ForumCategories.childrenOf(_selectedCategoryId);

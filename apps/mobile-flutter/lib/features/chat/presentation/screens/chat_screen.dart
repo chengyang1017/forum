@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../providers/chat_provider.dart' as chat_prov;
 import '../widgets/message_bubble.dart';
 import '../widgets/emoji_picker.dart';
@@ -671,7 +671,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _initializeChat() async {
-    final authProvider = context.read<auth_prov.AuthProvider>();
+    final authProvider = context.read<auth_cubit.AuthCubit>();
 
     final currentUser = authProvider.user;
 
@@ -855,7 +855,7 @@ class _ChatScreenState extends State<ChatScreen> {
       return;
     }
 
-    final authProvider = context.read<auth_prov.AuthProvider>();
+    final authProvider = context.read<auth_cubit.AuthCubit>();
 
     final senderId = authProvider.user?.id;
 
@@ -886,7 +886,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendEmoji(String emoji) {
-    final authProvider = context.read<auth_prov.AuthProvider>();
+    final authProvider = context.read<auth_cubit.AuthCubit>();
     final senderId = authProvider.user?.id;
     if (senderId == null) return;
 
@@ -905,7 +905,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() => _isUploading = true);
 
     try {
-      final authProvider = context.read<auth_prov.AuthProvider>();
+      final authProvider = context.read<auth_cubit.AuthCubit>();
       final chatProvider = context.read<chat_prov.ChatProvider>();
       await chatProvider.sendImageMessage(
         widget.chatId,
