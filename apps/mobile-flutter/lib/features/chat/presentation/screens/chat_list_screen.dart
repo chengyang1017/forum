@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -542,7 +541,6 @@ class _ChatListScreenState extends State<ChatListScreen>
   // ========== 好友列表 ==========
   Widget _buildFriendsList(String currentUserId) {
     final friendProvider = context.watch<friendProv.FriendProvider>();
-    final l10n = AppLocalizations.of(context)!;
 
     return StreamBuilder<List<String>>(
       stream: friendProvider.watchFriends(),

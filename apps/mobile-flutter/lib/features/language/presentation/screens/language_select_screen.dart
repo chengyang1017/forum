@@ -1,7 +1,6 @@
 // lib/screens/language_select_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:glyphora_language_core/glyphora_language_core.dart';
 
 import '../../data/forum_languages.dart';
 
@@ -107,36 +106,6 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
     return index;
   }
 
-  // ============================================================
-  // 论坛频道显示名称
-  //
-  // 普通语言：
-  // 英语
-  //
-  // 多文字系统语言：
-  // 使用第一个文字系统作为论坛默认频道
-  //
-  // vi + Latn
-  // -> 越南语-国语字
-  // ============================================================
-
-  String _channelDisplayName(LanguageConfig language) {
-    final languageName = language.nameOf(widget.currentUiLanguageCode);
-
-    if (language.scriptCodes.length <= 1) {
-      return languageName;
-    }
-
-    final defaultScriptCode = language.scriptCodes.first;
-
-    final scriptName = language.scriptNameOf(
-      defaultScriptCode,
-      widget.currentUiLanguageCode,
-    );
-
-    return '$languageName-$scriptName';
-  }
-
   @override
   void dispose() {
     _scrollController.dispose();
@@ -176,7 +145,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
               itemCount: _sections.length,
               itemBuilder: (context, index) {
                 final section = _sections[index];
-        
+
                 if (section.isTitle) {
                   return Container(
                     padding: const EdgeInsets.symmetric(
@@ -194,13 +163,13 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                     ),
                   );
                 }
-        
+
                 final channel = section.channel!;
-        
+
                 final language = channel.language;
-        
+
                 final isSelected = channel.key == widget.currentChannel.key;
-        
+
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -214,7 +183,9 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                     channel.nameOf(widget.currentUiLanguageCode),
                     style: TextStyle(
                       fontSize: 15,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
                       color: isSelected ? Colors.blue : const Color(0xFF1E293B),
                     ),
                   ),
@@ -231,7 +202,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                 );
               },
             ),
-        
+
             if (_currentLetter.isNotEmpty)
               Center(
                 child: Container(
@@ -253,7 +224,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                   ),
                 ),
               ),
-        
+
             Positioned(
               right: 0,
               top: 0,
@@ -261,23 +232,23 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
               child: GestureDetector(
                 onVerticalDragDown: (details) {
                   final idx = _getTouchedIndex(details.globalPosition);
-        
+
                   if (idx >= 0 && idx < _alphaKeys.length) {
                     setState(() {
                       _currentLetter = _alphaKeys[idx];
                     });
-        
+
                     _scrollToLetter(_alphaKeys[idx]);
                   }
                 },
                 onVerticalDragUpdate: (details) {
                   final idx = _getTouchedIndex(details.globalPosition);
-        
+
                   if (idx >= 0 && idx < _alphaKeys.length) {
                     setState(() {
                       _currentLetter = _alphaKeys[idx];
                     });
-        
+
                     _scrollToLetter(_alphaKeys[idx]);
                   }
                 },

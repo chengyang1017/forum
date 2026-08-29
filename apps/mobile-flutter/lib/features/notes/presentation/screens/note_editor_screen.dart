@@ -56,14 +56,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   StreamSubscription<NoteModel?>? _noteSubscription;
   Timer? _saveTimer;
 
- String? _currentUserId;
-String? _ownerId;
+  String? _currentUserId;
+  String? _ownerId;
 
-String? _category;
-String? _languageCode;
+  String? _category;
+  String? _languageCode;
 
-List<String> _sharedUserIds = [];
-bool _isUpdatingMembers = false;
+  List<String> _sharedUserIds = [];
+  bool _isUpdatingMembers = false;
 
   bool _initialized = false;
   bool _allowOthersEdit = false;
@@ -141,20 +141,18 @@ bool _isUpdatingMembers = false;
     _bodyController.readOnly = !canEdit;
 
     setState(() {
-  _ownerId = note.ownerId;
+      _ownerId = note.ownerId;
 
-  _category = note.category;
-  _languageCode = note.languageCode;
+      _category = note.category;
+      _languageCode = note.languageCode;
 
-  _sharedUserIds =
-      List<String>.from(note.sharedUserIds);
+      _sharedUserIds = List<String>.from(note.sharedUserIds);
 
-  _allowOthersEdit =
-      note.allowOthersEdit;
+      _allowOthersEdit = note.allowOthersEdit;
 
-  _isDeleted = false;
-  _isLoaded = true;
-});
+      _isDeleted = false;
+      _isLoaded = true;
+    });
   }
 
   void _replaceTitle(String title) {
@@ -698,10 +696,7 @@ bool _isUpdatingMembers = false;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('修改分类失败：$error'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('修改分类失败：$error'), backgroundColor: Colors.red),
       );
     }
   }
@@ -764,261 +759,166 @@ bool _isUpdatingMembers = false;
   }
 
   Future<void> _publishAsPost() async {
-  // 只有笔记创建者可以发布
-  if (!_isOwner) {
-    return;
-  }
-
-  final userId = _currentUserId;
-
-  if (userId == null) {
-    return;
-  }
-
-  FocusScope.of(context).unfocus();
-
-  // 先保存当前正在编辑的标题和正文
-  await _saveNow();
-
-  if (!mounted) {
-    return;
-  }
-
-  // =========================
-  // 分类
-  // =========================
-
-  String? category = _category?.trim();
-
-  // 笔记没有分类，发布时才要求选择
-  if (category == null || category.isEmpty) {
-    final selectedCategory =
-        await _selectPublishCategory();
-
-    if (selectedCategory == null || !mounted) {
+    // 只有笔记创建者可以发布
+    if (!_isOwner) {
       return;
     }
 
-    category = selectedCategory;
+    final userId = _currentUserId;
 
-    // 顺便保存到笔记
-    await _noteService.updateNote(
-      noteId: widget.noteId,
-      userId: userId,
-      category: selectedCategory,
-    );
+    if (userId == null) {
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+
+    // 先保存当前正在编辑的标题和正文
+    await _saveNow();
 
     if (!mounted) {
       return;
     }
 
-    setState(() {
-      _category = selectedCategory;
-    });
-  }
+    // =========================
+    // 分类
+    // =========================
 
-  // =========================
-  // 语言
-  // =========================
+    String? category = _category?.trim();
 
-  String? languageCode =
-      _languageCode?.trim();
+    // 笔记没有分类，发布时才要求选择
+    if (category == null || category.isEmpty) {
+      final selectedCategory = await _selectPublishCategory();
 
-  LanguageConfig? selectedLanguage;
-
-  // 笔记没有语言，发布时才要求选择
-  if (languageCode == null ||
-      languageCode.isEmpty) {
-    selectedLanguage =
-        await _selectPublishLanguage();
-
-    if (selectedLanguage == null ||
-        !mounted) {
-      return;
-    }
-
-    languageCode =
-        selectedLanguage.code;
-
-    // 顺便保存到笔记
-    await _noteService.updateNote(
-      noteId: widget.noteId,
-      userId: userId,
-      languageCode:
-          selectedLanguage.code,
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _languageCode =
-          selectedLanguage!.code;
-    });
-  }
-
-  // =========================
-  // 到这里发布所需字段一定存在
-  // =========================
-
-  if (category == null ||
-      category.isEmpty ||
-      languageCode == null ||
-      languageCode.isEmpty) {
-    return;
-  }
-
-  final String publishCategory =
-      category;
-
-  final String publishLanguageCode =
-      languageCode;
-
-  // =========================
-  // 获取语言显示名称
-  // =========================
-
-  final uiLanguageCode =
-      Localizations.localeOf(
-        context,
-      ).languageCode;
-
-  String languageName =
-      publishLanguageCode;
-
-  // 如果刚才选择了语言，直接使用
-  if (selectedLanguage != null) {
-    languageName =
-        selectedLanguage.nameOf(
-          uiLanguageCode,
-        );
-  } else {
-    // 如果笔记本来就已经有语言，
-    // 根据 languageCode 找对应语言名称
-    for (final language
-        in ForumLanguages
-            .supportedLanguages) {
-      if (language.code ==
-          publishLanguageCode) {
-        languageName =
-            language.nameOf(
-              uiLanguageCode,
-            );
-
-        break;
+      if (selectedCategory == null || !mounted) {
+        return;
       }
-    }
-  }
 
-  // =========================
-  // 笔记正文
-  // =========================
+      category = selectedCategory;
 
-  final bodyDelta =
-      _bodyController.document
-          .toDelta()
-          .toJson();
-
-  // =========================
-  // 进入发帖页
-  // =========================
-
-  final published =
-      await Navigator.push<bool>(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              CreatePostScreen(
-                category:
-                    publishCategory,
-
-                languageCode:
-                    publishLanguageCode,
-
-                languageName:
-                    languageName,
-
-                initialTitle:
-                    _titleController
-                        .text
-                        .trim(),
-
-                initialBodyDelta:
-                    bodyDelta,
-
-                sourceNoteId:
-                    widget.noteId,
-              ),
-        ),
+      // 顺便保存到笔记
+      await _noteService.updateNote(
+        noteId: widget.noteId,
+        userId: userId,
+        category: selectedCategory,
       );
 
-  if (published == true &&
-      mounted) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(
-      const SnackBar(
-        content: Text(
-          '笔记已发布为帖子',
-        ),
-        backgroundColor:
-            Colors.green,
-        behavior:
-            SnackBarBehavior.floating,
-      ),
-    );
-  }
-}
+      if (!mounted) {
+        return;
+      }
 
-Future<void> _changeLanguage() async {
-  final userId = _currentUserId;
+      setState(() {
+        _category = selectedCategory;
+      });
+    }
 
-  if (userId == null || !_isOwner) {
-    return;
-  }
+    // =========================
+    // 语言
+    // =========================
 
-  final language =
-      await _selectPublishLanguage();
+    String? languageCode = _languageCode?.trim();
 
-  if (language == null || !mounted) {
-    return;
-  }
+    LanguageConfig? selectedLanguage;
 
-  final oldLanguageCode =
-      _languageCode;
+    // 笔记没有语言，发布时才要求选择
+    if (languageCode == null || languageCode.isEmpty) {
+      selectedLanguage = await _selectPublishLanguage();
 
-  setState(() {
-    _languageCode = language.code;
-  });
+      if (selectedLanguage == null || !mounted) {
+        return;
+      }
 
-  try {
-    await _noteService.updateNote(
-      noteId: widget.noteId,
-      userId: userId,
-      languageCode: language.code,
-    );
-  } catch (error) {
-    if (!mounted) {
+      languageCode = selectedLanguage.code;
+
+      // 顺便保存到笔记
+      await _noteService.updateNote(
+        noteId: widget.noteId,
+        userId: userId,
+        languageCode: selectedLanguage.code,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _languageCode = selectedLanguage!.code;
+      });
+    }
+
+    // =========================
+    // 到这里发布所需字段一定存在
+    // =========================
+
+    if (category.isEmpty || languageCode.isEmpty) {
       return;
     }
 
-    setState(() {
-      _languageCode =
-          oldLanguageCode;
-    });
+    final String publishCategory = category;
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-      SnackBar(
-        content: Text(
-          '修改语言失败：$error',
+    final String publishLanguageCode = languageCode;
+
+    // =========================
+    // 获取语言显示名称
+    // =========================
+
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
+
+    String languageName = publishLanguageCode;
+
+    // 如果刚才选择了语言，直接使用
+    if (selectedLanguage != null) {
+      languageName = selectedLanguage.nameOf(uiLanguageCode);
+    } else {
+      // 如果笔记本来就已经有语言，
+      // 根据 languageCode 找对应语言名称
+      for (final language in ForumLanguages.supportedLanguages) {
+        if (language.code == publishLanguageCode) {
+          languageName = language.nameOf(uiLanguageCode);
+
+          break;
+        }
+      }
+    }
+
+    // =========================
+    // 笔记正文
+    // =========================
+
+    final bodyDelta = _bodyController.document.toDelta().toJson();
+
+    // =========================
+    // 进入发帖页
+    // =========================
+
+    final published = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CreatePostScreen(
+          category: publishCategory,
+
+          languageCode: publishLanguageCode,
+
+          languageName: languageName,
+
+          initialTitle: _titleController.text.trim(),
+
+          initialBodyDelta: bodyDelta,
+
+          sourceNoteId: widget.noteId,
         ),
-        backgroundColor: Colors.red,
       ),
     );
+
+    if (published == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('笔记已发布为帖子'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
-}
 
   Future<void> _deleteNote() async {
     if (!_isOwner) {

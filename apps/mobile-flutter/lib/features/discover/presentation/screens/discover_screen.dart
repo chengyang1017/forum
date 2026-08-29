@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
@@ -62,7 +61,6 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       final discoverProvider = context.read<discoverProv.DiscoverProvider>();
       await discoverProvider.sendFriendRequest(userId);
       if (!mounted) return;
-      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('已向 $displayName 发送好友请求'),

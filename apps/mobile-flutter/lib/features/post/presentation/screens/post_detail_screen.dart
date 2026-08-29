@@ -1128,16 +1128,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   // ============================================================
-  // 导航到用户主页
-  // ============================================================
-  void _navigateToProfile() {
-    final uid = _post.userId;
-    if (uid != null && uid.isNotEmpty) {
-      context.push(AppRoutes.userProfileLocation(uid: uid));
-    }
-  }
-
-  // ============================================================
   // Build
   // ============================================================
   @override
@@ -1937,8 +1927,6 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
 
   final List<String> _newInlineImageUrls = [];
 
-  bool _didSave = false;
-
   @override
   void initState() {
     super.initState();
@@ -1965,10 +1953,6 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     final delta = _controller.document.toDelta().toJson();
 
     return delta.where((operation) {
-      if (operation is! Map) {
-        return false;
-      }
-
       final insert = operation['insert'];
 
       return insert is Map && insert.containsKey('image');
@@ -2193,8 +2177,6 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     final removedImageUrls = _originalTopImages
         .where((url) => !_topImages.contains(url))
         .toList();
-
-    _didSave = true;
 
     Navigator.pop(
       context,

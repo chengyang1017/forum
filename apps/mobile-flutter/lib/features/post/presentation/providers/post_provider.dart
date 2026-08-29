@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart'; // ✅ 导入 XFile
 import '../../data/repositories/post_repository.dart';
@@ -10,27 +9,17 @@ class PostProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  final Map<String, bool> _bookmarkStates =
-      <String, bool>{};
+  final Map<String, bool> _bookmarkStates = <String, bool>{};
 
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  bool bookmarkState(
-    String postId, {
-    required bool fallback,
-  }) {
+  bool bookmarkState(String postId, {required bool fallback}) {
     return _bookmarkStates[postId] ?? fallback;
   }
 
-  void seedBookmarkState(
-    String postId,
-    bool bookmarked,
-  ) {
-    _bookmarkStates.putIfAbsent(
-      postId,
-      () => bookmarked,
-    );
+  void seedBookmarkState(String postId, bool bookmarked) {
+    _bookmarkStates.putIfAbsent(postId, () => bookmarked);
   }
 
   // ========== 获取单篇帖子 ==========
@@ -57,26 +46,15 @@ class PostProvider extends ChangeNotifier {
   }
 
   // ========== 点赞/取消点赞 ==========
-  Future<int> toggleLike(
-    String postId, {
-    required bool liked,
-  }) {
-    return _postRepo.toggleLike(
-      postId,
-      liked: liked,
-    );
+  Future<int> toggleLike(String postId, {required bool liked}) {
+    return _postRepo.toggleLike(postId, liked: liked);
   }
 
   // ========== 收藏/取消收藏 ==========
-  Future<bool> toggleBookmark(
-    String postId, {
-    required bool bookmarked,
-  }) async {
-    final hadPrevious =
-        _bookmarkStates.containsKey(postId);
+  Future<bool> toggleBookmark(String postId, {required bool bookmarked}) async {
+    final hadPrevious = _bookmarkStates.containsKey(postId);
 
-    final previous =
-        _bookmarkStates[postId];
+    final previous = _bookmarkStates[postId];
 
     // 全局乐观更新。
     // 所有正在监听 PostProvider 的页面立即同步。
@@ -84,8 +62,7 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final confirmed =
-          await _postRepo.toggleBookmark(
+      final confirmed = await _postRepo.toggleBookmark(
         postId,
         bookmarked: bookmarked,
       );
