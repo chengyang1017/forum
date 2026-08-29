@@ -6,7 +6,8 @@ import 'package:provider/provider.dart';
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 import '../providers/discover_provider.dart' as discoverProv;
-import '../../../chat/presentation/screens/chat_screen.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../app/router/app_routes.dart';
 import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../../../../core/widgets/user_avatar.dart';
 import '../../../../core/widgets/loading_indicator.dart';
@@ -42,13 +43,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       final discoverProvider = context.read<discoverProv.DiscoverProvider>();
       final chatId = await discoverProvider.getOrCreateChat(userId);
       if (!mounted) return;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              ChatScreen(chatId: chatId, otherUserName: displayName),
-        ),
-      );
+      context.push(AppRoutes.chatLocation(chatId: chatId), extra: displayName);
     } catch (e) {
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;

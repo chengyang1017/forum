@@ -5,7 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../data/services/friend_service.dart';
 import '../../../chat/data/services/chat_service.dart';
-import '../../../chat/presentation/screens/chat_screen.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/router/app_routes.dart';
 import 'friend_requests_screen.dart';
 import '../../../profile/presentation/screens/user_profile_screen.dart';
 
@@ -282,14 +284,9 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                                 friendUid,
                               );
                               if (!mounted) return;
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ChatScreen(
-                                    chatId: chatId,
-                                    otherUserName: username,
-                                  ),
-                                ),
+                              this.context.push(
+                                AppRoutes.chatLocation(chatId: chatId),
+                                extra: username,
                               );
                             },
                           ),
