@@ -1,0 +1,298 @@
+class ForumCategory {
+  final String id;
+  final String? parentId;
+  final Map<String, String> names;
+
+  const ForumCategory({
+    required this.id,
+    this.parentId,
+    this.names = const {},
+  });
+
+  bool get isRoot => parentId == null;
+
+  String nameOf(String uiLanguageCode) {
+    final normalizedCode = uiLanguageCode.trim().toLowerCase();
+
+    return names[normalizedCode] ??
+        names['en'] ??
+        names['zh'] ??
+        id.replaceAll('_', ' ');
+  }
+}
+
+class ForumCategories {
+  const ForumCategories._();
+
+  static const List<ForumCategory> all = [
+    // ============================================================
+    // 一级分类
+    // ============================================================
+    ForumCategory(
+      id: 'language_learning',
+      names: {'zh': '语言学习', 'en': 'Language Learning'},
+    ),
+    ForumCategory(
+      id: 'programming',
+      names: {'zh': '编程开发', 'en': 'Programming'},
+    ),
+    ForumCategory(
+      id: 'ai',
+      names: {'zh': 'AI', 'en': 'AI'},
+    ),
+    ForumCategory(
+      id: 'technology',
+      names: {'zh': '科技', 'en': 'Technology'},
+    ),
+    ForumCategory(
+      id: 'gaming',
+      names: {'zh': '游戏', 'en': 'Gaming'},
+    ),
+    ForumCategory(
+      id: 'music',
+      names: {'zh': '音乐', 'en': 'Music'},
+    ),
+    ForumCategory(
+      id: 'movies',
+      names: {'zh': '影视', 'en': 'Film & TV'},
+    ),
+    ForumCategory(
+      id: 'campus',
+      names: {'zh': '校园', 'en': 'Campus'},
+    ),
+    ForumCategory(
+      id: 'startup',
+      names: {'zh': '创业', 'en': 'Startups'},
+    ),
+    ForumCategory(
+      id: 'friends',
+      names: {'zh': '交友', 'en': 'Friends'},
+    ),
+    ForumCategory(
+      id: 'travel',
+      names: {'zh': '旅行', 'en': 'Travel'},
+    ),
+    ForumCategory(
+      id: 'chat',
+      names: {'zh': '闲聊', 'en': 'Chat'},
+    ),
+    ForumCategory(
+      id: 'love',
+      names: {'zh': '爱情', 'en': 'Relationships'},
+    ),
+    ForumCategory(
+      id: 'food',
+      names: {'zh': '美食', 'en': 'Food'},
+    ),
+    ForumCategory(
+      id: 'medicine',
+      names: {'zh': '医学', 'en': 'Medicine'},
+    ),
+
+    // ============================================================
+    // 编程开发
+    // ============================================================
+    ForumCategory(
+      id: 'mobile_development',
+      parentId: 'programming',
+      names: {'zh': '移动开发', 'en': 'Mobile Development'},
+    ),
+    ForumCategory(
+      id: 'web_development',
+      parentId: 'programming',
+      names: {'zh': 'Web 开发', 'en': 'Web Development'},
+    ),
+    ForumCategory(
+      id: 'backend_development',
+      parentId: 'programming',
+      names: {'zh': '后端开发', 'en': 'Backend Development'},
+    ),
+    ForumCategory(
+      id: 'database_development',
+      parentId: 'programming',
+      names: {'zh': '数据库', 'en': 'Databases'},
+    ),
+    ForumCategory(
+      id: 'flutter',
+      parentId: 'mobile_development',
+      names: {'zh': 'Flutter', 'en': 'Flutter'},
+    ),
+    ForumCategory(
+      id: 'react_native',
+      parentId: 'mobile_development',
+      names: {'zh': 'React Native', 'en': 'React Native'},
+    ),
+
+    // ============================================================
+    // 游戏
+    // ============================================================
+    ForumCategory(
+      id: 'rpg',
+      parentId: 'gaming',
+      names: {'zh': 'RPG', 'en': 'RPG'},
+    ),
+    ForumCategory(
+      id: 'fps',
+      parentId: 'gaming',
+      names: {'zh': 'FPS', 'en': 'FPS'},
+    ),
+    ForumCategory(
+      id: 'strategy_games',
+      parentId: 'gaming',
+      names: {'zh': '策略游戏', 'en': 'Strategy Games'},
+    ),
+    ForumCategory(
+      id: 'simulation_games',
+      parentId: 'gaming',
+      names: {'zh': '模拟游戏', 'en': 'Simulation Games'},
+    ),
+
+    // ============================================================
+    // 影视
+    // ============================================================
+    ForumCategory(
+      id: 'film',
+      parentId: 'movies',
+      names: {'zh': '电影', 'en': 'Film'},
+    ),
+    ForumCategory(
+      id: 'tv_series',
+      parentId: 'movies',
+      names: {'zh': '电视剧', 'en': 'TV Series'},
+    ),
+    ForumCategory(
+      id: 'animation',
+      parentId: 'movies',
+      names: {'zh': '动画', 'en': 'Animation'},
+    ),
+    ForumCategory(
+      id: 'documentary',
+      parentId: 'movies',
+      names: {'zh': '纪录片', 'en': 'Documentary'},
+    ),
+
+    // ============================================================
+    // 医学
+    // ============================================================
+    ForumCategory(
+      id: 'internal_medicine',
+      parentId: 'medicine',
+      names: {'zh': '内科', 'en': 'Internal Medicine'},
+    ),
+    ForumCategory(
+      id: 'surgery',
+      parentId: 'medicine',
+      names: {'zh': '外科', 'en': 'Surgery'},
+    ),
+    ForumCategory(
+      id: 'pediatrics',
+      parentId: 'medicine',
+      names: {'zh': '儿科', 'en': 'Pediatrics'},
+    ),
+    ForumCategory(
+      id: 'dermatology',
+      parentId: 'medicine',
+      names: {'zh': '皮肤科', 'en': 'Dermatology'},
+    ),
+    ForumCategory(
+      id: 'psychiatry',
+      parentId: 'medicine',
+      names: {'zh': '精神医学', 'en': 'Psychiatry'},
+    ),
+    ForumCategory(
+      id: 'cardiology',
+      parentId: 'internal_medicine',
+      names: {'zh': '心血管内科', 'en': 'Cardiology'},
+    ),
+  ];
+
+  static List<ForumCategory> get roots {
+    return all.where((category) => category.isRoot).toList(growable: false);
+  }
+
+  static ForumCategory? findById(String id) {
+    for (final category in all) {
+      if (category.id == id) {
+        return category;
+      }
+    }
+
+    return null;
+  }
+
+  static String nameOf(String categoryId, String uiLanguageCode) {
+    return findById(categoryId)?.nameOf(uiLanguageCode) ??
+        categoryId.replaceAll('_', ' ');
+  }
+
+  static List<ForumCategory> childrenOf(String parentId) {
+    return all
+        .where((category) => category.parentId == parentId)
+        .toList(growable: false);
+  }
+
+  static bool hasChildren(String categoryId) {
+    return all.any((category) => category.parentId == categoryId);
+  }
+
+  static List<ForumCategory> descendantsOf(String categoryId) {
+    final result = <ForumCategory>[];
+    final queue = <ForumCategory>[...childrenOf(categoryId)];
+
+    while (queue.isNotEmpty) {
+      final current = queue.removeAt(0);
+      result.add(current);
+      queue.addAll(childrenOf(current.id));
+    }
+
+    return result.toList(growable: false);
+  }
+
+  static bool isDescendantOf({
+    required String categoryId,
+    required String ancestorId,
+  }) {
+    final path = pathOf(categoryId);
+
+    return path.length > 1 && path.take(path.length - 1).contains(ancestorId);
+  }
+
+  static List<String> pathOf(String categoryId) {
+    final path = <String>[];
+    final visited = <String>{};
+
+    ForumCategory? current = findById(categoryId);
+
+    while (current != null && visited.add(current.id)) {
+      path.add(current.id);
+
+      final parentId = current.parentId;
+      if (parentId == null) {
+        break;
+      }
+
+      current = findById(parentId);
+    }
+
+    return path.reversed.toList(growable: false);
+  }
+
+  static List<String> localizedPathOf(
+    String categoryId,
+    String uiLanguageCode,
+  ) {
+    return pathOf(categoryId)
+        .map((id) => nameOf(id, uiLanguageCode))
+        .toList(growable: false);
+  }
+
+  static String rootIdOf(String categoryId) {
+    final path = pathOf(categoryId);
+
+    if (path.isEmpty) {
+      return categoryId;
+    }
+
+    return path.first;
+  }
+}

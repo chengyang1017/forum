@@ -10,13 +10,22 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 
-import '../../../../app/l10n/app_localizations.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
+
+import '../../../../core/constants/forum_categories.dart';
 import '../../data/services/post_node_service.dart';
 import '../../domain/models/post_model.dart';
 
 class CreatePostScreen extends StatefulWidget {
+  // 一级分类，继续兼容旧 category 查询。
   final String category;
+
+  // 当前真正选择的分类节点。
+  final String? categoryId;
+
+  // 一级分类 -> 当前节点的完整路径。
+  final List<String>? categoryPath;
+
   final String languageCode;
   final String languageName;
 
@@ -28,6 +37,8 @@ class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({
     super.key,
     required this.category,
+    this.categoryId,
+    this.categoryPath,
     required this.languageCode,
     required this.languageName,
     this.initialTitle,
@@ -61,30 +72,34 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   double progress = 0;
 
-  static const List<String> _categoryIds = [
-    'language_learning',
-    'programming',
-    'ai',
-    'technology',
-    'gaming',
-    'music',
-    'movies',
-    'campus',
-    'startup',
-    'friends',
-    'travel',
-    'chat',
-    'love',
-    'food',
-  ];
+  String get _selectedCategoryId => widget.categoryId ?? widget.category;
+
+  List<String> get _resolvedCategoryPath {
+    final suppliedPath = widget.categoryPath
+        ?.map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+
+    if (suppliedPath != null && suppliedPath.isNotEmpty) {
+      return suppliedPath;
+    }
+
+    final derivedPath = ForumCategories.pathOf(_selectedCategoryId);
+
+    if (derivedPath.isNotEmpty) {
+      return derivedPath;
+    }
+
+    return <String>[widget.category];
+  }
 
   @override
   void initState() {
     super.initState();
 
     _draftPostId =
-    '${DateTime.now().microsecondsSinceEpoch}_'
-    '${Random.secure().nextInt(1 << 32)}';
+        '${DateTime.now().microsecondsSinceEpoch}_'
+        '${Random.secure().nextInt(1 << 32)}';
 
     // 从笔记进入时自动带入标题
     final initialTitle = widget.initialTitle;
@@ -111,15 +126,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     setState(() {});
   }
 
-  String _getCategoryName(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final index = _categoryIds.indexOf(widget.category);
+  String _getCategoryPathLabel(BuildContext context) {
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
 
-    if (index == -1 || index >= l10n.categoryNames.length) {
-      return widget.category;
-    }
-
-    return l10n.categoryNames[index];
+    return _resolvedCategoryPath
+        .map((id) => ForumCategories.nameOf(id, uiLanguageCode))
+        .join(' › ');
   }
 
   // 获取语言国旗
@@ -335,8 +347,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             final sourceRef = FirebaseStorage.instance.refFromURL(oldUrl);
 
             final currentPostPrefix =
-              'posts/'
-              '$_draftPostId/';
+                'posts/'
+                '$_draftPostId/';
 
             // 如果这张图是在发帖页里
             // 新插入的，它已经属于帖子，
@@ -467,26 +479,26 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
       final imageUrls = await uploadImages(postId);
 
-// ============================================================
-// PostgreSQL 主写入
-// ============================================================
+      // ============================================================
+      // PostgreSQL 主写入
+      // ============================================================
 
-await _postService.createPost(
-  PostModel(
-    id: postId,
-    userId: user.uid,
-    title: title.text.trim(),
-    content: plainContent,
-    bodyDelta: bodyDelta,
-    category: widget.category,
-    languageCode: widget.languageCode,
-    primaryLanguageCode: widget.languageCode,
-    availableLanguageCodes: [
-      widget.languageCode,
-    ],
-    imageUrls: imageUrls,
-  ),
-);
+      await _postService.createPost(
+        PostModel(
+          id: postId,
+          userId: user.uid,
+          title: title.text.trim(),
+          content: plainContent,
+          bodyDelta: bodyDelta,
+          category: widget.category,
+          categoryId: _selectedCategoryId,
+          categoryPath: _resolvedCategoryPath,
+          languageCode: widget.languageCode,
+          primaryLanguageCode: widget.languageCode,
+          availableLanguageCodes: [widget.languageCode],
+          imageUrls: imageUrls,
+        ),
+      );
 
       if (!mounted) return;
 
@@ -595,8 +607,9 @@ await _postService.createPost(
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        //widget.category,
-                        _getCategoryName(context),
+                        _getCategoryPathLabel(context),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,
