@@ -13,6 +13,7 @@ import 'app/providers/app_language.dart';
 
 // ========== Provider（功能模块） ==========
 import 'features/auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
+import 'features/auth/presentation/cubit/auth_state.dart';
 import 'features/chat/presentation/providers/chat_provider.dart' as chat_prov;
 import 'features/social/presentation/providers/friend_provider.dart'
     as friend_prov;
@@ -70,69 +71,78 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<AppLanguage>(
         builder: (context, appLanguage, child) {
-          return MaterialApp.router(
-            debugShowCheckedModeBanner: false,
-            title: '论坛App',
-
-            // 当前语言
-            locale: appLanguage.locale,
-
-            // 支持语言
-            supportedLocales: const [
-              Locale('zh'),
-              Locale('en'),
-              Locale('ja'),
-              Locale('ko'),
-              Locale('ms'),
-              Locale('vi'),
-              Locale('th'),
-
-              // 喃字
-              Locale.fromSubtags(languageCode: 'vi', scriptCode: 'Hani'),
-            ],
-
-            // 本地化 delegate
-            localizationsDelegates: const [
-              AppLocalizationsDelegate(),
-
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-
-              // Flutter Quill 本地化
-              FlutterQuillLocalizations.delegate,
-            ],
-
-            // 优先匹配 scriptCode
-            localeResolutionCallback: (locale, supportedLocales) {
-              if (locale == null) {
-                return const Locale('zh');
-              }
-
-              for (final supportedLocale in supportedLocales) {
-                if (supportedLocale.languageCode == locale.languageCode &&
-                    supportedLocale.scriptCode == locale.scriptCode) {
-                  return supportedLocale;
-                }
-              }
-
-              for (final supportedLocale in supportedLocales) {
-                if (supportedLocale.languageCode == locale.languageCode &&
-                    supportedLocale.scriptCode == null) {
-                  return supportedLocale;
-                }
-              }
-
-              return const Locale('zh');
+          return BlocListener<auth_cubit.AuthCubit, AuthState>(
+            listenWhen: (previous, current) {
+              return previous.isInitialized != current.isInitialized ||
+                  previous.user?.id != current.user?.id;
             },
+            listener: (context, state) {
+              appRouter.refresh();
+            },
+            child: MaterialApp.router(
+              debugShowCheckedModeBanner: false,
+              title: '论坛App',
 
-            theme: ThemeData(
-              useMaterial3: true,
-              colorSchemeSeed: Colors.blue,
-              fontFamily: 'NomNaTong',
+              // 当前语言
+              locale: appLanguage.locale,
+
+              // 支持语言
+              supportedLocales: const [
+                Locale('zh'),
+                Locale('en'),
+                Locale('ja'),
+                Locale('ko'),
+                Locale('ms'),
+                Locale('vi'),
+                Locale('th'),
+
+                // 喃字
+                Locale.fromSubtags(languageCode: 'vi', scriptCode: 'Hani'),
+              ],
+
+              // 本地化 delegate
+              localizationsDelegates: const [
+                AppLocalizationsDelegate(),
+
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+
+                // Flutter Quill 本地化
+                FlutterQuillLocalizations.delegate,
+              ],
+
+              // 优先匹配 scriptCode
+              localeResolutionCallback: (locale, supportedLocales) {
+                if (locale == null) {
+                  return const Locale('zh');
+                }
+
+                for (final supportedLocale in supportedLocales) {
+                  if (supportedLocale.languageCode == locale.languageCode &&
+                      supportedLocale.scriptCode == locale.scriptCode) {
+                    return supportedLocale;
+                  }
+                }
+
+                for (final supportedLocale in supportedLocales) {
+                  if (supportedLocale.languageCode == locale.languageCode &&
+                      supportedLocale.scriptCode == null) {
+                    return supportedLocale;
+                  }
+                }
+
+                return const Locale('zh');
+              },
+
+              theme: ThemeData(
+                useMaterial3: true,
+                colorSchemeSeed: Colors.blue,
+                fontFamily: 'NomNaTong',
+              ),
+
+              routerConfig: appRouter,
             ),
-
-            routerConfig: appRouter,
           );
         },
       ),

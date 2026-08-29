@@ -1,7 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/change_password_screen.dart';
 import '../../features/profile/presentation/screens/security_settings_screen.dart';
@@ -30,14 +31,47 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
+  redirect: (context, state) {
+    final authState = context.read<AuthCubit>().state;
+    final path = state.uri.path;
+
+    // Auth 还没完成初始化时不要乱跳。
+    // 等 loadUser() 完成后，main.dart 会主动 refresh router。
+    if (!authState.isInitialized) {
+      return null;
+    }
+
+    final isAuthRoute =
+        path == AppRoutes.login ||
+        path == AppRoutes.register ||
+        path == AppRoutes.forgotPassword;
+
+    // 未登录用户不能进入受保护页面。
+    if (authState.user == null) {
+      if (path == AppRoutes.root) {
+        return AppRoutes.login;
+      }
+
+      if (!isAuthRoute) {
+        return AppRoutes.login;
+      }
+
+      return null;
+    }
+
+    // App 启动并确认已有登录用户后进入首页。
+    if (path == AppRoutes.root) {
+      return AppRoutes.home;
+    }
+
+    // 已登录时访问 login/register 不强制跳转，
+    // 避免打断登录/注册页面自身的异步收尾流程。
+    return null;
+  },
   routes: [
     GoRoute(
       path: AppRoutes.root,
-      redirect: (context, state) {
-        final isLoggedIn = FirebaseAuth.instance.currentUser != null;
-
-        return isLoggedIn ? AppRoutes.home : AppRoutes.login;
-      },
+      builder: (context, state) => const SizedBox.shrink(),
     ),
     GoRoute(
       path: AppRoutes.login,
