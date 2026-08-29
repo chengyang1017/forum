@@ -14,6 +14,7 @@ abstract final class AppRoutes {
   static const changePassword = '/settings/change-password';
 
   static const allNotes = '/notes';
+  static const noteEditor = '/notes/:noteId';
   static const bookmarkedPosts = '/bookmarks';
 
   static const friendRequests = '/friends/requests';
@@ -25,6 +26,10 @@ abstract final class AppRoutes {
   static const feed = '/feed/:channelKey/:categoryId';
   static const createPost = '/posts/new/:channelKey/:categoryId';
   static const postDetail = '/posts/:postId';
+
+  static String noteEditorLocation({required String noteId}) {
+    return '/notes/${Uri.encodeComponent(noteId)}';
+  }
 
   static String userProfileLocation({required String uid}) {
     return '/users/${Uri.encodeComponent(uid)}';

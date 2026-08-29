@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/router/app_routes.dart';
 
 import '../../domain/models/note_model.dart';
 import '../../data/services/note_service.dart';
-import 'note_editor_screen.dart';
 
 class UserNotesScreen extends StatefulWidget {
   final String otherUserId;
@@ -49,14 +51,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
         return;
       }
 
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) {
-            return NoteEditorScreen(noteId: noteId);
-          },
-        ),
-      );
+      await context.push<void>(AppRoutes.noteEditorLocation(noteId: noteId));
     } catch (error) {
       if (!mounted) {
         return;
@@ -188,14 +183,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) {
-                return NoteEditorScreen(noteId: note.id);
-              },
-            ),
-          );
+          context.push(AppRoutes.noteEditorLocation(noteId: note.id));
         },
         child: Padding(
           padding: const EdgeInsets.all(15),
