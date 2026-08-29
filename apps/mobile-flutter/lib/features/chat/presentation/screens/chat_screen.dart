@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,181 @@ import '../../data/services/live_draft_service.dart';
 import '../../domain/models/live_draft.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../notes/presentation/screens/user_notes_screen.dart';
+
+class ChatRouteScreen extends StatefulWidget {
+  final String chatId;
+  final String? initialOtherUserName;
+
+  const ChatRouteScreen({
+    super.key,
+    required this.chatId,
+    this.initialOtherUserName,
+  });
+
+  @override
+  State<ChatRouteScreen> createState() => _ChatRouteScreenState();
+}
+
+class _ChatRouteScreenState extends State<ChatRouteScreen> {
+  Future<String>? _otherUserNameFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareRoute();
+  }
+
+  @override
+  void didUpdateWidget(covariant ChatRouteScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.chatId != widget.chatId ||
+        oldWidget.initialOtherUserName != widget.initialOtherUserName) {
+      _prepareRoute();
+    }
+  }
+
+  void _prepareRoute() {
+    if (widget.initialOtherUserName != null) {
+      _otherUserNameFuture = null;
+      return;
+    }
+
+    _otherUserNameFuture = _resolveOtherUserName();
+  }
+
+  Future<String> _resolveOtherUserName() async {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (currentUserId == null) {
+      throw StateError('未登录');
+    }
+
+    final chatSnapshot = await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(widget.chatId)
+        .get();
+
+    final chatData = chatSnapshot.data();
+
+    if (chatData == null) {
+      throw StateError('聊天室不存在');
+    }
+
+    final participants = List<String>.from(
+      chatData['users'] ?? const <String>[],
+    );
+
+    if (!participants.contains(currentUserId)) {
+      throw StateError('当前用户不是聊天室成员');
+    }
+
+    final otherUserId = participants.firstWhere(
+      (userId) => userId != currentUserId,
+      orElse: () => '',
+    );
+
+    if (otherUserId.isEmpty) {
+      throw StateError('找不到聊天对象');
+    }
+
+    final userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(otherUserId)
+        .get();
+
+    final userData = userSnapshot.data();
+
+    if (userData == null) {
+      return '未知用户';
+    }
+
+    final nickname = (userData['nickname'] as String? ?? '').trim();
+    final username = (userData['username'] as String? ?? '').trim();
+    final email = (userData['email'] as String? ?? '').trim();
+
+    if (nickname.isNotEmpty) {
+      return nickname;
+    }
+
+    if (username.isNotEmpty) {
+      return username;
+    }
+
+    if (email.isNotEmpty) {
+      return email;
+    }
+
+    return '未知用户';
+  }
+
+  void _retry() {
+    setState(() {
+      _otherUserNameFuture = _resolveOtherUserName();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final initialOtherUserName = widget.initialOtherUserName;
+
+    if (initialOtherUserName != null) {
+      return ChatScreen(
+        chatId: widget.chatId,
+        otherUserName: initialOtherUserName,
+      );
+    }
+
+    final future = _otherUserNameFuture ??= _resolveOtherUserName();
+
+    return FutureBuilder<String>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(body: Center(child: LoadingIndicator()));
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('聊天')),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.error_outline_rounded, size: 52),
+                    const SizedBox(height: 16),
+                    const Text(
+                      '聊天加载失败',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text('${snapshot.error}', textAlign: TextAlign.center),
+                    const SizedBox(height: 20),
+                    FilledButton.icon(
+                      onPressed: _retry,
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: const Text('重试'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        return ChatScreen(
+          chatId: widget.chatId,
+          otherUserName: snapshot.data ?? '未知用户',
+        );
+      },
+    );
+  }
+}
 
 class ChatScreen extends StatefulWidget {
   final String chatId;

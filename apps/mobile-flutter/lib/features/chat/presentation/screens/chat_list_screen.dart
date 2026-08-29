@@ -10,7 +10,6 @@ import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 import '../providers/chat_provider.dart' as chatProv;
 import '../../../social/presentation/providers/friend_provider.dart'
     as friendProv;
-import 'chat_screen.dart';
 import '../../../../core/widgets/user_avatar.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/loading_indicator.dart';
@@ -198,20 +197,21 @@ class _ChatListScreenState extends State<ChatListScreen>
                             l10n.send,
                             () async {
                               Navigator.pop(context);
-                              final chatProvider = context
+
+                              final chatProvider = this.context
                                   .read<chatProv.ChatProvider>();
+
                               final chatId = await chatProvider.getOrCreateChat(
                                 uid,
                               );
-                              if (!mounted) return;
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ChatScreen(
-                                    chatId: chatId,
-                                    otherUserName: displayName2,
-                                  ),
-                                ),
+
+                              if (!mounted) {
+                                return;
+                              }
+
+                              this.context.push(
+                                AppRoutes.chatLocation(chatId: chatId),
+                                extra: displayName2,
                               );
                             },
                           ),
@@ -442,12 +442,10 @@ class _ChatListScreenState extends State<ChatListScreen>
                 return InkWell(
                   onTap: () {
                     chatProvider.markAsRead(chat.id, currentUserId);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ChatScreen(chatId: chat.id, otherUserName: name),
-                      ),
+
+                    context.push(
+                      AppRoutes.chatLocation(chatId: chat.id),
+                      extra: name,
                     );
                   },
                   child: Padding(
@@ -625,20 +623,20 @@ class _ChatListScreenState extends State<ChatListScreen>
                           color: Theme.of(context).primaryColor,
                           splashRadius: 24,
                           onPressed: () async {
-                            final chatProvider = context
+                            final chatProvider = this.context
                                 .read<chatProv.ChatProvider>();
+
                             final chatId = await chatProvider.getOrCreateChat(
                               friendUid,
                             );
-                            if (!mounted) return;
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChatScreen(
-                                  chatId: chatId,
-                                  otherUserName: name,
-                                ),
-                              ),
+
+                            if (!mounted) {
+                              return;
+                            }
+
+                            this.context.push(
+                              AppRoutes.chatLocation(chatId: chatId),
+                              extra: name,
                             );
                           },
                         ),

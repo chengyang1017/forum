@@ -9,6 +9,8 @@ abstract final class AppRoutes {
 
   static const friendRequests = '/friends/requests';
 
+  static const chat = '/chats/:chatId';
+
   static const feed = '/feed/:channelKey/:categoryId';
   static const createPost = '/posts/new/:channelKey/:categoryId';
   static const postDetail = '/posts/:postId';
@@ -20,6 +22,10 @@ abstract final class AppRoutes {
     return '/feed/'
         '${Uri.encodeComponent(channelKey)}/'
         '${Uri.encodeComponent(categoryId)}';
+  }
+
+  static String chatLocation({required String chatId}) {
+    return '/chats/${Uri.encodeComponent(chatId)}';
   }
 
   static String createPostLocation({
