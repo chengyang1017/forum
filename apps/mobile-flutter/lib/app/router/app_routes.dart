@@ -6,4 +6,15 @@ abstract final class AppRoutes {
   static const forgotPassword = '/forgot-password';
 
   static const home = '/home';
+
+  static const feed = '/feed/:channelKey/:categoryId';
+
+  static String feedLocation({
+    required String channelKey,
+    required String categoryId,
+  }) {
+    return '/feed/'
+        '${Uri.encodeComponent(channelKey)}/'
+        '${Uri.encodeComponent(categoryId)}';
+  }
 }

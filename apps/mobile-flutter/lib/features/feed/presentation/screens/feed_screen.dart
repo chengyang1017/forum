@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/forum_categories.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/loading_indicator.dart';
@@ -12,24 +14,20 @@ import '../../../post/presentation/widgets/post_item_card.dart';
 import '../providers/feed_provider.dart' as feedProv;
 
 class FeedScreen extends StatelessWidget {
-  // 一级分类。继续用于旧 Firestore 查询。
-  final String category;
-
-  // 当前浏览到的分类节点。为空时等于 category。
-  final String? categoryId;
-
+  final String channelKey;
+  final String categoryId;
   final String languageCode;
   final String languageName;
 
   const FeedScreen({
     super.key,
-    required this.category,
-    this.categoryId,
+    required this.channelKey,
+    required this.categoryId,
     required this.languageCode,
     required this.languageName,
   });
 
-  String get _selectedCategoryId => categoryId ?? category;
+  String get _selectedCategoryId => categoryId;
 
   String get _rootCategoryId {
     return ForumCategories.rootIdOf(_selectedCategoryId);
@@ -59,22 +57,17 @@ class FeedScreen extends StatelessWidget {
         children: [
           _CategoryBreadcrumbBar(
             categoryId: _selectedCategoryId,
-            languageCode: languageCode,
-            languageName: languageName,
+            channelKey: channelKey,
           ),
           if (children.isNotEmpty)
             _CategoryChildrenBar(
               parentCategoryId: _selectedCategoryId,
               children: children,
               onSelected: (child) {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => FeedScreen(
-                      category: _rootCategoryId,
-                      categoryId: child.id,
-                      languageCode: languageCode,
-                      languageName: languageName,
-                    ),
+                context.push(
+                  AppRoutes.feedLocation(
+                    channelKey: channelKey,
+                    categoryId: child.id,
                   ),
                 );
               },
@@ -143,9 +136,11 @@ class FeedScreen extends StatelessWidget {
       return posts;
     }
 
-    return posts.where((post) {
-      return post.categoryPath.contains(_selectedCategoryId);
-    }).toList(growable: false);
+    return posts
+        .where((post) {
+          return post.categoryPath.contains(_selectedCategoryId);
+        })
+        .toList(growable: false);
   }
 
   AppBar _buildAppBar(BuildContext context) {
@@ -183,11 +178,7 @@ class FeedScreen extends StatelessWidget {
       surfaceTintColor: Colors.transparent,
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
-        child: Divider(
-          height: 1,
-          thickness: 1,
-          color: Colors.grey.shade200,
-        ),
+        child: Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
       ),
       actions: [
         Padding(
@@ -223,11 +214,7 @@ class FeedScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            size: 48,
-            color: Colors.redAccent,
-          ),
+          const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
           const SizedBox(height: 12),
           const Text(
             '加载失败',
@@ -240,10 +227,7 @@ class FeedScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '$error',
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.redAccent,
-            ),
+            style: const TextStyle(fontSize: 12, color: Colors.redAccent),
             textAlign: TextAlign.center,
           ),
         ],
@@ -310,13 +294,11 @@ class FeedScreen extends StatelessWidget {
 
 class _CategoryBreadcrumbBar extends StatelessWidget {
   final String categoryId;
-  final String languageCode;
-  final String languageName;
+  final String channelKey;
 
   const _CategoryBreadcrumbBar({
     required this.categoryId,
-    required this.languageCode,
-    required this.languageName,
+    required this.channelKey,
   });
 
   @override
@@ -351,22 +333,15 @@ class _CategoryBreadcrumbBar extends StatelessWidget {
               onTap: index == path.length - 1
                   ? null
                   : () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => FeedScreen(
-                            category: path.first,
-                            categoryId: path[index],
-                            languageCode: languageCode,
-                            languageName: languageName,
-                          ),
+                      context.push(
+                        AppRoutes.feedLocation(
+                          channelKey: channelKey,
+                          categoryId: path[index],
                         ),
                       );
                     },
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 4,
-                  vertical: 3,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
                 child: Text(
                   ForumCategories.nameOf(path[index], uiLanguageCode),
                   style: TextStyle(
