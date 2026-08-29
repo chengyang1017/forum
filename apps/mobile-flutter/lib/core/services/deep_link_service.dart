@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 import 'package:flutter/widgets.dart';
@@ -20,13 +20,13 @@ class DeepLinkService {
     _subscription ??= _appLinks.uriLinkStream.listen(
       _handleUri,
       onError: (Object error) {
-        debugPrint('æŽ¥æ”¶å¸–å­é“¾æŽ¥å¤±è´¥ï¼š$error');
+        debugPrint('接收帖子链接失败：$error');
       },
     );
   }
 
   void _handleUri(Uri uri) {
-    debugPrint('æ”¶åˆ°é“¾æŽ¥ï¼š$uri');
+    debugPrint('收到链接：$uri');
 
     if (uri.scheme != 'forum' || uri.host != 'post') {
       return;
@@ -55,7 +55,7 @@ class DeepLinkService {
     final openPostRoute = _openPostRoute;
 
     if (openPostRoute == null) {
-      debugPrint('å¸–å­é“¾æŽ¥è·¯ç”±å°šæœªåˆå§‹åŒ–');
+      debugPrint('帖子链接路由尚未初始化');
       return;
     }
 
@@ -64,7 +64,7 @@ class DeepLinkService {
     try {
       await openPostRoute(postId);
     } catch (error) {
-      debugPrint('æ‰“å¼€å¸–å­è·¯ç”±å¤±è´¥ï¼š$error');
+      debugPrint('打开帖子路由失败：$error');
     } finally {
       _openingPostId = null;
     }
