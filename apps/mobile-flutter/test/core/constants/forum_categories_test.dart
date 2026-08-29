@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_application_3/core/constants/forum_categories.dart';
+import 'package:glyphora_mobile/core/constants/forum_categories.dart';
 
 void main() {
   group('ForumCategories', () {
     test('returns direct children', () {
-      final programmingChildren = ForumCategories.childrenOf('programming')
-          .map((category) => category.id)
-          .toSet();
+      final programmingChildren = ForumCategories.childrenOf(
+        'programming',
+      ).map((category) => category.id).toSet();
 
       expect(
         programmingChildren,
@@ -20,21 +20,15 @@ void main() {
     });
 
     test('builds a multi-level path', () {
-      expect(
-        ForumCategories.pathOf('flutter'),
-        <String>[
-          'programming',
-          'mobile_development',
-          'flutter',
-        ],
-      );
+      expect(ForumCategories.pathOf('flutter'), <String>[
+        'programming',
+        'mobile_development',
+        'flutter',
+      ]);
     });
 
     test('finds the root category', () {
-      expect(
-        ForumCategories.rootIdOf('cardiology'),
-        'medicine',
-      );
+      expect(ForumCategories.rootIdOf('cardiology'), 'medicine');
     });
 
     test('detects branches and leaves', () {
@@ -44,9 +38,9 @@ void main() {
     });
 
     test('returns every descendant', () {
-      final descendants = ForumCategories.descendantsOf('programming')
-          .map((category) => category.id)
-          .toSet();
+      final descendants = ForumCategories.descendantsOf(
+        'programming',
+      ).map((category) => category.id).toSet();
 
       expect(descendants, contains('mobile_development'));
       expect(descendants, contains('flutter'));
@@ -72,25 +66,20 @@ void main() {
     });
 
     test('returns localized names with fallback', () {
-      expect(
-        ForumCategories.nameOf('internal_medicine', 'zh'),
-        '内科',
-      );
+      expect(ForumCategories.nameOf('internal_medicine', 'zh'), '内科');
       expect(
         ForumCategories.nameOf('internal_medicine', 'en'),
         'Internal Medicine',
       );
-      expect(
-        ForumCategories.nameOf('flutter', 'vi'),
-        'Flutter',
-      );
+      expect(ForumCategories.nameOf('flutter', 'vi'), 'Flutter');
     });
 
     test('returns localized breadcrumb path', () {
-      expect(
-        ForumCategories.localizedPathOf('cardiology', 'zh'),
-        <String>['医学', '内科', '心血管内科'],
-      );
+      expect(ForumCategories.localizedPathOf('cardiology', 'zh'), <String>[
+        '医学',
+        '内科',
+        '心血管内科',
+      ]);
     });
   });
 }
