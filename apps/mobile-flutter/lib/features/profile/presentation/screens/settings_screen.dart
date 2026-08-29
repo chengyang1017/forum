@@ -6,8 +6,6 @@ import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/providers/app_language.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
-import '../../../auth/presentation/screens/change_password_screen.dart';
-import 'security_settings_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -106,12 +104,7 @@ class SettingsScreen extends StatelessWidget {
             title: l10n.securitySettings,
             subtitle: l10n.securitySettingsDesc,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const SecuritySettingsScreen(),
-                ),
-              );
+              context.push(AppRoutes.securitySettings);
             },
           ),
           _buildItem(
@@ -120,10 +113,7 @@ class SettingsScreen extends StatelessWidget {
             title: l10n.changePassword,
             subtitle: l10n.changePasswordDesc,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ChangePasswordScreen()),
-              );
+              context.push(AppRoutes.changePassword);
             },
           ),
           _buildItem(
