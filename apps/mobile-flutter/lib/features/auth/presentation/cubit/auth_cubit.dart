@@ -169,7 +169,7 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final user = await _authRepo.login(email, password);
 
-      emit(state.copyWith(user: user, isLoading: false));
+      emit(state.copyWith(user: user, isLoading: false, isInitialized: true));
     } catch (_) {
       emit(state.copyWith(isLoading: false));
 
@@ -183,7 +183,7 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final user = await _authRepo.register(email, password, username);
 
-      emit(state.copyWith(user: user, isLoading: false));
+      emit(state.copyWith(user: user, isLoading: false, isInitialized: true));
     } catch (_) {
       emit(state.copyWith(isLoading: false));
 
