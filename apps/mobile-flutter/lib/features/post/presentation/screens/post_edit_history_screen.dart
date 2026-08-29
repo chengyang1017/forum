@@ -7,10 +7,7 @@ import '../../data/services/post_node_service.dart';
 class PostEditHistoryScreen extends StatefulWidget {
   final String postId;
 
-  const PostEditHistoryScreen({
-    super.key,
-    required this.postId,
-  });
+  const PostEditHistoryScreen({super.key, required this.postId});
 
   @override
   State<PostEditHistoryScreen> createState() => _PostEditHistoryScreenState();
@@ -76,9 +73,7 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
           }
 
           if (snapshot.hasError) {
-            return Center(
-              child: Text('加载失败：${snapshot.error}'),
-            );
+            return Center(child: Text('加载失败：${snapshot.error}'));
           }
 
           final history = snapshot.data ?? const <Map<String, dynamic>>[];
@@ -92,11 +87,10 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
             child: ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
               itemCount: history.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
+              separatorBuilder: (_, _) => const Divider(height: 1),
               itemBuilder: (context, index) {
                 final data = history[index];
-                final languageCode =
-                    data['languageCode']?.toString() ?? '';
+                final languageCode = data['languageCode']?.toString() ?? '';
                 final title = data['title']?.toString() ?? '';
 
                 return ListTile(
@@ -106,11 +100,7 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (title.isNotEmpty) Text(title),
-                      Text(
-                        languageCode.isEmpty
-                            ? '语言未知'
-                            : '语言：$languageCode',
-                      ),
+                      Text(languageCode.isEmpty ? '语言未知' : '语言：$languageCode'),
                     ],
                   ),
                   trailing: const Icon(Icons.chevron_right),
@@ -118,8 +108,7 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            _PostHistoryDetailScreen(data: data),
+                        builder: (_) => _PostHistoryDetailScreen(data: data),
                       ),
                     );
                   },
@@ -208,7 +197,7 @@ class _PostHistoryDetailScreenState extends State<_PostHistoryDetailScreen> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: images.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(12),

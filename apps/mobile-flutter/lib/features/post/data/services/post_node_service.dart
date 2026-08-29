@@ -41,34 +41,28 @@ class PostService {
     }
   }
 
- Future<List<PostModel>> getPosts({
-  required String category,
-  required String languageCode,
-}) {
-  return _postApi.getPosts(
-    category: category,
-    languageCode: languageCode,
-  );
-}
-
-Stream<List<PostModel>> watchUserPosts(
-  String firebaseUid,
-) async* {
-  while (true) {
-    yield await _postApi.getPostsByUser(firebaseUid);
-
-    await Future<void>.delayed(
-      const Duration(seconds: 15),
-    );
+  Future<List<PostModel>> getPosts({
+    required String category,
+    required String languageCode,
+  }) {
+    return _postApi.getPosts(category: category, languageCode: languageCode);
   }
-}
 
-Future<void> refreshPosts({
-  required String category,
-  required String languageCode,
-}) async {
-  _refreshController.add(null);
-}
+  Stream<List<PostModel>> watchUserPosts(String firebaseUid) async* {
+    while (true) {
+      yield await _postApi.getPostsByUser(firebaseUid);
+
+      await Future<void>.delayed(const Duration(seconds: 15));
+    }
+  }
+
+  Future<void> refreshPosts({
+    required String category,
+    required String languageCode,
+  }) async {
+    _refreshController.add(null);
+  }
+
   Future<void> createPost(PostModel post) async {
     if (_auth.currentUser == null) {
       throw Exception('未登录');
@@ -169,10 +163,7 @@ Future<void> refreshPosts({
     return result.likeCount;
   }
 
-  Future<bool> toggleBookmark(
-    String postId, {
-    required bool bookmarked,
-  }) {
+  Future<bool> toggleBookmark(String postId, {required bool bookmarked}) {
     return bookmarked
         ? _postApi.bookmarkPost(postId)
         : _postApi.removeBookmark(postId);
@@ -181,7 +172,6 @@ Future<void> refreshPosts({
   Future<List<PostModel>> getBookmarkedPosts() {
     return _postApi.getBookmarkedPosts();
   }
-
 
   Future<PostReportResult> reportPost({
     required String postId,

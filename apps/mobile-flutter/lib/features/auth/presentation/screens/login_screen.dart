@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 // ✅ 别名导入
-import '../providers/auth_provider.dart' as authProv;
+import '../providers/auth_provider.dart' as auth_prov;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       // ✅ 使用别名调用
-      final authProvider = context.read<authProv.AuthProvider>();
+      final authProvider = context.read<auth_prov.AuthProvider>();
       await authProvider.login(email, password);
 
       // 登录完成后同步 Node 用户，并加载当前账号 interests。

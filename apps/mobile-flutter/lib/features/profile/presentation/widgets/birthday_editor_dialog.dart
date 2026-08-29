@@ -92,7 +92,7 @@ Future<BirthdayEditorResult?> showBirthdayEditorDialog({
             const SizedBox(height: 8),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              activeColor: Colors.blue,
+              activeThumbColor: Colors.blue,
               title: const Text('公开年龄', style: TextStyle(fontSize: 14)),
               subtitle: const Text('关闭后仅自己可见', style: TextStyle(fontSize: 12)),
               value: tempShowAge,
@@ -135,6 +135,14 @@ Widget _buildPicker(
 ) {
   return PopupMenuButton<int>(
     offset: const Offset(0, 40),
+    itemBuilder: (context) => List.generate(count, (i) {
+      final val = valueBuilder(i);
+      return PopupMenuItem(
+        value: val,
+        child: Text('$val', style: const TextStyle(fontSize: 14)),
+      );
+    }),
+    onSelected: onChanged,
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
@@ -153,14 +161,6 @@ Widget _buildPicker(
         ],
       ),
     ),
-    itemBuilder: (context) => List.generate(count, (i) {
-      final val = valueBuilder(i);
-      return PopupMenuItem(
-        value: val,
-        child: Text('$val', style: const TextStyle(fontSize: 14)),
-      );
-    }),
-    onSelected: onChanged,
   );
 }
 

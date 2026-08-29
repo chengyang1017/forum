@@ -8,8 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
-import '../providers/chat_provider.dart' as chatProv;
+import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../providers/chat_provider.dart' as chat_prov;
 import '../widgets/message_bubble.dart';
 import '../widgets/emoji_picker.dart';
 import '../widgets/chat_input_bar.dart';
@@ -396,7 +396,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     try {
-      await context.read<chatProv.ChatProvider>().editMessage(
+      await context.read<chat_prov.ChatProvider>().editMessage(
         chatId: widget.chatId,
         messageId: messageId,
         currentUserId: currentUserId,
@@ -479,7 +479,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     try {
-      await context.read<chatProv.ChatProvider>().deleteMessageForMe(
+      await context.read<chat_prov.ChatProvider>().deleteMessageForMe(
         chatId: widget.chatId,
         messageId: messageId,
         currentUserId: currentUserId,
@@ -521,7 +521,7 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
 
-    if (confirmed != true) {
+    if (confirmed != true || !mounted) {
       return;
     }
 
@@ -532,7 +532,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     try {
-      await context.read<chatProv.ChatProvider>().deleteMessageForEveryone(
+      await context.read<chat_prov.ChatProvider>().deleteMessageForEveryone(
         chatId: widget.chatId,
         messageId: messageId,
         currentUserId: currentUserId,
@@ -571,6 +571,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     });
                   }
 
+                  final chatProvider = this.context
+                      .read<chat_prov.ChatProvider>();
+
                   // 关闭时先删除实时内容。
                   // 不要等待 Firestore 设置保存完成。
                   if (!value) {
@@ -581,8 +584,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   }
 
                   try {
-                    final chatProvider = context.read<chatProv.ChatProvider>();
-
                     await chatProvider.updateLiveDraftEnabled(
                       chatId: widget.chatId,
                       userId: userId,
@@ -632,7 +633,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (userId == null) return;
 
     try {
-      final chatProvider = context.read<chatProv.ChatProvider>();
+      final chatProvider = context.read<chat_prov.ChatProvider>();
 
       final enabled = await chatProvider.getLiveDraftEnabled(
         chatId: widget.chatId,
@@ -670,7 +671,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _initializeChat() async {
-    final authProvider = context.read<authProv.AuthProvider>();
+    final authProvider = context.read<auth_prov.AuthProvider>();
 
     final currentUser = authProvider.user;
 
@@ -759,7 +760,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _loadOtherUserData() async {
-    final chatProvider = context.read<chatProv.ChatProvider>();
+    final chatProvider = context.read<chat_prov.ChatProvider>();
 
     final userIds = await chatProvider.getChatParticipants(widget.chatId);
 
@@ -784,17 +785,14 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _loadParticipantData() async {
-    final chatProvider = context.read<chatProv.ChatProvider>();
+    final chatProvider = context.read<chat_prov.ChatProvider>();
 
     final userIds = await chatProvider.getChatParticipants(widget.chatId);
 
     final currentUserId = _currentUserId;
 
     // 使用 Set，避免重复，同时保证当前用户也在里面。
-    final allUserIds = <String>{
-      ...userIds,
-      if (currentUserId != null) currentUserId,
-    };
+    final allUserIds = <String>{...userIds, ?currentUserId};
 
     if (allUserIds.isEmpty) {
       return;
@@ -842,7 +840,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _clearUnread() async {
     if (_currentUserId == null) return;
-    final chatProvider = context.read<chatProv.ChatProvider>();
+    final chatProvider = context.read<chat_prov.ChatProvider>();
     await chatProvider.markAsRead(widget.chatId, _currentUserId!);
   }
 
@@ -857,7 +855,7 @@ class _ChatScreenState extends State<ChatScreen> {
       return;
     }
 
-    final authProvider = context.read<authProv.AuthProvider>();
+    final authProvider = context.read<auth_prov.AuthProvider>();
 
     final senderId = authProvider.user?.id;
 
@@ -869,7 +867,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     try {
-      await context.read<chatProv.ChatProvider>().sendMessageWithSender(
+      await context.read<chat_prov.ChatProvider>().sendMessageWithSender(
         widget.chatId,
         senderId,
         text,
@@ -888,11 +886,11 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendEmoji(String emoji) {
-    final authProvider = context.read<authProv.AuthProvider>();
+    final authProvider = context.read<auth_prov.AuthProvider>();
     final senderId = authProvider.user?.id;
     if (senderId == null) return;
 
-    final chatProvider = context.read<chatProv.ChatProvider>();
+    final chatProvider = context.read<chat_prov.ChatProvider>();
     chatProvider.sendMessageWithSender(widget.chatId, senderId, emoji);
   }
 
@@ -902,13 +900,13 @@ class _ChatScreenState extends State<ChatScreen> {
       imageQuality: 85,
       maxWidth: 1024,
     );
-    if (image == null) return;
+    if (image == null || !mounted) return;
 
     setState(() => _isUploading = true);
 
     try {
-      final authProvider = context.read<authProv.AuthProvider>();
-      final chatProvider = context.read<chatProv.ChatProvider>();
+      final authProvider = context.read<auth_prov.AuthProvider>();
+      final chatProvider = context.read<chat_prov.ChatProvider>();
       await chatProvider.sendImageMessage(
         widget.chatId,
         File(image.path),
@@ -1204,7 +1202,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // ============================================================
 
   Widget _buildMessageList() {
-    final chatProvider = context.watch<chatProv.ChatProvider>();
+    final chatProvider = context.watch<chat_prov.ChatProvider>();
 
     return StreamBuilder<QuerySnapshot>(
       stream: chatProvider.watchMessages(widget.chatId),

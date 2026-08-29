@@ -133,7 +133,7 @@ class _BookmarkedPostsScreenState extends State<BookmarkedPostsScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 24),
         itemCount: _posts.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
+        separatorBuilder: (_, _) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final post = _posts[index];
 

@@ -8,7 +8,7 @@ import '../../../post/domain/models/post_model.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../chat/data/services/chat_service.dart';
 import '../../../social/data/services/friend_service.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
+import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
 import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_routes.dart';
 import '../widgets/profile_post_sliver_list.dart';
@@ -45,7 +45,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   void _loadCurrentUser() {
-    final authProvider = context.read<authProv.AuthProvider>();
+    final authProvider = context.read<auth_prov.AuthProvider>();
     final user = authProvider.user;
     if (user != null) {
       _currentUserId = user.id;
@@ -594,10 +594,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     child: CachedNetworkImage(
                       imageUrl: avatar,
                       fit: BoxFit.contain,
-                      placeholder: (_, __) => const Center(
+                      placeholder: (_, _) => const Center(
                         child: CircularProgressIndicator(color: Colors.white),
                       ),
-                      errorWidget: (_, __, ___) => const Icon(
+                      errorWidget: (_, _, _) => const Icon(
                         Icons.person,
                         size: 200,
                         color: Colors.white,
@@ -618,7 +618,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             border: Border.all(color: Colors.white, width: 4),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -691,7 +691,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50.withOpacity(0.5),
+                    color: Colors.blue.shade50.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -705,107 +705,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 );
               }).toList(),
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLanguageSection(List<Map<String, dynamic>> languages) {
-    return Container(
-      margin: EdgeInsets.zero,
-      padding: const EdgeInsets.all(20),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.translate_rounded,
-                size: 18,
-                color: Colors.green.shade600,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '语言能力',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade800,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ...languages.map((lang) {
-            final level = lang['level'];
-            final levelValue = level is num ? level.toDouble() : 70.0;
-            final isNative = level == 'native';
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 80,
-                    child: Text(
-                      lang['name']?.toString() ?? '',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: isNative
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.shade50,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              '母语 / Native',
-                              style: TextStyle(
-                                color: Colors.orange.shade700,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          )
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: levelValue / 100,
-                              minHeight: 6,
-                              backgroundColor: Colors.grey.shade100,
-                              color: Colors.green.shade400,
-                            ),
-                          ),
-                  ),
-                  if (!isNative)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Text(
-                        '${levelValue.toInt()}%',
-                        style: TextStyle(
-                          color: Colors.grey.shade500,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            );
-          }),
         ],
       ),
     );

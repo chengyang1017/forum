@@ -3,11 +3,7 @@ class ForumCategory {
   final String? parentId;
   final Map<String, String> names;
 
-  const ForumCategory({
-    required this.id,
-    this.parentId,
-    this.names = const {},
-  });
+  const ForumCategory({required this.id, this.parentId, this.names = const {}});
 
   bool get isRoot => parentId == null;
 
@@ -36,58 +32,19 @@ class ForumCategories {
       id: 'programming',
       names: {'zh': '编程开发', 'en': 'Programming'},
     ),
-    ForumCategory(
-      id: 'ai',
-      names: {'zh': 'AI', 'en': 'AI'},
-    ),
-    ForumCategory(
-      id: 'technology',
-      names: {'zh': '科技', 'en': 'Technology'},
-    ),
-    ForumCategory(
-      id: 'gaming',
-      names: {'zh': '游戏', 'en': 'Gaming'},
-    ),
-    ForumCategory(
-      id: 'music',
-      names: {'zh': '音乐', 'en': 'Music'},
-    ),
-    ForumCategory(
-      id: 'movies',
-      names: {'zh': '影视', 'en': 'Film & TV'},
-    ),
-    ForumCategory(
-      id: 'campus',
-      names: {'zh': '校园', 'en': 'Campus'},
-    ),
-    ForumCategory(
-      id: 'startup',
-      names: {'zh': '创业', 'en': 'Startups'},
-    ),
-    ForumCategory(
-      id: 'friends',
-      names: {'zh': '交友', 'en': 'Friends'},
-    ),
-    ForumCategory(
-      id: 'travel',
-      names: {'zh': '旅行', 'en': 'Travel'},
-    ),
-    ForumCategory(
-      id: 'chat',
-      names: {'zh': '闲聊', 'en': 'Chat'},
-    ),
-    ForumCategory(
-      id: 'love',
-      names: {'zh': '爱情', 'en': 'Relationships'},
-    ),
-    ForumCategory(
-      id: 'food',
-      names: {'zh': '美食', 'en': 'Food'},
-    ),
-    ForumCategory(
-      id: 'medicine',
-      names: {'zh': '医学', 'en': 'Medicine'},
-    ),
+    ForumCategory(id: 'ai', names: {'zh': 'AI', 'en': 'AI'}),
+    ForumCategory(id: 'technology', names: {'zh': '科技', 'en': 'Technology'}),
+    ForumCategory(id: 'gaming', names: {'zh': '游戏', 'en': 'Gaming'}),
+    ForumCategory(id: 'music', names: {'zh': '音乐', 'en': 'Music'}),
+    ForumCategory(id: 'movies', names: {'zh': '影视', 'en': 'Film & TV'}),
+    ForumCategory(id: 'campus', names: {'zh': '校园', 'en': 'Campus'}),
+    ForumCategory(id: 'startup', names: {'zh': '创业', 'en': 'Startups'}),
+    ForumCategory(id: 'friends', names: {'zh': '交友', 'en': 'Friends'}),
+    ForumCategory(id: 'travel', names: {'zh': '旅行', 'en': 'Travel'}),
+    ForumCategory(id: 'chat', names: {'zh': '闲聊', 'en': 'Chat'}),
+    ForumCategory(id: 'love', names: {'zh': '爱情', 'en': 'Relationships'}),
+    ForumCategory(id: 'food', names: {'zh': '美食', 'en': 'Food'}),
+    ForumCategory(id: 'medicine', names: {'zh': '医学', 'en': 'Medicine'}),
 
     // ============================================================
     // 编程开发
@@ -281,9 +238,9 @@ class ForumCategories {
     String categoryId,
     String uiLanguageCode,
   ) {
-    return pathOf(categoryId)
-        .map((id) => nameOf(id, uiLanguageCode))
-        .toList(growable: false);
+    return pathOf(
+      categoryId,
+    ).map((id) => nameOf(id, uiLanguageCode)).toList(growable: false);
   }
 
   static String rootIdOf(String categoryId) {

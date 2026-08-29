@@ -11,14 +11,14 @@ import 'app/l10n/localizations_delegate.dart';
 import 'app/providers/app_language.dart';
 
 // ========== Provider（功能模块） ==========
-import 'features/auth/presentation/providers/auth_provider.dart' as authProv;
-import 'features/chat/presentation/providers/chat_provider.dart' as chatProv;
+import 'features/auth/presentation/providers/auth_provider.dart' as auth_prov;
+import 'features/chat/presentation/providers/chat_provider.dart' as chat_prov;
 import 'features/social/presentation/providers/friend_provider.dart'
-    as friendProv;
-import 'features/feed/presentation/providers/feed_provider.dart' as feedProv;
+    as friend_prov;
+import 'features/feed/presentation/providers/feed_provider.dart' as feed_prov;
 import 'features/discover/presentation/providers/discover_provider.dart'
-    as discoverProv;
-import 'features/post/presentation/providers/post_provider.dart' as postProv;
+    as discover_prov;
+import 'features/post/presentation/providers/post_provider.dart' as post_prov;
 
 import 'app/router/app_router.dart';
 import 'app/router/app_routes.dart';
@@ -59,13 +59,13 @@ class MyApp extends StatelessWidget {
 
         // ----- 功能模块 Provider -----
         ChangeNotifierProvider(
-          create: (_) => authProv.AuthProvider()..loadUser(),
+          create: (_) => auth_prov.AuthProvider()..loadUser(),
         ),
-        ChangeNotifierProvider(create: (_) => chatProv.ChatProvider()),
-        ChangeNotifierProvider(create: (_) => friendProv.FriendProvider()),
-        ChangeNotifierProvider(create: (_) => discoverProv.DiscoverProvider()),
-        ChangeNotifierProvider(create: (_) => feedProv.FeedProvider()),
-        ChangeNotifierProvider(create: (_) => postProv.PostProvider()),
+        ChangeNotifierProvider(create: (_) => chat_prov.ChatProvider()),
+        ChangeNotifierProvider(create: (_) => friend_prov.FriendProvider()),
+        ChangeNotifierProvider(create: (_) => discover_prov.DiscoverProvider()),
+        ChangeNotifierProvider(create: (_) => feed_prov.FeedProvider()),
+        ChangeNotifierProvider(create: (_) => post_prov.PostProvider()),
       ],
       child: Consumer<AppLanguage>(
         builder: (context, appLanguage, child) {

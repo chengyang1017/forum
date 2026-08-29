@@ -12,7 +12,7 @@ Future<List<Map<String, dynamic>>?> showLanguageEditorSheet({
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withOpacity(0.35),
+    barrierColor: Colors.black.withValues(alpha: 0.35),
     builder: (context) {
       return _LanguageEditorSheet(selectedLanguages: selectedLanguages);
     },
@@ -837,7 +837,7 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
           height: 1,
           thickness: 1,
           indent: 64,
-          color: colors.outlineVariant.withOpacity(0.55),
+          color: colors.outlineVariant.withValues(alpha: 0.55),
         );
       },
       itemBuilder: (context, index) {
@@ -1156,7 +1156,7 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
                     height: 38,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: colors.primaryContainer.withOpacity(0.65),
+                      color: colors.primaryContainer.withValues(alpha: 0.65),
                       shape: BoxShape.circle,
                     ),
                     child: Text(flag, style: const TextStyle(fontSize: 20)),
@@ -1185,8 +1185,8 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
                     ),
                     decoration: BoxDecoration(
                       color: isNative
-                          ? Colors.orange.withOpacity(0.12)
-                          : colors.primary.withOpacity(0.09),
+                          ? Colors.orange.withValues(alpha: 0.12)
+                          : colors.primary.withValues(alpha: 0.09),
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: Text(

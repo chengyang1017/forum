@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../data/repositories/chat_repository.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
+import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
 
 class ChatProvider extends ChangeNotifier {
   final ChatRepository _chatRepo = ChatRepository();
@@ -119,7 +119,7 @@ class ChatProvider extends ChangeNotifier {
   Future<void> sendImageMessage(
     String chatId,
     File imageFile,
-    authProv.AuthProvider authProvider,
+    auth_prov.AuthProvider authProvider,
   ) async {
     final senderId = authProvider.user?.id;
     if (senderId == null) throw Exception('未登录');

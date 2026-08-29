@@ -35,10 +35,7 @@ class CommentApi {
   }) async {
     final response = await _apiClient.post(
       '/posts/${Uri.encodeComponent(postId)}/comments',
-      data: {
-        'text': text,
-        if (imageUrl != null) 'imageUrl': imageUrl,
-      },
+      data: {'text': text, 'imageUrl': ?imageUrl},
     );
 
     final data = response['comment'];
@@ -47,9 +44,7 @@ class CommentApi {
       throw const CommentApiException('服务器返回的评论格式无效');
     }
 
-    return PostCommentModel.fromJson(
-      Map<String, dynamic>.from(data),
-    );
+    return PostCommentModel.fromJson(Map<String, dynamic>.from(data));
   }
 
   Future<PostCommentModel> createReply({
@@ -69,9 +64,7 @@ class CommentApi {
       throw const CommentApiException('服务器返回的回复格式无效');
     }
 
-    return PostCommentModel.fromJson(
-      Map<String, dynamic>.from(data),
-    );
+    return PostCommentModel.fromJson(Map<String, dynamic>.from(data));
   }
 }
 

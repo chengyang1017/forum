@@ -7,10 +7,10 @@ import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/forum_categories.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/loading_indicator.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
+import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
 import '../../../post/domain/models/post_model.dart';
 import '../../../post/presentation/widgets/post_item_card.dart';
-import '../providers/feed_provider.dart' as feedProv;
+import '../providers/feed_provider.dart' as feed_prov;
 
 class FeedScreen extends StatelessWidget {
   final String channelKey;
@@ -34,7 +34,7 @@ class FeedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<authProv.AuthProvider>();
+    final authProvider = context.watch<auth_prov.AuthProvider>();
     final currentUserId = authProvider.user?.id;
 
     final children = ForumCategories.childrenOf(_selectedCategoryId);
@@ -63,7 +63,7 @@ class FeedScreen extends StatelessWidget {
             ),
           Expanded(
             child: StreamBuilder<List<PostModel>>(
-              stream: context.read<feedProv.FeedProvider>().watchPosts(
+              stream: context.read<feed_prov.FeedProvider>().watchPosts(
                 category: _rootCategoryId,
                 languageCode: languageCode,
                 currentUserId: currentUserId,
@@ -86,7 +86,7 @@ class FeedScreen extends StatelessWidget {
 
                 return RefreshIndicator(
                   onRefresh: () async {
-                    await context.read<feedProv.FeedProvider>().refreshPosts(
+                    await context.read<feed_prov.FeedProvider>().refreshPosts(
                       category: _rootCategoryId,
                       languageCode: languageCode,
                       currentUserId: currentUserId,
@@ -303,7 +303,7 @@ class _CategoryBreadcrumbBar extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 size: 17,
-                color: colorScheme.onSurface.withOpacity(0.35),
+                color: colorScheme.onSurface.withValues(alpha: 0.35),
               ),
             InkWell(
               borderRadius: BorderRadius.circular(8),
@@ -324,7 +324,7 @@ class _CategoryBreadcrumbBar extends StatelessWidget {
                   style: TextStyle(
                     color: index == path.length - 1
                         ? colorScheme.primary
-                        : colorScheme.onSurface.withOpacity(0.60),
+                        : colorScheme.onSurface.withValues(alpha: 0.60),
                     fontSize: 12,
                     fontWeight: index == path.length - 1
                         ? FontWeight.w700
@@ -366,7 +366,7 @@ class _CategoryChildrenBar extends StatelessWidget {
           Text(
             '继续选择分类',
             style: TextStyle(
-              color: colorScheme.onSurface.withOpacity(0.55),
+              color: colorScheme.onSurface.withValues(alpha: 0.55),
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -377,7 +377,7 @@ class _CategoryChildrenBar extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: children.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final child = children[index];
                 final childName = child.nameOf(uiLanguageCode);

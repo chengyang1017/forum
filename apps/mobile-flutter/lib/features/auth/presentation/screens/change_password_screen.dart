@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart' as authProv;
+import '../providers/auth_provider.dart' as auth_prov;
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -30,7 +30,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final authProvider = context.read<authProv.AuthProvider>();
+      final authProvider = context.read<auth_prov.AuthProvider>();
       await authProvider.changePassword(
         _currentPasswordController.text,
         _newPasswordController.text,

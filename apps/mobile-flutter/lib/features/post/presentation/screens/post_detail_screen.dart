@@ -9,8 +9,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 import 'node_comment_screen.dart';
-import '../providers/post_provider.dart' as postProv;
-import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
+import '../providers/post_provider.dart' as post_prov;
+import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
 import '../../../../core/widgets/user_name_display.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../domain/models/post_model.dart';
@@ -185,13 +185,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   void _initializeData() {
     // ✅ 安全初始化
     _post = widget.post;
-    _currentUserId = context.read<authProv.AuthProvider>().user?.id;
+    _currentUserId = context.read<auth_prov.AuthProvider>().user?.id;
     _likes = List<String>.from(_post.likes ?? []);
     _likeCount = _post.likeCount;
     _images = List<String>.from(_post.imageUrls ?? []);
     _isLiked = _currentUserId != null && _likes.contains(_currentUserId);
 
-    final postProvider = context.read<postProv.PostProvider>();
+    final postProvider = context.read<post_prov.PostProvider>();
 
     postProvider.seedBookmarkState(_post.id, _post.isBookmarked);
 
@@ -385,7 +385,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     });
 
     try {
-      final postProvider = context.read<postProv.PostProvider>();
+      final postProvider = context.read<post_prov.PostProvider>();
 
       final confirmedLikeCount = await postProvider.toggleLike(
         widget.postId,
@@ -425,7 +425,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       return;
     }
 
-    final postProvider = context.read<postProv.PostProvider>();
+    final postProvider = context.read<post_prov.PostProvider>();
 
     final previousBookmarked = postProvider.bookmarkState(
       widget.postId,
@@ -836,10 +836,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
     );
 
-    if (confirm != true) return;
+    if (confirm != true || !mounted) return;
 
     try {
-      final postProvider = context.read<postProv.PostProvider>();
+      final postProvider = context.read<post_prov.PostProvider>();
       await postProvider.deletePost(widget.postId);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -882,12 +882,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       imageQuality: 85,
       maxWidth: 1240,
     );
-    if (picked.isEmpty) return;
+    if (picked.isEmpty || !mounted) return;
 
     setState(() => _isUploadingImage = true);
 
     try {
-      final postProvider = context.read<postProv.PostProvider>();
+      final postProvider = context.read<post_prov.PostProvider>();
       final newUrls = await postProvider.uploadImages(widget.postId, picked);
 
       if (mounted) {
@@ -932,7 +932,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
     );
 
-    if (confirm != true) return;
+    if (confirm != true || !mounted) return;
 
     try {
       final targetUrl = _images[index];
@@ -941,7 +941,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         if (_currentIndex >= _images.length) _currentIndex = 0;
       });
 
-      final postProvider = context.read<postProv.PostProvider>();
+      final postProvider = context.read<post_prov.PostProvider>();
       await postProvider.removeImage(widget.postId, _images);
       await postProvider.deleteImageFromStorage(targetUrl);
       _post = _post.copyWith(imageUrls: _images);
@@ -959,14 +959,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Future<void> _reorderImages(int oldIndex, int newIndex) async {
-    if (newIndex > oldIndex) newIndex--;
     setState(() {
       final img = _images.removeAt(oldIndex);
       _images.insert(newIndex, img);
       _currentIndex = newIndex;
     });
     try {
-      final postProvider = context.read<postProv.PostProvider>();
+      final postProvider = context.read<post_prov.PostProvider>();
       await postProvider.updateImages(widget.postId, _images);
       _post = _post.copyWith(imageUrls: _images);
     } catch (e) {
@@ -1124,16 +1123,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           _isReportBusy = false;
         });
       }
-    }
-  }
-
-  // ============================================================
-  // 导航到用户主页
-  // ============================================================
-  void _navigateToProfile() {
-    final uid = _post.userId;
-    if (uid != null && uid.isNotEmpty) {
-      context.push(AppRoutes.userProfileLocation(uid: uid));
     }
   }
 
@@ -1307,14 +1296,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         barrierColor: Colors.black,
         transitionDuration: const Duration(milliseconds: 220),
         reverseTransitionDuration: const Duration(milliseconds: 180),
-        pageBuilder: (_, animation, __) {
+        pageBuilder: (_, animation, _) {
           return _XhsImagePreview(
             images: List<String>.unmodifiable(_images),
             initialIndex: initialIndex,
             postId: widget.postId,
           );
         },
-        transitionsBuilder: (_, animation, __, child) {
+        transitionsBuilder: (_, animation, _, child) {
           return FadeTransition(opacity: animation, child: child);
         },
       ),
@@ -1348,7 +1337,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       height: double.infinity,
                       fit: BoxFit.cover,
                       fadeInDuration: const Duration(milliseconds: 180),
-                      placeholder: (_, __) {
+                      placeholder: (_, _) {
                         return const Center(
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
@@ -1356,7 +1345,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           ),
                         );
                       },
-                      errorWidget: (_, __, ___) {
+                      errorWidget: (_, _, _) {
                         return const Center(
                           child: Icon(
                             Icons.broken_image_rounded,
@@ -1382,7 +1371,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.52),
+                  color: Colors.black.withValues(alpha: 0.52),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Text(
@@ -1415,7 +1404,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     decoration: BoxDecoration(
                       color: selected
                           ? Colors.white
-                          : Colors.white.withOpacity(0.55),
+                          : Colors.white.withValues(alpha: 0.55),
                       borderRadius: BorderRadius.circular(99),
                       boxShadow: const [
                         BoxShadow(color: Colors.black26, blurRadius: 2),
@@ -1479,7 +1468,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _images.length,
-            onReorder: _reorderImages,
+            onReorderItem: _reorderImages,
             buildDefaultDragHandles: false,
             itemBuilder: (context, index) {
               return Container(
@@ -1490,7 +1479,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
+                      color: Colors.black.withValues(alpha: 0.03),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -1690,7 +1679,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   // ============================================================
   Widget _buildBottomBar() {
     final globalBookmarked = context
-        .watch<postProv.PostProvider>()
+        .watch<post_prov.PostProvider>()
         .bookmarkState(widget.postId, fallback: _isBookmarked);
 
     return Container(
@@ -1698,7 +1687,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -1929,15 +1918,13 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
   final ImagePicker _imagePicker = ImagePicker();
 
   bool _uploadingImage = false;
-  bool _saving = false;
+  final bool _saving = false;
   late List<String> _topImages;
   late final List<String> _originalTopImages;
 
   final List<String> _newTopImageUrls = [];
 
   final List<String> _newInlineImageUrls = [];
-
-  bool _didSave = false;
 
   @override
   void initState() {
@@ -1965,10 +1952,6 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     final delta = _controller.document.toDelta().toJson();
 
     return delta.where((operation) {
-      if (operation is! Map) {
-        return false;
-      }
-
       final insert = operation['insert'];
 
       return insert is Map && insert.containsKey('image');
@@ -2063,10 +2046,6 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
   }
 
   void _reorderTopImages(int oldIndex, int newIndex) {
-    if (newIndex > oldIndex) {
-      newIndex--;
-    }
-
     setState(() {
       final image = _topImages.removeAt(oldIndex);
 
@@ -2194,8 +2173,6 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
         .where((url) => !_topImages.contains(url))
         .toList();
 
-    _didSave = true;
-
     Navigator.pop(
       context,
       _PostEditResult(
@@ -2319,7 +2296,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
                       scrollDirection: Axis.horizontal,
                       buildDefaultDragHandles: false,
                       itemCount: _topImages.length,
-                      onReorder: _reorderTopImages,
+                      onReorderItem: _reorderTopImages,
                       itemBuilder: (context, index) {
                         final imageUrl = _topImages[index];
 
@@ -2545,7 +2522,7 @@ class _XhsImagePreviewState extends State<_XhsImagePreview> {
                           width: MediaQuery.sizeOf(context).width,
                           height: MediaQuery.sizeOf(context).height,
                           fit: BoxFit.contain,
-                          placeholder: (_, __) {
+                          placeholder: (_, _) {
                             return const Center(
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
@@ -2553,7 +2530,7 @@ class _XhsImagePreviewState extends State<_XhsImagePreview> {
                               ),
                             );
                           },
-                          errorWidget: (_, __, ___) {
+                          errorWidget: (_, _, _) {
                             return const Center(
                               child: Icon(
                                 Icons.broken_image_rounded,
@@ -2599,7 +2576,7 @@ class _XhsImagePreviewState extends State<_XhsImagePreview> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.45),
+                            color: Colors.black.withValues(alpha: 0.45),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
@@ -2642,7 +2619,7 @@ class _XhsImagePreviewState extends State<_XhsImagePreview> {
                             decoration: BoxDecoration(
                               color: selected
                                   ? Colors.white
-                                  : Colors.white.withOpacity(0.38),
+                                  : Colors.white.withValues(alpha: 0.38),
                               borderRadius: BorderRadius.circular(99),
                             ),
                           );

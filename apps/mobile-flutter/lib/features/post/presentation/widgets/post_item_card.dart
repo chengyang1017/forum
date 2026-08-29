@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../domain/models/post_model.dart';
-import '../providers/post_provider.dart' as postProv;
+import '../providers/post_provider.dart' as post_prov;
 import '../../../../core/widgets/user_name_display.dart';
 
 class PostItemCard extends StatelessWidget {
@@ -110,7 +110,7 @@ class PostItemCard extends StatelessWidget {
       onTap:
           onTap ??
           () {
-            final postProvider = context.read<postProv.PostProvider>();
+            final postProvider = context.read<post_prov.PostProvider>();
 
             final latestBookmarked = postProvider.bookmarkState(
               post.id,
@@ -337,10 +337,10 @@ class PostItemCard extends StatelessWidget {
                         imageUrl: visibleImages[index],
                         fit: BoxFit.cover,
                         fadeInDuration: const Duration(milliseconds: 180),
-                        placeholder: (_, __) {
+                        placeholder: (_, _) {
                           return const ColoredBox(color: Color(0xFFF2F3F5));
                         },
-                        errorWidget: (_, __, ___) {
+                        errorWidget: (_, _, _) {
                           return const ColoredBox(
                             color: Color(0xFFF2F3F5),
                             child: Center(
@@ -398,14 +398,14 @@ class PostItemCard extends StatelessWidget {
         height: height,
         fit: BoxFit.cover,
         fadeInDuration: const Duration(milliseconds: 180),
-        placeholder: (_, __) {
+        placeholder: (_, _) {
           return Container(
             width: width,
             height: height,
             color: const Color(0xFFF2F3F5),
           );
         },
-        errorWidget: (_, __, ___) {
+        errorWidget: (_, _, _) {
           return Container(
             width: width,
             height: height,

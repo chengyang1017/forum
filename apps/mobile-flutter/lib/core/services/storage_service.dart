@@ -1,5 +1,7 @@
 // lib/services/storage_service.dart
 import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -23,7 +25,7 @@ class StorageService {
       }
     } catch (e) {
       // 删除失败不影响上传
-      print('删除旧头像失败: $e');
+      debugPrint('删除旧头像失败: $e');
     }
   }
 }

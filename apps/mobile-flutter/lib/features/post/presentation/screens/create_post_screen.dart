@@ -254,7 +254,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     try {
       final ref = FirebaseStorage.instance.ref().child(
         'posts/'
-        '${_draftPostId}/'
+        '$_draftPostId/'
         'inline/'
         '${DateTime.now().millisecondsSinceEpoch}_'
         '${selectedImage.name}',
@@ -904,7 +904,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
+                              color: Colors.black.withValues(alpha: 0.6),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -926,7 +926,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.6),
+                                color: Colors.black.withValues(alpha: 0.6),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(

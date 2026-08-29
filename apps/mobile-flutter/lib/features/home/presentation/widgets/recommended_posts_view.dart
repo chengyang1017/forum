@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
+import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
 import '../../../post/data/services/post_node_service.dart';
 import '../../../post/domain/models/post_model.dart';
 import '../../../post/presentation/widgets/post_item_card.dart';
@@ -13,7 +13,7 @@ class RecommendedPostsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<authProv.AuthProvider>();
+    final authProvider = context.watch<auth_prov.AuthProvider>();
 
     if (authProvider.user == null) {
       return const _InterestEmptyState(
@@ -234,7 +234,7 @@ class _InterestedPostListState extends State<_InterestedPostList> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
         itemCount: posts.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           return PostItemCard(
             post: posts[index],
@@ -276,7 +276,7 @@ class _InterestEmptyState extends StatelessWidget {
               width: 76,
               height: 76,
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.09),
+                color: colorScheme.primary.withValues(alpha: 0.09),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: colorScheme.primary, size: 36),
@@ -292,7 +292,7 @@ class _InterestEmptyState extends StatelessWidget {
               description,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.56),
+                color: colorScheme.onSurface.withValues(alpha: 0.56),
                 height: 1.45,
               ),
             ),
