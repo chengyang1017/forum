@@ -1297,14 +1297,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         barrierColor: Colors.black,
         transitionDuration: const Duration(milliseconds: 220),
         reverseTransitionDuration: const Duration(milliseconds: 180),
-        pageBuilder: (_, animation, __) {
+        pageBuilder: (_, animation, _) {
           return _XhsImagePreview(
             images: List<String>.unmodifiable(_images),
             initialIndex: initialIndex,
             postId: widget.postId,
           );
         },
-        transitionsBuilder: (_, animation, __, child) {
+        transitionsBuilder: (_, animation, _, child) {
           return FadeTransition(opacity: animation, child: child);
         },
       ),
@@ -1338,7 +1338,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       height: double.infinity,
                       fit: BoxFit.cover,
                       fadeInDuration: const Duration(milliseconds: 180),
-                      placeholder: (_, __) {
+                      placeholder: (_, _) {
                         return const Center(
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
@@ -1346,7 +1346,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           ),
                         );
                       },
-                      errorWidget: (_, __, ___) {
+                      errorWidget: (_, _, _) {
                         return const Center(
                           child: Icon(
                             Icons.broken_image_rounded,
@@ -2527,7 +2527,7 @@ class _XhsImagePreviewState extends State<_XhsImagePreview> {
                           width: MediaQuery.sizeOf(context).width,
                           height: MediaQuery.sizeOf(context).height,
                           fit: BoxFit.contain,
-                          placeholder: (_, __) {
+                          placeholder: (_, _) {
                             return const Center(
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
@@ -2535,7 +2535,7 @@ class _XhsImagePreviewState extends State<_XhsImagePreview> {
                               ),
                             );
                           },
-                          errorWidget: (_, __, ___) {
+                          errorWidget: (_, _, _) {
                             return const Center(
                               child: Icon(
                                 Icons.broken_image_rounded,

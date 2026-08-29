@@ -30,7 +30,7 @@ class PostImagePreview extends StatelessWidget {
                   width: size,
                   height: size,
                   fit: BoxFit.cover,
-                  placeholder: (_, __) => Container(
+                  placeholder: (_, _) => Container(
                     width: size,
                     height: size,
                     color: Colors.grey[200],
@@ -42,7 +42,7 @@ class PostImagePreview extends StatelessWidget {
                       ),
                     ),
                   ),
-                  errorWidget: (_, __, ___) => Container(
+                  errorWidget: (_, _, _) => Container(
                     width: size,
                     height: size,
                     color: Colors.grey[200],

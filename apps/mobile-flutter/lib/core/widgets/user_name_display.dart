@@ -84,14 +84,14 @@ class UserNameDisplay extends StatelessWidget {
                           width: 16,
                           height: 16,
                           fit: BoxFit.cover,
-                          placeholder: (_, __) {
+                          placeholder: (_, _) {
                             return Container(
                               width: 16,
                               height: 16,
                               color: Colors.blue.shade50,
                             );
                           },
-                          errorWidget: (_, __, ___) {
+                          errorWidget: (_, _, _) {
                             return _AvatarFallback(letter: avatarLetter);
                           },
                         )

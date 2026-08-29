@@ -408,7 +408,7 @@ class _ChatListScreenState extends State<ChatListScreen>
         return ListView.separated(
           padding: const EdgeInsets.symmetric(vertical: 4),
           itemCount: chats.length,
-          separatorBuilder: (_, __) =>
+          separatorBuilder: (_, _) =>
               Divider(height: 1, indent: 76, color: Colors.grey.shade100),
           itemBuilder: (context, index) {
             final chat = chats[index];
@@ -561,7 +561,7 @@ class _ChatListScreenState extends State<ChatListScreen>
         return ListView.separated(
           padding: const EdgeInsets.symmetric(vertical: 8),
           itemCount: friendUids.length,
-          separatorBuilder: (_, __) =>
+          separatorBuilder: (_, _) =>
               Divider(height: 1, indent: 76, color: Colors.grey.shade100),
           itemBuilder: (context, index) {
             final friendUid = friendUids[index];

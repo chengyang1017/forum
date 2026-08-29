@@ -87,7 +87,7 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
             child: ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
               itemCount: history.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
+              separatorBuilder: (_, _) => const Divider(height: 1),
               itemBuilder: (context, index) {
                 final data = history[index];
                 final languageCode = data['languageCode']?.toString() ?? '';
@@ -197,7 +197,7 @@ class _PostHistoryDetailScreenState extends State<_PostHistoryDetailScreen> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: images.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(12),

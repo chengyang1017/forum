@@ -377,7 +377,7 @@ class _CategoryChildrenBar extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: children.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final child = children[index];
                 final childName = child.nameOf(uiLanguageCode);

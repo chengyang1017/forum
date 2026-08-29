@@ -234,7 +234,7 @@ class _InterestedPostListState extends State<_InterestedPostList> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
         itemCount: posts.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           return PostItemCard(
             post: posts[index],

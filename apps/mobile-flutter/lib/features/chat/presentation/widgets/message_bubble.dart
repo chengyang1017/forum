@@ -55,12 +55,12 @@ class MessageBubble extends StatelessWidget {
         child: CachedNetworkImage(
           imageUrl: imageUrl!,
           fit: BoxFit.cover,
-          placeholder: (_, __) => const SizedBox(
+          placeholder: (_, _) => const SizedBox(
             height: 150,
             width: 150,
             child: Center(child: CircularProgressIndicator()),
           ),
-          errorWidget: (_, __, ___) => const Icon(Icons.broken_image, size: 64),
+          errorWidget: (_, _, _) => const Icon(Icons.broken_image, size: 64),
         ),
       ),
     );

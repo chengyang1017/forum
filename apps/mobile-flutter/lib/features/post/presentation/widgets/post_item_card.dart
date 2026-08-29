@@ -337,10 +337,10 @@ class PostItemCard extends StatelessWidget {
                         imageUrl: visibleImages[index],
                         fit: BoxFit.cover,
                         fadeInDuration: const Duration(milliseconds: 180),
-                        placeholder: (_, __) {
+                        placeholder: (_, _) {
                           return const ColoredBox(color: Color(0xFFF2F3F5));
                         },
-                        errorWidget: (_, __, ___) {
+                        errorWidget: (_, _, _) {
                           return const ColoredBox(
                             color: Color(0xFFF2F3F5),
                             child: Center(
@@ -398,14 +398,14 @@ class PostItemCard extends StatelessWidget {
         height: height,
         fit: BoxFit.cover,
         fadeInDuration: const Duration(milliseconds: 180),
-        placeholder: (_, __) {
+        placeholder: (_, _) {
           return Container(
             width: width,
             height: height,
             color: const Color(0xFFF2F3F5),
           );
         },
-        errorWidget: (_, __, ___) {
+        errorWidget: (_, _, _) {
           return Container(
             width: width,
             height: height,

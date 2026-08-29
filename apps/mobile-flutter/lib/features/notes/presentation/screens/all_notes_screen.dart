@@ -1123,7 +1123,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 90),
       itemCount: notes.length,
-      separatorBuilder: (_, __) {
+      separatorBuilder: (_, _) {
         return const SizedBox(height: 10);
       },
       itemBuilder: (context, index) {
