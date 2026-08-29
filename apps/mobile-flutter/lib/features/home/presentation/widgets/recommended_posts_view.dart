@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
+import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
 import '../../../post/data/services/post_node_service.dart';
 import '../../../post/domain/models/post_model.dart';
 import '../../../post/presentation/widgets/post_item_card.dart';
@@ -13,7 +13,7 @@ class RecommendedPostsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<authProv.AuthProvider>();
+    final authProvider = context.watch<auth_prov.AuthProvider>();
 
     if (authProvider.user == null) {
       return const _InterestEmptyState(

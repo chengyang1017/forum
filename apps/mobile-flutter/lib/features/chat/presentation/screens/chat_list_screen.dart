@@ -5,10 +5,10 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
-import '../providers/chat_provider.dart' as chatProv;
+import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../providers/chat_provider.dart' as chat_prov;
 import '../../../social/presentation/providers/friend_provider.dart'
-    as friendProv;
+    as friend_prov;
 import '../../../../core/widgets/user_avatar.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/loading_indicator.dart';
@@ -198,7 +198,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                               Navigator.pop(context);
 
                               final chatProvider = this.context
-                                  .read<chatProv.ChatProvider>();
+                                  .read<chat_prov.ChatProvider>();
 
                               final chatId = await chatProvider.getOrCreateChat(
                                 uid,
@@ -269,7 +269,7 @@ class _ChatListScreenState extends State<ChatListScreen>
     final l10n = AppLocalizations.of(context)!;
 
     // ✅ 使用 watch 监听 AuthProvider，用户变化时自动重建
-    final authProvider = context.watch<authProv.AuthProvider>();
+    final authProvider = context.watch<auth_prov.AuthProvider>();
     final currentUserId = authProvider.user?.id;
 
     // ✅ 如果未登录，显示提示页
@@ -379,7 +379,7 @@ class _ChatListScreenState extends State<ChatListScreen>
 
   // ========== 聊天列表（传入 currentUserId） ==========
   Widget _buildChatList(String currentUserId) {
-    final chatProvider = context.watch<chatProv.ChatProvider>();
+    final chatProvider = context.watch<chat_prov.ChatProvider>();
     final l10n = AppLocalizations.of(context)!;
 
     // 数据加载（由 Provider 内部处理，或在此触发）
@@ -540,7 +540,7 @@ class _ChatListScreenState extends State<ChatListScreen>
 
   // ========== 好友列表 ==========
   Widget _buildFriendsList(String currentUserId) {
-    final friendProvider = context.watch<friendProv.FriendProvider>();
+    final friendProvider = context.watch<friend_prov.FriendProvider>();
 
     return StreamBuilder<List<String>>(
       stream: friendProvider.watchFriends(),
@@ -622,7 +622,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                           splashRadius: 24,
                           onPressed: () async {
                             final chatProvider = this.context
-                                .read<chatProv.ChatProvider>();
+                                .read<chat_prov.ChatProvider>();
 
                             final chatId = await chatProvider.getOrCreateChat(
                               friendUid,

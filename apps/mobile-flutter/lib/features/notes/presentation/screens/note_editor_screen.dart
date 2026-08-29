@@ -10,7 +10,7 @@ import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
+import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
 import '../../domain/models/note_model.dart';
 import '../../data/services/note_service.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
@@ -95,7 +95,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     }
 
     _initialized = true;
-    _currentUserId = context.read<authProv.AuthProvider>().user?.id;
+    _currentUserId = context.read<auth_prov.AuthProvider>().user?.id;
 
     if (_currentUserId == null) {
       _isLoaded = true;

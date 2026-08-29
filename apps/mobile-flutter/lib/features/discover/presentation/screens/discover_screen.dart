@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
-import '../providers/discover_provider.dart' as discoverProv;
+import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../providers/discover_provider.dart' as discover_prov;
 import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/widgets/user_avatar.dart';
@@ -28,7 +28,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   void _loadCurrentUser() {
-    final authProvider = context.read<authProv.AuthProvider>();
+    final authProvider = context.read<auth_prov.AuthProvider>();
     final user = authProvider.user;
     if (user != null) {
       _currentUserId = user.id;
@@ -38,7 +38,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   // ========== 开始聊天 ==========
   Future<void> _startChat(String userId, String displayName) async {
     try {
-      final discoverProvider = context.read<discoverProv.DiscoverProvider>();
+      final discoverProvider = context.read<discover_prov.DiscoverProvider>();
       final chatId = await discoverProvider.getOrCreateChat(userId);
       if (!mounted) return;
       context.push(AppRoutes.chatLocation(chatId: chatId), extra: displayName);
@@ -58,7 +58,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   // ========== 发送好友请求 ==========
   Future<void> _sendFriendRequest(String userId, String displayName) async {
     try {
-      final discoverProvider = context.read<discoverProv.DiscoverProvider>();
+      final discoverProvider = context.read<discover_prov.DiscoverProvider>();
       await discoverProvider.sendFriendRequest(userId);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -115,7 +115,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   // 用户列表
   // ============================================================
   Widget _buildUserList() {
-    final discoverProvider = context.watch<discoverProv.DiscoverProvider>();
+    final discoverProvider = context.watch<discover_prov.DiscoverProvider>();
     final l10n = AppLocalizations.of(context)!;
 
     return StreamBuilder<QuerySnapshot>(

@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 // ✅ 别名导入
-import '../providers/auth_provider.dart' as authProv;
+import '../providers/auth_provider.dart' as auth_prov;
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -61,7 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
 
       // ✅ 使用别名调用
-      final authProvider = context.read<authProv.AuthProvider>();
+      final authProvider = context.read<auth_prov.AuthProvider>();
       await authProvider.register(email, password, username);
 
       // 注册完成后建立/同步 Node 用户，并初始化 interests。

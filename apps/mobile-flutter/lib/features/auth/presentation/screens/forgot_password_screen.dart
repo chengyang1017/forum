@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
-import '../providers/auth_provider.dart' as authProv;
+import '../providers/auth_provider.dart' as auth_prov;
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -34,7 +34,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() => isLoading = true);
 
     try {
-      final authProvider = context.read<authProv.AuthProvider>();
+      final authProvider = context.read<auth_prov.AuthProvider>();
       final result = await authProvider.getSecurityQuestion(email);
       if (result == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -74,7 +74,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() => isLoading = true);
 
     try {
-      final authProvider = context.read<authProv.AuthProvider>();
+      final authProvider = context.read<auth_prov.AuthProvider>();
       final isValid = await authProvider.verifySecurityAnswer(uid!, answer);
       if (!isValid) {
         setState(() => isLoading = false);
