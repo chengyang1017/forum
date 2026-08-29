@@ -1,10 +1,10 @@
 # 万文社 / Glyphora
 
-> A multilingual social community built with Flutter and Firebase.
+> A multilingual social community built with Flutter, Node.js, PostgreSQL, and Firebase services.
 
 **万文社（Glyphora）** 是一个以语言、文化和交流为核心的多语言社区应用。
 
-项目使用 **Flutter** 构建跨平台客户端，并以 **Firebase Authentication、Cloud Firestore、Realtime Database、Cloud Storage 和 Cloud Functions** 作为后端基础设施。
+项目使用 **Flutter** 构建跨平台客户端，以 **Node.js / Express、Prisma 和 PostgreSQL** 承载服务器端业务，并继续使用 **Firebase Authentication、Cloud Firestore、Realtime Database 和 Cloud Storage** 等 Firebase 服务。
 
 它并不只是一个简单的帖子列表，而是在逐步建立完整的社区系统，包括：
 
@@ -104,13 +104,13 @@ Logical deletion
 cleanupAt
       │
       ▼
-Cloud Function
+Node cleanup job
       │
       ▼
 Physical deletion
 ```
 
-Firebase Cloud Functions 会定期扫描需要清理的聊天消息。
+Node.js 独立清理任务会定期扫描需要清理的聊天消息。
 
 如果消息包含 Storage 图片，也会同时处理对应媒体文件。
 
@@ -458,48 +458,25 @@ Chat images
 
 用于需要更高实时性的临时状态和实时数据。
 
-### Cloud Functions
+### Node Backend Jobs
 
-用于服务器端任务，例如：
+服务器端定时任务已经迁移到 Node.js API。
 
-```text
-Scheduled cleanup
-Message maintenance
-Storage cleanup
-Chat preview repair
-```
+聊天消息清理任务位于 apps/api/src/jobs/：
 
----
+- cleanup_expired_chat_messages.ts
+- run_cleanup_expired_chat_messages.ts
 
-# Backend Tasks
+任务负责：
 
-项目根目录包含：
+- 清理达到 cleanupAt 的聊天消息
+- 删除关联的 Firebase Storage 图片
+- 维护聊天列表预览
+- 清除不合法的 cleanupAt
 
-```text
-functions/
-```
+生产环境应由部署平台的 Cron / Scheduler 定期执行：
 
-Firebase Functions 使用 JavaScript 编写。
-
-其中包含定时聊天消息清理任务：
-
-```text
-cleanupExpiredChatMessages
-```
-
-执行区域：
-
-```text
-asia-southeast1
-```
-
-任务周期：
-
-```text
-every 60 minutes
-```
-
-用于处理已经达到 `cleanupAt` 的聊天消息。
+npm run job:cleanup-chat-messages
 
 ---
 
@@ -551,7 +528,8 @@ Other content
 * Cloud Firestore
 * Firebase Realtime Database
 * Firebase Storage
-* Firebase Cloud Functions
+* Node.js / Express
+* Prisma / PostgreSQL
 
 ## Rich Text
 
@@ -655,7 +633,6 @@ Authentication
 Cloud Firestore
 Realtime Database
 Storage
-Cloud Functions
 ```
 
 如果使用自己的 Firebase 项目，可以使用 FlutterFire CLI 重新生成 Firebase 配置。
@@ -822,7 +799,7 @@ Share with community
 * [x] Discover
 * [x] 用户资料
 * [x] 管理后台基础结构
-* [x] Firebase Cloud Functions
+* [x] Node.js 后端
 * [x] 聊天消息定时清理
 * [ ] 继续完善通知系统
 * [ ] 完善聊天已读状态

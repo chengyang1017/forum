@@ -30,7 +30,8 @@ Firebase Authentication
 Cloud Firestore
 Firebase Realtime Database
 Firebase Storage
-Cloud Functions
+Node.js / Express
+Prisma / PostgreSQL
 ```
 
 同时逐渐将可以复用的数据和能力拆分为独立底层库。
@@ -368,21 +369,17 @@ chatDrafts
 
 图片等文件。
 
-## Cloud Functions
+## Node Backend Jobs
 
-服务端任务。
+服务器端业务与后台任务由 Node.js backend 和 standalone jobs 承担。
 
-例如：
-
-```text
-聊天消息延迟清理
-```
+例如：聊天消息延迟清理。
 
 ---
 
 # 11. 长期架构方向
 
-当前 Firebase 是主要后端。
+当前项目采用 Node.js 后端与 Firebase 服务并存的混合架构。
 
 但是业务层应该尽量避免把 Firebase API 深度写死到所有 UI 中。
 

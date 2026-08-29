@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "萬文社 RN",
+    "slug": "wanwenshe-rn",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+
+    "android": {
+      "package": "com.glyphora.wanwenshern",
+      "googleServicesFile": "./google-services.json"
+    },
+
+    "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth"
+    ]
+  }
+}

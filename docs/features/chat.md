@@ -155,7 +155,7 @@ deletedAt = now
 cleanupAt = now + 7 days
 ```
 
-Cloud Function 在到期后进行物理清理。
+Node cleanup job 在到期后进行物理清理。
 
 ---
 
