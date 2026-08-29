@@ -8,7 +8,6 @@ import '../../../chat/data/services/chat_service.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
-import 'friend_requests_screen.dart';
 
 class FriendsListScreen extends StatefulWidget {
   const FriendsListScreen({super.key});
@@ -69,12 +68,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                   ),
                   tooltip: '好友申请',
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const FriendRequestsScreen(),
-                      ),
-                    );
+                    context.push(AppRoutes.friendRequests);
                   },
                 ),
                 StreamBuilder<QuerySnapshot>(
