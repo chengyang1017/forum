@@ -7,8 +7,10 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/feed/presentation/screens/feed_screen.dart';
 import '../../features/home/presentation/screens/main_navigation_screen.dart';
+import '../../core/constants/forum_categories.dart';
 import '../../features/language/data/forum_languages.dart';
 import '../../features/post/domain/models/post_model.dart';
+import '../../features/post/presentation/screens/create_post_screen.dart';
 import '../../features/post/presentation/screens/post_detail_screen.dart';
 import 'app_routes.dart';
 
@@ -40,6 +42,40 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.home,
       builder: (context, state) => const MainNavigationScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.createPost,
+      redirect: (context, state) {
+        final channelKey = state.pathParameters['channelKey'];
+        final categoryId = state.pathParameters['categoryId'];
+
+        if (channelKey == null ||
+            categoryId == null ||
+            ForumLanguages.findChannelByKey(channelKey) == null ||
+            ForumCategories.findById(categoryId) == null) {
+          return AppRoutes.home;
+        }
+
+        return null;
+      },
+      builder: (context, state) {
+        final channelKey = state.pathParameters['channelKey']!;
+        final categoryId = state.pathParameters['categoryId']!;
+
+        final channel = ForumLanguages.findChannelByKey(channelKey)!;
+        final categoryPath = ForumCategories.pathOf(categoryId);
+        final rootCategoryId = ForumCategories.rootIdOf(categoryId);
+
+        final uiLanguageCode = Localizations.localeOf(context).languageCode;
+
+        return CreatePostScreen(
+          category: rootCategoryId,
+          categoryId: categoryId,
+          categoryPath: categoryPath,
+          languageCode: channel.contentLanguageCode,
+          languageName: channel.nameOf(uiLanguageCode),
+        );
+      },
     ),
     GoRoute(
       path: AppRoutes.postDetail,

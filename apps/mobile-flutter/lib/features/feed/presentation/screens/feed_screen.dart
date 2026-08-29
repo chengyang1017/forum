@@ -9,7 +9,6 @@ import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 import '../../../post/domain/models/post_model.dart';
-import '../../../post/presentation/screens/create_post_screen.dart';
 import '../../../post/presentation/widgets/post_item_card.dart';
 import '../providers/feed_provider.dart' as feedProv;
 
@@ -31,16 +30,6 @@ class FeedScreen extends StatelessWidget {
 
   String get _rootCategoryId {
     return ForumCategories.rootIdOf(_selectedCategoryId);
-  }
-
-  List<String> get _selectedCategoryPath {
-    final path = ForumCategories.pathOf(_selectedCategoryId);
-
-    if (path.isNotEmpty) {
-      return path;
-    }
-
-    return <String>[_rootCategoryId];
   }
 
   @override
@@ -190,16 +179,10 @@ class FeedScreen extends StatelessWidget {
               size: 28,
             ),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (_) => CreatePostScreen(
-                    category: _rootCategoryId,
-                    categoryId: _selectedCategoryId,
-                    categoryPath: _selectedCategoryPath,
-                    languageCode: languageCode,
-                    languageName: languageName,
-                  ),
+              context.push(
+                AppRoutes.createPostLocation(
+                  channelKey: channelKey,
+                  categoryId: _selectedCategoryId,
                 ),
               );
             },
@@ -247,16 +230,10 @@ class FeedScreen extends StatelessWidget {
       title: '暂无$languageName帖子',
       subtitle: '成为第一个在「$categoryName」下\n发布$languageName帖子的人吧',
       onAction: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (_) => CreatePostScreen(
-              category: _rootCategoryId,
-              categoryId: _selectedCategoryId,
-              categoryPath: _selectedCategoryPath,
-              languageCode: languageCode,
-              languageName: languageName,
-            ),
+        context.push(
+          AppRoutes.createPostLocation(
+            channelKey: channelKey,
+            categoryId: _selectedCategoryId,
           ),
         );
       },

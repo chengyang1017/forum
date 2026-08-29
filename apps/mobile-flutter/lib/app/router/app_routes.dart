@@ -8,6 +8,7 @@ abstract final class AppRoutes {
   static const home = '/home';
 
   static const feed = '/feed/:channelKey/:categoryId';
+  static const createPost = '/posts/new/:channelKey/:categoryId';
   static const postDetail = '/posts/:postId';
 
   static String feedLocation({
@@ -15,6 +16,15 @@ abstract final class AppRoutes {
     required String categoryId,
   }) {
     return '/feed/'
+        '${Uri.encodeComponent(channelKey)}/'
+        '${Uri.encodeComponent(categoryId)}';
+  }
+
+  static String createPostLocation({
+    required String channelKey,
+    required String categoryId,
+  }) {
+    return '/posts/new/'
         '${Uri.encodeComponent(channelKey)}/'
         '${Uri.encodeComponent(categoryId)}';
   }
