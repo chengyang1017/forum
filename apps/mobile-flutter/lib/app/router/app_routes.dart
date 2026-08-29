@@ -7,6 +7,8 @@ abstract final class AppRoutes {
 
   static const home = '/home';
 
+  static const friendRequests = '/friends/requests';
+
   static const feed = '/feed/:channelKey/:categoryId';
   static const createPost = '/posts/new/:channelKey/:categoryId';
   static const postDetail = '/posts/:postId';
