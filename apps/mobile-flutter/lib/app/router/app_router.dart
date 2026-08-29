@@ -13,6 +13,7 @@ import '../../features/language/data/forum_languages.dart';
 import '../../features/post/domain/models/post_model.dart';
 import '../../features/post/presentation/screens/create_post_screen.dart';
 import '../../features/post/presentation/screens/post_detail_screen.dart';
+import '../../features/profile/presentation/screens/user_profile_screen.dart';
 import '../../features/social/presentation/screens/friend_requests_screen.dart';
 import 'app_routes.dart';
 
@@ -48,6 +49,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.friendRequests,
       builder: (context, state) => const FriendRequestsScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.userProfile,
+      builder: (context, state) {
+        final uid = state.pathParameters['uid']!;
+
+        return UserProfileScreen(uid: uid);
+      },
     ),
     GoRoute(
       path: AppRoutes.chat,

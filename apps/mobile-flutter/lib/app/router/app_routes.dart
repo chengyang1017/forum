@@ -9,11 +9,17 @@ abstract final class AppRoutes {
 
   static const friendRequests = '/friends/requests';
 
+  static const userProfile = '/users/:uid';
+
   static const chat = '/chats/:chatId';
 
   static const feed = '/feed/:channelKey/:categoryId';
   static const createPost = '/posts/new/:channelKey/:categoryId';
   static const postDetail = '/posts/:postId';
+
+  static String userProfileLocation({required String uid}) {
+    return '/users/${Uri.encodeComponent(uid)}';
+  }
 
   static String feedLocation({
     required String channelKey,
