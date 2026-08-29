@@ -20,6 +20,7 @@ import '../../features/notes/presentation/screens/note_editor_screen.dart';
 import '../../features/post/presentation/screens/bookmarked_posts_screen.dart';
 import '../../features/post/presentation/screens/create_post_screen.dart';
 import '../../features/post/presentation/screens/post_detail_screen.dart';
+import '../../features/post/presentation/screens/post_edit_history_screen.dart';
 import '../../features/profile/presentation/screens/user_profile_screen.dart';
 import '../../features/social/presentation/screens/friend_requests_screen.dart';
 import 'app_routes.dart';
@@ -141,6 +142,14 @@ final GoRouter appRouter = GoRouter(
           languageCode: channel.contentLanguageCode,
           languageName: channel.nameOf(uiLanguageCode),
         );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.postEditHistory,
+      builder: (context, state) {
+        final postId = state.pathParameters['postId']!;
+
+        return PostEditHistoryScreen(postId: postId);
       },
     ),
     GoRoute(

@@ -21,7 +21,6 @@ import '../../data/services/post_node_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
-import 'post_edit_history_screen.dart';
 import '../widgets/post_report_dialog.dart';
 
 class PostDetailRouteScreen extends StatefulWidget {
@@ -1212,12 +1211,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               }
 
               if (value == 'history') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        PostEditHistoryScreen(postId: widget.postId),
-                  ),
+                context.push(
+                  AppRoutes.postEditHistoryLocation(postId: widget.postId),
                 );
               }
 

@@ -26,6 +26,7 @@ abstract final class AppRoutes {
   static const feed = '/feed/:channelKey/:categoryId';
   static const createPost = '/posts/new/:channelKey/:categoryId';
   static const postDetail = '/posts/:postId';
+  static const postEditHistory = '/posts/:postId/history';
 
   static String noteEditorLocation({required String noteId}) {
     return '/notes/${Uri.encodeComponent(noteId)}';
@@ -55,6 +56,10 @@ abstract final class AppRoutes {
     return '/posts/new/'
         '${Uri.encodeComponent(channelKey)}/'
         '${Uri.encodeComponent(categoryId)}';
+  }
+
+  static String postEditHistoryLocation({required String postId}) {
+    return '/posts/${Uri.encodeComponent(postId)}/history';
   }
 
   static String postDetailLocation({required String postId}) {
