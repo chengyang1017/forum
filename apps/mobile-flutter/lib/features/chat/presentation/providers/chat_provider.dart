@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../data/repositories/chat_repository.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 
 class ChatProvider extends ChangeNotifier {
   final ChatRepository _chatRepo = ChatRepository();
@@ -84,11 +84,11 @@ class ChatProvider extends ChangeNotifier {
 
   /// 发送文本消息
   Future<void> sendMessage(String chatId, String content) async {
-    // 从 AuthProvider 获取当前用户 ID（需要在调用时传入）
+    // 从 AuthCubit 获取当前用户 ID（需要在调用时传入）
     // 或通过其他方式获取
-    // 这里建议在 UI 层传入 senderId，或者通过 AuthProvider 获取
+    // 这里建议在 UI 层传入 senderId，或者通过 AuthCubit 获取
     // 我们留到 UI 层处理
-    throw UnimplementedError('请在 UI 层传入 senderId，或通过 AuthProvider 获取');
+    throw UnimplementedError('请在 UI 层传入 senderId，或通过 AuthCubit 获取');
   }
 
   /// 发送文本消息（带 senderId）
@@ -119,7 +119,7 @@ class ChatProvider extends ChangeNotifier {
   Future<void> sendImageMessage(
     String chatId,
     File imageFile,
-    auth_prov.AuthProvider authProvider,
+    auth_cubit.AuthCubit authProvider,
   ) async {
     final senderId = authProvider.user?.id;
     if (senderId == null) throw Exception('未登录');

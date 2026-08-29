@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../providers/chat_provider.dart' as chat_prov;
 import '../../../social/presentation/providers/friend_provider.dart'
     as friend_prov;
@@ -24,7 +24,7 @@ class _ChatListScreenState extends State<ChatListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // ✅ 不再存储 currentUserId，改为从 AuthProvider 实时获取
+  // ✅ 不再存储 currentUserId，改为从 AuthCubit 实时获取
 
   final Map<String, Map<String, dynamic>> _userCache = {};
 
@@ -268,8 +268,8 @@ class _ChatListScreenState extends State<ChatListScreen>
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
-    // ✅ 使用 watch 监听 AuthProvider，用户变化时自动重建
-    final authProvider = context.watch<auth_prov.AuthProvider>();
+    // ✅ 使用 watch 监听 AuthCubit，用户变化时自动重建
+    final authProvider = context.watch<auth_cubit.AuthCubit>();
     final currentUserId = authProvider.user?.id;
 
     // ✅ 如果未登录，显示提示页

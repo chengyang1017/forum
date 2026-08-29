@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
-import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../providers/discover_provider.dart' as discover_prov;
 import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_routes.dart';
@@ -28,7 +28,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   void _loadCurrentUser() {
-    final authProvider = context.read<auth_prov.AuthProvider>();
+    final authProvider = context.read<auth_cubit.AuthCubit>();
     final user = authProvider.user;
     if (user != null) {
       _currentUserId = user.id;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
@@ -494,7 +494,7 @@ class _CategorySection extends StatelessWidget {
 
   Future<void> _toggleInterest({
     required BuildContext context,
-    required auth_prov.AuthProvider authProvider,
+    required auth_cubit.AuthCubit authProvider,
     required CategoryConfig category,
   }) async {
     if (authProvider.user == null) {
@@ -532,7 +532,7 @@ class _CategorySection extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final authProvider = context.watch<auth_prov.AuthProvider>();
+    final authProvider = context.watch<auth_cubit.AuthCubit>();
 
     final interests = authProvider.interests;
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -11,7 +12,7 @@ import 'app/l10n/localizations_delegate.dart';
 import 'app/providers/app_language.dart';
 
 // ========== Provider（功能模块） ==========
-import 'features/auth/presentation/providers/auth_provider.dart' as auth_prov;
+import 'features/auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import 'features/chat/presentation/providers/chat_provider.dart' as chat_prov;
 import 'features/social/presentation/providers/friend_provider.dart'
     as friend_prov;
@@ -58,8 +59,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AppLanguage()),
 
         // ----- 功能模块 Provider -----
-        ChangeNotifierProvider(
-          create: (_) => auth_prov.AuthProvider()..loadUser(),
+        BlocProvider<auth_cubit.AuthCubit>(
+          create: (_) => auth_cubit.AuthCubit()..loadUser(),
         ),
         ChangeNotifierProvider(create: (_) => chat_prov.ChatProvider()),
         ChangeNotifierProvider(create: (_) => friend_prov.FriendProvider()),
