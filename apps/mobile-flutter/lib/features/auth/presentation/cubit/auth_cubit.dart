@@ -237,7 +237,7 @@ class AuthCubit extends Cubit<AuthState> {
     } catch (error) {
       debugPrint('Load backend user failed: $error');
     } finally {
-      emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(isLoading: false, isInitialized: true));
     }
   }
 
@@ -274,6 +274,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(
       AuthState(
         user: null,
+        isInitialized: true,
         interests: const <String>{},
         interestsLoaded: false,
         interestsError: null,
