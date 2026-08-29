@@ -16,6 +16,7 @@ import '../../core/constants/forum_categories.dart';
 import '../../features/language/data/forum_languages.dart';
 import '../../features/post/domain/models/post_model.dart';
 import '../../features/notes/presentation/screens/all_notes_screen.dart';
+import '../../features/notes/presentation/screens/user_notes_screen.dart';
 import '../../features/notes/presentation/screens/note_editor_screen.dart';
 import '../../features/post/presentation/screens/bookmarked_posts_screen.dart';
 import '../../features/post/presentation/screens/create_post_screen.dart';
@@ -89,6 +90,18 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.friendRequests,
       builder: (context, state) => const FriendRequestsScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.userNotes,
+      builder: (context, state) {
+        final uid = state.pathParameters['uid']!;
+        final extra = state.extra;
+
+        return UserNotesRouteScreen(
+          otherUserId: uid,
+          initialOtherUserName: extra is String ? extra : null,
+        );
+      },
     ),
     GoRoute(
       path: AppRoutes.userProfile,

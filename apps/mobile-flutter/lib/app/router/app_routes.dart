@@ -20,6 +20,7 @@ abstract final class AppRoutes {
   static const friendRequests = '/friends/requests';
 
   static const userProfile = '/users/:uid';
+  static const userNotes = '/users/:uid/notes';
 
   static const chat = '/chats/:chatId';
 
@@ -30,6 +31,10 @@ abstract final class AppRoutes {
 
   static String noteEditorLocation({required String noteId}) {
     return '/notes/${Uri.encodeComponent(noteId)}';
+  }
+
+  static String userNotesLocation({required String uid}) {
+    return '/users/${Uri.encodeComponent(uid)}/notes';
   }
 
   static String userProfileLocation({required String uid}) {

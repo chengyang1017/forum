@@ -18,7 +18,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../data/services/live_draft_service.dart';
 import '../../domain/models/live_draft.dart';
 import '../../../auth/domain/models/user_model.dart';
-import '../../../notes/presentation/screens/user_notes_screen.dart';
 
 class ChatRouteScreen extends StatefulWidget {
   final String chatId;
@@ -955,16 +954,9 @@ class _ChatScreenState extends State<ChatScreen> {
       return;
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) {
-          return UserNotesScreen(
-            otherUserId: otherUserId,
-            otherUserName: _chatTitle,
-          );
-        },
-      ),
+    context.push(
+      AppRoutes.userNotesLocation(uid: otherUserId),
+      extra: _chatTitle,
     );
   }
 

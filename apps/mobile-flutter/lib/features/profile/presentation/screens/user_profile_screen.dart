@@ -12,7 +12,6 @@ import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_routes.dart';
 import '../widgets/profile_post_sliver_list.dart';
-import '../../../notes/presentation/screens/user_notes_screen.dart';
 import '../widgets/profile_language_section.dart';
 import '../../../auth/data/services/user_api.dart';
 import '../../../post/data/services/post_node_service.dart';
@@ -834,16 +833,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         subtitle: Text('查看与 $displayName 共享的笔记'),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) {
-                return UserNotesScreen(
-                  otherUserId: widget.uid,
-                  otherUserName: displayName,
-                );
-              },
-            ),
+          context.push(
+            AppRoutes.userNotesLocation(uid: widget.uid),
+            extra: displayName,
           );
         },
       ),

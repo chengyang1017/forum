@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,133 @@ import '../../../../app/router/app_routes.dart';
 
 import '../../domain/models/note_model.dart';
 import '../../data/services/note_service.dart';
+
+class UserNotesRouteScreen extends StatefulWidget {
+  final String otherUserId;
+  final String? initialOtherUserName;
+
+  const UserNotesRouteScreen({
+    super.key,
+    required this.otherUserId,
+    this.initialOtherUserName,
+  });
+
+  @override
+  State<UserNotesRouteScreen> createState() => _UserNotesRouteScreenState();
+}
+
+class _UserNotesRouteScreenState extends State<UserNotesRouteScreen> {
+  Future<String>? _otherUserNameFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareRoute();
+  }
+
+  @override
+  void didUpdateWidget(covariant UserNotesRouteScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.otherUserId != widget.otherUserId ||
+        oldWidget.initialOtherUserName != widget.initialOtherUserName) {
+      _prepareRoute();
+    }
+  }
+
+  void _prepareRoute() {
+    final initialName = widget.initialOtherUserName?.trim();
+
+    if (initialName != null && initialName.isNotEmpty) {
+      _otherUserNameFuture = null;
+      return;
+    }
+
+    _otherUserNameFuture = _resolveOtherUserName();
+  }
+
+  Future<String> _resolveOtherUserName() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.otherUserId)
+        .get();
+
+    final data = snapshot.data();
+
+    if (data == null) {
+      return '未知用户';
+    }
+
+    final nickname = (data['nickname'] as String? ?? '').trim();
+    final username = (data['username'] as String? ?? '').trim();
+    final email = (data['email'] as String? ?? '').trim();
+
+    if (nickname.isNotEmpty) {
+      return nickname;
+    }
+
+    if (username.isNotEmpty) {
+      return username;
+    }
+
+    if (email.isNotEmpty) {
+      return email;
+    }
+
+    return '未知用户';
+  }
+
+  void _retry() {
+    setState(() {
+      _otherUserNameFuture = _resolveOtherUserName();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final initialName = widget.initialOtherUserName?.trim();
+
+    if (initialName != null && initialName.isNotEmpty) {
+      return UserNotesScreen(
+        otherUserId: widget.otherUserId,
+        otherUserName: initialName,
+      );
+    }
+
+    return FutureBuilder<String>(
+      future: _otherUserNameFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('共享笔记')),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('共享笔记')),
+            body: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('无法加载用户资料'),
+                  const SizedBox(height: 12),
+                  FilledButton(onPressed: _retry, child: const Text('重试')),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return UserNotesScreen(
+          otherUserId: widget.otherUserId,
+          otherUserName: snapshot.data ?? '未知用户',
+        );
+      },
+    );
+  }
+}
 
 class UserNotesScreen extends StatefulWidget {
   final String otherUserId;
