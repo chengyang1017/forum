@@ -21,6 +21,7 @@ import 'features/discover/presentation/providers/discover_provider.dart'
 import 'features/post/presentation/providers/post_provider.dart' as postProv;
 
 import 'app/router/app_router.dart';
+import 'app/router/app_routes.dart';
 import 'core/services/deep_link_service.dart';
 
 void main() async {
@@ -28,7 +29,11 @@ void main() async {
 
   await Firebase.initializeApp();
 
-  DeepLinkService.instance.start();
+  DeepLinkService.instance.start(
+    openPostRoute: (postId) async {
+      await appRouter.push<void>(AppRoutes.postDetailLocation(postId: postId));
+    },
+  );
 
   runApp(const MyApp());
 }
