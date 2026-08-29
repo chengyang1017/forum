@@ -41,6 +41,7 @@ dependencies:
       ref: ff9aab0ccfe92b0180a9ee77c161ba6ffef69d4a
   dio: ^5.11.0
   go_router: ^18.0.0
+  flutter_bloc: ^9.1.1
 
 dev_dependencies:
   flutter_test:
