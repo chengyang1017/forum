@@ -7,6 +7,8 @@ abstract final class AppRoutes {
 
   static const home = '/home';
 
+  static const discover = '/discover';
+
   static const friendRequests = '/friends/requests';
 
   static const userProfile = '/users/:uid';

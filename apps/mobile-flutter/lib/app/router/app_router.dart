@@ -6,6 +6,7 @@ import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/chat/presentation/screens/chat_screen.dart';
+import '../../features/discover/presentation/screens/discover_screen.dart';
 import '../../features/feed/presentation/screens/feed_screen.dart';
 import '../../features/home/presentation/screens/main_navigation_screen.dart';
 import '../../core/constants/forum_categories.dart';
@@ -45,6 +46,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.home,
       builder: (context, state) => const MainNavigationScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.discover,
+      builder: (context, state) => const DiscoverScreen(),
     ),
     GoRoute(
       path: AppRoutes.friendRequests,

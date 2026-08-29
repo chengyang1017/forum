@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
+import '../../../../app/router/app_routes.dart';
 import '../../../auth/presentation/providers/auth_provider.dart' as auth_prov;
 import '../../../chat/presentation/providers/chat_provider.dart' as chat_prov;
 import '../../../chat/presentation/screens/chat_list_screen.dart';
-import '../../../discover/presentation/screens/discover_screen.dart';
 import '../../../profile/presentation/screens/my_profile_screen.dart';
 import 'home_tab.dart';
 
@@ -36,9 +37,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   void _openDiscoverPage() {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => const DiscoverScreen()));
+    context.push(AppRoutes.discover);
   }
 
   @override
