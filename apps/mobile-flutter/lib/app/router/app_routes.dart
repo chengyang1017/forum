@@ -13,6 +13,9 @@ abstract final class AppRoutes {
   static const securitySettings = '/settings/security';
   static const changePassword = '/settings/change-password';
 
+  static const allNotes = '/notes';
+  static const bookmarkedPosts = '/bookmarks';
+
   static const friendRequests = '/friends/requests';
 
   static const userProfile = '/users/:uid';

@@ -17,9 +17,7 @@ import '../widgets/profile_bio_tags_section.dart';
 import '../widgets/profile_header.dart';
 import '../widgets/profile_language_section.dart';
 import '../../../post/presentation/widgets/post_item_card.dart';
-import '../../../post/presentation/screens/bookmarked_posts_screen.dart';
 import '../widgets/tag_editor_sheet.dart';
-import '../../../notes/presentation/screens/all_notes_screen.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -536,14 +534,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       subtitle: const Text('查看和管理所有共享笔记'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) {
-                              return const AllNotesScreen();
-                            },
-                          ),
-                        );
+                        context.push(AppRoutes.allNotes);
                       },
                     ),
                   ),
@@ -578,14 +569,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       subtitle: const Text('查看收藏的帖子'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) {
-                              return const BookmarkedPostsScreen();
-                            },
-                          ),
-                        );
+                        context.push(AppRoutes.bookmarkedPosts);
                       },
                     ),
                   ),

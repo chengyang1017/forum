@@ -15,6 +15,8 @@ import '../../features/home/presentation/screens/main_navigation_screen.dart';
 import '../../core/constants/forum_categories.dart';
 import '../../features/language/data/forum_languages.dart';
 import '../../features/post/domain/models/post_model.dart';
+import '../../features/notes/presentation/screens/all_notes_screen.dart';
+import '../../features/post/presentation/screens/bookmarked_posts_screen.dart';
 import '../../features/post/presentation/screens/create_post_screen.dart';
 import '../../features/post/presentation/screens/post_detail_screen.dart';
 import '../../features/profile/presentation/screens/user_profile_screen.dart';
@@ -61,6 +63,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.changePassword,
       builder: (context, state) => const ChangePasswordScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.allNotes,
+      builder: (context, state) => const AllNotesScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.bookmarkedPosts,
+      builder: (context, state) => const BookmarkedPostsScreen(),
     ),
     GoRoute(
       path: AppRoutes.discover,
