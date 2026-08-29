@@ -303,7 +303,7 @@ class _CategoryBreadcrumbBar extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 size: 17,
-                color: colorScheme.onSurface.withOpacity(0.35),
+                color: colorScheme.onSurface.withValues(alpha: 0.35),
               ),
             InkWell(
               borderRadius: BorderRadius.circular(8),
@@ -324,7 +324,7 @@ class _CategoryBreadcrumbBar extends StatelessWidget {
                   style: TextStyle(
                     color: index == path.length - 1
                         ? colorScheme.primary
-                        : colorScheme.onSurface.withOpacity(0.60),
+                        : colorScheme.onSurface.withValues(alpha: 0.60),
                     fontSize: 12,
                     fontWeight: index == path.length - 1
                         ? FontWeight.w700
@@ -366,7 +366,7 @@ class _CategoryChildrenBar extends StatelessWidget {
           Text(
             '继续选择分类',
             style: TextStyle(
-              color: colorScheme.onSurface.withOpacity(0.55),
+              color: colorScheme.onSurface.withValues(alpha: 0.55),
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),

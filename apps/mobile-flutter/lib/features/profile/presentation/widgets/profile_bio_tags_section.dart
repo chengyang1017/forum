@@ -71,7 +71,7 @@ class ProfileBioTagsSection extends StatelessWidget {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade50.withOpacity(0.5),
+                        color: Colors.blue.shade50.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(

@@ -130,7 +130,7 @@ class _HomeTabState extends State<HomeTab> {
                   ? '仅显示你主动设为感兴趣的内容'
                   : '$currentLanguageName · ${l10n.currentChannel}',
               style: TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.58),
+                color: colorScheme.onSurface.withValues(alpha: 0.58),
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
               ),
@@ -195,12 +195,14 @@ class _RecommendedSection extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  colorScheme.primary.withOpacity(0.14),
-                  colorScheme.secondary.withOpacity(0.08),
+                  colorScheme.primary.withValues(alpha: 0.14),
+                  colorScheme.secondary.withValues(alpha: 0.08),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: colorScheme.primary.withOpacity(0.15)),
+              border: Border.all(
+                color: colorScheme.primary.withValues(alpha: 0.15),
+              ),
             ),
             child: Row(
               children: [
@@ -232,7 +234,7 @@ class _RecommendedSection extends StatelessWidget {
                       Text(
                         '先到分类频道，把语言频道中的分类设为感兴趣',
                         style: TextStyle(
-                          color: colorScheme.onSurface.withOpacity(0.62),
+                          color: colorScheme.onSurface.withValues(alpha: 0.62),
                           fontSize: 12,
                         ),
                       ),
@@ -283,7 +285,7 @@ class _HomeDrawer extends StatelessWidget {
                     end: Alignment.bottomRight,
                     colors: [
                       colorScheme.primary,
-                      colorScheme.primary.withOpacity(0.72),
+                      colorScheme.primary.withValues(alpha: 0.72),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(24),
@@ -295,7 +297,7 @@ class _HomeDrawer extends StatelessWidget {
                       width: 46,
                       height: 46,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.18),
+                        color: Colors.white.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Icon(
@@ -317,7 +319,7 @@ class _HomeDrawer extends StatelessWidget {
                     Text(
                       '连接语言、兴趣与世界',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.78),
+                        color: Colors.white.withValues(alpha: 0.78),
                         fontSize: 12,
                       ),
                     ),
@@ -361,13 +363,13 @@ class _HomeDrawer extends StatelessWidget {
                   Icon(
                     Icons.language_rounded,
                     size: 18,
-                    color: colorScheme.onSurface.withOpacity(0.45),
+                    color: colorScheme.onSurface.withValues(alpha: 0.45),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     '探索不同语言的内容',
                     style: TextStyle(
-                      color: colorScheme.onSurface.withOpacity(0.45),
+                      color: colorScheme.onSurface.withValues(alpha: 0.45),
                       fontSize: 12,
                     ),
                   ),
@@ -404,7 +406,7 @@ class _DrawerNavigationItem extends StatelessWidget {
 
     return Material(
       color: selected
-          ? colorScheme.primary.withOpacity(0.10)
+          ? colorScheme.primary.withValues(alpha: 0.10)
           : Colors.transparent,
       borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
@@ -420,14 +422,14 @@ class _DrawerNavigationItem extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: selected
                       ? colorScheme.primary
-                      : colorScheme.onSurface.withOpacity(0.06),
+                      : colorScheme.onSurface.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: Icon(
                   selected ? icon : outlineIcon,
                   color: selected
                       ? colorScheme.onPrimary
-                      : colorScheme.onSurface.withOpacity(0.65),
+                      : colorScheme.onSurface.withValues(alpha: 0.65),
                   size: 22,
                 ),
               ),
@@ -450,7 +452,7 @@ class _DrawerNavigationItem extends StatelessWidget {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: colorScheme.onSurface.withOpacity(0.48),
+                        color: colorScheme.onSurface.withValues(alpha: 0.48),
                         fontSize: 11,
                       ),
                     ),
@@ -539,7 +541,7 @@ class _CategorySection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
           child: Material(
-            color: colorScheme.primary.withOpacity(0.08),
+            color: colorScheme.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(20),
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
@@ -557,7 +559,7 @@ class _CategorySection extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -584,7 +586,9 @@ class _CategorySection extends StatelessWidget {
                           Text(
                             '当前频道 · 点击切换语言',
                             style: TextStyle(
-                              color: colorScheme.onSurface.withOpacity(0.56),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.56,
+                              ),
                               fontSize: 12,
                             ),
                           ),
@@ -622,7 +626,7 @@ class _CategorySection extends StatelessWidget {
               Text(
                 authProvider.interestsLoaded ? '点击心形设为感兴趣' : '正在加载兴趣设置…',
                 style: TextStyle(
-                  color: colorScheme.onSurface.withOpacity(0.48),
+                  color: colorScheme.onSurface.withValues(alpha: 0.48),
                   fontSize: 12,
                 ),
               ),
@@ -742,7 +746,7 @@ class _ChannelSelectorButton extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Material(
-      color: colorScheme.primary.withOpacity(0.08),
+      color: colorScheme.primary.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
@@ -815,12 +819,12 @@ class _CategoryCard extends StatelessWidget {
             border: Border.all(
               color: isInterested
                   ? colorScheme.primary
-                  : accentColor.withOpacity(0.16),
+                  : accentColor.withValues(alpha: 0.16),
               width: isInterested ? 1.5 : 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.035),
+                color: Colors.black.withValues(alpha: 0.035),
                 blurRadius: 12,
                 offset: const Offset(0, 5),
               ),
@@ -834,7 +838,7 @@ class _CategoryCard extends StatelessWidget {
                   width: 45,
                   height: 45,
                   decoration: BoxDecoration(
-                    color: accentColor.withOpacity(0.12),
+                    color: accentColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(icon, color: accentColor, size: 24),
@@ -860,7 +864,7 @@ class _CategoryCard extends StatelessWidget {
                         : Icons.favorite_border_rounded,
                     color: isInterested
                         ? colorScheme.primary
-                        : colorScheme.onSurface.withOpacity(0.34),
+                        : colorScheme.onSurface.withValues(alpha: 0.34),
                   ),
                 ),
               ],

@@ -92,7 +92,7 @@ Future<BirthdayEditorResult?> showBirthdayEditorDialog({
             const SizedBox(height: 8),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              activeColor: Colors.blue,
+              activeThumbColor: Colors.blue,
               title: const Text('公开年龄', style: TextStyle(fontSize: 14)),
               subtitle: const Text('关闭后仅自己可见', style: TextStyle(fontSize: 12)),
               value: tempShowAge,

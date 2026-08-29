@@ -276,7 +276,7 @@ class _InterestEmptyState extends StatelessWidget {
               width: 76,
               height: 76,
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.09),
+                color: colorScheme.primary.withValues(alpha: 0.09),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: colorScheme.primary, size: 36),
@@ -292,7 +292,7 @@ class _InterestEmptyState extends StatelessWidget {
               description,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.56),
+                color: colorScheme.onSurface.withValues(alpha: 0.56),
                 height: 1.45,
               ),
             ),

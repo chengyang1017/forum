@@ -618,7 +618,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             border: Border.all(color: Colors.white, width: 4),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -691,7 +691,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50.withOpacity(0.5),
+                    color: Colors.blue.shade50.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(

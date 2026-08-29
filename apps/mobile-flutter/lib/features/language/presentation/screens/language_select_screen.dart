@@ -209,7 +209,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.8),
+                    color: Colors.blue.withValues(alpha: 0.8),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(

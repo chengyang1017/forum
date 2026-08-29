@@ -1372,7 +1372,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.52),
+                  color: Colors.black.withValues(alpha: 0.52),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Text(
@@ -1405,7 +1405,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     decoration: BoxDecoration(
                       color: selected
                           ? Colors.white
-                          : Colors.white.withOpacity(0.55),
+                          : Colors.white.withValues(alpha: 0.55),
                       borderRadius: BorderRadius.circular(99),
                       boxShadow: const [
                         BoxShadow(color: Colors.black26, blurRadius: 2),
@@ -1480,7 +1480,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
+                      color: Colors.black.withValues(alpha: 0.03),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -1688,7 +1688,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -2581,7 +2581,7 @@ class _XhsImagePreviewState extends State<_XhsImagePreview> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.45),
+                            color: Colors.black.withValues(alpha: 0.45),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
@@ -2624,7 +2624,7 @@ class _XhsImagePreviewState extends State<_XhsImagePreview> {
                             decoration: BoxDecoration(
                               color: selected
                                   ? Colors.white
-                                  : Colors.white.withOpacity(0.38),
+                                  : Colors.white.withValues(alpha: 0.38),
                               borderRadius: BorderRadius.circular(99),
                             ),
                           );
