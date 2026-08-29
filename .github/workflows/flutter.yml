@@ -1,0 +1,46 @@
+﻿name: Flutter Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - "apps/mobile-flutter/**"
+      - ".github/workflows/flutter.yml"
+
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/mobile-flutter/**"
+      - ".github/workflows/flutter.yml"
+
+jobs:
+  flutter:
+    name: Analyze and Test
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apps/mobile-flutter
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.2"
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze
+        run: dart analyze
+
+      - name: Test
+        run: flutter test
