@@ -1,10 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/router/app_routes.dart';
 import '../../domain/models/post_model.dart';
 import '../providers/post_provider.dart' as postProv;
-import '../screens/post_detail_screen.dart';
 import '../../../../core/widgets/user_name_display.dart';
 
 class PostItemCard extends StatelessWidget {
@@ -109,28 +110,16 @@ class PostItemCard extends StatelessWidget {
       onTap:
           onTap ??
           () {
-            final postProvider =
-                context.read<postProv.PostProvider>();
+            final postProvider = context.read<postProv.PostProvider>();
 
-            final latestBookmarked =
-                postProvider.bookmarkState(
+            final latestBookmarked = postProvider.bookmarkState(
               post.id,
               fallback: post.isBookmarked,
             );
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) {
-                  return PostDetailScreen(
-                    postId: post.id,
-                    post: post.copyWith(
-                      isBookmarked:
-                          latestBookmarked,
-                    ),
-                  );
-                },
-              ),
+            context.push<void>(
+              AppRoutes.postDetailLocation(postId: post.id),
+              extra: post.copyWith(isBookmarked: latestBookmarked),
             );
           },
       child: Padding(

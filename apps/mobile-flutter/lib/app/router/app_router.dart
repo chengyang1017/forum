@@ -9,6 +9,8 @@ import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/feed/presentation/screens/feed_screen.dart';
 import '../../features/home/presentation/screens/main_navigation_screen.dart';
 import '../../features/language/data/forum_languages.dart';
+import '../../features/post/domain/models/post_model.dart';
+import '../../features/post/presentation/screens/post_detail_screen.dart';
 import 'app_routes.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -37,6 +39,18 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.home,
       builder: (context, state) => const MainNavigationScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.postDetail,
+      builder: (context, state) {
+        final postId = state.pathParameters['postId']!;
+        final extra = state.extra;
+
+        return PostDetailRouteScreen(
+          postId: postId,
+          initialPost: extra is PostModel ? extra : null,
+        );
+      },
     ),
     GoRoute(
       path: AppRoutes.feed,
