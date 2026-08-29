@@ -4,10 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
-import 'register_screen.dart';
-import 'forgot_password_screen.dart';
-import '../../../home/presentation/screens/main_navigation_screen.dart';
+import '../../../../app/router/app_routes.dart';
 // ✅ 别名导入
 import '../providers/auth_provider.dart' as authProv;
 
@@ -111,10 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-      );
+      context.go(AppRoutes.home);
     } catch (e) {
       String msg = e.toString();
       if (msg.contains('Exception:')) {
@@ -281,12 +277,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ForgotPasswordScreen(),
-                      ),
-                    );
+                    context.push(AppRoutes.forgotPassword);
                   },
                   child: const Text(
                     '忘记密码？',
@@ -322,10 +313,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 12),
               TextButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                  );
+                  context.push(AppRoutes.register);
                 },
                 child: const Text("没有账号？立即注册"),
               ),

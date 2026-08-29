@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/services/deep_link_service.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
@@ -8,6 +9,7 @@ import '../../features/home/presentation/screens/main_navigation_screen.dart';
 import 'app_routes.dart';
 
 final GoRouter appRouter = GoRouter(
+  navigatorKey: rootNavigatorKey,
   routes: [
     GoRoute(
       path: AppRoutes.root,

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/providers/app_language.dart';
+import '../../../../app/router/app_routes.dart';
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
-import '../../../auth/presentation/screens/login_screen.dart';
 import '../../../auth/presentation/screens/change_password_screen.dart';
 import 'security_settings_screen.dart';
 
@@ -38,11 +39,7 @@ class SettingsScreen extends StatelessWidget {
         await context.read<authProv.AuthProvider>().logout();
 
         if (context.mounted) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const LoginScreen()),
-            (route) => false,
-          );
+          context.go(AppRoutes.login);
         }
       } catch (e) {
         if (context.mounted) {
