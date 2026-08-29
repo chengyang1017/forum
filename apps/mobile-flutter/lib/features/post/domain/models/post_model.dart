@@ -56,7 +56,8 @@ class PostModel {
     final legacyCategory = json['category']?.toString();
     final categoryId = json['categoryId']?.toString() ?? legacyCategory;
 
-    final rawCategoryPath = (json['categoryPath'] as List<dynamic>?)
+    final rawCategoryPath =
+        (json['categoryPath'] as List<dynamic>?)
             ?.map((e) => e.toString())
             .where((e) => e.isNotEmpty)
             .toList() ??
@@ -73,25 +74,26 @@ class PostModel {
       content: json['content']?.toString() ?? '',
       bodyDelta:
           (json['bodyDelta'] as List<dynamic>?)?.map((e) => e).toList() ??
-              const [],
+          const [],
       category: legacyCategory,
       categoryId: categoryId,
       categoryPath: rawCategoryPath.isNotEmpty
           ? rawCategoryPath
           : derivedCategoryPath.isNotEmpty
-              ? derivedCategoryPath
-              : [
-                  if (legacyCategory != null && legacyCategory.isNotEmpty)
-                    legacyCategory,
-                ],
+          ? derivedCategoryPath
+          : [
+              if (legacyCategory != null && legacyCategory.isNotEmpty)
+                legacyCategory,
+            ],
       languageCode: json['languageCode']?.toString(),
       primaryLanguageCode:
-          json['primaryLanguageCode']?.toString() ?? json['languageCode']?.toString(),
+          json['primaryLanguageCode']?.toString() ??
+          json['languageCode']?.toString(),
       availableLanguageCodes:
           (json['availableLanguageCodes'] as List<dynamic>?)
-                  ?.map((e) => e.toString())
-                  .toList() ??
-              [if (json['languageCode'] != null) json['languageCode'].toString()],
+              ?.map((e) => e.toString())
+              .toList() ??
+          [if (json['languageCode'] != null) json['languageCode'].toString()],
       imageUrls: (json['images'] as List<dynamic>?)
           ?.map((e) => e.toString())
           .toList(),

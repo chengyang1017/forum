@@ -62,7 +62,8 @@ class NoteModel {
     final legacyCategory = data['category']?.toString();
     final categoryId = data['categoryId']?.toString() ?? legacyCategory;
 
-    final rawCategoryPath = (data['categoryPath'] as List<dynamic>?)
+    final rawCategoryPath =
+        (data['categoryPath'] as List<dynamic>?)
             ?.map((value) => value.toString())
             .where((value) => value.isNotEmpty)
             .toList() ??
@@ -95,11 +96,11 @@ class NoteModel {
       categoryPath: rawCategoryPath.isNotEmpty
           ? rawCategoryPath
           : derivedCategoryPath.isNotEmpty
-              ? derivedCategoryPath
-              : [
-                  if (legacyCategory != null && legacyCategory.isNotEmpty)
-                    legacyCategory,
-                ],
+          ? derivedCategoryPath
+          : [
+              if (legacyCategory != null && legacyCategory.isNotEmpty)
+                legacyCategory,
+            ],
       languageCode: data['languageCode']?.toString(),
       allowOthersEdit: data['allowOthersEdit'] as bool? ?? false,
       createdAt: _readDateTime(data['createdAt']),

@@ -27,25 +27,18 @@ class PostApi {
     final data = response['posts'];
 
     if (data is! List) {
-      throw const PostApiException(
-        '服务器返回的帖子列表格式无效',
-      );
+      throw const PostApiException('服务器返回的帖子列表格式无效');
     }
 
     try {
       return data
           .map(
-            (item) => PostModel.fromJson(
-              Map<String, dynamic>.from(
-                item as Map,
-              ),
-            ),
+            (item) =>
+                PostModel.fromJson(Map<String, dynamic>.from(item as Map)),
           )
           .toList(growable: false);
     } catch (_) {
-      throw const PostApiException(
-        '服务器返回的帖子资料格式无效',
-      );
+      throw const PostApiException('服务器返回的帖子资料格式无效');
     }
   }
 
@@ -53,29 +46,19 @@ class PostApi {
   // 单篇帖子
   // ============================================================
 
-  Future<PostModel> getPost(
-    String postId, {
-    String? languageCode,
-  }) async {
+  Future<PostModel> getPost(String postId, {String? languageCode}) async {
     final response = await _apiClient.get(
       '/posts/$postId',
-      queryParameters: {
-        if (languageCode != null)
-          'languageCode': languageCode,
-      },
+      queryParameters: {if (languageCode != null) 'languageCode': languageCode},
     );
 
     final data = response['post'];
 
     if (data is! Map) {
-      throw const PostApiException(
-        '服务器返回的帖子格式无效',
-      );
+      throw const PostApiException('服务器返回的帖子格式无效');
     }
 
-    return PostModel.fromJson(
-      Map<String, dynamic>.from(data),
-    );
+    return PostModel.fromJson(Map<String, dynamic>.from(data));
   }
 
   Future<Map<String, dynamic>> getLanguageVersion({
@@ -90,9 +73,7 @@ class PostApi {
     final data = response['version'];
 
     if (data is! Map) {
-      throw const PostApiException(
-        '服务器返回的语言版本格式无效',
-      );
+      throw const PostApiException('服务器返回的语言版本格式无效');
     }
 
     return Map<String, dynamic>.from(data);
@@ -127,14 +108,10 @@ class PostApi {
     final data = response['post'];
 
     if (data is! Map) {
-      throw const PostApiException(
-        '服务器返回的帖子格式无效',
-      );
+      throw const PostApiException('服务器返回的帖子格式无效');
     }
 
-    return PostModel.fromJson(
-      Map<String, dynamic>.from(data),
-    );
+    return PostModel.fromJson(Map<String, dynamic>.from(data));
   }
 
   // ============================================================
@@ -163,14 +140,10 @@ class PostApi {
     final data = response['post'];
 
     if (data is! Map) {
-      throw const PostApiException(
-        '服务器返回的帖子格式无效',
-      );
+      throw const PostApiException('服务器返回的帖子格式无效');
     }
 
-    return PostModel.fromJson(
-      Map<String, dynamic>.from(data),
-    );
+    return PostModel.fromJson(Map<String, dynamic>.from(data));
   }
 
   // ============================================================
@@ -191,24 +164,18 @@ class PostApi {
       {
         'title': title,
         'content': content,
-        if (bodyDelta != null)
-          'bodyDelta': bodyDelta,
-        if (images != null)
-          'images': images,
+        if (bodyDelta != null) 'bodyDelta': bodyDelta,
+        if (images != null) 'images': images,
       },
     );
 
     final data = response['post'];
 
     if (data is! Map) {
-      throw const PostApiException(
-        '服务器返回的帖子格式无效',
-      );
+      throw const PostApiException('服务器返回的帖子格式无效');
     }
 
-    return PostModel.fromJson(
-      Map<String, dynamic>.from(data),
-    );
+    return PostModel.fromJson(Map<String, dynamic>.from(data));
   }
 
   // ============================================================
@@ -219,36 +186,25 @@ class PostApi {
     required String postId,
     required List<String> images,
   }) async {
-    final response = await _apiClient.patch(
-      '/posts/$postId/images',
-      {
-        'images': images,
-      },
-    );
+    final response = await _apiClient.patch('/posts/$postId/images', {
+      'images': images,
+    });
 
     final data = response['post'];
 
     if (data is! Map) {
-      throw const PostApiException(
-        '服务器返回的帖子格式无效',
-      );
+      throw const PostApiException('服务器返回的帖子格式无效');
     }
 
-    return PostModel.fromJson(
-      Map<String, dynamic>.from(data),
-    );
+    return PostModel.fromJson(Map<String, dynamic>.from(data));
   }
 
   // ============================================================
   // 删除帖子
   // ============================================================
 
-  Future<List<String>> deletePost(
-    String postId,
-  ) async {
-    final response = await _apiClient.delete(
-      '/posts/$postId',
-    );
+  Future<List<String>> deletePost(String postId) async {
+    final response = await _apiClient.delete('/posts/$postId');
 
     final data = response['imageUrls'];
 
@@ -256,18 +212,14 @@ class PostApi {
       return const [];
     }
 
-    return data
-        .map((item) => item.toString())
-        .toList(growable: false);
+    return data.map((item) => item.toString()).toList(growable: false);
   }
 
   // ============================================================
   // 点赞 / 取消点赞
   // ============================================================
 
-  Future<PostLikeResult> likePost(
-    String postId,
-  ) async {
+  Future<PostLikeResult> likePost(String postId) async {
     final response = await _apiClient.put(
       '/posts/${Uri.encodeComponent(postId)}/like',
       const <String, dynamic>{},
@@ -276,9 +228,7 @@ class PostApi {
     return PostLikeResult.fromJson(response);
   }
 
-  Future<PostLikeResult> unlikePost(
-    String postId,
-  ) async {
+  Future<PostLikeResult> unlikePost(String postId) async {
     final response = await _apiClient.delete(
       '/posts/${Uri.encodeComponent(postId)}/like',
     );
@@ -290,9 +240,7 @@ class PostApi {
   // 收藏 / 取消收藏 / 我的收藏
   // ============================================================
 
-  Future<bool> bookmarkPost(
-    String postId,
-  ) async {
+  Future<bool> bookmarkPost(String postId) async {
     final response = await _apiClient.post(
       '/posts/${Uri.encodeComponent(postId)}/bookmark',
       data: const <String, dynamic>{},
@@ -301,9 +249,7 @@ class PostApi {
     return response['isBookmarked'] == true;
   }
 
-  Future<bool> removeBookmark(
-    String postId,
-  ) async {
+  Future<bool> removeBookmark(String postId) async {
     final response = await _apiClient.delete(
       '/posts/${Uri.encodeComponent(postId)}/bookmark',
     );
@@ -312,35 +258,25 @@ class PostApi {
   }
 
   Future<List<PostModel>> getBookmarkedPosts() async {
-    final response = await _apiClient.get(
-      '/users/me/bookmarks',
-    );
+    final response = await _apiClient.get('/users/me/bookmarks');
 
     final data = response['posts'];
 
     if (data is! List) {
-      throw const PostApiException(
-        '服务器返回的收藏列表格式无效',
-      );
+      throw const PostApiException('服务器返回的收藏列表格式无效');
     }
 
     try {
       return data
           .map(
-            (item) => PostModel.fromJson(
-              Map<String, dynamic>.from(
-                item as Map,
-              ),
-            ),
+            (item) =>
+                PostModel.fromJson(Map<String, dynamic>.from(item as Map)),
           )
           .toList(growable: false);
     } catch (_) {
-      throw const PostApiException(
-        '服务器返回的收藏资料格式无效',
-      );
+      throw const PostApiException('服务器返回的收藏资料格式无效');
     }
   }
-
 
   // ============================================================
   // 举报帖子
@@ -358,8 +294,7 @@ class PostApi {
         '/posts/${Uri.encodeComponent(postId)}/reports',
         data: {
           'reason': reason,
-          if (trimmedDetails != null &&
-              trimmedDetails.isNotEmpty)
+          if (trimmedDetails != null && trimmedDetails.isNotEmpty)
             'details': trimmedDetails,
         },
       );
@@ -367,14 +302,10 @@ class PostApi {
       final data = response['report'];
 
       if (data is! Map) {
-        throw const PostApiException(
-          '服务器返回的举报资料格式无效',
-        );
+        throw const PostApiException('服务器返回的举报资料格式无效');
       }
 
-      return PostReportResult.fromJson(
-        Map<String, dynamic>.from(data),
-      );
+      return PostReportResult.fromJson(Map<String, dynamic>.from(data));
     } on DioException catch (error) {
       final responseData = error.response?.data;
 
@@ -384,41 +315,27 @@ class PostApi {
 
       switch (code) {
         case 'REPORT_ALREADY_EXISTS':
-          throw const PostApiException(
-            '你已经举报过这篇帖子',
-          );
+          throw const PostApiException('你已经举报过这篇帖子');
 
         case 'SELF_REPORT_NOT_ALLOWED':
-          throw const PostApiException(
-            '不能举报自己的帖子',
-          );
+          throw const PostApiException('不能举报自己的帖子');
 
         case 'POST_NOT_FOUND':
-          throw const PostApiException(
-            '帖子不存在或已被删除',
-          );
+          throw const PostApiException('帖子不存在或已被删除');
 
         case 'INVALID_REPORT':
-          throw const PostApiException(
-            '举报内容无效',
-          );
+          throw const PostApiException('举报内容无效');
 
         case 'USER_NOT_FOUND':
-          throw const PostApiException(
-            '用户资料尚未同步',
-          );
+          throw const PostApiException('用户资料尚未同步');
 
         default:
-          throw const PostApiException(
-            '举报失败，请稍后重试',
-          );
+          throw const PostApiException('举报失败，请稍后重试');
       }
     }
   }
 
-  Future<List<Map<String, dynamic>>> getEditHistory(
-    String postId,
-  ) async {
+  Future<List<Map<String, dynamic>>> getEditHistory(String postId) async {
     final response = await _apiClient.get(
       '/posts/${Uri.encodeComponent(postId)}/edit-history',
     );
@@ -426,16 +343,12 @@ class PostApi {
     final data = response['history'];
 
     if (data is! List) {
-      throw const PostApiException(
-        '服务器返回的编辑历史格式无效',
-      );
+      throw const PostApiException('服务器返回的编辑历史格式无效');
     }
 
     return data
         .whereType<Map>()
-        .map(
-          (item) => Map<String, dynamic>.from(item),
-        )
+        .map((item) => Map<String, dynamic>.from(item))
         .toList(growable: false);
   }
 
@@ -445,30 +358,21 @@ class PostApi {
   }) async {
     final response = await _apiClient.get(
       '/posts/by-user/${Uri.encodeComponent(firebaseUid)}',
-      queryParameters: {
-        'limit': limit,
-      },
+      queryParameters: {'limit': limit},
     );
 
     final data = response['posts'];
 
     if (data is! List) {
-      throw const PostApiException(
-        '服务器返回的用户帖子格式无效',
-      );
+      throw const PostApiException('服务器返回的用户帖子格式无效');
     }
 
     return data
         .whereType<Map>()
-        .map(
-          (item) => PostModel.fromJson(
-            Map<String, dynamic>.from(item),
-          ),
-        )
+        .map((item) => PostModel.fromJson(Map<String, dynamic>.from(item)))
         .toList(growable: false);
   }
 }
-
 
 class PostReportResult {
   final String id;
@@ -489,21 +393,15 @@ class PostReportResult {
     required this.updatedAt,
   });
 
-  factory PostReportResult.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory PostReportResult.fromJson(Map<String, dynamic> json) {
     return PostReportResult(
       id: json['id']?.toString() ?? '',
       postId: json['postId']?.toString() ?? '',
       reason: json['reason']?.toString() ?? '',
       details: json['details']?.toString(),
       status: json['status']?.toString() ?? '',
-      createdAt: DateTime.tryParse(
-        json['createdAt']?.toString() ?? '',
-      ),
-      updatedAt: DateTime.tryParse(
-        json['updatedAt']?.toString() ?? '',
-      ),
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? ''),
+      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? ''),
     );
   }
 }
@@ -512,18 +410,12 @@ class PostLikeResult {
   final bool liked;
   final int likeCount;
 
-  const PostLikeResult({
-    required this.liked,
-    required this.likeCount,
-  });
+  const PostLikeResult({required this.liked, required this.likeCount});
 
-  factory PostLikeResult.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory PostLikeResult.fromJson(Map<String, dynamic> json) {
     return PostLikeResult(
       liked: json['liked'] == true,
-      likeCount:
-          (json['likeCount'] as num?)?.toInt() ?? 0,
+      likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
     );
   }
 }

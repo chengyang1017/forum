@@ -22,11 +22,9 @@ class NoteService {
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
 
-  NoteService({
-    FirebaseFirestore? firestore,
-    FirebaseStorage? storage,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _storage = storage ?? FirebaseStorage.instance;
+  NoteService({FirebaseFirestore? firestore, FirebaseStorage? storage})
+    : _firestore = firestore ?? FirebaseFirestore.instance,
+      _storage = storage ?? FirebaseStorage.instance;
 
   CollectionReference<Map<String, dynamic>> get _notes {
     return _firestore.collection('notes');
@@ -84,16 +82,11 @@ class NoteService {
     String? languageCode,
   }) async {
     final cleanedSharedUserIds = sharedUserIds
-        .where(
-          (userId) => userId.isNotEmpty && userId != ownerId,
-        )
+        .where((userId) => userId.isNotEmpty && userId != ownerId)
         .toSet()
         .toList();
 
-    final participantIds = <String>[
-      ownerId,
-      ...cleanedSharedUserIds,
-    ];
+    final participantIds = <String>[ownerId, ...cleanedSharedUserIds];
 
     final reference = _notes.doc();
     final cleanedLanguageCode = languageCode?.trim();
@@ -200,9 +193,7 @@ class NoteService {
 
       final isOwner = ownerId == userId;
       final isParticipant = participantIds.contains(userId);
-      final canEdit =
-          isOwner ||
-          (isParticipant && allowOthersEdit);
+      final canEdit = isOwner || (isParticipant && allowOthersEdit);
 
       if (!canEdit) {
         throw StateError('无权编辑这条笔记');
@@ -346,10 +337,10 @@ class NoteService {
         cleanedCategoryId != null && cleanedCategoryId.isNotEmpty
         ? cleanedCategoryId
         : cleanedCategory != null && cleanedCategory.isNotEmpty
-            ? cleanedCategory
-            : suppliedPath != null && suppliedPath.isNotEmpty
-                ? suppliedPath.last
-                : null;
+        ? cleanedCategory
+        : suppliedPath != null && suppliedPath.isNotEmpty
+        ? suppliedPath.last
+        : null;
 
     if (selectedCategoryId == null) {
       return const _ResolvedCategoryData(
@@ -363,8 +354,8 @@ class NoteService {
     final resolvedPath = suppliedPath != null && suppliedPath.isNotEmpty
         ? suppliedPath
         : derivedPath.isNotEmpty
-            ? derivedPath
-            : <String>[selectedCategoryId];
+        ? derivedPath
+        : <String>[selectedCategoryId];
 
     final rootCategoryId = resolvedPath.isNotEmpty
         ? resolvedPath.first

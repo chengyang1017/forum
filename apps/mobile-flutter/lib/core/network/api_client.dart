@@ -3,17 +3,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class ApiClient {
   ApiClient({String? baseUrl})
-      : _dio = Dio(
-          BaseOptions(
-            baseUrl: baseUrl ?? _configuredBaseUrl,
-            connectTimeout: const Duration(seconds: 10),
-            receiveTimeout: const Duration(seconds: 10),
-            sendTimeout: const Duration(seconds: 10),
-            headers: const {
-              'Content-Type': 'application/json',
-            },
-          ),
-        ) {
+    : _dio = Dio(
+        BaseOptions(
+          baseUrl: baseUrl ?? _configuredBaseUrl,
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+          sendTimeout: const Duration(seconds: 10),
+          headers: const {'Content-Type': 'application/json'},
+        ),
+      ) {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -52,14 +50,8 @@ class ApiClient {
     return response.data ?? <String, dynamic>{};
   }
 
-  Future<Map<String, dynamic>> post(
-    String path, {
-    Object? data,
-  }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      path,
-      data: data,
-    );
+  Future<Map<String, dynamic>> post(String path, {Object? data}) async {
+    final response = await _dio.post<Map<String, dynamic>>(path, data: data);
 
     return response.data ?? <String, dynamic>{};
   }
@@ -68,10 +60,7 @@ class ApiClient {
     String path,
     Map<String, dynamic> data,
   ) async {
-    final response = await _dio.put<Map<String, dynamic>>(
-      path,
-      data: data,
-    );
+    final response = await _dio.put<Map<String, dynamic>>(path, data: data);
 
     return response.data ?? <String, dynamic>{};
   }
@@ -80,22 +69,13 @@ class ApiClient {
     String path,
     Map<String, dynamic> data,
   ) async {
-    final response = await _dio.patch<Map<String, dynamic>>(
-      path,
-      data: data,
-    );
+    final response = await _dio.patch<Map<String, dynamic>>(path, data: data);
 
     return response.data ?? <String, dynamic>{};
   }
 
-  Future<Map<String, dynamic>> delete(
-    String path, {
-    Object? data,
-  }) async {
-    final response = await _dio.delete<Map<String, dynamic>>(
-      path,
-      data: data,
-    );
+  Future<Map<String, dynamic>> delete(String path, {Object? data}) async {
+    final response = await _dio.delete<Map<String, dynamic>>(path, data: data);
 
     return response.data ?? <String, dynamic>{};
   }

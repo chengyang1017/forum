@@ -49,38 +49,20 @@ class PostRepository {
   //   return PostModel.fromJson(data);
   // }
 
-  Future<PostModel> updatePost(
-    String postId, {
-    required String content,
-  }) async {
-    await _postService.updatePost(
-      postId,
-      content: content,
-    );
+  Future<PostModel> updatePost(String postId, {required String content}) async {
+    await _postService.updatePost(postId, content: content);
 
     return _postService.getPost(postId);
   }
 
   // ========== 点赞/取消点赞 ==========
-  Future<int> toggleLike(
-    String postId, {
-    required bool liked,
-  }) {
-    return _postService.toggleLike(
-      postId,
-      liked: liked,
-    );
+  Future<int> toggleLike(String postId, {required bool liked}) {
+    return _postService.toggleLike(postId, liked: liked);
   }
 
   // ========== 收藏/取消收藏 ==========
-  Future<bool> toggleBookmark(
-    String postId, {
-    required bool bookmarked,
-  }) {
-    return _postService.toggleBookmark(
-      postId,
-      bookmarked: bookmarked,
-    );
+  Future<bool> toggleBookmark(String postId, {required bool bookmarked}) {
+    return _postService.toggleBookmark(postId, bookmarked: bookmarked);
   }
 
   // ========== 删除帖子 ==========

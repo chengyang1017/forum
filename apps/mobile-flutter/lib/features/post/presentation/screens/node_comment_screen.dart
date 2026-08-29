@@ -11,10 +11,7 @@ import '../../domain/models/post_comment_model.dart';
 class CommentScreen extends StatefulWidget {
   final String postId;
 
-  const CommentScreen({
-    super.key,
-    required this.postId,
-  });
+  const CommentScreen({super.key, required this.postId});
 
   @override
   State<CommentScreen> createState() => _CommentScreenState();
@@ -112,10 +109,7 @@ class _CommentScreenState extends State<CommentScreen> {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('发送失败: $error'),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text('发送失败: $error'), backgroundColor: Colors.red),
     );
   }
 
@@ -211,9 +205,7 @@ class _CommentScreenState extends State<CommentScreen> {
         _comments = _comments
             .map(
               (comment) => comment.id == commentId
-                  ? comment.copyWith(
-                      replies: [...comment.replies, reply],
-                    )
+                  ? comment.copyWith(replies: [...comment.replies, reply])
                   : comment,
             )
             .toList(growable: false);
@@ -260,10 +252,7 @@ class _CommentScreenState extends State<CommentScreen> {
                         controller.text += emoji;
                         Navigator.pop(context);
                       },
-                      child: Text(
-                        emoji,
-                        style: const TextStyle(fontSize: 32),
-                      ),
+                      child: Text(emoji, style: const TextStyle(fontSize: 32)),
                     ),
                   )
                   .toList(),
@@ -275,10 +264,7 @@ class _CommentScreenState extends State<CommentScreen> {
     );
   }
 
-  Widget _avatar(
-    PostCommentModel comment, {
-    double radius = 18,
-  }) {
+  Widget _avatar(PostCommentModel comment, {double radius = 18}) {
     final avatarUrl = comment.avatarUrl;
 
     if (avatarUrl != null && avatarUrl.isNotEmpty) {
@@ -311,11 +297,7 @@ class _CommentScreenState extends State<CommentScreen> {
     if (replies.isEmpty) return const SizedBox();
 
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 46,
-        top: 4,
-        bottom: 8,
-      ),
+      padding: const EdgeInsets.only(left: 46, top: 4, bottom: 8),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.grey.shade50,
@@ -401,15 +383,9 @@ class _CommentScreenState extends State<CommentScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '评论加载失败\n$_errorMessage',
-                textAlign: TextAlign.center,
-              ),
+              Text('评论加载失败\n$_errorMessage', textAlign: TextAlign.center),
               const SizedBox(height: 12),
-              FilledButton(
-                onPressed: _loadComments,
-                child: const Text('重试'),
-              ),
+              FilledButton(onPressed: _loadComments, child: const Text('重试')),
             ],
           ),
         ),
@@ -451,10 +427,7 @@ class _CommentScreenState extends State<CommentScreen> {
       onRefresh: _loadComments,
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         itemCount: _comments.length,
         itemBuilder: (context, index) {
           final comment = _comments[index];
@@ -552,10 +525,7 @@ class _CommentScreenState extends State<CommentScreen> {
           SafeArea(
             top: false,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 6,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -585,9 +555,7 @@ class _CommentScreenState extends State<CommentScreen> {
                               children: [
                                 TextSpan(
                                   text: '回复 ',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                  ),
+                                  style: TextStyle(color: Colors.grey.shade600),
                                 ),
                                 TextSpan(
                                   text: '@$replyingToUser',
@@ -621,10 +589,7 @@ class _CommentScreenState extends State<CommentScreen> {
                         onPressed: _showEmojiPicker,
                       ),
                       IconButton(
-                        icon: const Icon(
-                          Icons.image_outlined,
-                          size: 26,
-                        ),
+                        icon: const Icon(Icons.image_outlined, size: 26),
                         color: Colors.grey[600],
                         onPressed: busy ? null : sendImageComment,
                       ),
@@ -665,10 +630,7 @@ class _CommentScreenState extends State<CommentScreen> {
                         )
                       else
                         IconButton(
-                          icon: const Icon(
-                            Icons.send_rounded,
-                            size: 26,
-                          ),
+                          icon: const Icon(Icons.send_rounded, size: 26),
                           color: Colors.blue,
                           onPressed: () {
                             final commentId = replyingToCommentId;

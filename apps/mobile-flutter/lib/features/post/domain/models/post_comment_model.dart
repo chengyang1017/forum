@@ -21,9 +21,7 @@ class PostCommentModel {
     required this.replies,
   });
 
-  PostCommentModel copyWith({
-    List<PostCommentModel>? replies,
-  }) {
+  PostCommentModel copyWith({List<PostCommentModel>? replies}) {
     return PostCommentModel(
       id: id,
       userId: userId,
@@ -51,13 +49,13 @@ class PostCommentModel {
       createdAt: DateTime.tryParse(json['timestamp']?.toString() ?? ''),
       replies: rawReplies is List
           ? rawReplies
-              .whereType<Map>()
-              .map(
-                (item) => PostCommentModel.fromJson(
-                  Map<String, dynamic>.from(item),
-                ),
-              )
-              .toList(growable: false)
+                .whereType<Map>()
+                .map(
+                  (item) => PostCommentModel.fromJson(
+                    Map<String, dynamic>.from(item),
+                  ),
+                )
+                .toList(growable: false)
           : const [],
     );
   }
