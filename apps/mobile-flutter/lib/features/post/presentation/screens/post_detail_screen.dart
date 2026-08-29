@@ -1919,7 +1919,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
   final ImagePicker _imagePicker = ImagePicker();
 
   bool _uploadingImage = false;
-  bool _saving = false;
+  final bool _saving = false;
   late List<String> _topImages;
   late final List<String> _originalTopImages;
 

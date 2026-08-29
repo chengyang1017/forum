@@ -135,6 +135,14 @@ Widget _buildPicker(
 ) {
   return PopupMenuButton<int>(
     offset: const Offset(0, 40),
+    itemBuilder: (context) => List.generate(count, (i) {
+      final val = valueBuilder(i);
+      return PopupMenuItem(
+        value: val,
+        child: Text('$val', style: const TextStyle(fontSize: 14)),
+      );
+    }),
+    onSelected: onChanged,
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
@@ -153,14 +161,6 @@ Widget _buildPicker(
         ],
       ),
     ),
-    itemBuilder: (context) => List.generate(count, (i) {
-      final val = valueBuilder(i);
-      return PopupMenuItem(
-        value: val,
-        child: Text('$val', style: const TextStyle(fontSize: 14)),
-      );
-    }),
-    onSelected: onChanged,
   );
 }
 

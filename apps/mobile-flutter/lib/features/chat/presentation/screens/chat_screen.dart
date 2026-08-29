@@ -791,10 +791,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final currentUserId = _currentUserId;
 
     // 使用 Set，避免重复，同时保证当前用户也在里面。
-    final allUserIds = <String>{
-      ...userIds,
-      if (currentUserId != null) currentUserId,
-    };
+    final allUserIds = <String>{...userIds, ?currentUserId};
 
     if (allUserIds.isEmpty) {
       return;

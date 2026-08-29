@@ -35,7 +35,7 @@ class CommentApi {
   }) async {
     final response = await _apiClient.post(
       '/posts/${Uri.encodeComponent(postId)}/comments',
-      data: {'text': text, if (imageUrl != null) 'imageUrl': imageUrl},
+      data: {'text': text, 'imageUrl': ?imageUrl},
     );
 
     final data = response['comment'];

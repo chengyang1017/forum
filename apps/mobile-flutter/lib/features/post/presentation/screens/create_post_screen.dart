@@ -254,7 +254,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     try {
       final ref = FirebaseStorage.instance.ref().child(
         'posts/'
-        '${_draftPostId}/'
+        '$_draftPostId/'
         'inline/'
         '${DateTime.now().millisecondsSinceEpoch}_'
         '${selectedImage.name}',

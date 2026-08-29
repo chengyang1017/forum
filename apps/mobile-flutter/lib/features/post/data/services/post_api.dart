@@ -49,7 +49,7 @@ class PostApi {
   Future<PostModel> getPost(String postId, {String? languageCode}) async {
     final response = await _apiClient.get(
       '/posts/$postId',
-      queryParameters: {if (languageCode != null) 'languageCode': languageCode},
+      queryParameters: {'languageCode': ?languageCode},
     );
 
     final data = response['post'];
@@ -164,8 +164,8 @@ class PostApi {
       {
         'title': title,
         'content': content,
-        if (bodyDelta != null) 'bodyDelta': bodyDelta,
-        if (images != null) 'images': images,
+        'bodyDelta': ?bodyDelta,
+        'images': ?images,
       },
     );
 
