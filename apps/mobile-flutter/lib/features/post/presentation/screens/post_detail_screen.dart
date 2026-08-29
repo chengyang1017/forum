@@ -836,7 +836,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
     );
 
-    if (confirm != true) return;
+    if (confirm != true || !mounted) return;
 
     try {
       final postProvider = context.read<post_prov.PostProvider>();
@@ -882,7 +882,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       imageQuality: 85,
       maxWidth: 1240,
     );
-    if (picked.isEmpty) return;
+    if (picked.isEmpty || !mounted) return;
 
     setState(() => _isUploadingImage = true);
 
@@ -932,7 +932,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
     );
 
-    if (confirm != true) return;
+    if (confirm != true || !mounted) return;
 
     try {
       final targetUrl = _images[index];

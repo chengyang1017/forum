@@ -148,16 +148,16 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                               ElevatedButton(
                                 onPressed: () async {
                                   await friendService.acceptRequest(fromUid);
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          '已接受 ${userInfo['username']} 的好友申请',
-                                        ),
-                                        backgroundColor: Colors.green,
+                                  if (!context.mounted) return;
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        '已接受 ${userInfo['username']} 的好友申请',
                                       ),
-                                    );
-                                  }
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
@@ -174,14 +174,14 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                               OutlinedButton(
                                 onPressed: () async {
                                   await friendService.rejectRequest(fromUid);
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('已拒绝好友申请'),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                  }
+                                  if (!context.mounted) return;
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('已拒绝好友申请'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
                                 },
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.red,

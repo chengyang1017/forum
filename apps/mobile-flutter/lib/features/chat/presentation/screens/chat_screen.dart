@@ -521,7 +521,7 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
 
-    if (confirmed != true) {
+    if (confirmed != true || !mounted) {
       return;
     }
 
@@ -571,6 +571,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     });
                   }
 
+                  final chatProvider = this.context
+                      .read<chat_prov.ChatProvider>();
+
                   // 关闭时先删除实时内容。
                   // 不要等待 Firestore 设置保存完成。
                   if (!value) {
@@ -581,8 +584,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   }
 
                   try {
-                    final chatProvider = context.read<chat_prov.ChatProvider>();
-
                     await chatProvider.updateLiveDraftEnabled(
                       chatId: widget.chatId,
                       userId: userId,
@@ -899,7 +900,7 @@ class _ChatScreenState extends State<ChatScreen> {
       imageQuality: 85,
       maxWidth: 1024,
     );
-    if (image == null) return;
+    if (image == null || !mounted) return;
 
     setState(() => _isUploading = true);
 

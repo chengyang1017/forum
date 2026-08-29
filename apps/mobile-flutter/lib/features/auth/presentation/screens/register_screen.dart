@@ -47,6 +47,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           .where('username', isEqualTo: username)
           .get();
 
+      if (!mounted) return;
+
       if (usernameQuery.docs.isNotEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

@@ -36,6 +36,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     try {
       final authProvider = context.read<auth_prov.AuthProvider>();
       final result = await authProvider.getSecurityQuestion(email);
+
+      if (!mounted) return;
+
       if (result == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
