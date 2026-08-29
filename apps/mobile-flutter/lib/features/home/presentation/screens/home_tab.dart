@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 
 import '../../../../app/l10n/app_localizations.dart';
+import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/forum_categories.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
-import '../../../feed/presentation/screens/feed_screen.dart';
 import '../../../language/presentation/screens/language_select_screen.dart';
 import '../widgets/recommended_posts_view.dart';
 
@@ -87,22 +88,11 @@ class _HomeTabState extends State<HomeTab> {
     });
   }
 
-  void _openCategory({
-    required CategoryConfig category,
-    required String uiLanguageCode,
-  }) {
+  void _openCategory({required CategoryConfig category}) {
     final channel = _currentChannel;
 
-    final languageName = channel.nameOf(uiLanguageCode);
-
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => FeedScreen(
-          category: category.id,
-          languageCode: channel.contentLanguageCode,
-          languageName: languageName,
-        ),
-      ),
+    context.push(
+      AppRoutes.feedLocation(channelKey: channel.key, categoryId: category.id),
     );
   }
 
@@ -179,7 +169,7 @@ class _HomeTabState extends State<HomeTab> {
               _openLanguageSelect(uiLanguageCode);
             },
             onCategorySelected: (category) {
-              _openCategory(category: category, uiLanguageCode: uiLanguageCode);
+              _openCategory(category: category);
             },
           ),
         ],

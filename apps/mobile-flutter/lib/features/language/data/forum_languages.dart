@@ -93,6 +93,16 @@ class ForumLanguages {
     return result;
   }
 
+  static ForumLanguageChannel? findChannelByKey(String key) {
+    for (final channel in channels) {
+      if (channel.key == key) {
+        return channel;
+      }
+    }
+
+    return null;
+  }
+
   static List<LanguageConfig> get supportedLanguages {
     return LanguageConfig.allLanguages;
   }

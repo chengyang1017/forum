@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/app_routes.dart';
 import '../../data/services/post_node_service.dart';
 import '../../domain/models/post_model.dart';
 import '../widgets/post_item_card.dart';
-import 'post_detail_screen.dart';
 
 class BookmarkedPostsScreen extends StatefulWidget {
   const BookmarkedPostsScreen({super.key});
 
   @override
-  State<BookmarkedPostsScreen> createState() =>
-      _BookmarkedPostsScreenState();
+  State<BookmarkedPostsScreen> createState() => _BookmarkedPostsScreenState();
 }
 
-class _BookmarkedPostsScreenState
-    extends State<BookmarkedPostsScreen> {
+class _BookmarkedPostsScreenState extends State<BookmarkedPostsScreen> {
   final PostService _postService = PostService();
 
   List<PostModel> _posts = const [];
@@ -36,8 +35,7 @@ class _BookmarkedPostsScreenState
     }
 
     try {
-      final posts =
-          await _postService.getBookmarkedPosts();
+      final posts = await _postService.getBookmarkedPosts();
 
       if (!mounted) {
         return;
@@ -59,17 +57,10 @@ class _BookmarkedPostsScreenState
     }
   }
 
-  Future<void> _openPost(
-    PostModel post,
-  ) async {
-    await Navigator.push<void>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PostDetailScreen(
-          postId: post.id,
-          post: post,
-        ),
-      ),
+  Future<void> _openPost(PostModel post) async {
+    await context.push<void>(
+      AppRoutes.postDetailLocation(postId: post.id),
+      extra: post,
     );
 
     if (!mounted) {
@@ -87,21 +78,14 @@ class _BookmarkedPostsScreenState
       appBar: AppBar(
         title: const Text(
           '我的收藏',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
         actions: [
           IconButton(
             tooltip: '刷新',
-            onPressed:
-                _loading
-                    ? null
-                    : _loadBookmarks,
-            icon: const Icon(
-              Icons.refresh_rounded,
-            ),
+            onPressed: _loading ? null : _loadBookmarks,
+            icon: const Icon(Icons.refresh_rounded),
           ),
         ],
       ),
@@ -111,9 +95,7 @@ class _BookmarkedPostsScreenState
 
   Widget _buildBody() {
     if (_loading && _posts.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_error != null && _posts.isEmpty) {
@@ -130,13 +112,11 @@ class _BookmarkedPostsScreenState
       return RefreshIndicator(
         onRefresh: _loadBookmarks,
         child: ListView(
-          physics:
-              const AlwaysScrollableScrollPhysics(),
+          physics: const AlwaysScrollableScrollPhysics(),
           children: const [
             SizedBox(height: 120),
             _BookmarksMessage(
-              icon:
-                  Icons.bookmark_border_rounded,
+              icon: Icons.bookmark_border_rounded,
               title: '还没有收藏',
               description:
                   '在帖子详情页点击收藏后，'
@@ -150,19 +130,10 @@ class _BookmarkedPostsScreenState
     return RefreshIndicator(
       onRefresh: _loadBookmarks,
       child: ListView.separated(
-        physics:
-            const AlwaysScrollableScrollPhysics(),
-        padding:
-            const EdgeInsets.fromLTRB(
-          12,
-          10,
-          12,
-          24,
-        ),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 24),
         itemCount: _posts.length,
-        separatorBuilder:
-            (_, __) =>
-                const Divider(height: 1),
+        separatorBuilder: (_, __) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final post = _posts[index];
 
@@ -180,8 +151,7 @@ class _BookmarkedPostsScreenState
   }
 }
 
-class _BookmarksMessage
-    extends StatelessWidget {
+class _BookmarksMessage extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
@@ -198,54 +168,30 @@ class _BookmarksMessage
 
   @override
   Widget build(BuildContext context) {
-    final colors =
-        Theme.of(context).colorScheme;
+    final colors = Theme.of(context).colorScheme;
 
     return Center(
       child: Padding(
-        padding:
-            const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(
-          mainAxisSize:
-              MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 48,
-              color:
-                  colors.onSurfaceVariant,
-            ),
+            Icon(icon, size: 48, color: colors.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
               title,
-              textAlign:
-                  TextAlign.center,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight:
-                    FontWeight.w700,
-              ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(
               description,
-              textAlign:
-                  TextAlign.center,
-              style: TextStyle(
-                color:
-                    colors.onSurfaceVariant,
-                height: 1.45,
-              ),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: colors.onSurfaceVariant, height: 1.45),
             ),
-            if (
-              actionText != null &&
-              onAction != null
-            ) ...[
+            if (actionText != null && onAction != null) ...[
               const SizedBox(height: 18),
-              FilledButton.tonal(
-                onPressed: onAction,
-                child: Text(actionText!),
-              ),
+              FilledButton.tonal(onPressed: onAction, child: Text(actionText!)),
             ],
           ],
         ),

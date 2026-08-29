@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
+import '../../../../app/router/app_routes.dart';
 import '../../../post/domain/models/post_model.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/birthday_editor_dialog.dart';
@@ -15,10 +17,7 @@ import '../widgets/profile_bio_tags_section.dart';
 import '../widgets/profile_header.dart';
 import '../widgets/profile_language_section.dart';
 import '../../../post/presentation/widgets/post_item_card.dart';
-import '../../../post/presentation/screens/bookmarked_posts_screen.dart';
 import '../widgets/tag_editor_sheet.dart';
-import 'settings_screen.dart';
-import '../../../notes/presentation/screens/all_notes_screen.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -440,10 +439,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           IconButton(
             icon: const Icon(Icons.settings_outlined, color: Colors.black87),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              );
+              context.push(AppRoutes.settings);
             },
           ),
         ],
@@ -538,14 +534,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       subtitle: const Text('查看和管理所有共享笔记'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) {
-                              return const AllNotesScreen();
-                            },
-                          ),
-                        );
+                        context.push(AppRoutes.allNotes);
                       },
                     ),
                   ),
@@ -554,53 +543,33 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 // 我的收藏
                 SliverToBoxAdapter(
                   child: Container(
-                    margin:
-                        const EdgeInsets.only(top: 10),
+                    margin: const EdgeInsets.only(top: 10),
                     color: Colors.white,
                     child: ListTile(
-                      contentPadding:
-                          const EdgeInsets.symmetric(
+                      contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 8,
                       ),
                       leading: CircleAvatar(
-                        backgroundColor:
-                            Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondaryContainer,
                         child: Icon(
                           Icons.bookmark_outline_rounded,
-                          color:
-                              Theme.of(context)
-                                  .colorScheme
-                                  .secondary,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       title: const Text(
                         '我的收藏',
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight:
-                              FontWeight.w600,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      subtitle:
-                          const Text(
-                        '查看收藏的帖子',
-                      ),
-                      trailing:
-                          const Icon(
-                        Icons.chevron_right,
-                      ),
+                      subtitle: const Text('查看收藏的帖子'),
+                      trailing: const Icon(Icons.chevron_right),
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) {
-                              return const BookmarkedPostsScreen();
-                            },
-                          ),
-                        );
+                        context.push(AppRoutes.bookmarkedPosts);
                       },
                     ),
                   ),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
-import '../../../home/presentation/screens/main_navigation_screen.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/router/app_routes.dart';
 // ✅ 别名导入
 import '../providers/auth_provider.dart' as authProv;
 
@@ -72,11 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         const SnackBar(content: Text('注册成功！'), backgroundColor: Colors.green),
       );
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-        (route) => false,
-      );
+      context.go(AppRoutes.home);
     } catch (e) {
       String msg = e.toString();
       if (msg.contains('Exception:')) {
@@ -225,7 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 16),
 
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => context.go(AppRoutes.login),
                 child: const Text('已有账号？立即登录'),
               ),
             ],

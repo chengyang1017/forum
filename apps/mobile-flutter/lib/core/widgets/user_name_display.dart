@@ -1,8 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../features/profile/presentation/screens/user_profile_screen.dart';
+import '../../app/router/app_routes.dart';
 
 class UserNameDisplay extends StatelessWidget {
   final String uid;
@@ -68,11 +69,7 @@ class UserNameDisplay extends StatelessWidget {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => UserProfileScreen(uid: normalizedUid),
-              ),
-            );
+            context.push(AppRoutes.userProfileLocation(uid: normalizedUid));
           },
           child: Row(
             mainAxisSize: MainAxisSize.min,

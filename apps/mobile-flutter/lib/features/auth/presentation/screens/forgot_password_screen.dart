@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/router/app_routes.dart';
 import '../providers/auth_provider.dart' as authProv;
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -115,7 +118,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pushReplacementNamed(context, '/login');
+        context.go(AppRoutes.login);
       }
     } catch (e) {
       setState(() => isLoading = false);

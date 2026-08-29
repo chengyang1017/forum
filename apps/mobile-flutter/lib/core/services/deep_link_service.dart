@@ -1,12 +1,7 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
-import 'package:flutter/material.dart';
-
-import '../../features/post/data/services/post_node_service.dart';
-import '../../features/post/presentation/screens/post_detail_screen.dart';
-
-final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+import 'package:flutter/widgets.dart';
 
 class DeepLinkService {
   DeepLinkService._();
@@ -14,12 +9,14 @@ class DeepLinkService {
   static final DeepLinkService instance = DeepLinkService._();
 
   final AppLinks _appLinks = AppLinks();
-  final PostService _postService = PostService();
 
   StreamSubscription<Uri>? _subscription;
+  Future<void> Function(String postId)? _openPostRoute;
   String? _openingPostId;
 
-  void start() {
+  void start({required Future<void> Function(String postId) openPostRoute}) {
+    _openPostRoute = openPostRoute;
+
     _subscription ??= _appLinks.uriLinkStream.listen(
       _handleUri,
       onError: (Object error) {
@@ -55,35 +52,19 @@ class DeepLinkService {
       return;
     }
 
-    final navigator = rootNavigatorKey.currentState;
+    final openPostRoute = _openPostRoute;
 
-    if (navigator == null) {
+    if (openPostRoute == null) {
+      debugPrint('帖子链接路由尚未初始化');
       return;
     }
 
     _openingPostId = postId;
 
     try {
-      final post = await _postService.getPost(postId);
-
-      await navigator.push(
-        MaterialPageRoute<void>(
-          builder: (_) => PostDetailScreen(
-            postId: post.id,
-            post: post,
-          ),
-        ),
-      );
+      await openPostRoute(postId);
     } catch (error) {
-      debugPrint('打开帖子失败：$error');
-
-      if (rootNavigatorKey.currentContext != null) {
-        ScaffoldMessenger.of(
-          rootNavigatorKey.currentContext!,
-        ).showSnackBar(
-          const SnackBar(content: Text('这个帖子不存在或已经被删除')),
-        );
-      }
+      debugPrint('打开帖子路由失败：$error');
     } finally {
       _openingPostId = null;
     }

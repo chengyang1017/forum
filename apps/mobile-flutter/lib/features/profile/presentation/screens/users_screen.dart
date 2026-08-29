@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../chat/data/services/chat_service.dart';
-import '../../../chat/presentation/screens/chat_screen.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/router/app_routes.dart';
 
 class UsersScreen extends StatelessWidget {
   const UsersScreen({super.key});
@@ -92,14 +94,9 @@ class UsersScreen extends StatelessWidget {
 
                       if (!context.mounted) return;
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ChatScreen(
-                            chatId: chatId,
-                            otherUserName: userData['username'] ?? '用户',
-                          ),
-                        ),
+                      context.push(
+                        AppRoutes.chatLocation(chatId: chatId),
+                        extra: userData['username'] ?? '用户',
                       );
                     } catch (e) {
                       if (context.mounted) {

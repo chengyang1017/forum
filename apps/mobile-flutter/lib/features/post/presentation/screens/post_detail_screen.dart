@@ -5,9 +5,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/app_routes.dart';
 import 'node_comment_screen.dart';
-import '../../../profile/presentation/screens/user_profile_screen.dart';
 import '../providers/post_provider.dart' as postProv;
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 import '../../../../core/widgets/user_name_display.dart';
@@ -20,8 +21,122 @@ import '../../data/services/post_node_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
-import 'post_edit_history_screen.dart';
 import '../widgets/post_report_dialog.dart';
+
+class PostDetailRouteScreen extends StatefulWidget {
+  final String postId;
+  final PostModel? initialPost;
+
+  const PostDetailRouteScreen({
+    super.key,
+    required this.postId,
+    this.initialPost,
+  });
+
+  @override
+  State<PostDetailRouteScreen> createState() => _PostDetailRouteScreenState();
+}
+
+class _PostDetailRouteScreenState extends State<PostDetailRouteScreen> {
+  final PostService _postService = PostService();
+
+  Future<PostModel>? _postFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _preparePost();
+  }
+
+  @override
+  void didUpdateWidget(covariant PostDetailRouteScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.postId != widget.postId ||
+        oldWidget.initialPost != widget.initialPost) {
+      _preparePost();
+    }
+  }
+
+  void _preparePost() {
+    if (widget.initialPost != null) {
+      _postFuture = null;
+      return;
+    }
+
+    _postFuture = _postService.getPost(widget.postId);
+  }
+
+  void _retry() {
+    setState(() {
+      _postFuture = _postService.getPost(widget.postId);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final initialPost = widget.initialPost;
+
+    if (initialPost != null) {
+      return PostDetailScreen(postId: widget.postId, post: initialPost);
+    }
+
+    final future = _postFuture ??= _postService.getPost(widget.postId);
+
+    return FutureBuilder<PostModel>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(body: Center(child: LoadingIndicator()));
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('帖子详情')),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.error_outline_rounded, size: 52),
+                    const SizedBox(height: 16),
+                    const Text(
+                      '帖子加载失败',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text('${snapshot.error}', textAlign: TextAlign.center),
+                    const SizedBox(height: 20),
+                    FilledButton.icon(
+                      onPressed: _retry,
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: const Text('重试'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        final post = snapshot.data;
+
+        if (post == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('帖子详情')),
+            body: const Center(child: Text('帖子不存在')),
+          );
+        }
+
+        return PostDetailScreen(postId: widget.postId, post: post);
+      },
+    );
+  }
+}
 
 class PostDetailScreen extends StatefulWidget {
   final String postId;
@@ -76,23 +191,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     _images = List<String>.from(_post.imageUrls ?? []);
     _isLiked = _currentUserId != null && _likes.contains(_currentUserId);
 
-    final postProvider =
-        context.read<postProv.PostProvider>();
+    final postProvider = context.read<postProv.PostProvider>();
 
-    postProvider.seedBookmarkState(
-      _post.id,
-      _post.isBookmarked,
-    );
+    postProvider.seedBookmarkState(_post.id, _post.isBookmarked);
 
-    _isBookmarked =
-        postProvider.bookmarkState(
+    _isBookmarked = postProvider.bookmarkState(
       _post.id,
       fallback: _post.isBookmarked,
     );
 
-    _post = _post.copyWith(
-      isBookmarked: _isBookmarked,
-    );
+    _post = _post.copyWith(isBookmarked: _isBookmarked);
 
     _loadCurrentVersionCreatedAt();
   }
@@ -271,21 +379,15 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       _isLiked = nextLiked;
       _likeCount = nextLiked
           ? previousLikeCount + 1
-          : (previousLikeCount > 0
-                ? previousLikeCount - 1
-                : 0);
+          : (previousLikeCount > 0 ? previousLikeCount - 1 : 0);
 
-      _likes = nextLiked
-          ? <String>[_currentUserId!]
-          : <String>[];
+      _likes = nextLiked ? <String>[_currentUserId!] : <String>[];
     });
 
     try {
-      final postProvider =
-          context.read<postProv.PostProvider>();
+      final postProvider = context.read<postProv.PostProvider>();
 
-      final confirmedLikeCount =
-          await postProvider.toggleLike(
+      final confirmedLikeCount = await postProvider.toggleLike(
         widget.postId,
         liked: nextLiked,
       );
@@ -306,16 +408,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       setState(() {
         _isLiked = previousLiked;
         _likeCount = previousLikeCount;
-        _likes = previousLiked
-            ? <String>[_currentUserId!]
-            : <String>[];
+        _likes = previousLiked ? <String>[_currentUserId!] : <String>[];
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('操作失败: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('操作失败: $e'), backgroundColor: Colors.red),
       );
     }
   }
@@ -328,30 +425,24 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       return;
     }
 
-    final postProvider =
-        context.read<postProv.PostProvider>();
+    final postProvider = context.read<postProv.PostProvider>();
 
-    final previousBookmarked =
-        postProvider.bookmarkState(
+    final previousBookmarked = postProvider.bookmarkState(
       widget.postId,
       fallback: _isBookmarked,
     );
 
-    final nextBookmarked =
-        !previousBookmarked;
+    final nextBookmarked = !previousBookmarked;
 
     // 乐观更新：先让按钮立即响应。
     setState(() {
       _isBookmarked = nextBookmarked;
       _isBookmarkBusy = true;
-      _post = _post.copyWith(
-        isBookmarked: nextBookmarked,
-      );
+      _post = _post.copyWith(isBookmarked: nextBookmarked);
     });
 
     try {
-      final confirmedBookmarked =
-          await postProvider.toggleBookmark(
+      final confirmedBookmarked = await postProvider.toggleBookmark(
         widget.postId,
         bookmarked: nextBookmarked,
       );
@@ -363,9 +454,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       setState(() {
         _isBookmarked = confirmedBookmarked;
         _isBookmarkBusy = false;
-        _post = _post.copyWith(
-          isBookmarked: confirmedBookmarked,
-        );
+        _post = _post.copyWith(isBookmarked: confirmedBookmarked);
       });
     } catch (e) {
       if (!mounted) {
@@ -376,16 +465,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       setState(() {
         _isBookmarked = previousBookmarked;
         _isBookmarkBusy = false;
-        _post = _post.copyWith(
-          isBookmarked: previousBookmarked,
-        );
+        _post = _post.copyWith(isBookmarked: previousBookmarked);
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('收藏操作失败: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('收藏操作失败: $e'), backgroundColor: Colors.red),
       );
     }
   }
@@ -988,7 +1072,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     );
   }
 
-
   // ============================================================
   // 举报帖子
   // ============================================================
@@ -1020,9 +1103,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            '举报已提交，感谢你的反馈',
-          ),
+          content: Text('举报已提交，感谢你的反馈'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -1052,10 +1133,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   void _navigateToProfile() {
     final uid = _post.userId;
     if (uid != null && uid.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => UserProfileScreen(uid: uid)),
-      );
+      context.push(AppRoutes.userProfileLocation(uid: uid));
     }
   }
 
@@ -1133,12 +1211,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               }
 
               if (value == 'history') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        PostEditHistoryScreen(postId: widget.postId),
-                  ),
+                context.push(
+                  AppRoutes.postEditHistoryLocation(postId: widget.postId),
                 );
               }
 
@@ -1213,12 +1287,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       color: Colors.redAccent,
                     ),
                     SizedBox(width: 8),
-                    Text(
-                      '举报帖子',
-                      style: TextStyle(
-                        color: Colors.redAccent,
-                      ),
-                    ),
+                    Text('举报帖子', style: TextStyle(color: Colors.redAccent)),
                   ],
                 ),
               ),
@@ -1620,12 +1689,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   // 底部操作栏
   // ============================================================
   Widget _buildBottomBar() {
-    final globalBookmarked =
-        context.watch<postProv.PostProvider>()
-            .bookmarkState(
-      widget.postId,
-      fallback: _isBookmarked,
-    );
+    final globalBookmarked = context
+        .watch<postProv.PostProvider>()
+        .bookmarkState(widget.postId, fallback: _isBookmarked);
 
     return Container(
       decoration: BoxDecoration(
@@ -1640,10 +1706,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: 12,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Row(
             children: [
               Expanded(
@@ -1653,9 +1716,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     _isLiked
                         ? Icons.favorite_rounded
                         : Icons.favorite_outline_rounded,
-                    _likeCount > 0
-                        ? '$_likeCount 赞同'
-                        : '赞同',
+                    _likeCount > 0 ? '$_likeCount 赞同' : '赞同',
                     _isLiked,
                   ),
                 ),
@@ -1663,19 +1724,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               Expanded(
                 child: _buildBottomAction(
                   onTap: _openComments,
-                  child: _buildAction(
-                    Icons.mode_comment_outlined,
-                    '评论',
-                    false,
-                  ),
+                  child: _buildAction(Icons.mode_comment_outlined, '评论', false),
                 ),
               ),
               Expanded(
                 child: _buildBottomAction(
-                  onTap:
-                      _isBookmarkBusy
-                          ? null
-                          : _toggleBookmark,
+                  onTap: _isBookmarkBusy ? null : _toggleBookmark,
                   child: _buildAction(
                     globalBookmarked
                         ? Icons.bookmark_rounded
@@ -1688,21 +1742,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               Expanded(
                 child: _buildBottomAction(
                   onTap: _openTranslation,
-                  child: _buildAction(
-                    Icons.translate_rounded,
-                    '翻译',
-                    false,
-                  ),
+                  child: _buildAction(Icons.translate_rounded, '翻译', false),
                 ),
               ),
               Expanded(
                 child: _buildBottomAction(
                   onTap: _showShareOptions,
-                  child: _buildAction(
-                    Icons.ios_share_rounded,
-                    '分享',
-                    false,
-                  ),
+                  child: _buildAction(Icons.ios_share_rounded, '分享', false),
                 ),
               ),
             ],
@@ -1720,15 +1766,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       borderRadius: BorderRadius.circular(20),
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 3,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 8),
         child: Center(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: child,
-          ),
+          child: FittedBox(fit: BoxFit.scaleDown, child: child),
         ),
       ),
     );

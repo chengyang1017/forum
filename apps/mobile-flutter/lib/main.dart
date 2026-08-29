@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
-// ========== 屏幕 ==========
-import 'features/auth/presentation/screens/login_screen.dart';
-import 'features/home/presentation/screens/main_navigation_screen.dart';
-
 // ========== 国际化 ==========
-import 'app/l10n/app_localizations.dart';
 import 'app/l10n/localizations_delegate.dart';
 
 // ========== Provider（全局） ==========
@@ -26,6 +20,8 @@ import 'features/discover/presentation/providers/discover_provider.dart'
     as discoverProv;
 import 'features/post/presentation/providers/post_provider.dart' as postProv;
 
+import 'app/router/app_router.dart';
+import 'app/router/app_routes.dart';
 import 'core/services/deep_link_service.dart';
 
 void main() async {
@@ -33,7 +29,11 @@ void main() async {
 
   await Firebase.initializeApp();
 
-  DeepLinkService.instance.start();
+  DeepLinkService.instance.start(
+    openPostRoute: (postId) async {
+      await appRouter.push<void>(AppRoutes.postDetailLocation(postId: postId));
+    },
+  );
 
   runApp(const MyApp());
 }
@@ -58,7 +58,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AppLanguage()),
 
         // ----- 功能模块 Provider -----
-        ChangeNotifierProvider(create: (_) => authProv.AuthProvider()),
+        ChangeNotifierProvider(
+          create: (_) => authProv.AuthProvider()..loadUser(),
+        ),
         ChangeNotifierProvider(create: (_) => chatProv.ChatProvider()),
         ChangeNotifierProvider(create: (_) => friendProv.FriendProvider()),
         ChangeNotifierProvider(create: (_) => discoverProv.DiscoverProvider()),
@@ -67,8 +69,7 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<AppLanguage>(
         builder: (context, appLanguage, child) {
-          return MaterialApp(
-            navigatorKey: rootNavigatorKey,
+          return MaterialApp.router(
             debugShowCheckedModeBanner: false,
             title: '论坛App',
 
@@ -130,26 +131,7 @@ class MyApp extends StatelessWidget {
               fontFamily: 'NomNaTong',
             ),
 
-            home: StreamBuilder<User?>(
-              stream: FirebaseAuth.instance.authStateChanges(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                if (snapshot.hasData) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.read<authProv.AuthProvider>().loadUser();
-                  });
-
-                  return const MainNavigationScreen();
-                }
-
-                return const LoginScreen();
-              },
-            ),
+            routerConfig: appRouter,
           );
         },
       ),

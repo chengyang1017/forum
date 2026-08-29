@@ -5,9 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../data/services/friend_service.dart';
 import '../../../chat/data/services/chat_service.dart';
-import '../../../chat/presentation/screens/chat_screen.dart';
-import 'friend_requests_screen.dart';
-import '../../../profile/presentation/screens/user_profile_screen.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/router/app_routes.dart';
 
 class FriendsListScreen extends StatefulWidget {
   const FriendsListScreen({super.key});
@@ -68,12 +68,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                   ),
                   tooltip: '好友申请',
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const FriendRequestsScreen(),
-                      ),
-                    );
+                    context.push(AppRoutes.friendRequests);
                   },
                 ),
                 StreamBuilder<QuerySnapshot>(
@@ -199,11 +194,8 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
 
                   return InkWell(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => UserProfileScreen(uid: friendUid),
-                        ),
+                      context.push(
+                        AppRoutes.userProfileLocation(uid: friendUid),
                       );
                     },
                     child: Padding(
@@ -282,14 +274,9 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                                 friendUid,
                               );
                               if (!mounted) return;
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ChatScreen(
-                                    chatId: chatId,
-                                    otherUserName: username,
-                                  ),
-                                ),
+                              this.context.push(
+                                AppRoutes.chatLocation(chatId: chatId),
+                                extra: username,
                               );
                             },
                           ),

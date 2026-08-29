@@ -14,6 +14,7 @@ class AuthProvider extends ChangeNotifier {
 
   Set<String> _interests = <String>{};
   bool _interestsLoaded = false;
+  String? _interestsError;
 
   UserModel? get user => _user;
   bool get isLoading => _isLoading;
@@ -21,6 +22,7 @@ class AuthProvider extends ChangeNotifier {
   Set<String> get interests => Set<String>.unmodifiable(_interests);
 
   bool get interestsLoaded => _interestsLoaded;
+  String? get interestsError => _interestsError;
 
   bool isInterested(String key) {
     return _interests.contains(key);
@@ -57,11 +59,14 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> _loadInterests() async {
+    _interestsError = null;
+
     final user = _user;
 
     if (user == null) {
       _interests = <String>{};
       _interestsLoaded = false;
+      _interestsError = null;
       return;
     }
 
@@ -108,6 +113,7 @@ class AuthProvider extends ChangeNotifier {
       debugPrint('Load interests failed: $error');
 
       _interestsLoaded = false;
+      _interestsError = error.toString();
     }
   }
 
@@ -142,6 +148,16 @@ class AuthProvider extends ChangeNotifier {
 
       rethrow;
     }
+  }
+
+  Future<void> retryLoadInterests() async {
+    _interestsError = null;
+    _interestsLoaded = false;
+    notifyListeners();
+
+    await _loadInterests();
+
+    notifyListeners();
   }
 
   Future<void> refreshInterests() async {
@@ -287,6 +303,7 @@ class AuthProvider extends ChangeNotifier {
     _user = null;
     _interests = <String>{};
     _interestsLoaded = false;
+    _interestsError = null;
 
     notifyListeners();
   }

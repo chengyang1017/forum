@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
+import '../../../../app/router/app_routes.dart';
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
 import '../providers/chat_provider.dart' as chatProv;
 import '../../../social/presentation/providers/friend_provider.dart'
     as friendProv;
-import 'chat_screen.dart';
-import '../../../social/presentation/screens/friend_requests_screen.dart';
 import '../../../../core/widgets/user_avatar.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/loading_indicator.dart';
@@ -197,20 +197,21 @@ class _ChatListScreenState extends State<ChatListScreen>
                             l10n.send,
                             () async {
                               Navigator.pop(context);
-                              final chatProvider = context
+
+                              final chatProvider = this.context
                                   .read<chatProv.ChatProvider>();
+
                               final chatId = await chatProvider.getOrCreateChat(
                                 uid,
                               );
-                              if (!mounted) return;
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ChatScreen(
-                                    chatId: chatId,
-                                    otherUserName: displayName2,
-                                  ),
-                                ),
+
+                              if (!mounted) {
+                                return;
+                              }
+
+                              this.context.push(
+                                AppRoutes.chatLocation(chatId: chatId),
+                                extra: displayName2,
                               );
                             },
                           ),
@@ -307,12 +308,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                   ),
                   tooltip: l10n.reply,
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const FriendRequestsScreen(),
-                      ),
-                    );
+                    context.push(AppRoutes.friendRequests);
                   },
                 ),
                 StreamBuilder<QuerySnapshot>(
@@ -446,12 +442,10 @@ class _ChatListScreenState extends State<ChatListScreen>
                 return InkWell(
                   onTap: () {
                     chatProvider.markAsRead(chat.id, currentUserId);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ChatScreen(chatId: chat.id, otherUserName: name),
-                      ),
+
+                    context.push(
+                      AppRoutes.chatLocation(chatId: chat.id),
+                      extra: name,
                     );
                   },
                   child: Padding(
@@ -629,20 +623,20 @@ class _ChatListScreenState extends State<ChatListScreen>
                           color: Theme.of(context).primaryColor,
                           splashRadius: 24,
                           onPressed: () async {
-                            final chatProvider = context
+                            final chatProvider = this.context
                                 .read<chatProv.ChatProvider>();
+
                             final chatId = await chatProvider.getOrCreateChat(
                               friendUid,
                             );
-                            if (!mounted) return;
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChatScreen(
-                                  chatId: chatId,
-                                  otherUserName: name,
-                                ),
-                              ),
+
+                            if (!mounted) {
+                              return;
+                            }
+
+                            this.context.push(
+                              AppRoutes.chatLocation(chatId: chatId),
+                              extra: name,
                             );
                           },
                         ),

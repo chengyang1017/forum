@@ -9,12 +9,13 @@ import '../../../auth/domain/models/user_model.dart';
 import '../../../chat/data/services/chat_service.dart';
 import '../../../social/data/services/friend_service.dart';
 import '../../../auth/presentation/providers/auth_provider.dart' as authProv;
-import '../../../chat/presentation/screens/chat_screen.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../app/router/app_routes.dart';
 import '../widgets/profile_post_sliver_list.dart';
-import '../../../notes/presentation/screens/user_notes_screen.dart';
 import '../widgets/profile_language_section.dart';
 import '../../../auth/data/services/user_api.dart';
 import '../../../post/data/services/post_node_service.dart';
+
 class UserProfileScreen extends StatefulWidget {
   final String uid;
 
@@ -57,199 +58,199 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   //只读node
   Future<void> loadUserData() async {
-  try {
-    final user = await _userApi.getUser(widget.uid);
+    try {
+      final user = await _userApi.getUser(widget.uid);
 
-    if (!mounted) {
-      return;
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _userProfile = user;
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('加载用户失败: $e');
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _userProfile = null;
+        isLoading = false;
+      });
     }
-
-    setState(() {
-      _userProfile = user;
-      isLoading = false;
-    });
-  } catch (e) {
-    debugPrint('加载用户失败: $e');
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _userProfile = null;
-      isLoading = false;
-    });
   }
-}
 
-//   Future<void> loadUserData() async {
-//   try {
-//     final results = await Future.wait([
-//       _userApi.getUser(widget.uid),
-//       FirebaseFirestore.instance
-//           .collection('users')
-//           .doc(widget.uid)
-//           .get(),
-//     ]);
+  //   Future<void> loadUserData() async {
+  //   try {
+  //     final results = await Future.wait([
+  //       _userApi.getUser(widget.uid),
+  //       FirebaseFirestore.instance
+  //           .collection('users')
+  //           .doc(widget.uid)
+  //           .get(),
+  //     ]);
 
-//     final backendUser = results[0] as UserModel?;
-//     final doc =
-//         results[1] as DocumentSnapshot<Map<String, dynamic>>;
+  //     final backendUser = results[0] as UserModel?;
+  //     final doc =
+  //         results[1] as DocumentSnapshot<Map<String, dynamic>>;
 
-//     if (!mounted) return;
+  //     if (!mounted) return;
 
-//     if (backendUser == null) {
-//       setState(() {
-//         _userProfile = null;
-//         isLoading = false;
-//       });
-//       return;
-//     }
+  //     if (backendUser == null) {
+  //       setState(() {
+  //         _userProfile = null;
+  //         isLoading = false;
+  //       });
+  //       return;
+  //     }
 
-//     final legacyData = doc.data();
+  //     final legacyData = doc.data();
 
-//     final result = backendUser.copyWith(
-//       tags: legacyData?['tags'] is List
-//           ? List<String>.from(legacyData!['tags'])
-//           : const [],
-//       languages: legacyData?['languages'] is List
-//           ? (legacyData!['languages'] as List)
-//               .whereType<Map>()
-//               .map(
-//                 (item) =>
-//                     Map<String, dynamic>.from(item),
-//               )
-//               .toList()
-//           : const [],
-//     );
+  //     final result = backendUser.copyWith(
+  //       tags: legacyData?['tags'] is List
+  //           ? List<String>.from(legacyData!['tags'])
+  //           : const [],
+  //       languages: legacyData?['languages'] is List
+  //           ? (legacyData!['languages'] as List)
+  //               .whereType<Map>()
+  //               .map(
+  //                 (item) =>
+  //                     Map<String, dynamic>.from(item),
+  //               )
+  //               .toList()
+  //           : const [],
+  //     );
 
-//     setState(() {
-//       _userProfile = result;
-//       isLoading = false;
-//     });
-//   } catch (e) {
-//     debugPrint('加载用户失败: $e');
+  //     setState(() {
+  //       _userProfile = result;
+  //       isLoading = false;
+  //     });
+  //   } catch (e) {
+  //     debugPrint('加载用户失败: $e');
 
-//     if (!mounted) return;
+  //     if (!mounted) return;
 
-//     setState(() {
-//       isLoading = false;
-//     });
-//   }
-// }
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
   //firebase保底
-//   Future<void> loadUserData() async {
-//   try {
-//     final doc = await FirebaseFirestore.instance
-//         .collection('users')
-//         .doc(widget.uid)
-//         .get();
+  //   Future<void> loadUserData() async {
+  //   try {
+  //     final doc = await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .doc(widget.uid)
+  //         .get();
 
-//     if (!mounted) return;
+  //     if (!mounted) return;
 
-//     if (!doc.exists) {
-//       setState(() {
-//         _userProfile = null;
-//         isLoading = false;
-//       });
-//       return;
-//     }
+  //     if (!doc.exists) {
+  //       setState(() {
+  //         _userProfile = null;
+  //         isLoading = false;
+  //       });
+  //       return;
+  //     }
 
-//     final legacyUser = UserModel.fromJson({
-//       'uid': doc.id,
-//       ...?doc.data(),
-//     });
+  //     final legacyUser = UserModel.fromJson({
+  //       'uid': doc.id,
+  //       ...?doc.data(),
+  //     });
 
-//     UserModel result = legacyUser;
+  //     UserModel result = legacyUser;
 
-//     try {
-//       final backendUser =
-//           await _userApi.getUser(widget.uid);
+  //     try {
+  //       final backendUser =
+  //           await _userApi.getUser(widget.uid);
 
-//       if (backendUser != null) {
-//         result = legacyUser.copyWith(
-//           username: backendUser.username,
-//           nickname: backendUser.nickname,
-//           avatar: backendUser.avatar,
-//           bio: backendUser.bio,
-//           birthday: backendUser.birthday,
-//           clearBirthday: backendUser.birthday == null,
-//           showAge: backendUser.showAge,
-//           createdAt: backendUser.createdAt,
-//           lastActive: backendUser.lastActive,
-//         );
-//       }
-//     } catch (e) {
-//       debugPrint(
-//         'Node user load failed, fallback Firestore: $e',
-//       );
-//     }
+  //       if (backendUser != null) {
+  //         result = legacyUser.copyWith(
+  //           username: backendUser.username,
+  //           nickname: backendUser.nickname,
+  //           avatar: backendUser.avatar,
+  //           bio: backendUser.bio,
+  //           birthday: backendUser.birthday,
+  //           clearBirthday: backendUser.birthday == null,
+  //           showAge: backendUser.showAge,
+  //           createdAt: backendUser.createdAt,
+  //           lastActive: backendUser.lastActive,
+  //         );
+  //       }
+  //     } catch (e) {
+  //       debugPrint(
+  //         'Node user load failed, fallback Firestore: $e',
+  //       );
+  //     }
 
-//     if (!mounted) return;
+  //     if (!mounted) return;
 
-//     setState(() {
-//       _userProfile = result;
-//       isLoading = false;
-//     });
-//   } catch (e) {
-//     if (!mounted) return;
+  //     setState(() {
+  //       _userProfile = result;
+  //       isLoading = false;
+  //     });
+  //   } catch (e) {
+  //     if (!mounted) return;
 
-//     setState(() {
-//       isLoading = false;
-//     });
-//   }
-// }
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
 
-//   Future<void> loadUserData() async {
-//   try {
-//     final backendUser =
-//         await _userApi.getUser(widget.uid);
+  //   Future<void> loadUserData() async {
+  //   try {
+  //     final backendUser =
+  //         await _userApi.getUser(widget.uid);
 
-//     final doc =
-//         await FirebaseFirestore.instance
-//             .collection('users')
-//             .doc(widget.uid)
-//             .get();
+  //     final doc =
+  //         await FirebaseFirestore.instance
+  //             .collection('users')
+  //             .doc(widget.uid)
+  //             .get();
 
-//     if (!mounted) return;
+  //     if (!mounted) return;
 
-//     UserModel? result;
+  //     UserModel? result;
 
-//     if (backendUser != null) {
-//       if (doc.exists) {
-//         final legacyUser = UserModel.fromJson({
-//           'uid': doc.id,
-//           ...?doc.data(),
-//         });
+  //     if (backendUser != null) {
+  //       if (doc.exists) {
+  //         final legacyUser = UserModel.fromJson({
+  //           'uid': doc.id,
+  //           ...?doc.data(),
+  //         });
 
-//         result = legacyUser.copyWith(
-//           username: backendUser.username,
-//           nickname: backendUser.nickname,
-//           avatar: backendUser.avatar,
-//           bio: backendUser.bio,
-//           birthday: backendUser.birthday,
-//           clearBirthday: backendUser.birthday == null,
-//           showAge: backendUser.showAge,
-//           createdAt: backendUser.createdAt,
-//           lastActive: backendUser.lastActive,
-//         );
-//       } else {
-//         result = backendUser;
-//       }
-//     }
+  //         result = legacyUser.copyWith(
+  //           username: backendUser.username,
+  //           nickname: backendUser.nickname,
+  //           avatar: backendUser.avatar,
+  //           bio: backendUser.bio,
+  //           birthday: backendUser.birthday,
+  //           clearBirthday: backendUser.birthday == null,
+  //           showAge: backendUser.showAge,
+  //           createdAt: backendUser.createdAt,
+  //           lastActive: backendUser.lastActive,
+  //         );
+  //       } else {
+  //         result = backendUser;
+  //       }
+  //     }
 
-//     setState(() {
-//       _userProfile = result;
-//       isLoading = false;
-//     });
-//   } catch (e) {
-//     if (!mounted) return;
+  //     setState(() {
+  //       _userProfile = result;
+  //       isLoading = false;
+  //     });
+  //   } catch (e) {
+  //     if (!mounted) return;
 
-//     setState(() {
-//       isLoading = false;
-//     });
-//   }
-// }
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
 
   // Future<void> loadUserData() async {
   //   try {
@@ -832,16 +833,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         subtitle: Text('查看与 $displayName 共享的笔记'),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) {
-                return UserNotesScreen(
-                  otherUserId: widget.uid,
-                  otherUserName: displayName,
-                );
-              },
-            ),
+          context.push(
+            AppRoutes.userNotesLocation(uid: widget.uid),
+            extra: displayName,
           );
         },
       ),
@@ -882,12 +876,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 final chatId = await chatService.getOrCreateChat(widget.uid);
 
                 if (!mounted) return;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        ChatScreen(chatId: chatId, otherUserName: displayName),
-                  ),
+                context.push(
+                  AppRoutes.chatLocation(chatId: chatId),
+                  extra: displayName,
                 );
               },
               icon: const Icon(Icons.chat_bubble_rounded, size: 18),
