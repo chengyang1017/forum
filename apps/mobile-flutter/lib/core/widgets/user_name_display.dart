@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../app/router/app_routes.dart';
+import '../../features/auth/domain/models/user_model.dart';
+import '../../features/profile/domain/repositories/profile_repository.dart';
 
 class UserNameDisplay extends StatelessWidget {
   final String uid;
@@ -18,17 +20,17 @@ class UserNameDisplay extends StatelessWidget {
       return const _AnonymousUserDisplay();
     }
 
-    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance
-          .collection('users')
-          .doc(normalizedUid)
-          .snapshots(),
+    final repository = context.read<ProfileRepository>();
+
+    return StreamBuilder<UserModel?>(
+      stream: repository.watchProfile(normalizedUid),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return const _AnonymousUserDisplay();
         }
 
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !snapshot.hasData) {
           return const SizedBox(
             width: 16,
             height: 16,
@@ -36,23 +38,14 @@ class UserNameDisplay extends StatelessWidget {
           );
         }
 
-        final document = snapshot.data;
-
-        if (document == null || !document.exists) {
+        final user = snapshot.data;
+        if (user == null) {
           return const _AnonymousUserDisplay();
         }
 
-        final data = document.data();
-
-        if (data == null) {
-          return const _AnonymousUserDisplay();
-        }
-
-        final nickname = data['nickname']?.toString().trim() ?? '';
-
-        final username = data['username']?.toString().trim() ?? '';
-
-        final avatar = data['avatar']?.toString().trim() ?? '';
+        final nickname = user.nickname?.trim() ?? '';
+        final username = user.username.trim();
+        final avatar = user.avatarUrl.trim();
 
         final displayName = nickname.isNotEmpty
             ? nickname

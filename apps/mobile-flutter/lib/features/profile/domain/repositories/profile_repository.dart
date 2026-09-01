@@ -2,10 +2,13 @@ import '../../../auth/domain/models/user_model.dart';
 
 /// Domain boundary for profile reads and profile mutations.
 ///
-/// PostgreSQL is the source of truth. Migration mirrors and transport details
-/// belong to the data layer and must not leak through this contract.
+/// PostgreSQL is the source of truth for authoritative profile reads and
+/// mutations. Realtime projections may be backed by migration infrastructure,
+/// but transport-specific types must not leak through this contract.
 abstract interface class ProfileRepository {
   Future<UserModel?> getProfile(String userId);
+
+  Stream<UserModel?> watchProfile(String userId);
 
   Future<UserModel> updateTags({
     required String userId,
