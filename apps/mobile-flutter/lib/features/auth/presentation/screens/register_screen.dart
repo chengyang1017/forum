@@ -41,11 +41,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final password = _passwordController.text;
 
       // Username uniqueness is checked by AuthCubit against PostgreSQL.
-      final authProvider = context.read<auth_cubit.AuthCubit>();
-      await authProvider.register(email, password, username);
+      final authCubit = context.read<auth_cubit.AuthCubit>();
+      await authCubit.register(email, password, username);
 
       // 注册完成后建立/同步 Node 用户，并初始化 interests。
-      await authProvider.loadUser();
+      await authCubit.loadUser();
 
       if (!mounted) return;
 
