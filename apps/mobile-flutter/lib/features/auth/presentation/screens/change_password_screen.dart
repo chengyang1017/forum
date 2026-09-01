@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/auth_cubit.dart' as auth_cubit;
 
 class ChangePasswordScreen extends StatefulWidget {
