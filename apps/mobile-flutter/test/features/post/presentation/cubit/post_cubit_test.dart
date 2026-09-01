@@ -53,6 +53,43 @@ void main() {
       expect(cubit.bookmarkState('post-1', fallback: true), isFalse);
     });
 
+    test('delegates like toggles and returns confirmed count', () async {
+      repository.likeResult = 7;
+
+      final result = await cubit.toggleLike('post-1', liked: true);
+
+      expect(result, 7);
+      expect(repository.lastLikedPostId, 'post-1');
+      expect(repository.lastLikedValue, isTrue);
+    });
+
+    test('delegates post deletion to the repository', () async {
+      await cubit.deletePost('post-1');
+
+      expect(repository.lastDeletedPostId, 'post-1');
+    });
+
+    test('delegates image list updates to the repository', () async {
+      const imageUrls = [
+        'https://example.test/one.png',
+        'https://example.test/two.png',
+      ];
+
+      await cubit.updateImages('post-1', imageUrls);
+
+      expect(repository.lastUpdatedImagesPostId, 'post-1');
+      expect(repository.lastUpdatedImageUrls, imageUrls);
+    });
+
+    test('removeImage persists the remaining image list', () async {
+      const remaining = ['https://example.test/remaining.png'];
+
+      await cubit.removeImage('post-1', remaining);
+
+      expect(repository.lastUpdatedImagesPostId, 'post-1');
+      expect(repository.lastUpdatedImageUrls, remaining);
+    });
+
     test('maps plugin files to framework-neutral media requests', () async {
       final source = XFile('/tmp/example.png');
 
@@ -79,6 +116,12 @@ void main() {
 final class _FakePostRepository implements PostRepository {
   bool? bookmarkResult;
   Object? bookmarkError;
+  int likeResult = 0;
+  String? lastLikedPostId;
+  bool? lastLikedValue;
+  String? lastDeletedPostId;
+  String? lastUpdatedImagesPostId;
+  List<String> lastUpdatedImageUrls = const [];
 
   @override
   Stream<List<PostModel>> watchPosts({
@@ -152,8 +195,10 @@ final class _FakePostRepository implements PostRepository {
   }
 
   @override
-  Future<int> toggleLike(String postId, {required bool liked}) {
-    throw UnimplementedError();
+  Future<int> toggleLike(String postId, {required bool liked}) async {
+    lastLikedPostId = postId;
+    lastLikedValue = liked;
+    return likeResult;
   }
 
   @override
@@ -185,12 +230,15 @@ final class _FakePostRepository implements PostRepository {
   }
 
   @override
-  Future<void> deletePost(String postId) {
-    throw UnimplementedError();
+  Future<void> deletePost(String postId) async {
+    lastDeletedPostId = postId;
   }
 
   @override
-  Future<void> updateImages(String postId, List<String> imageUrls) async {}
+  Future<void> updateImages(String postId, List<String> imageUrls) async {
+    lastUpdatedImagesPostId = postId;
+    lastUpdatedImageUrls = List.unmodifiable(imageUrls);
+  }
 }
 
 final class _FakePostMediaRepository implements PostMediaRepository {
