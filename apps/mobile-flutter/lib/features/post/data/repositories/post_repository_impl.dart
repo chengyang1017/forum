@@ -80,9 +80,7 @@ final class PostRepositoryImpl implements PostRepository {
   Future<List<PostEditHistoryEntry>> getEditHistory(String postId) async {
     final history = await _service.getEditHistory(postId);
 
-    return history
-        .map(PostEditHistoryEntry.fromJson)
-        .toList(growable: false);
+    return history.map(PostEditHistoryEntry.fromJson).toList(growable: false);
   }
 
   @override
