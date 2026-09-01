@@ -22,6 +22,7 @@ import 'features/post/domain/repositories/post_repository.dart';
 import 'features/post/presentation/providers/post_provider.dart' as post_prov;
 import 'features/profile/application/ports/profile_media_repository.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
+import 'features/social/domain/repositories/friend_repository.dart';
 import 'features/social/presentation/providers/friend_provider.dart'
     as friend_prov;
 
@@ -64,12 +65,17 @@ class MyApp extends StatelessWidget {
         Provider<ProfileMediaRepository>.value(
           value: dependencies.profileMediaRepository,
         ),
+        Provider<FriendRepository>.value(value: dependencies.friendRepository),
         ChangeNotifierProvider(create: (_) => AppLanguage()),
         BlocProvider<auth_cubit.AuthCubit>(
           create: (_) => auth_cubit.AuthCubit()..loadUser(),
         ),
         ChangeNotifierProvider(create: (_) => chat_prov.ChatProvider()),
-        ChangeNotifierProvider(create: (_) => friend_prov.FriendProvider()),
+        ChangeNotifierProvider(
+          create: (context) => friend_prov.FriendProvider(
+            repository: context.read<FriendRepository>(),
+          ),
+        ),
         ChangeNotifierProvider(create: (_) => discover_prov.DiscoverProvider()),
         ChangeNotifierProvider(
           create: (context) => feed_prov.FeedProvider(

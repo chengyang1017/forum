@@ -1,13 +1,13 @@
-// lib/screens/friends_list_screen.dart
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../data/services/friend_service.dart';
-import '../../../chat/data/services/chat_service.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../app/router/app_routes.dart';
+import '../../../auth/domain/models/user_model.dart';
+import '../../../chat/presentation/providers/chat_provider.dart' as chat_prov;
+import '../../../profile/domain/repositories/profile_repository.dart';
+import '../../domain/repositories/friend_repository.dart';
 
 class FriendsListScreen extends StatefulWidget {
   const FriendsListScreen({super.key});
@@ -17,26 +17,25 @@ class FriendsListScreen extends StatefulWidget {
 }
 
 class _FriendsListScreenState extends State<FriendsListScreen> {
-  final friendService = FriendService();
-  final chatService = ChatService();
-  final currentUser = FirebaseAuth.instance.currentUser;
+  late final FriendRepository _friendRepository;
+  late final ProfileRepository _profileRepository;
+  late final chat_prov.ChatProvider _chatProvider;
 
-  // 引入一个简单的内存缓存，防止列表滚动时重复请求相同的用户信息
-  final Map<String, Map<String, dynamic>> _userCache = {};
+  final Map<String, Future<UserModel?>> _userCache = {};
 
-  Future<Map<String, dynamic>> _getUserInfo(String uid) async {
-    if (_userCache.containsKey(uid)) {
-      return _userCache[uid]!;
-    }
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .get();
-    if (doc.exists && doc.data() != null) {
-      _userCache[uid] = doc.data()!;
-      return doc.data()!;
-    }
-    return {'username': '未知用户', 'email': '', 'avatar': ''};
+  @override
+  void initState() {
+    super.initState();
+    _friendRepository = context.read<FriendRepository>();
+    _profileRepository = context.read<ProfileRepository>();
+    _chatProvider = context.read<chat_prov.ChatProvider>();
+  }
+
+  Future<UserModel?> _getUser(String userId) {
+    return _userCache.putIfAbsent(
+      userId,
+      () => _profileRepository.getProfile(userId),
+    );
   }
 
   @override
@@ -56,7 +55,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
         centerTitle: true,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 8.0),
+            padding: const EdgeInsets.only(right: 8),
             child: Stack(
               alignment: Alignment.center,
               children: [
@@ -67,20 +66,16 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                     color: Colors.black87,
                   ),
                   tooltip: '好友申请',
-                  onPressed: () {
-                    context.push(AppRoutes.friendRequests);
-                  },
+                  onPressed: () => context.push(AppRoutes.friendRequests),
                 ),
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('friend_requests')
-                      .where('to', isEqualTo: currentUser?.uid)
-                      .where('status', isEqualTo: 'pending')
-                      .snapshots(),
+                StreamBuilder<int>(
+                  stream: _friendRepository.watchIncomingRequestCount(),
                   builder: (context, snapshot) {
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    final count = snapshot.data ?? 0;
+                    if (count <= 0) {
                       return const SizedBox();
                     }
+
                     return Positioned(
                       right: 4,
                       top: 4,
@@ -97,12 +92,12 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            '${snapshot.data!.docs.length}',
+                            '$count',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
-                              height: 1.0,
+                              height: 1,
                             ),
                           ),
                         ),
@@ -116,17 +111,23 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
         ],
       ),
       body: StreamBuilder<List<String>>(
-        stream: friendService.myFriends(),
+        stream: _friendRepository.watchFriends(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(strokeWidth: 2.5),
             );
           }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+
+          if (snapshot.hasError) {
+            return Center(child: Text('加载失败: ${snapshot.error}'));
+          }
+
+          final friendIds = snapshot.data ?? const <String>[];
+          if (friendIds.isEmpty) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(32.0),
+                padding: const EdgeInsets.all(32),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -165,11 +166,9 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
             );
           }
 
-          final friendUids = snapshot.data!;
-
           return ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: friendUids.length,
+            itemCount: friendIds.length,
             separatorBuilder: (context, index) => Divider(
               height: 1,
               thickness: 0.5,
@@ -177,25 +176,29 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
               color: Colors.grey.shade100,
             ),
             itemBuilder: (context, index) {
-              final friendUid = friendUids[index];
-
-              return FutureBuilder<Map<String, dynamic>>(
-                future: _getUserInfo(friendUid),
+              final friendId = friendIds[index];
+              return FutureBuilder<UserModel?>(
+                future: _getUser(friendId),
                 builder: (context, userSnapshot) {
-                  // 骨架屏占位：在未加载出数据时给出一个固定高度的预留行，防止高度塌陷带来的突兀闪烁
-                  if (!userSnapshot.hasData) {
+                  if (userSnapshot.connectionState == ConnectionState.waiting) {
                     return _buildSkeletonListTile();
                   }
 
-                  final userData = userSnapshot.data!;
-                  final username = userData['username'] ?? '未知用户';
-                  final email = userData['email'] ?? '';
-                  final avatar = userData['avatar'] ?? '';
+                  final user = userSnapshot.data;
+                  final username = user?.username.isNotEmpty == true
+                      ? user!.username
+                      : '未知用户';
+                  final displayName =
+                      user?.profileDisplayName.isNotEmpty == true
+                      ? user!.profileDisplayName
+                      : username;
+                  final email = user?.email ?? '';
+                  final avatarUrl = user?.avatarUrl ?? '';
 
                   return InkWell(
                     onTap: () {
                       context.push(
-                        AppRoutes.userProfileLocation(uid: friendUid),
+                        AppRoutes.userProfileLocation(uid: friendId),
                       );
                     },
                     child: Padding(
@@ -205,19 +208,20 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                       ),
                       child: Row(
                         children: [
-                          // 优雅的头像区
                           Hero(
-                            tag: 'avatar_$friendUid',
+                            tag: 'avatar_$friendId',
                             child: CircleAvatar(
                               radius: 24,
                               backgroundColor: Colors.blue.shade50,
-                              backgroundImage: avatar.isNotEmpty
-                                  ? CachedNetworkImageProvider(avatar)
+                              backgroundImage: avatarUrl.isNotEmpty
+                                  ? CachedNetworkImageProvider(avatarUrl)
                                   : null,
-                              child: avatar.isEmpty
+                              child: avatarUrl.isEmpty
                                   ? Text(
-                                      username.isNotEmpty
-                                          ? username[0].toUpperCase()
+                                      displayName.isNotEmpty
+                                          ? displayName
+                                                .substring(0, 1)
+                                                .toUpperCase()
                                           : 'U',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -229,14 +233,12 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                             ),
                           ),
                           const SizedBox(width: 14),
-
-                          // 用户名及邮箱
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  username,
+                                  displayName,
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
@@ -260,8 +262,6 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                               ],
                             ),
                           ),
-
-                          // 独立发消息动作按钮
                           IconButton(
                             icon: const Icon(
                               Icons.chat_bubble_outline_rounded,
@@ -270,14 +270,20 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                             color: theme.primaryColor,
                             splashRadius: 24,
                             onPressed: () async {
-                              final chatId = await chatService.getOrCreateChat(
-                                friendUid,
-                              );
-                              if (!mounted) return;
-                              this.context.push(
-                                AppRoutes.chatLocation(chatId: chatId),
-                                extra: username,
-                              );
+                              try {
+                                final chatId = await _chatProvider
+                                    .getOrCreateChat(friendId);
+                                if (!mounted) return;
+                                context.push(
+                                  AppRoutes.chatLocation(chatId: chatId),
+                                  extra: displayName,
+                                );
+                              } catch (error) {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('创建聊天失败: $error')),
+                                );
+                              }
                             },
                           ),
                         ],
@@ -293,7 +299,6 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
     );
   }
 
-  // 优雅的加载中占位骨架
   Widget _buildSkeletonListTile() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
