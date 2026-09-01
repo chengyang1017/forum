@@ -95,6 +95,21 @@ void main() {
       expect(cubit.state.isAuthenticated, isTrue);
     });
 
+    test('login failure restores loading state and rethrows', () async {
+      authRepository.onLogin = (_, _) async {
+        throw StateError('login failed');
+      };
+
+      await expectLater(
+        cubit.login('alice@example.com', 'bad-password'),
+        throwsA(isA<StateError>()),
+      );
+
+      expect(cubit.state.isLoading, isFalse);
+      expect(cubit.state.user, isNull);
+      expect(cubit.state.isAuthenticated, isFalse);
+    });
+
     test(
       'register rejects an unavailable username before auth creation',
       () async {
@@ -128,6 +143,83 @@ void main() {
       },
     );
 
+    test('loadUser merges backend profile into authenticated identity', () async {
+      final createdAt = DateTime(2026, 1, 2);
+      final lastActive = DateTime(2026, 1, 3);
+
+      authRepository.currentUser = user;
+      userRepository.currentUser = UserModel(
+        id: user.id,
+        username: 'server-name',
+        email: 'server@example.com',
+        nickname: 'Server Nickname',
+        avatar: 'https://example.test/avatar.png',
+        bio: 'Server bio',
+        birthday: DateTime(2000, 4, 5),
+        showAge: false,
+        createdAt: createdAt,
+        lastActive: lastActive,
+      );
+      userRepository.interestState = (
+        interests: <String>{'technology'},
+        migrated: true,
+      );
+
+      await cubit.loadUser();
+
+      expect(userRepository.lastSyncedUser, same(user));
+      expect(cubit.state.user?.id, user.id);
+      expect(cubit.state.user?.username, 'server-name');
+      expect(cubit.state.user?.email, 'server@example.com');
+      expect(cubit.state.user?.nickname, 'Server Nickname');
+      expect(cubit.state.user?.bio, 'Server bio');
+      expect(cubit.state.user?.showAge, isFalse);
+      expect(cubit.state.user?.createdAt, createdAt);
+      expect(cubit.state.user?.lastActive, lastActive);
+      expect(cubit.state.interests, <String>{'technology'});
+      expect(cubit.state.interestsLoaded, isTrue);
+      expect(cubit.state.isInitialized, isTrue);
+      expect(cubit.state.isLoading, isFalse);
+    });
+
+    test('loadUser migrates legacy interests when backend state is legacy', () async {
+      authRepository.currentUser = user;
+      authRepository.legacyInterests = <String>{'languages', 'technology'};
+      userRepository.interestState = (
+        interests: <String>{},
+        migrated: false,
+      );
+      userRepository.migratedInterests = <String>{'languages', 'technology'};
+
+      await cubit.loadUser();
+
+      expect(authRepository.lastLegacyInterestUserId, user.id);
+      expect(
+        userRepository.lastLegacyInterests,
+        <String>{'languages', 'technology'},
+      );
+      expect(cubit.state.interests, <String>{'languages', 'technology'});
+      expect(cubit.state.interestsLoaded, isTrue);
+    });
+
+    test('toggleInterest rolls back optimistic state when persistence fails', () async {
+      authRepository.currentUser = user;
+      userRepository.interestState = (
+        interests: <String>{'languages'},
+        migrated: true,
+      );
+
+      await cubit.loadUser();
+      userRepository.updateInterestsError = StateError('save failed');
+
+      await expectLater(
+        cubit.toggleInterest('technology'),
+        throwsA(isA<StateError>()),
+      );
+
+      expect(cubit.state.interests, <String>{'languages'});
+    });
+
     test('password reset delegates to repository', () async {
       await cubit.sendPasswordResetEmail('alice@example.com');
 
@@ -155,9 +247,11 @@ class _FakeAuthRepository implements AuthRepository {
   Future<UserModel> Function(String email, String password)? onLogin;
 
   UserModel? currentUser;
+  Set<String> legacyInterests = const <String>{};
   int logoutCalls = 0;
   int registerCalls = 0;
   String? lastRegisteredUsername;
+  String? lastLegacyInterestUserId;
   final List<String> passwordResetEmails = [];
 
   @override
@@ -205,7 +299,8 @@ class _FakeAuthRepository implements AuthRepository {
 
   @override
   Future<Set<String>> getLegacyInterests(String userId) async {
-    return <String>{};
+    lastLegacyInterestUserId = userId;
+    return Set<String>.from(legacyInterests);
   }
 
   @override
@@ -216,7 +311,17 @@ class _FakeAuthRepository implements AuthRepository {
 
 class _FakeUserBackendRepository implements UserBackendRepository {
   bool usernameAvailable = true;
+  UserModel? currentUser;
+  ({Set<String> interests, bool migrated}) interestState = (
+    interests: const <String>{},
+    migrated: true,
+  );
+  Set<String>? migratedInterests;
+  Object? updateInterestsError;
+
   final List<String> checkedUsernames = [];
+  UserModel? lastSyncedUser;
+  Set<String>? lastLegacyInterests;
 
   @override
   Future<bool> isUsernameAvailable(String username) async {
@@ -225,11 +330,13 @@ class _FakeUserBackendRepository implements UserBackendRepository {
   }
 
   @override
-  Future<void> syncCurrentUser(UserModel user) async {}
+  Future<void> syncCurrentUser(UserModel user) async {
+    lastSyncedUser = user;
+  }
 
   @override
   Future<UserModel?> getCurrentUser() async {
-    return null;
+    return currentUser;
   }
 
   @override
@@ -244,16 +351,25 @@ class _FakeUserBackendRepository implements UserBackendRepository {
 
   @override
   Future<({Set<String> interests, bool migrated})> getInterestState() async {
-    return (interests: <String>{}, migrated: true);
+    return (
+      interests: Set<String>.from(interestState.interests),
+      migrated: interestState.migrated,
+    );
   }
 
   @override
   Future<Set<String>> updateInterests(Set<String> interests) async {
+    final error = updateInterestsError;
+    if (error != null) {
+      throw error;
+    }
+
     return Set<String>.from(interests);
   }
 
   @override
   Future<Set<String>> migrateInterests(Set<String> legacyInterests) async {
-    return Set<String>.from(legacyInterests);
+    lastLegacyInterests = Set<String>.from(legacyInterests);
+    return Set<String>.from(migratedInterests ?? legacyInterests);
   }
 }
