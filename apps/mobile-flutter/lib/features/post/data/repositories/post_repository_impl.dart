@@ -10,7 +10,8 @@ import '../services/post_node_service.dart';
 /// presentation/application layers, while transport details stay in
 /// [PostService].
 class PostRepositoryImpl implements PostRepository {
-  PostRepositoryImpl({PostService? service}) : _service = service ?? PostService();
+  PostRepositoryImpl({PostService? service})
+    : _service = service ?? PostService();
 
   final PostService _service;
 
@@ -19,10 +20,7 @@ class PostRepositoryImpl implements PostRepository {
     required String category,
     required String languageCode,
   }) {
-    return _service.watchPosts(
-      category: category,
-      languageCode: languageCode,
-    );
+    return _service.watchPosts(category: category, languageCode: languageCode);
   }
 
   @override
