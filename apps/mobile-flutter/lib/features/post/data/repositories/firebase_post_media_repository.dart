@@ -43,6 +43,17 @@ final class FirebasePostMediaRepository implements PostMediaRepository {
   }
 
   @override
+  Future<String> uploadTopImage(String postId, LocalPostImage image) async {
+    final objectName =
+        '${DateTime.now().microsecondsSinceEpoch}_${_safeName(image.name)}';
+    final ref = _storage.ref().child('posts/$postId/top/$objectName');
+
+    await ref.putFile(File(image.path));
+
+    return ref.getDownloadURL();
+  }
+
+  @override
   Future<String> uploadInlineImage(String postId, LocalPostImage image) async {
     final objectName =
         '${DateTime.now().microsecondsSinceEpoch}_${_safeName(image.name)}';

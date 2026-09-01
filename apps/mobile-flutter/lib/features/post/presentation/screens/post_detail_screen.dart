@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share_plus/share_plus.dart';
@@ -13,6 +11,8 @@ import '../providers/post_provider.dart' as post_prov;
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../../../core/widgets/user_name_display.dart';
 import '../../../../core/widgets/loading_indicator.dart';
+import '../../application/models/local_post_image.dart';
+import '../../application/ports/post_media_repository.dart';
 import '../../domain/models/post_model.dart';
 import '../../domain/repositories/post_repository.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
@@ -176,6 +176,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   DateTime? _currentVersionCreatedAt;
 
   PostRepository get _postRepository => context.read<PostRepository>();
+  PostMediaRepository get _mediaRepository =>
+      context.read<PostMediaRepository>();
 
   @override
   void initState() {
@@ -316,6 +318,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         bodyDelta: result.bodyDelta,
         imageUrls: result.imageUrls,
       );
+
+      for (final imageUrl in result.removedImageUrls) {
+        try {
+          await _mediaRepository.deleteImage(imageUrl);
+        } catch (error) {
+          debugPrint('删除已移除的帖子图片失败: $error');
+        }
+      }
 
       if (!mounted) return;
 
@@ -1901,6 +1911,9 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
 
   final List<String> _newInlineImageUrls = [];
 
+  PostMediaRepository get _mediaRepository =>
+      context.read<PostMediaRepository>();
+
   @override
   void initState() {
     super.initState();
@@ -1962,6 +1975,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     }
 
     final selected = picked.take(remaining).toList();
+    final mediaRepository = _mediaRepository;
 
     setState(() {
       _uploadingImage = true;
@@ -1969,17 +1983,10 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
 
     try {
       for (final image in selected) {
-        final ref = FirebaseStorage.instance.ref().child(
-          'posts/'
-          '${widget.postId}/'
-          'top/'
-          '${DateTime.now().microsecondsSinceEpoch}_'
-          '${image.name}',
+        final url = await mediaRepository.uploadTopImage(
+          widget.postId,
+          LocalPostImage(path: image.path, name: image.name),
         );
-
-        await ref.putFile(File(image.path));
-
-        final url = await ref.getDownloadURL();
 
         _newTopImageUrls.add(url);
 
@@ -2015,7 +2022,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     // 可以立即删除 Storage。
     if (_newTopImageUrls.remove(imageUrl)) {
       try {
-        await FirebaseStorage.instance.refFromURL(imageUrl).delete();
+        await _mediaRepository.deleteImage(imageUrl);
       } catch (_) {}
     }
   }
@@ -2051,24 +2058,17 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
       return;
     }
 
+    final mediaRepository = _mediaRepository;
+
     setState(() {
       _uploadingImage = true;
     });
 
     try {
-      final ref = FirebaseStorage.instance.ref().child(
-        'posts/'
-        '${widget.postId}/'
-        'inline/'
-        '${DateTime.now().millisecondsSinceEpoch}_'
-        '${image.name}',
+      final imageUrl = await mediaRepository.uploadInlineImage(
+        widget.postId,
+        LocalPostImage(path: image.path, name: image.name),
       );
-
-      final uploadTask = ref.putFile(File(image.path));
-
-      await uploadTask;
-
-      final imageUrl = await ref.getDownloadURL();
       _newInlineImageUrls.add(imageUrl);
       final documentLength = _controller.document.length;
 
