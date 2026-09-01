@@ -1,9 +1,12 @@
 import 'package:flutter/foundation.dart';
-import '../../../post/data/repositories/post_repository.dart';
+
 import '../../../post/domain/models/post_model.dart';
+import '../../../post/domain/repositories/post_repository.dart';
 
 class FeedProvider extends ChangeNotifier {
-  final PostRepository _postRepo = PostRepository();
+  FeedProvider({required PostRepository repository}) : _repository = repository;
+
+  final PostRepository _repository;
 
   bool _isLoading = false;
   String? _error;
@@ -11,16 +14,17 @@ class FeedProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // ========== 监听帖子列表（实时） ==========
   Stream<List<PostModel>> watchPosts({
     required String category,
     required String languageCode,
     String? currentUserId,
   }) {
-    return _postRepo.watchPosts(category: category, languageCode: languageCode);
+    return _repository.watchPosts(
+      category: category,
+      languageCode: languageCode,
+    );
   }
 
-  // ========== 刷新帖子列表 ==========
   Future<void> refreshPosts({
     required String category,
     required String languageCode,
@@ -31,33 +35,31 @@ class FeedProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _postRepo.refreshPosts(
+      await _repository.refreshPosts(
         category: category,
         languageCode: languageCode,
       );
-    } catch (e) {
-      _error = e.toString();
+    } catch (error) {
+      _error = error.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  // ========== 获取单篇帖子 ==========
   Future<PostModel> getPost(String postId) {
-    return _postRepo.getPost(postId);
+    return _repository.getPost(postId);
   }
 
-  // ========== 创建帖子 ==========
   Future<void> createPost(PostModel post) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _postRepo.createPost(post);
-    } catch (e) {
-      _error = e.toString();
+      await _repository.createPost(post);
+    } catch (error) {
+      _error = error.toString();
       rethrow;
     } finally {
       _isLoading = false;

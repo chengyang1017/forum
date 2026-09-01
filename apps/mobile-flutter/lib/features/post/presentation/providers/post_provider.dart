@@ -1,10 +1,13 @@
 import 'package:flutter/foundation.dart';
-import 'package:image_picker/image_picker.dart'; // ✅ 导入 XFile
-import '../../data/repositories/post_repository.dart';
+import 'package:image_picker/image_picker.dart';
+
 import '../../domain/models/post_model.dart';
+import '../../domain/repositories/post_repository.dart';
 
 class PostProvider extends ChangeNotifier {
-  final PostRepository _postRepo = PostRepository();
+  PostProvider({required PostRepository repository}) : _repository = repository;
+
+  final PostRepository _repository;
 
   bool _isLoading = false;
   String? _error;
@@ -22,22 +25,19 @@ class PostProvider extends ChangeNotifier {
     _bookmarkStates.putIfAbsent(postId, () => bookmarked);
   }
 
-  // ========== 获取单篇帖子 ==========
-  Future<PostModel> getPost(String postId) async {
-    return _postRepo.getPost(postId);
+  Future<PostModel> getPost(String postId) {
+    return _repository.getPost(postId);
   }
 
-  // ========== 更新帖子 ==========
   Future<PostModel> updatePost(String postId, {required String content}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final post = await _postRepo.updatePost(postId, content: content);
-      return post;
-    } catch (e) {
-      _error = e.toString();
+      return await _repository.updatePost(postId, content: content);
+    } catch (error) {
+      _error = error.toString();
       rethrow;
     } finally {
       _isLoading = false;
@@ -45,31 +45,25 @@ class PostProvider extends ChangeNotifier {
     }
   }
 
-  // ========== 点赞/取消点赞 ==========
   Future<int> toggleLike(String postId, {required bool liked}) {
-    return _postRepo.toggleLike(postId, liked: liked);
+    return _repository.toggleLike(postId, liked: liked);
   }
 
-  // ========== 收藏/取消收藏 ==========
   Future<bool> toggleBookmark(String postId, {required bool bookmarked}) async {
     final hadPrevious = _bookmarkStates.containsKey(postId);
-
     final previous = _bookmarkStates[postId];
 
-    // 全局乐观更新。
-    // 所有正在监听 PostProvider 的页面立即同步。
     _bookmarkStates[postId] = bookmarked;
     notifyListeners();
 
     try {
-      final confirmed = await _postRepo.toggleBookmark(
+      final confirmed = await _repository.toggleBookmark(
         postId,
         bookmarked: bookmarked,
       );
 
       _bookmarkStates[postId] = confirmed;
       notifyListeners();
-
       return confirmed;
     } catch (_) {
       if (hadPrevious) {
@@ -83,16 +77,15 @@ class PostProvider extends ChangeNotifier {
     }
   }
 
-  // ========== 删除帖子 ==========
   Future<void> deletePost(String postId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _postRepo.deletePost(postId);
-    } catch (e) {
-      _error = e.toString();
+      await _repository.deletePost(postId);
+    } catch (error) {
+      _error = error.toString();
       rethrow;
     } finally {
       _isLoading = false;
@@ -100,24 +93,20 @@ class PostProvider extends ChangeNotifier {
     }
   }
 
-  // ========== 上传图片 ==========
-  Future<List<String>> uploadImages(String postId, List<XFile> images) async {
-    return _postRepo.uploadImages(postId, images);
+  Future<List<String>> uploadImages(String postId, List<XFile> images) {
+    return _repository.uploadImages(postId, images);
   }
 
-  // ========== 更新图片列表 ==========
-  Future<void> updateImages(String postId, List<String> imageUrls) async {
-    await _postRepo.updateImages(postId, imageUrls);
+  Future<void> updateImages(String postId, List<String> imageUrls) {
+    return _repository.updateImages(postId, imageUrls);
   }
 
-  // ========== 移除图片（存储） ==========
-  Future<void> deleteImageFromStorage(String imageUrl) async {
-    await _postRepo.deleteImageFromStorage(imageUrl);
+  Future<void> deleteImageFromStorage(String imageUrl) {
+    return _repository.deleteImageFromStorage(imageUrl);
   }
 
-  // ========== 移除图片（Firestore） ==========
-  Future<void> removeImage(String postId, List<String> imageUrls) async {
-    await _postRepo.removeImage(postId, imageUrls);
+  Future<void> removeImage(String postId, List<String> imageUrls) {
+    return _repository.removeImage(postId, imageUrls);
   }
 
   void clear() {

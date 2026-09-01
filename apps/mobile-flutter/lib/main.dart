@@ -1,35 +1,32 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:provider/provider.dart';
 
-// ========== 国际化 ==========
+import 'app/di/app_dependencies.dart';
 import 'app/l10n/localizations_delegate.dart';
-
-// ========== Provider（全局） ==========
 import 'app/providers/app_language.dart';
-
-// ========== Provider（功能模块） ==========
-import 'features/auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
-import 'features/auth/presentation/cubit/auth_state.dart';
-import 'features/chat/presentation/providers/chat_provider.dart' as chat_prov;
-import 'features/social/presentation/providers/friend_provider.dart'
-    as friend_prov;
-import 'features/feed/presentation/providers/feed_provider.dart' as feed_prov;
-import 'features/discover/presentation/providers/discover_provider.dart'
-    as discover_prov;
-import 'features/post/presentation/providers/post_provider.dart' as post_prov;
-
 import 'app/router/app_router.dart';
 import 'app/router/app_routes.dart';
 import 'core/services/deep_link_service.dart';
+import 'features/auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
+import 'features/auth/presentation/cubit/auth_state.dart';
+import 'features/chat/presentation/providers/chat_provider.dart' as chat_prov;
+import 'features/discover/presentation/providers/discover_provider.dart'
+    as discover_prov;
+import 'features/feed/presentation/providers/feed_provider.dart' as feed_prov;
+import 'features/post/domain/repositories/post_repository.dart';
+import 'features/post/presentation/providers/post_provider.dart' as post_prov;
+import 'features/social/presentation/providers/friend_provider.dart'
+    as friend_prov;
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp();
+
+  final dependencies = AppDependencies.create();
 
   DeepLinkService.instance.start(
     openPostRoute: (postId) async {
@@ -37,15 +34,13 @@ void main() async {
     },
   );
 
-  runApp(const MyApp());
+  runApp(MyApp(dependencies: dependencies));
 }
 
-// ============================================================
-// 根 Widget
-// ============================================================
-
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required this.dependencies});
+
+  final AppDependencies dependencies;
 
   static const Locale chunomLocale = Locale.fromSubtags(
     languageCode: 'vi',
@@ -56,18 +51,24 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // ----- 全局状态 -----
+        Provider<PostRepository>.value(value: dependencies.postRepository),
         ChangeNotifierProvider(create: (_) => AppLanguage()),
-
-        // ----- 功能模块 Provider -----
         BlocProvider<auth_cubit.AuthCubit>(
           create: (_) => auth_cubit.AuthCubit()..loadUser(),
         ),
         ChangeNotifierProvider(create: (_) => chat_prov.ChatProvider()),
         ChangeNotifierProvider(create: (_) => friend_prov.FriendProvider()),
         ChangeNotifierProvider(create: (_) => discover_prov.DiscoverProvider()),
-        ChangeNotifierProvider(create: (_) => feed_prov.FeedProvider()),
-        ChangeNotifierProvider(create: (_) => post_prov.PostProvider()),
+        ChangeNotifierProvider(
+          create: (context) => feed_prov.FeedProvider(
+            repository: context.read<PostRepository>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => post_prov.PostProvider(
+            repository: context.read<PostRepository>(),
+          ),
+        ),
       ],
       child: Consumer<AppLanguage>(
         builder: (context, appLanguage, child) {
@@ -82,11 +83,7 @@ class MyApp extends StatelessWidget {
             child: MaterialApp.router(
               debugShowCheckedModeBanner: false,
               title: '论坛App',
-
-              // 当前语言
               locale: appLanguage.locale,
-
-              // 支持语言
               supportedLocales: const [
                 Locale('zh'),
                 Locale('en'),
@@ -95,24 +92,15 @@ class MyApp extends StatelessWidget {
                 Locale('ms'),
                 Locale('vi'),
                 Locale('th'),
-
-                // 喃字
                 Locale.fromSubtags(languageCode: 'vi', scriptCode: 'Hani'),
               ],
-
-              // 本地化 delegate
               localizationsDelegates: const [
                 AppLocalizationsDelegate(),
-
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
-
-                // Flutter Quill 本地化
                 FlutterQuillLocalizations.delegate,
               ],
-
-              // 优先匹配 scriptCode
               localeResolutionCallback: (locale, supportedLocales) {
                 if (locale == null) {
                   return const Locale('zh');
@@ -134,13 +122,11 @@ class MyApp extends StatelessWidget {
 
                 return const Locale('zh');
               },
-
               theme: ThemeData(
                 useMaterial3: true,
                 colorSchemeSeed: Colors.blue,
                 fontFamily: 'NomNaTong',
               ),
-
               routerConfig: appRouter,
             ),
           );
