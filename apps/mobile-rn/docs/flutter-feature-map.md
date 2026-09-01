@@ -2,12 +2,12 @@
 
 ## 整體架構
 
-`lib/main.dart` 初始化 Firebase、建立 `AppDependencies`，再以 `MultiProvider` 注入語言、Auth、Chat、Friend、Discover、Feed、Post 等狀態與 repository。整體仍是 feature-first，但 Post、Profile、Social、Chat 等核心功能已逐步改成由 application composition root 注入抽象依賴，而不是讓 presentation 直接依賴 Firebase 型別。
+`lib/main.dart` 初始化 Firebase、建立 `AppDependencies`，再以 `MultiProvider` 注入語言、Auth、Chat、Friend、Discover、Feed、Post 等狀態與 repository。整體仍是 feature-first，但 Auth、Post、Profile、Social、Chat、Discover 等核心功能已逐步改成由 application composition root 注入抽象依賴，而不是讓 presentation 直接依賴 Firebase 型別。
 
 1. `features/*/presentation`：畫面、互動與狀態。
 2. `features/*/domain`：domain model 與 repository contract。
 3. `features/*/application`：跨資料來源或平台能力的 port，例如 media storage。
-4. `features/*/data`：Firebase/HTTP 等具體 adapter 與 service。
+4. `features/*/data`：Firebase/HTTP 等具體 adapter、mapper 與 service。
 5. `app/di/app_dependencies.dart`：組合長生命週期依賴並注入 feature。
 6. `core` 與 `app`：routing、l10n、共用 service/widget 等。
 
@@ -17,7 +17,7 @@
 
 | 模組 | 功能 | 主要入口/原始檔 |
 |---|---|---|
-| Auth | email/password 登入、註冊、登出、auth state、改密碼、密保、封禁檢查、儲存最多 5 個帳號提示 | `features/auth/*` |
+| Auth | email/password 登入、註冊、登出、auth state、改密碼、密保、封禁檢查、legacy interests 遷移 | `features/auth/domain/repositories/*`, `features/auth/data/repositories/firebase_auth_repository.dart`, `features/auth/presentation/cubit/*` |
 | Home/語言頻道 | 主導航、語言頻道、推薦帖子、使用者偏好 | `features/home/*`, `features/language/*`, `app/providers/app_language.dart` |
 | Feed/Post | 分類/語言 feed、建帖、多圖、詳情、編輯、刪除、like、deep link | `features/feed/*`, `features/post/*`, `core/services/deep_link_service.dart` |
 | Comments | 文字/圖片評論、巢狀回覆、emoji | `features/post/*` |
@@ -32,7 +32,7 @@
 
 ## Model 清單
 
-- `UserModel`：使用者基本資料與 profile 資訊。
+- `UserModel`：純 Dart domain model；使用者基本資料與 profile 資訊，不再 import Firestore、JsonSerializable 或 generated serializer。Firebase/API map 轉換由 data mapper 負責。
 - `PostModel`：帖子內容、語言、圖片、互動計數與時間資訊。
 - `CommentModel`：目前仍有舊空檔；實際評論資料由現行 comment writer/reader 決定。
 - `ChatThread`：聊天室 domain model；使用 `participantIds`, `lastMessage`, `updatedAt`, `unreadCountByUser`，不暴露 Firestore snapshot。
@@ -45,30 +45,37 @@
 
 | 層 | 類別 | 職責/注意事項 |
 |---|---|---|
-| repository | `AuthRepository` | 組合 AuthService；註冊 user doc、ban 檢查、profile、密碼/密保、logout |
+| repository | `AuthRepository` | Auth domain contract；登入/註冊/current user/profile password/security/legacy interests/logout，不暴露 Firebase 型別 |
+| repository | `UserBackendRepository` | Node/PostgreSQL user API contract；profile 同步、使用者讀寫與 interests migration |
 | repository | `PostRepository` | Post domain contract；具體 Firebase/Node 存取由 data adapter 處理 |
 | repository | `ChatRepository` | typed chat contract；聊天室、訊息、未讀、詞彙訊息、member settings；Firebase snapshot/timestamp 不越過此 boundary |
 | repository | `LiveDraftRepository` | realtime draft contract；prepare/watch/update/clear，不暴露 Firebase Database 型別 |
 | repository | `FriendRepository` | 好友關係 contract；presentation/provider 依賴抽象 |
+| provider | `AuthCubit` | auth/user/interests UI state；只依賴 `AuthRepository` 與 `UserBackendRepository` |
 | provider | `FeedProvider` | feed loading/error 與帖子 stream |
 | provider | `PostProvider` | 單篇 edit/like/delete/image 等 UI 狀態 |
 | provider | `ChatProvider` | chat UI state 與 orchestration；透過 `ChatRepository` / `ChatMediaRepository` 工作 |
 | provider | `FriendProvider` | 好友 UID stream/首次 load |
-| provider | `DiscoverProvider` | discover loading/error 與 friend request |
+| provider | `DiscoverProvider` | discover loading/error；聊天與好友 mutation 委派給各自 repository |
 | provider | `ProfileProvider` | profile UI 狀態；逐步改由 repository/media port 提供資料 |
+| data | `FirebaseAuthRepository` | Firebase Auth/Firestore adapter；ban 檢查、user doc、密碼/密保與 legacy interests |
+| data | `UserApi` | `UserBackendRepository` 的 HTTP adapter，連接 Node/PostgreSQL `/users` API |
+| data | `UserModelMapper` | 把 Firestore Timestamp/API map 轉成純 `UserModel`，並建立 Firestore update map |
 | data | `ChatRepositoryImpl` | 把 ChatService/Firestore 資料轉成 `ChatThread`、`ChatMessage`，並實作 vocab/member-setting 寫入 |
 | data | `FirebaseLiveDraftRepository` | Realtime Database adapter；維持 150ms debounce、onDisconnect/remove 與 draft sorting |
+| service | `AuthService` | Firebase Auth/Firestore 的低階 SDK 操作，只由 data adapter 使用 |
 | service | `ChatService` | Firestore chats/messages、unread、編輯/軟刪/cleanup marker/preview 等底層操作 |
 | service | `DeepLinkService` | 解析/open post link |
 
 ## Authentication 流程
 
-1. App 啟動後載入 Auth state；有 Firebase user 就進入主導航，否則顯示 Login。
-2. 註冊建立 Firebase Auth user，再以 Auth UID 建立 `users/{uid}` 文件。
-3. 登入後讀取 user profile；若封禁則登出。
-4. 登出呼叫 Firebase Auth sign out 並清除本地狀態。
-5. 改密碼需要 reauthenticate 後再 update password。
-6. 密保流程與 Firebase Auth password reset 是不同機制，不可混為一談。
+1. App composition root 建立 `FirebaseAuthRepository` 與 `UserApi`，以 domain contract 注入 `AuthCubit`。
+2. `AuthCubit` 不直接 import Firebase；登入/註冊/current user/password/security 操作都經 `AuthRepository`。
+3. `FirebaseAuthRepository` 使用 `AuthService` 完成 Firebase Auth 與 `users/{uid}` Firestore 操作，並在 data layer 把 map 轉成純 `UserModel`。
+4. 登入後若 user doc 的 `banned == true`，adapter 立即 sign out；成功 session 再由 `UserBackendRepository` 同步 Node/PostgreSQL user profile。
+5. interests 以 Node/PostgreSQL 為新來源；尚未 migration 時，`AuthRepository.getLegacyInterests()` 讀舊 Firestore interests，再交給 `UserBackendRepository.migrateInterests()`。
+6. 改密碼仍需要 Firebase reauthenticate 後再 update password；Firebase SDK exception 在 data adapter 內轉成應用層錯誤訊息。
+7. 密保流程與 Firebase Auth password reset 是不同機制，不可混為一談。
 
 ## Backend Cleanup Job
 

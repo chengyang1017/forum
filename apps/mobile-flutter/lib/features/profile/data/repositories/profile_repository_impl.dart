@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../../auth/data/services/user_api.dart';
 import '../../../auth/domain/models/user_model.dart';
+import '../../../auth/domain/repositories/user_backend_repository.dart';
 import '../../domain/repositories/profile_repository.dart';
 
 /// Data-layer implementation of [ProfileRepository].
@@ -11,16 +11,18 @@ import '../../domain/repositories/profile_repository.dart';
 /// mirror for older Firebase-backed features and never decides whether a
 /// profile mutation succeeded.
 final class ProfileRepositoryImpl implements ProfileRepository {
-  ProfileRepositoryImpl({UserApi? userApi, FirebaseFirestore? firestore})
-    : _userApi = userApi ?? UserApi(),
-      _firestore = firestore ?? FirebaseFirestore.instance;
+  ProfileRepositoryImpl({
+    required UserBackendRepository userRepository,
+    FirebaseFirestore? firestore,
+  }) : _userRepository = userRepository,
+       _firestore = firestore ?? FirebaseFirestore.instance;
 
-  final UserApi _userApi;
+  final UserBackendRepository _userRepository;
   final FirebaseFirestore _firestore;
 
   @override
   Future<UserModel?> getProfile(String userId) {
-    return _userApi.getUser(userId);
+    return _userRepository.getUser(userId);
   }
 
   @override
@@ -29,7 +31,7 @@ final class ProfileRepositoryImpl implements ProfileRepository {
     required List<String> tags,
   }) async {
     final copiedTags = List<String>.from(tags);
-    final user = await _userApi.updateCurrentUser({'tags': copiedTags});
+    final user = await _userRepository.updateCurrentUser({'tags': copiedTags});
     await _mirror(userId, {'tags': copiedTags});
     return user;
   }
@@ -43,7 +45,7 @@ final class ProfileRepositoryImpl implements ProfileRepository {
         .map((item) => Map<String, dynamic>.from(item))
         .toList(growable: false);
 
-    final user = await _userApi.updateCurrentUser({
+    final user = await _userRepository.updateCurrentUser({
       'languages': copiedLanguages,
     });
     await _mirror(userId, {'languages': copiedLanguages});
@@ -56,7 +58,7 @@ final class ProfileRepositoryImpl implements ProfileRepository {
     required DateTime? birthday,
     required bool showAge,
   }) async {
-    final user = await _userApi.updateCurrentUser({
+    final user = await _userRepository.updateCurrentUser({
       'birthday': birthday?.toIso8601String(),
       'showAge': showAge,
     });
@@ -75,7 +77,9 @@ final class ProfileRepositoryImpl implements ProfileRepository {
     required String userId,
     required String avatarUrl,
   }) async {
-    final user = await _userApi.updateCurrentUser({'avatarUrl': avatarUrl});
+    final user = await _userRepository.updateCurrentUser({
+      'avatarUrl': avatarUrl,
+    });
     await _mirror(userId, {'avatar': avatarUrl});
     return user;
   }
@@ -85,7 +89,7 @@ final class ProfileRepositoryImpl implements ProfileRepository {
     required String userId,
     required String nickname,
   }) async {
-    final user = await _userApi.updateCurrentUser({
+    final user = await _userRepository.updateCurrentUser({
       'nickname': nickname.isEmpty ? null : nickname,
     });
     await _mirror(userId, {
@@ -99,7 +103,9 @@ final class ProfileRepositoryImpl implements ProfileRepository {
     required String userId,
     required String username,
   }) async {
-    final user = await _userApi.updateCurrentUser({'username': username});
+    final user = await _userRepository.updateCurrentUser({
+      'username': username,
+    });
     await _mirror(userId, {'username': username});
     return user;
   }
@@ -109,7 +115,7 @@ final class ProfileRepositoryImpl implements ProfileRepository {
     required String userId,
     required String bio,
   }) async {
-    final user = await _userApi.updateCurrentUser({'bio': bio});
+    final user = await _userRepository.updateCurrentUser({'bio': bio});
     await _mirror(userId, {'bio': bio});
     return user;
   }

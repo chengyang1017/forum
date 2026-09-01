@@ -1,20 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../data/repositories/auth_repository.dart';
-import '../../data/services/user_api.dart';
 import '../../domain/models/user_model.dart';
+import '../../domain/repositories/auth_repository.dart';
+import '../../domain/repositories/user_backend_repository.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit({AuthRepository? authRepository, UserApi? userApi})
-    : _authRepo = authRepository ?? AuthRepository(),
-      _userApi = userApi ?? UserApi(),
-      super(AuthState());
+  AuthCubit({
+    required AuthRepository authRepository,
+    required UserBackendRepository userRepository,
+  }) : _authRepository = authRepository,
+       _userRepository = userRepository,
+       super(AuthState());
 
-  final AuthRepository _authRepo;
-  final UserApi _userApi;
+  final AuthRepository _authRepository;
+  final UserBackendRepository _userRepository;
 
   UserModel? get user => state.user;
 
@@ -38,22 +39,10 @@ class AuthCubit extends Cubit<AuthState> {
     }
 
     try {
-      await _userApi.syncCurrentUser(user);
+      await _userRepository.syncCurrentUser(user);
     } catch (error) {
       debugPrint('Node.js user sync failed: $error');
     }
-  }
-
-  Set<String> _readLegacyInterests(Object? value) {
-    if (value is! Iterable) {
-      return <String>{};
-    }
-
-    return value
-        .whereType<String>()
-        .map((interest) => interest.trim())
-        .where((interest) => interest.isNotEmpty)
-        .toSet();
   }
 
   Future<void> _loadInterests() async {
@@ -74,7 +63,7 @@ class AuthCubit extends Cubit<AuthState> {
     }
 
     try {
-      final interestState = await _userApi.getInterestState();
+      final interestState = await _userRepository.getInterestState();
 
       if (interestState.migrated) {
         emit(
@@ -88,16 +77,8 @@ class AuthCubit extends Cubit<AuthState> {
         return;
       }
 
-      final legacySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.id)
-          .get();
-
-      final legacyInterests = _readLegacyInterests(
-        legacySnapshot.data()?['interests'],
-      );
-
-      final migratedInterests = await _userApi.migrateInterests(
+      final legacyInterests = await _authRepository.getLegacyInterests(user.id);
+      final migratedInterests = await _userRepository.migrateInterests(
         legacyInterests,
       );
 
@@ -137,26 +118,24 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(interests: next));
 
     try {
-      final confirmedInterests = await _userApi.updateInterests(next);
+      final confirmedInterests = await _userRepository.updateInterests(next);
 
       emit(
         state.copyWith(interests: confirmedInterests, interestsLoaded: true),
       );
     } catch (error) {
       emit(state.copyWith(interests: previous));
-
       rethrow;
     }
   }
 
   Future<void> retryLoadInterests() async {
     emit(state.copyWith(interestsError: null, interestsLoaded: false));
-
     await _loadInterests();
   }
 
   Future<void> refreshInterests() async {
-    final interestState = await _userApi.getInterestState();
+    final interestState = await _userRepository.getInterestState();
 
     emit(
       state.copyWith(interests: interestState.interests, interestsLoaded: true),
@@ -167,12 +146,11 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(isLoading: true));
 
     try {
-      final user = await _authRepo.login(email, password);
+      final user = await _authRepository.login(email, password);
 
       emit(state.copyWith(user: user, isLoading: false, isInitialized: true));
     } catch (_) {
       emit(state.copyWith(isLoading: false));
-
       rethrow;
     }
   }
@@ -181,12 +159,11 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(isLoading: true));
 
     try {
-      final user = await _authRepo.register(email, password, username);
+      final user = await _authRepository.register(email, password, username);
 
       emit(state.copyWith(user: user, isLoading: false, isInitialized: true));
     } catch (_) {
       emit(state.copyWith(isLoading: false));
-
       rethrow;
     }
   }
@@ -195,8 +172,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(isLoading: true));
 
     try {
-      final legacyUser = await _authRepo.getCurrentUser();
-
+      final legacyUser = await _authRepository.getCurrentUser();
       emit(state.copyWith(user: legacyUser));
 
       if (legacyUser == null) {
@@ -207,13 +183,12 @@ class AuthCubit extends Cubit<AuthState> {
             interestsError: null,
           ),
         );
-
         return;
       }
 
       await _syncBackendUser();
 
-      final backendUser = await _userApi.getCurrentUser();
+      final backendUser = await _userRepository.getCurrentUser();
 
       if (backendUser != null) {
         emit(
@@ -242,8 +217,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> updateUser(UserModel newUser) async {
-    final updatedUser = await _authRepo.updateProfile(newUser);
-
+    final updatedUser = await _authRepository.updateProfile(newUser);
     emit(state.copyWith(user: updatedUser));
   }
 
@@ -254,22 +228,22 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(isLoading: true));
 
     try {
-      await _authRepo.changePassword(currentPassword, newPassword);
+      await _authRepository.changePassword(currentPassword, newPassword);
     } finally {
       emit(state.copyWith(isLoading: false));
     }
   }
 
   Future<(String uid, String question)?> getSecurityQuestion(String email) {
-    return _authRepo.getSecurityQuestion(email);
+    return _authRepository.getSecurityQuestion(email);
   }
 
   Future<bool> verifySecurityAnswer(String uid, String answer) {
-    return _authRepo.verifySecurityAnswer(uid, answer);
+    return _authRepository.verifySecurityAnswer(uid, answer);
   }
 
   Future<void> logout() async {
-    await _authRepo.logout();
+    await _authRepository.logout();
 
     emit(
       AuthState(
