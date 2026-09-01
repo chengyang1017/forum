@@ -1,10 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../../../../core/constants/forum_categories.dart';
-
 class PostModel {
   final String id;
-  final String? userId; // Firestore 字段: uid
+  final String? userId;
   final String? title;
   final String? content;
   final List<dynamic> bodyDelta;
@@ -13,7 +9,7 @@ class PostModel {
   final String? category;
 
   // 当前真正选中的分类节点。
-  // 旧帖子没有该字段时自动回退到 category。
+  // 旧帖子没有该字段时由 data mapper 回退到 category。
   final String? categoryId;
 
   // 从一级分类到当前分类节点的完整路径。
@@ -51,84 +47,6 @@ class PostModel {
     this.createdAt,
     this.updatedAt,
   });
-
-  factory PostModel.fromJson(Map<String, dynamic> json) {
-    final legacyCategory = json['category']?.toString();
-    final categoryId = json['categoryId']?.toString() ?? legacyCategory;
-
-    final rawCategoryPath =
-        (json['categoryPath'] as List<dynamic>?)
-            ?.map((e) => e.toString())
-            .where((e) => e.isNotEmpty)
-            .toList() ??
-        const <String>[];
-
-    final derivedCategoryPath = categoryId == null || categoryId.isEmpty
-        ? const <String>[]
-        : ForumCategories.pathOf(categoryId);
-
-    return PostModel(
-      id: json['id']?.toString() ?? '',
-      userId: json['uid']?.toString() ?? json['userId']?.toString(),
-      title: json['title']?.toString() ?? '',
-      content: json['content']?.toString() ?? '',
-      bodyDelta:
-          (json['bodyDelta'] as List<dynamic>?)?.map((e) => e).toList() ??
-          const [],
-      category: legacyCategory,
-      categoryId: categoryId,
-      categoryPath: rawCategoryPath.isNotEmpty
-          ? rawCategoryPath
-          : derivedCategoryPath.isNotEmpty
-          ? derivedCategoryPath
-          : [
-              if (legacyCategory != null && legacyCategory.isNotEmpty)
-                legacyCategory,
-            ],
-      languageCode: json['languageCode']?.toString(),
-      primaryLanguageCode:
-          json['primaryLanguageCode']?.toString() ??
-          json['languageCode']?.toString(),
-      availableLanguageCodes:
-          (json['availableLanguageCodes'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [if (json['languageCode'] != null) json['languageCode'].toString()],
-      imageUrls: (json['images'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList(),
-      likes: (json['likes'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList(),
-      likeCount: (json['likeCount'] as num?)?.toInt() ?? 0,
-      commentCount: (json['commentCount'] as num?)?.toInt() ?? 0,
-      isBookmarked: json['isBookmarked'] == true,
-      createdAt: _toDateTime(json['timestamp'] ?? json['createdAt']),
-      updatedAt: _toDateTime(json['updatedAt']),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'uid': userId,
-      'title': title,
-      'content': content,
-      'bodyDelta': bodyDelta,
-      'category': category,
-      'categoryId': categoryId,
-      'categoryPath': categoryPath,
-      'languageCode': languageCode,
-      'primaryLanguageCode': primaryLanguageCode,
-      'availableLanguageCodes': availableLanguageCodes,
-      'images': imageUrls,
-      'likes': likes,
-      'likeCount': likeCount,
-      'commentCount': commentCount,
-      'isBookmarked': isBookmarked,
-      'timestamp': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
-      'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
-    }..removeWhere((key, value) => value == null);
-  }
 
   PostModel copyWith({
     String? id,
@@ -171,25 +89,5 @@ class PostModel {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
-  }
-
-  static DateTime? _toDateTime(dynamic value) {
-    if (value == null) {
-      return null;
-    }
-
-    if (value is Timestamp) {
-      return value.toDate();
-    }
-
-    if (value is DateTime) {
-      return value;
-    }
-
-    if (value is String) {
-      return DateTime.tryParse(value);
-    }
-
-    return null;
   }
 }
