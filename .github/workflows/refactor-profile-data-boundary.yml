@@ -1,0 +1,98 @@
+name: Refactor profile data boundary
+
+on:
+  push:
+    branches:
+      - refactor/profile-data-boundary
+
+permissions:
+  contents: write
+
+jobs:
+  refactor:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: refactor/profile-data-boundary
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: stable
+          cache: true
+
+      - name: Route profile screens through boundaries
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          mine = Path('apps/mobile-flutter/lib/features/profile/presentation/screens/my_profile_screen.dart')
+          text = mine.read_text()
+          anchor = "import '../../../post/domain/repositories/post_repository.dart';\n"
+          replacement = (
+              anchor
+              + "import '../../application/ports/profile_media_repository.dart';\n"
+              + "import '../../domain/repositories/profile_repository.dart';\n"
+          )
+          assert text.count(anchor) == 1, (mine, text.count(anchor))
+          text = text.replace(anchor, replacement)
+          old = (
+              "    _profileProvider = ProfileProvider(\n"
+              "      postRepository: context.read<PostRepository>(),\n"
+              "    );"
+          )
+          new = (
+              "    _profileProvider = ProfileProvider(\n"
+              "      postRepository: context.read<PostRepository>(),\n"
+              "      profileRepository: context.read<ProfileRepository>(),\n"
+              "      mediaRepository: context.read<ProfileMediaRepository>(),\n"
+              "    );"
+          )
+          assert text.count(old) == 1, (mine, text.count(old))
+          mine.write_text(text.replace(old, new))
+
+          other = Path('apps/mobile-flutter/lib/features/profile/presentation/screens/user_profile_screen.dart')
+          text = other.read_text()
+          replacements = [
+              (
+                  "import '../../../auth/data/services/user_api.dart';",
+                  "import '../../domain/repositories/profile_repository.dart';",
+              ),
+              (
+                  "  final UserApi _userApi = UserApi();",
+                  "  late final ProfileRepository _profileRepository;",
+              ),
+              (
+                  "    _postRepository = context.read<PostRepository>();\n",
+                  "    _postRepository = context.read<PostRepository>();\n"
+                  "    _profileRepository = context.read<ProfileRepository>();\n",
+              ),
+              (
+                  "      final user = await _userApi.getUser(widget.uid);",
+                  "      final user = await _profileRepository.getProfile(widget.uid);",
+              ),
+          ]
+          for old, new in replacements:
+              assert text.count(old) == 1, (other, old, text.count(old))
+              text = text.replace(old, new)
+          other.write_text(text)
+          PY
+
+      - name: Format
+        working-directory: apps/mobile-flutter
+        run: dart format lib/features/profile lib/app/di/app_dependencies.dart lib/main.dart
+
+      - name: Commit migration
+        run: |
+          git config user.name "chengyang1017"
+          git config user.email "chengyang1017@gmail.com"
+          git add apps/mobile-flutter/lib/features/profile apps/mobile-flutter/lib/app/di/app_dependencies.dart apps/mobile-flutter/lib/main.dart
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "refactor(flutter): move profile data behind boundaries"
+          git push origin HEAD:refactor/profile-data-boundary
