@@ -1,147 +1,105 @@
-import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../data/repositories/chat_repository.dart';
-import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
+
+import '../../application/ports/chat_media_repository.dart';
+import '../../domain/models/chat_message.dart';
+import '../../domain/models/chat_thread.dart';
+import '../../domain/repositories/chat_repository.dart';
 
 class ChatProvider extends ChangeNotifier {
-  final ChatRepository _chatRepo = ChatRepository();
+  ChatProvider({
+    required ChatRepository repository,
+    required ChatMediaRepository mediaRepository,
+  }) : _repository = repository,
+       _mediaRepository = mediaRepository;
 
-  List<QueryDocumentSnapshot>? _chats;
+  final ChatRepository _repository;
+  final ChatMediaRepository _mediaRepository;
+
+  List<ChatThread>? _chats;
   bool _isLoading = false;
   String? _error;
 
-  List<QueryDocumentSnapshot>? get chats => _chats;
+  List<ChatThread>? get chats => _chats;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // ============================================================
-  // 1. 聊天室管理
-  // ============================================================
-
-  /// 获取或创建聊天室
   Future<String> getOrCreateChat(String otherUserId) {
-    return _chatRepo.getOrCreateChat(otherUserId);
+    return _repository.getOrCreateChat(otherUserId);
   }
 
-  /// 加载聊天列表（一次性）
   Future<void> loadChats(String userId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      _chats = await _chatRepo.getChats(userId);
-    } catch (e) {
-      _error = e.toString();
+      _chats = await _repository.getChats(userId);
+    } catch (error) {
+      _error = error.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  /// 监听聊天列表（实时）
-  Stream<QuerySnapshot> watchChats(String userId) {
-    return _chatRepo.watchChats(userId);
+  Stream<List<ChatThread>> watchChats(String userId) {
+    return _repository.watchChats(userId);
   }
 
-  /// 实时监听当前用户所有聊天室的未读消息总数
   Stream<int> watchTotalUnread(String userId) {
-    return _chatRepo.watchTotalUnread(userId);
+    return _repository.watchTotalUnread(userId);
   }
 
-  /// 获取聊天参与者
   Future<List<String>> getChatParticipants(String chatId) {
-    return _chatRepo.getChatParticipants(chatId);
+    return _repository.getChatParticipants(chatId);
   }
 
-  /// 标记已读
-  Future<void> markAsRead(String chatId, String userId) async {
-    await _chatRepo.markAsRead(chatId, userId);
+  Future<void> markAsRead(String chatId, String userId) {
+    return _repository.markAsRead(chatId, userId);
   }
 
-  /// 获取未读数量
-  // int getUnreadCount(Map<String, dynamic> chatData, String userId) {
-  //   final unreadMap = chatData['unreadCount'] as Map<String, dynamic>? ?? {};
-  //   return (unreadMap[userId] ?? 0) as int;
-  // }
-
-  int getUnreadCount(Map<String, dynamic> chatData, String userId) {
-    final rawUnreadCount = chatData['unreadCount'];
-
-    if (rawUnreadCount is! Map) {
-      return 0;
-    }
-
-    final rawCount = rawUnreadCount[userId];
-
-    return rawCount is num ? rawCount.toInt() : 0;
+  int getUnreadCount(ChatThread thread, String userId) {
+    return thread.unreadCountFor(userId);
   }
 
-  // ============================================================
-  // 2. 消息管理
-  // ============================================================
-
-  /// 发送文本消息
-  Future<void> sendMessage(String chatId, String content) async {
-    // 从 AuthCubit 获取当前用户 ID（需要在调用时传入）
-    // 或通过其他方式获取
-    // 这里建议在 UI 层传入 senderId，或者通过 AuthCubit 获取
-    // 我们留到 UI 层处理
-    throw UnimplementedError('请在 UI 层传入 senderId，或通过 AuthCubit 获取');
-  }
-
-  /// 发送文本消息（带 senderId）
   Future<void> sendMessageWithSender(
     String chatId,
     String senderId,
     String content,
-  ) async {
-    await _chatRepo.sendMessage(chatId, senderId, content);
+  ) {
+    return _repository.sendTextMessage(
+      chatId: chatId,
+      senderId: senderId,
+      content: content,
+    );
   }
 
-  /// 上传聊天图片
-  Future<String> uploadChatImage(File imageFile) async {
-    return _chatRepo.uploadChatImage(imageFile);
+  Future<void> sendImageMessage({
+    required String chatId,
+    required String senderId,
+    required Uint8List imageBytes,
+  }) async {
+    final imageUrl = await _mediaRepository.uploadImage(
+      ownerId: senderId,
+      bytes: imageBytes,
+    );
+
+    try {
+      await _repository.sendImageMessage(
+        chatId: chatId,
+        senderId: senderId,
+        imageUrl: imageUrl,
+      );
+    } catch (_) {
+      await _mediaRepository.deleteImage(imageUrl);
+      rethrow;
+    }
   }
 
-  /// 发送图片消息
-  Future<void> sendImageMessageWithSender(
-    String chatId,
-    String senderId,
-    String imageUrl,
-  ) async {
-    await _chatRepo.sendImageMessage(chatId, senderId, imageUrl);
-  }
-
-  /// 发送图片消息（自动获取 senderId）
-  /// 注意：需要在调用时传入 authProvider
-  Future<void> sendImageMessage(
-    String chatId,
-    File imageFile,
-    auth_cubit.AuthCubit authProvider,
-  ) async {
-    final senderId = authProvider.user?.id;
-    if (senderId == null) throw Exception('未登录');
-
-    final imageUrl = await _chatRepo.uploadChatImage(imageFile);
-    await _chatRepo.sendImageMessage(chatId, senderId, imageUrl);
-  }
-
-  /// 监听消息
-  Stream<QuerySnapshot> watchMessages(String chatId) {
-    return _chatRepo.watchMessages(chatId);
-  }
-
-  // ============================================================
-  // 3. 状态管理
-  // ============================================================
-
-  void clear() {
-    _chats = null;
-    _isLoading = false;
-    _error = null;
-    notifyListeners();
+  Stream<List<ChatMessage>> watchMessages(String chatId) {
+    return _repository.watchMessages(chatId);
   }
 
   Future<void> sendVocabularyMessage({
@@ -150,35 +108,14 @@ class ChatProvider extends ChangeNotifier {
     required String word,
     String? translation,
     String? languageCode,
-  }) async {
-    final chatRef = FirebaseFirestore.instance.collection('chats').doc(chatId);
-
-    final messageRef = chatRef.collection('messages').doc();
-
-    final translations = <String, String>{};
-
-    if (translation != null && translation.trim().isNotEmpty) {
-      translations[senderId] = translation.trim();
-    }
-
-    final batch = FirebaseFirestore.instance.batch();
-
-    batch.set(messageRef, {
-      'type': 'vocab',
-      'senderId': senderId,
-      'word': word.trim(),
-      'languageCode': languageCode,
-      'translations': translations,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
-
-    batch.set(chatRef, {
-      'lastMessage': '[单词] ${word.trim()}',
-      'lastMessageAt': FieldValue.serverTimestamp(),
-      'lastSenderId': senderId,
-    }, SetOptions(merge: true));
-
-    await batch.commit();
+  }) {
+    return _repository.sendVocabularyMessage(
+      chatId: chatId,
+      senderId: senderId,
+      word: word,
+      translation: translation,
+      languageCode: languageCode,
+    );
   }
 
   Future<void> updateVocabularyTranslation({
@@ -186,41 +123,32 @@ class ChatProvider extends ChangeNotifier {
     required String messageId,
     required String userId,
     required String translation,
-  }) async {
-    final messageRef = FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .doc(messageId);
-
-    await messageRef.update({'translations.$userId': translation.trim()});
+  }) {
+    return _repository.updateVocabularyTranslation(
+      chatId: chatId,
+      messageId: messageId,
+      userId: userId,
+      translation: translation,
+    );
   }
 
   Future<void> updateLiveDraftEnabled({
     required String chatId,
     required String userId,
     required bool enabled,
-  }) async {
-    await FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId)
-        .collection('memberSettings')
-        .doc(userId)
-        .set({'shareLiveDraft': enabled}, SetOptions(merge: true));
+  }) {
+    return _repository.updateLiveDraftEnabled(
+      chatId: chatId,
+      userId: userId,
+      enabled: enabled,
+    );
   }
 
   Future<bool> getLiveDraftEnabled({
     required String chatId,
     required String userId,
-  }) async {
-    final doc = await FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId)
-        .collection('memberSettings')
-        .doc(userId)
-        .get();
-
-    return doc.data()?['shareLiveDraft'] == true;
+  }) {
+    return _repository.getLiveDraftEnabled(chatId: chatId, userId: userId);
   }
 
   Future<void> editMessage({
@@ -229,7 +157,7 @@ class ChatProvider extends ChangeNotifier {
     required String currentUserId,
     required String newContent,
   }) {
-    return _chatRepo.editMessage(
+    return _repository.editMessage(
       chatId: chatId,
       messageId: messageId,
       currentUserId: currentUserId,
@@ -242,7 +170,7 @@ class ChatProvider extends ChangeNotifier {
     required String messageId,
     required String currentUserId,
   }) {
-    return _chatRepo.deleteMessageForMe(
+    return _repository.deleteMessageForMe(
       chatId: chatId,
       messageId: messageId,
       currentUserId: currentUserId,
@@ -254,10 +182,17 @@ class ChatProvider extends ChangeNotifier {
     required String messageId,
     required String currentUserId,
   }) {
-    return _chatRepo.deleteMessageForEveryone(
+    return _repository.deleteMessageForEveryone(
       chatId: chatId,
       messageId: messageId,
       currentUserId: currentUserId,
     );
+  }
+
+  void clear() {
+    _chats = null;
+    _isLoading = false;
+    _error = null;
+    notifyListeners();
   }
 }

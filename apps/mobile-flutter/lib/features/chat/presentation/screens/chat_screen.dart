@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +14,8 @@ import '../../../../core/widgets/loading_indicator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../data/services/live_draft_service.dart';
 import '../../domain/models/live_draft.dart';
+import '../../domain/models/chat_message.dart';
+import '../../../profile/domain/repositories/profile_repository.dart';
 import '../../../auth/domain/models/user_model.dart';
 
 class ChatRouteScreen extends StatefulWidget {
@@ -62,27 +61,14 @@ class _ChatRouteScreenState extends State<ChatRouteScreen> {
   }
 
   Future<String> _resolveOtherUserName() async {
-    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-
+    final currentUserId = context.read<auth_cubit.AuthCubit>().user?.id;
     if (currentUserId == null) {
       throw StateError('未登录');
     }
 
-    final chatSnapshot = await FirebaseFirestore.instance
-        .collection('chats')
-        .doc(widget.chatId)
-        .get();
-
-    final chatData = chatSnapshot.data();
-
-    if (chatData == null) {
-      throw StateError('聊天室不存在');
-    }
-
-    final participants = List<String>.from(
-      chatData['users'] ?? const <String>[],
-    );
-
+    final participants = await context
+        .read<chat_prov.ChatProvider>()
+        .getChatParticipants(widget.chatId);
     if (!participants.contains(currentUserId)) {
       throw StateError('当前用户不是聊天室成员');
     }
@@ -91,39 +77,24 @@ class _ChatRouteScreenState extends State<ChatRouteScreen> {
       (userId) => userId != currentUserId,
       orElse: () => '',
     );
-
     if (otherUserId.isEmpty) {
       throw StateError('找不到聊天对象');
     }
 
-    final userSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(otherUserId)
-        .get();
-
-    final userData = userSnapshot.data();
-
-    if (userData == null) {
+    final user = await context.read<ProfileRepository>().getProfile(
+      otherUserId,
+    );
+    if (user == null) {
       return '未知用户';
     }
 
-    final nickname = (userData['nickname'] as String? ?? '').trim();
-    final username = (userData['username'] as String? ?? '').trim();
-    final email = (userData['email'] as String? ?? '').trim();
-
-    if (nickname.isNotEmpty) {
-      return nickname;
+    final displayName = user.profileDisplayName.trim();
+    if (displayName.isNotEmpty) {
+      return displayName;
     }
 
-    if (username.isNotEmpty) {
-      return username;
-    }
-
-    if (email.isNotEmpty) {
-      return email;
-    }
-
-    return '未知用户';
+    final email = user.email?.trim() ?? '';
+    return email.isNotEmpty ? email : '未知用户';
   }
 
   void _retry() {
@@ -239,63 +210,45 @@ class _ChatScreenState extends State<ChatScreen> {
     return widget.otherUserName;
   }
 
-  String _formatMessageTime(dynamic value) {
-    if (value is! Timestamp) {
+  String _formatMessageTime(DateTime? value) {
+    if (value == null) {
       return '';
     }
 
-    final time = value.toDate().toLocal();
+    final time = value.toLocal();
     final now = DateTime.now();
-
     final hour = time.hour.toString().padLeft(2, '0');
-
     final minute = time.minute.toString().padLeft(2, '0');
-
     final month = time.month.toString().padLeft(2, '0');
-
     final day = time.day.toString().padLeft(2, '0');
-
     final isToday =
         time.year == now.year && time.month == now.month && time.day == now.day;
 
     if (isToday) {
       return '$hour:$minute';
     }
-
     if (time.year == now.year) {
       return '$month-$day $hour:$minute';
     }
-
     return '${time.year}-$month-$day $hour:$minute';
   }
 
-  Future<void> _showMessageActions({
-    required String messageId,
-    required Map<String, dynamic> message,
-  }) async {
-    final status = message['status'] as String? ?? 'active';
-
-    if (status == 'deleted') {
+  Future<void> _showMessageActions({required ChatMessage message}) async {
+    if (message.isDeleted) {
       return;
     }
-    final currentUserId = _currentUserId;
 
+    final currentUserId = _currentUserId;
     if (currentUserId == null) {
       return;
     }
 
-    final senderId = message['senderId'] as String? ?? '';
-
-    final content = message['content'] as String? ?? '';
-
-    final imageUrl = message['imageUrl'] as String?;
-
-    final isMe = senderId == currentUserId;
-
+    final content = message.displayContent;
+    final isMe = message.senderId == currentUserId;
     final canEdit =
         isMe &&
         content.trim().isNotEmpty &&
-        (imageUrl == null || imageUrl.isEmpty);
+        (message.imageUrl == null || message.imageUrl!.isEmpty);
 
     final action = await showModalBottomSheet<String>(
       context: context,
@@ -308,17 +261,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 ListTile(
                   leading: const Icon(Icons.edit_outlined),
                   title: const Text('编辑消息'),
-                  onTap: () {
-                    Navigator.pop(sheetContext, 'edit');
-                  },
+                  onTap: () => Navigator.pop(sheetContext, 'edit'),
                 ),
-
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: Colors.red),
                 title: const Text('删除消息', style: TextStyle(color: Colors.red)),
-                onTap: () {
-                  Navigator.pop(sheetContext, 'delete');
-                },
+                onTap: () => Navigator.pop(sheetContext, 'delete'),
               ),
             ],
           ),
@@ -328,11 +276,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
     switch (action) {
       case 'edit':
-        await _editMessage(messageId: messageId, oldContent: content);
+        await _editMessage(messageId: message.id, oldContent: content);
         break;
-
       case 'delete':
-        await _showDeleteMessageOptions(messageId: messageId, isMe: isMe);
+        await _showDeleteMessageOptions(messageId: message.id, isMe: isMe);
         break;
     }
   }
@@ -786,47 +733,27 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _loadParticipantData() async {
     final chatProvider = context.read<chat_prov.ChatProvider>();
-
     final userIds = await chatProvider.getChatParticipants(widget.chatId);
-
     final currentUserId = _currentUserId;
-
-    // 使用 Set，避免重复，同时保证当前用户也在里面。
     final allUserIds = <String>{...userIds, ?currentUserId};
-
     if (allUserIds.isEmpty) {
       return;
     }
 
+    final profileRepository = context.read<ProfileRepository>();
     final loadedData = <String, UserModel>{};
-
     for (final userId in allUserIds) {
       try {
-        final doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .get();
-
-        final data = doc.data();
-
-        if (data == null) {
-          debugPrint('用户资料不存在：$userId');
-          continue;
+        final user = await profileRepository.getProfile(userId);
+        if (user != null) {
+          loadedData[userId] = user;
         }
-
-        loadedData[userId] = UserModel.fromJson({...data, 'uid': doc.id});
-
-        debugPrint(
-          '用户资料加载成功：'
-          '$userId，头像：${loadedData[userId]?.avatarUrl}',
-        );
       } catch (error) {
         debugPrint('用户资料加载失败：$userId，$error');
       }
     }
 
     if (!mounted) return;
-
     setState(() {
       _participantData
         ..clear()
@@ -902,20 +829,26 @@ class _ChatScreenState extends State<ChatScreen> {
     );
     if (image == null || !mounted) return;
 
-    setState(() => _isUploading = true);
-
-    try {
-      final authProvider = context.read<auth_cubit.AuthCubit>();
-      final chatProvider = context.read<chat_prov.ChatProvider>();
-      await chatProvider.sendImageMessage(
-        widget.chatId,
-        File(image.path),
-        authProvider,
+    final senderId = context.read<auth_cubit.AuthCubit>().user?.id;
+    if (senderId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('请先登录'), backgroundColor: Colors.red),
       );
-    } catch (e) {
+      return;
+    }
+
+    setState(() => _isUploading = true);
+    try {
+      final imageBytes = await image.readAsBytes();
+      await context.read<chat_prov.ChatProvider>().sendImageMessage(
+        chatId: widget.chatId,
+        senderId: senderId,
+        imageBytes: imageBytes,
+      );
+    } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('发送失败: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('发送失败: $error'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -1204,62 +1137,39 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessageList() {
     final chatProvider = context.watch<chat_prov.ChatProvider>();
 
-    return StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<List<ChatMessage>>(
       stream: chatProvider.watchMessages(widget.chatId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: LoadingIndicator());
         }
-
         if (snapshot.hasError) {
           return Center(child: Text('加载失败: ${snapshot.error}'));
         }
 
         final currentUserId = _currentUserId;
+        final visibleMessages = (snapshot.data ?? const <ChatMessage>[])
+            .where(
+              (message) =>
+                  currentUserId == null || !message.isHiddenFor(currentUserId),
+            )
+            .toList(growable: false);
 
-        final visibleDocs = (snapshot.data?.docs ?? []).where((document) {
-          final data = document.data() as Map<String, dynamic>;
-
-          final hiddenFor = List<String>.from(data['hiddenFor'] ?? const []);
-
-          return currentUserId == null || !hiddenFor.contains(currentUserId);
-        }).toList();
-
-        if (visibleDocs.isEmpty) {
+        if (visibleMessages.isEmpty) {
           return const Center(child: Text('没有消息，开始聊天吧！'));
         }
 
         return ListView.builder(
           reverse: true,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          itemCount: visibleDocs.length,
+          itemCount: visibleMessages.length,
           itemBuilder: (context, index) {
-            final document = visibleDocs[index];
-
-            final messageId = document.id;
-
-            final message = document.data() as Map<String, dynamic>;
-
-            final senderId = message['senderId'] as String? ?? '';
-
-            final isMe = senderId == currentUserId;
-
-            final isDeleted = message['status'] == 'deleted';
-
-            final originalImageUrl = message['imageUrl'] as String?;
-
-            final imageUrl = isDeleted ? null : originalImageUrl;
-
-            final originalContent = message['content'] as String? ?? '';
-
-            final content = isDeleted ? '此消息已删除' : originalContent;
-
-            final isEdited = !isDeleted && message['editedAt'] != null;
-
-            final messageTime = _formatMessageTime(message['timestamp']);
-
-            final sender = _participantData[senderId];
-
+            final message = visibleMessages[index];
+            final isMe = message.senderId == currentUserId;
+            final imageUrl = message.isDeleted ? null : message.imageUrl;
+            final content = message.displayContent;
+            final messageTime = _formatMessageTime(message.timestamp);
+            final sender = _participantData[message.senderId];
             final senderAvatar = sender?.avatarUrl;
 
             return Padding(
@@ -1268,11 +1178,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 mainAxisAlignment: isMe
                     ? MainAxisAlignment.end
                     : MainAxisAlignment.start,
-
-                // 头像与消息气泡顶部对齐，
-                // 不再与下面的时间对齐。
                 crossAxisAlignment: CrossAxisAlignment.start,
-
                 children: [
                   if (!isMe)
                     Padding(
@@ -1280,16 +1186,17 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: _buildRealAvatar(
                         imageUrl: senderAvatar,
                         radius: 20,
-                        onTap: senderId.isEmpty
+                        onTap: message.senderId.isEmpty
                             ? null
                             : () {
                                 context.push(
-                                  AppRoutes.userProfileLocation(uid: senderId),
+                                  AppRoutes.userProfileLocation(
+                                    uid: message.senderId,
+                                  ),
                                 );
                               },
                       ),
                     ),
-
                   Flexible(
                     child: Column(
                       crossAxisAlignment: isMe
@@ -1298,22 +1205,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       children: [
                         GestureDetector(
                           behavior: HitTestBehavior.translucent,
-
-                          onLongPress: isDeleted
+                          onLongPress: message.isDeleted
                               ? null
-                              : () {
-                                  _showMessageActions(
-                                    messageId: messageId,
-                                    message: message,
-                                  );
-                                },
-
+                              : () => _showMessageActions(message: message),
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
                               maxWidth: MediaQuery.sizeOf(context).width * 0.72,
                             ),
-
-                            child: isDeleted
+                            child: message.isDeleted
                                 ? Container(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 14,
@@ -1347,26 +1246,20 @@ class _ChatScreenState extends State<ChatScreen> {
                                     content: content,
                                     imageUrl: imageUrl,
                                     onImageTap: () {
-                                      if (imageUrl == null) {
-                                        return;
-                                      }
-
+                                      if (imageUrl == null) return;
                                       showDialog(
                                         context: context,
-                                        builder: (_) {
-                                          return Dialog(
-                                            backgroundColor: Colors.transparent,
-                                            child: CachedNetworkImage(
-                                              imageUrl: imageUrl,
-                                            ),
-                                          );
-                                        },
+                                        builder: (_) => Dialog(
+                                          backgroundColor: Colors.transparent,
+                                          child: CachedNetworkImage(
+                                            imageUrl: imageUrl,
+                                          ),
+                                        ),
                                       );
                                     },
                                   ),
                           ),
                         ),
-
                         if (messageTime.isNotEmpty)
                           Padding(
                             padding: EdgeInsets.only(
@@ -1375,7 +1268,9 @@ class _ChatScreenState extends State<ChatScreen> {
                               right: isMe ? 5 : 0,
                             ),
                             child: Text(
-                              isEdited ? '已编辑 · $messageTime' : messageTime,
+                              message.isEdited
+                                  ? '已编辑 · $messageTime'
+                                  : messageTime,
                               style: const TextStyle(
                                 fontSize: 10,
                                 height: 1.2,
