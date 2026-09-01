@@ -58,7 +58,6 @@ class AuthCubit extends Cubit<AuthState> {
           interestsError: null,
         ),
       );
-
       return;
     }
 
@@ -73,7 +72,6 @@ class AuthCubit extends Cubit<AuthState> {
             interestsError: null,
           ),
         );
-
         return;
       }
 
@@ -119,7 +117,6 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       final confirmedInterests = await _userRepository.updateInterests(next);
-
       emit(
         state.copyWith(interests: confirmedInterests, interestsLoaded: true),
       );
@@ -147,7 +144,6 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       final user = await _authRepository.login(email, password);
-
       emit(state.copyWith(user: user, isLoading: false, isInitialized: true));
     } catch (_) {
       emit(state.copyWith(isLoading: false));
@@ -160,7 +156,6 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       final user = await _authRepository.register(email, password, username);
-
       emit(state.copyWith(user: user, isLoading: false, isInitialized: true));
     } catch (_) {
       emit(state.copyWith(isLoading: false));
@@ -234,12 +229,8 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  Future<(String uid, String question)?> getSecurityQuestion(String email) {
-    return _authRepository.getSecurityQuestion(email);
-  }
-
-  Future<bool> verifySecurityAnswer(String uid, String answer) {
-    return _authRepository.verifySecurityAnswer(uid, answer);
+  Future<void> sendPasswordResetEmail(String email) {
+    return _authRepository.sendPasswordResetEmail(email);
   }
 
   Future<void> logout() async {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../cubit/auth_cubit.dart' as auth_cubit;
@@ -13,17 +13,19 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  final emailController = TextEditingController();
-  final answerController = TextEditingController();
-  final newPasswordController = TextEditingController();
+  final _emailController = TextEditingController();
+  bool _isLoading = false;
+  bool _emailSent = false;
 
-  int step = 1;
-  String? uid;
-  String? securityQuestion;
-  bool isLoading = false;
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
 
-  Future<void> verifyEmail() async {
-    final email = emailController.text.trim();
+  Future<void> _sendResetEmail() async {
+    final email = _emailController.text.trim();
+
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('请输入邮箱'), backgroundColor: Colors.red),
@@ -31,107 +33,34 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       return;
     }
 
-    setState(() => isLoading = true);
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
-      final authProvider = context.read<auth_cubit.AuthCubit>();
-      final result = await authProvider.getSecurityQuestion(email);
+      await context.read<auth_cubit.AuthCubit>().sendPasswordResetEmail(email);
 
-      if (!mounted) return;
-
-      if (result == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('该邮箱未注册或未设置密保问题'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        setState(() => isLoading = false);
+      if (!mounted) {
         return;
       }
+
       setState(() {
-        uid = result.$1;
-        securityQuestion = result.$2;
-        step = 2;
-        isLoading = false;
+        _emailSent = true;
       });
-    } catch (e) {
-      setState(() => isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('验证失败: $e'), backgroundColor: Colors.red),
-        );
-      }
-    }
-  }
-
-  Future<void> verifyAnswer() async {
-    final answer = answerController.text.trim();
-    if (answer.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请输入答案'), backgroundColor: Colors.red),
-      );
-      return;
-    }
-
-    setState(() => isLoading = true);
-
-    try {
-      final authProvider = context.read<auth_cubit.AuthCubit>();
-      final isValid = await authProvider.verifySecurityAnswer(uid!, answer);
-      if (!isValid) {
-        setState(() => isLoading = false);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('答案错误'), backgroundColor: Colors.red),
-          );
-        }
+    } catch (error) {
+      if (!mounted) {
         return;
       }
-      setState(() {
-        step = 3;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() => isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('验证失败: $e'), backgroundColor: Colors.red),
-        );
-      }
-    }
-  }
 
-  Future<void> resetPassword() async {
-    final password = newPasswordController.text.trim();
-    if (password.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('密码至少6位'), backgroundColor: Colors.red),
+        SnackBar(content: Text('$error'), backgroundColor: Colors.red),
       );
-      return;
-    }
-
-    setState(() => isLoading = true);
-
-    try {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('密码重置成功，请重新登录'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        context.go(AppRoutes.login);
-      }
-    } catch (e) {
-      setState(() => isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('重置失败: $e'), backgroundColor: Colors.red),
-        );
-      }
     } finally {
-      if (mounted) setState(() => isLoading = false);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -139,166 +68,67 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('找回密码'), centerTitle: true),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(24),
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildStep(1, '验证身份', step >= 1),
-                Container(
-                  width: 40,
-                  height: 2,
-                  color: step >= 2 ? Colors.blue : Colors.grey[300],
-                ),
-                _buildStep(2, '回答问题', step >= 2),
-                Container(
-                  width: 40,
-                  height: 2,
-                  color: step >= 3 ? Colors.blue : Colors.grey[300],
-                ),
-                _buildStep(3, '重置密码', step >= 3),
-              ],
+            Icon(
+              _emailSent ? Icons.mark_email_read_outlined : Icons.lock_reset,
+              size: 72,
+              color: Theme.of(context).colorScheme.primary,
             ),
-            const SizedBox(height: 32),
-
-            if (step == 1) ...[
-              const Icon(Icons.email_outlined, size: 64, color: Colors.blue),
-              const SizedBox(height: 16),
-              const Text(
-                '请输入注册时使用的邮箱',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            const SizedBox(height: 20),
+            Text(
+              _emailSent ? '检查你的邮箱' : '通过邮箱重置密码',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              _emailSent
+                  ? '如果这个邮箱已注册，我们会发送密码重置链接。请打开邮件并按照提示设置新密码。'
+                  : '输入注册邮箱，我们会通过 Firebase Authentication 发送安全的密码重置链接。',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade700, height: 1.5),
+            ),
+            const SizedBox(height: 28),
+            TextField(
+              controller: _emailController,
+              enabled: !_isLoading,
+              keyboardType: TextInputType.emailAddress,
+              autofillHints: const [AutofillHints.email],
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) {
+                if (!_isLoading) {
+                  _sendResetEmail();
+                }
+              },
+              decoration: const InputDecoration(
+                labelText: '邮箱',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.email_outlined),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: '邮箱',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : verifyEmail,
-                  child: isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('下一步', style: TextStyle(fontSize: 16)),
-                ),
-              ),
-            ],
-
-            if (step == 2) ...[
-              const Icon(Icons.lock_outlined, size: 64, color: Colors.orange),
-              const SizedBox(height: 16),
-              const Text(
-                '回答密保问题',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  securityQuestion ?? '',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: answerController,
-                decoration: const InputDecoration(
-                  labelText: '你的答案',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : verifyAnswer,
-                  child: isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('验证', style: TextStyle(fontSize: 16)),
-                ),
-              ),
-            ],
-
-            if (step == 3) ...[
-              const Icon(Icons.check_circle, size: 64, color: Colors.green),
-              const SizedBox(height: 16),
-              const Text(
-                '设置新密码',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: newPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: '新密码',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : resetPassword,
-                  child: isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('重置密码', style: TextStyle(fontSize: 16)),
-                ),
-              ),
-            ],
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: _isLoading ? null : _sendResetEmail,
+              icon: _isLoading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.send_outlined),
+              label: Text(_emailSent ? '重新发送重置邮件' : '发送重置邮件'),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => context.go(AppRoutes.login),
+              child: const Text('返回登录'),
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildStep(int stepNum, String label, bool active) {
-    return Column(
-      children: [
-        Container(
-          width: 30,
-          height: 30,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: active ? Colors.blue : Colors.grey[300],
-          ),
-          child: Center(
-            child: active
-                ? (step > stepNum
-                      ? const Icon(Icons.check, color: Colors.white, size: 16)
-                      : Text(
-                          '$stepNum',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ))
-                : Text('$stepNum', style: TextStyle(color: Colors.grey[600])),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: active ? Colors.blue : Colors.grey,
-          ),
-        ),
-      ],
     );
   }
 }
