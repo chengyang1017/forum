@@ -67,15 +67,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   String get _selectedCategoryId => widget.categoryId ?? widget.category;
 
-  PostRepository get _postRepository => Provider.of<PostRepository>(
-    context,
-    listen: false,
-  );
+  PostRepository get _postRepository =>
+      Provider.of<PostRepository>(context, listen: false);
 
-  PostMediaRepository get _mediaRepository => Provider.of<PostMediaRepository>(
-    context,
-    listen: false,
-  );
+  PostMediaRepository get _mediaRepository =>
+      Provider.of<PostMediaRepository>(context, listen: false);
 
   List<String> get _resolvedCategoryPath {
     final suppliedPath = widget.categoryPath
@@ -330,7 +326,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
         if (oldUrl.isNotEmpty) {
           try {
-            final newUrl = copiedUrls[oldUrl] ??
+            final newUrl =
+                copiedUrls[oldUrl] ??
                 await mediaRepository.copyInlineImageToPost(
                   _draftPostId,
                   oldUrl,
@@ -365,7 +362,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         }
 
         setState(() {
-          progress = value.clamp(0.0, 1.0);
+          progress = value.clamp(0.0, 1.0).toDouble();
         });
       },
     );
@@ -527,7 +524,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               child: Text(
                 '${_bodyController.document.toPlainText().trim().length}/5000',
                 style: TextStyle(
-                  color: _bodyController.document.toPlainText().trim().length > 4500
+                  color:
+                      _bodyController.document.toPlainText().trim().length >
+                          4500
                       ? Colors.red
                       : Colors.grey,
                   fontSize: 12,
@@ -732,9 +731,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed:
-                isUploading ||
-                    _isUploadingInlineImage ||
-                    _totalImageCount >= 9
+                isUploading || _isUploadingInlineImage || _totalImageCount >= 9
                 ? null
                 : _showImagePlacementOptions,
             icon: _isUploadingInlineImage
@@ -861,7 +858,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             const SizedBox(
               width: 20,
               height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
             )
           else
             const Icon(Icons.send_rounded, size: 20),
