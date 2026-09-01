@@ -19,15 +19,15 @@ final class PostLanguageVersion {
   final DateTime? updatedAt;
 
   factory PostLanguageVersion.fromJson(Map<String, dynamic> json) {
+    final rawBodyDelta = json['bodyDelta'];
+
     return PostLanguageVersion(
       languageCode: json['languageCode']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       content: json['content']?.toString() ?? '',
-      bodyDelta:
-          (json['bodyDelta'] as List<dynamic>?)
-              ?.map<dynamic>((item) => item)
-              .toList(growable: false) ??
-          const <dynamic>[],
+      bodyDelta: rawBodyDelta is List
+          ? List<dynamic>.from(rawBodyDelta)
+          : const <dynamic>[],
       type: json['type']?.toString() ?? '',
       createdAt: _parseDateTime(json['createdAt']),
       updatedAt: _parseDateTime(json['updatedAt']),
