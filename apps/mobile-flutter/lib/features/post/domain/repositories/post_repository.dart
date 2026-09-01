@@ -1,3 +1,4 @@
+import '../models/post_edit_history_entry.dart';
 import '../models/post_model.dart';
 
 /// Domain boundary for post business operations used by the Flutter client.
@@ -6,6 +7,13 @@ import '../models/post_model.dart';
 /// Media upload concerns live behind a separate application port.
 abstract interface class PostRepository {
   Stream<List<PostModel>> watchPosts({
+    required String category,
+    required String languageCode,
+  });
+
+  Stream<List<PostModel>> watchUserPosts(String userId);
+
+  Future<List<PostModel>> getPosts({
     required String category,
     required String languageCode,
   });
@@ -24,6 +32,10 @@ abstract interface class PostRepository {
   Future<int> toggleLike(String postId, {required bool liked});
 
   Future<bool> toggleBookmark(String postId, {required bool bookmarked});
+
+  Future<List<PostModel>> getBookmarkedPosts();
+
+  Future<List<PostEditHistoryEntry>> getEditHistory(String postId);
 
   Future<void> deletePost(String postId);
 
