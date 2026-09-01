@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
-import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
-import '../providers/discover_provider.dart' as discover_prov;
-import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_routes.dart';
-import '../../../../core/widgets/user_avatar.dart';
-import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/user_avatar.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
+import '../../domain/models/discover_user.dart';
+import '../providers/discover_provider.dart' as discover_prov;
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -35,48 +35,46 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     }
   }
 
-  // ========== 开始聊天 ==========
-  Future<void> _startChat(String userId, String displayName) async {
+  Future<void> _startChat(DiscoverUser user) async {
     try {
       final discoverProvider = context.read<discover_prov.DiscoverProvider>();
-      final chatId = await discoverProvider.getOrCreateChat(userId);
+      final chatId = await discoverProvider.getOrCreateChat(user.id);
       if (!mounted) return;
-      context.push(AppRoutes.chatLocation(chatId: chatId), extra: displayName);
-    } catch (e) {
-      if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${l10n.startChat}失败：$e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      context.push(
+        AppRoutes.chatLocation(chatId: chatId),
+        extra: user.displayName,
+      );
+    } catch (error) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${l10n.startChat}失败：$error'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
-  // ========== 发送好友请求 ==========
-  Future<void> _sendFriendRequest(String userId, String displayName) async {
+  Future<void> _sendFriendRequest(DiscoverUser user) async {
     try {
       final discoverProvider = context.read<discover_prov.DiscoverProvider>();
-      await discoverProvider.sendFriendRequest(userId);
+      await discoverProvider.sendFriendRequest(user.id);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('已向 $displayName 发送好友请求'),
+          content: Text('已向 ${user.displayName} 发送好友请求'),
           backgroundColor: Colors.green,
         ),
       );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('发送好友请求失败：$e'), backgroundColor: Colors.red),
-        );
-      }
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('发送好友请求失败：$error'), backgroundColor: Colors.red),
+      );
     }
   }
 
-  // ========== 跳转到用户主页 ==========
   void _navigateToProfile(String userId) {
     context.push(AppRoutes.userProfileLocation(uid: userId));
   }
@@ -111,14 +109,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     );
   }
 
-  // ============================================================
-  // 用户列表
-  // ============================================================
   Widget _buildUserList() {
     final discoverProvider = context.watch<discover_prov.DiscoverProvider>();
     final l10n = AppLocalizations.of(context)!;
 
-    return StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<List<DiscoverUser>>(
       stream: discoverProvider.watchAllUsers(_currentUserId!),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -134,15 +129,14 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           );
         }
 
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+        final users = snapshot.data ?? const <DiscoverUser>[];
+        if (users.isEmpty) {
           return EmptyState(
             icon: Icons.people_outline,
             title: l10n.noOtherUsers,
             subtitle: '还没有其他用户，邀请朋友加入吧',
           );
         }
-
-        final users = snapshot.data!.docs;
 
         return ListView.separated(
           padding: EdgeInsets.zero,
@@ -154,16 +148,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             color: Colors.grey.shade100,
             indent: 72,
           ),
-          itemBuilder: (context, i) {
-            final userData = users[i].data() as Map<String, dynamic>;
-            final userId = users[i].id;
-            final username = userData['username'] ?? '用户';
-            final nickname = userData['nickname'] ?? '';
-            final avatar = userData['avatar'] ?? '';
-            final displayName = nickname.isNotEmpty ? nickname : username;
+          itemBuilder: (context, index) {
+            final user = users[index];
 
             return InkWell(
-              onTap: () => _navigateToProfile(userId),
+              onTap: () => _navigateToProfile(user.id),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -172,8 +161,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 child: Row(
                   children: [
                     UserAvatar(
-                      imageUrl: avatar,
-                      displayName: displayName,
+                      imageUrl: user.avatarUrl,
+                      displayName: user.displayName,
                       radius: 24,
                     ),
                     const SizedBox(width: 14),
@@ -182,16 +171,16 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            displayName,
+                            user.displayName,
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 15,
                               color: Color(0xFF121212),
                             ),
                           ),
-                          if (nickname.isNotEmpty)
+                          if (user.nickname.isNotEmpty)
                             Text(
-                              '@$username',
+                              '@${user.username}',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey.shade500,
@@ -207,13 +196,13 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                       ),
                       color: Colors.blue,
                       tooltip: l10n.startChat,
-                      onPressed: () => _startChat(userId, displayName),
+                      onPressed: () => _startChat(user),
                     ),
                     IconButton(
                       icon: const Icon(Icons.person_add_outlined, size: 22),
                       color: Colors.green,
                       tooltip: l10n.addFriend,
-                      onPressed: () => _sendFriendRequest(userId, displayName),
+                      onPressed: () => _sendFriendRequest(user),
                     ),
                   ],
                 ),
