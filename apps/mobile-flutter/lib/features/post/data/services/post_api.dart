@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../domain/models/post_model.dart';
+import '../mappers/post_model_mapper.dart';
 
 class PostApi {
   final ApiClient _apiClient = ApiClient();
@@ -34,7 +35,7 @@ class PostApi {
       return data
           .map(
             (item) =>
-                PostModel.fromJson(Map<String, dynamic>.from(item as Map)),
+                PostModelMapper.fromMap(Map<String, dynamic>.from(item as Map)),
           )
           .toList(growable: false);
     } catch (_) {
@@ -58,7 +59,7 @@ class PostApi {
       throw const PostApiException('服务器返回的帖子格式无效');
     }
 
-    return PostModel.fromJson(Map<String, dynamic>.from(data));
+    return PostModelMapper.fromMap(Map<String, dynamic>.from(data));
   }
 
   Future<Map<String, dynamic>> getLanguageVersion({
@@ -111,7 +112,7 @@ class PostApi {
       throw const PostApiException('服务器返回的帖子格式无效');
     }
 
-    return PostModel.fromJson(Map<String, dynamic>.from(data));
+    return PostModelMapper.fromMap(Map<String, dynamic>.from(data));
   }
 
   // ============================================================
@@ -143,7 +144,7 @@ class PostApi {
       throw const PostApiException('服务器返回的帖子格式无效');
     }
 
-    return PostModel.fromJson(Map<String, dynamic>.from(data));
+    return PostModelMapper.fromMap(Map<String, dynamic>.from(data));
   }
 
   // ============================================================
@@ -175,7 +176,7 @@ class PostApi {
       throw const PostApiException('服务器返回的帖子格式无效');
     }
 
-    return PostModel.fromJson(Map<String, dynamic>.from(data));
+    return PostModelMapper.fromMap(Map<String, dynamic>.from(data));
   }
 
   // ============================================================
@@ -196,7 +197,7 @@ class PostApi {
       throw const PostApiException('服务器返回的帖子格式无效');
     }
 
-    return PostModel.fromJson(Map<String, dynamic>.from(data));
+    return PostModelMapper.fromMap(Map<String, dynamic>.from(data));
   }
 
   // ============================================================
@@ -270,7 +271,7 @@ class PostApi {
       return data
           .map(
             (item) =>
-                PostModel.fromJson(Map<String, dynamic>.from(item as Map)),
+                PostModelMapper.fromMap(Map<String, dynamic>.from(item as Map)),
           )
           .toList(growable: false);
     } catch (_) {
@@ -369,7 +370,7 @@ class PostApi {
 
     return data
         .whereType<Map>()
-        .map((item) => PostModel.fromJson(Map<String, dynamic>.from(item)))
+        .map((item) => PostModelMapper.fromMap(Map<String, dynamic>.from(item)))
         .toList(growable: false);
   }
 }
