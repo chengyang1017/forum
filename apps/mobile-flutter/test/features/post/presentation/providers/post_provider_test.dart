@@ -207,6 +207,11 @@ final class _FakePostMediaRepository implements PostMediaRepository {
   }
 
   @override
+  Future<String> uploadTopImage(String postId, LocalPostImage image) async {
+    return 'https://example.test/top.png';
+  }
+
+  @override
   Future<String> uploadInlineImage(String postId, LocalPostImage image) async {
     return 'https://example.test/inline.png';
   }
