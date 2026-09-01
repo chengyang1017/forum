@@ -23,13 +23,10 @@ void main() {
         newUploadUrls: const [],
       );
 
-      expect(
-        plan.cleanupAfterSaveUrls.toSet(),
-        {
-          'https://example.test/top-removed.png',
-          'https://example.test/inline-removed.png',
-        },
-      );
+      expect(plan.cleanupAfterSaveUrls.toSet(), {
+        'https://example.test/top-removed.png',
+        'https://example.test/inline-removed.png',
+      });
     });
 
     test('keeps referenced new uploads and cleans discarded ones', () {
@@ -49,18 +46,12 @@ void main() {
         ],
       );
 
-      expect(
-        plan.newUploadUrls.toSet(),
-        {
-          'https://example.test/new-top.png',
-          'https://example.test/new-inline.png',
-          'https://example.test/discarded.png',
-        },
-      );
-      expect(
-        plan.cleanupAfterSaveUrls,
-        ['https://example.test/discarded.png'],
-      );
+      expect(plan.newUploadUrls.toSet(), {
+        'https://example.test/new-top.png',
+        'https://example.test/new-inline.png',
+        'https://example.test/discarded.png',
+      });
+      expect(plan.cleanupAfterSaveUrls, ['https://example.test/discarded.png']);
     });
 
     test('ignores malformed delta entries and blank urls', () {
@@ -81,10 +72,7 @@ void main() {
         newUploadUrls: const ['', '   '],
       );
 
-      expect(
-        plan.cleanupAfterSaveUrls,
-        ['https://example.test/image.png'],
-      );
+      expect(plan.cleanupAfterSaveUrls, ['https://example.test/image.png']);
       expect(plan.newUploadUrls, isEmpty);
     });
   });

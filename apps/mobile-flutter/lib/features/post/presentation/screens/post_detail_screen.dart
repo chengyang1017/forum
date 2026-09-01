@@ -2094,10 +2094,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
       originalBodyDelta: widget.bodyDelta,
       currentTopImageUrls: _topImages,
       currentBodyDelta: bodyDelta,
-      newUploadUrls: [
-        ..._newTopImageUrls,
-        ..._newInlineImageUrls,
-      ],
+      newUploadUrls: [..._newTopImageUrls, ..._newInlineImageUrls],
     );
 
     setState(() {
@@ -2179,10 +2176,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
   }
 
   void _cleanupNewUploadsAfterCancel() {
-    final urls = <String>{
-      ..._newTopImageUrls,
-      ..._newInlineImageUrls,
-    };
+    final urls = <String>{..._newTopImageUrls, ..._newInlineImageUrls};
 
     for (final imageUrl in urls) {
       _mediaRepository.deleteImage(imageUrl).catchError((Object error) {
@@ -2259,7 +2253,10 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
                       const SizedBox(width: 8),
                       Text(
                         '${_topImages.length}/9',
-                        style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                        ),
                       ),
                       const Spacer(),
                       TextButton.icon(
@@ -2278,7 +2275,10 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
                   if (_topImages.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Text('暂无顶部图片', style: TextStyle(color: Colors.grey)),
+                      child: Text(
+                        '暂无顶部图片',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     )
                   else
                     SizedBox(
