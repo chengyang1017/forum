@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
-import '../providers/profile_provider.dart';
+import '../cubit/profile_state.dart';
 
 class ProfileHeader extends StatelessWidget {
-  final ProfileProvider profile;
+  final ProfileState profile;
   final String email;
   final int postCount;
   final int totalLikes;
@@ -151,7 +151,6 @@ class ProfileHeader extends StatelessWidget {
 
   Widget _buildAvatar(ThemeData theme) {
     final avatarUrl = profile.avatarUrl;
-    final uploadingAvatar = profile.uploadingAvatar;
     final displayName = profile.displayName;
 
     return GestureDetector(
@@ -174,23 +173,21 @@ class ProfileHeader extends StatelessWidget {
             child: CircleAvatar(
               radius: 46,
               backgroundColor: Colors.blue.shade50,
-              backgroundImage: avatarUrl.isNotEmpty
-                  ? NetworkImage(avatarUrl)
-                  : null,
-              child: uploadingAvatar
+              backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+              child: profile.uploadingAvatar
                   ? const CircularProgressIndicator(strokeWidth: 2)
                   : avatarUrl.isEmpty
-                  ? Text(
-                      displayName.isNotEmpty
-                          ? displayName[0].toUpperCase()
-                          : '?',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: theme.primaryColor,
-                      ),
-                    )
-                  : null,
+                      ? Text(
+                          displayName.isNotEmpty
+                              ? displayName[0].toUpperCase()
+                              : '?',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: theme.primaryColor,
+                          ),
+                        )
+                      : null,
             ),
           ),
           Positioned(
