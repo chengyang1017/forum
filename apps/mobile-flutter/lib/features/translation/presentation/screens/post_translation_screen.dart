@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import '../../../auth/presentation/cubit/auth_cubit.dart';
-import '../../../notes/data/services/note_service.dart';
+import '../../../notes/domain/repositories/note_repository.dart';
 import '../../../post/domain/models/post_model.dart';
 import '../../../post/domain/repositories/post_repository.dart';
 import '../../data/services/ai_translation_service.dart';
@@ -33,8 +33,6 @@ class PostTranslationScreen extends StatefulWidget {
 }
 
 class _PostTranslationScreenState extends State<PostTranslationScreen> {
-  final NoteService _noteService = NoteService();
-
   final AiTranslationService _aiTranslationService = AiTranslationService();
 
   late final TextEditingController _titleController;
@@ -171,7 +169,9 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
     });
 
     try {
-      await _noteService.createNote(
+      final noteRepository = context.read<NoteRepository>();
+
+      await noteRepository.createNote(
         ownerId: userId,
 
         title: finalTitle,

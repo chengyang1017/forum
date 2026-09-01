@@ -1,15 +1,20 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
+import '../../../auth/domain/models/user_model.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../discover/domain/models/discover_user.dart';
+import '../../../discover/domain/repositories/discover_repository.dart';
 import '../../../language/data/forum_languages.dart';
-import '../../data/services/note_service.dart';
+import '../../../profile/domain/repositories/profile_repository.dart';
 import '../../domain/models/note_model.dart';
+import '../../domain/repositories/note_repository.dart';
 
 class AllNotesScreen extends StatefulWidget {
   const AllNotesScreen({super.key});
@@ -21,10 +26,6 @@ class AllNotesScreen extends StatefulWidget {
 }
 
 class _AllNotesScreenState extends State<AllNotesScreen> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  final NoteService _noteService = NoteService();
-
   final Map<String, _SharedUser> _usersById = {};
 
   final Set<String> _loadingUserIds = {};
@@ -60,7 +61,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
   ];
 
   String? get _currentUserId {
-    return FirebaseAuth.instance.currentUser?.uid;
+    return context.read<AuthCubit>().user?.id;
   }
 
   bool get _hasActiveFilter {
@@ -79,14 +80,14 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
     _loadingUserIds.add(userId);
 
     try {
-      final document = await _firestore.collection('users').doc(userId).get();
+      final user = await context.read<ProfileRepository>().getProfile(userId);
 
-      if (!mounted) {
+      if (!mounted || user == null) {
         return;
       }
 
       setState(() {
-        _usersById[userId] = _SharedUser.fromDocument(document);
+        _usersById[userId] = _SharedUser.fromUserModel(user);
       });
     } catch (error) {
       debugPrint('加载共享用户失败：$userId，$error');
@@ -608,11 +609,14 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
     required Set<String> selectedUserIds,
   }) async {
     try {
-      final snapshot = await _firestore.collection('users').limit(200).get();
+      final discoverUsers = await context
+          .read<DiscoverRepository>()
+          .watchAllUsers(currentUserId)
+          .first;
 
-      final users = snapshot.docs
-          .where((document) => document.id != currentUserId)
-          .map(_SharedUser.fromDocument)
+      final users = discoverUsers
+          .where((user) => user.id != currentUserId)
+          .map(_SharedUser.fromDiscoverUser)
           .toList();
 
       users.sort((first, second) {
@@ -777,23 +781,6 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
                     Row(
                       children: [
-                        // Expanded(
-                        //   child: OutlinedButton(
-                        //     onPressed: () {
-                        //       Navigator.pop(
-                        //         sheetContext,
-                        //         const _NewNoteConfig(),
-                        //       );
-                        //     },
-                        //     child: const Text(
-                        //       '跳过并创建',
-                        //     ),
-                        //   ),
-                        // ),
-
-                        // const SizedBox(
-                        //   width: 12,
-                        // ),
                         Expanded(
                           child: FilledButton.icon(
                             onPressed: () {
@@ -844,13 +831,10 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
     });
 
     try {
-      final noteId = await _noteService.createNote(
+      final noteId = await context.read<NoteRepository>().createNote(
         ownerId: currentUserId,
-
         sharedUserIds: config.sharedUserIds,
-
         languageCode: config.languageCode,
-
         category: config.category,
       );
 
@@ -891,6 +875,8 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
       );
     }
 
+    final noteRepository = context.read<NoteRepository>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F4F4),
 
@@ -904,7 +890,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
       ),
 
       body: StreamBuilder<List<NoteModel>>(
-        stream: _noteService.watchNotesForUser(currentUserId),
+        stream: noteRepository.watchNotesForUser(currentUserId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting &&
               !snapshot.hasData) {
@@ -1625,39 +1611,27 @@ class _SharedUser {
     this.avatarUrl,
   });
 
-  factory _SharedUser.fromDocument(
-    DocumentSnapshot<Map<String, dynamic>> document,
-  ) {
-    final data = document.data() ?? const <String, dynamic>{};
-
-    final nickname = data['nickname']?.toString().trim();
-
-    final displayName = data['displayName']?.toString().trim();
-
-    final username = data['username']?.toString().trim() ?? '';
-
-    final email = data['email']?.toString().trim();
-
-    final name = nickname != null && nickname.isNotEmpty
-        ? nickname
-        : displayName != null && displayName.isNotEmpty
-        ? displayName
-        : username.isNotEmpty
-        ? username
-        : email != null && email.isNotEmpty
-        ? email
-        : '用户';
-
-    final avatarUrl =
-        data['avatarUrl']?.toString().trim() ??
-        data['avatar']?.toString().trim() ??
-        data['photoUrl']?.toString().trim();
+  factory _SharedUser.fromUserModel(UserModel user) {
+    final name = user.profileDisplayName.trim();
+    final avatarUrl = user.avatarUrl.trim();
 
     return _SharedUser(
-      id: document.id,
-      name: name,
-      username: username,
-      avatarUrl: avatarUrl,
+      id: user.id,
+      name: name.isEmpty ? '用户' : name,
+      username: user.username.trim(),
+      avatarUrl: avatarUrl.isEmpty ? null : avatarUrl,
+    );
+  }
+
+  factory _SharedUser.fromDiscoverUser(DiscoverUser user) {
+    final name = user.displayName.trim();
+    final avatarUrl = user.avatarUrl.trim();
+
+    return _SharedUser(
+      id: user.id,
+      name: name.isEmpty ? '用户' : name,
+      username: user.username.trim(),
+      avatarUrl: avatarUrl.isEmpty ? null : avatarUrl,
     );
   }
 }

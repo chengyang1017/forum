@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -7,18 +5,6 @@ import '../../../../core/constants/forum_categories.dart';
 import '../../domain/models/note_model.dart';
 import '../../domain/repositories/note_repository.dart';
 import '../mappers/note_model_mapper.dart';
-
-class UploadedNoteImage {
-  final String imageId;
-  final String imageUrl;
-  final String storagePath;
-
-  const UploadedNoteImage({
-    required this.imageId,
-    required this.imageUrl,
-    required this.storagePath,
-  });
-}
 
 class FirebaseNoteRepository implements NoteRepository {
   final FirebaseFirestore _firestore;
@@ -277,49 +263,6 @@ class FirebaseNoteRepository implements NoteRepository {
     });
   }
 
-  Future<UploadedNoteImage> uploadInlineImage({
-    required String noteId,
-    required String userId,
-    required File file,
-  }) async {
-    final imageReference = noteReference(noteId).collection('images').doc();
-    final extension = _imageExtension(file.path);
-    final storagePath = 'note_images/$noteId/${imageReference.id}.$extension';
-    final storageReference = _storage.ref(storagePath);
-
-    try {
-      await storageReference.putFile(
-        file,
-        SettableMetadata(contentType: _contentType(extension)),
-      );
-
-      final imageUrl = await storageReference.getDownloadURL();
-
-      await imageReference.set({
-        'url': imageUrl,
-        'storagePath': storagePath,
-        'uploaderId': userId,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      return UploadedNoteImage(
-        imageId: imageReference.id,
-        imageUrl: imageUrl,
-        storagePath: storagePath,
-      );
-    } catch (_) {
-      try {
-        await imageReference.delete();
-      } catch (_) {}
-
-      try {
-        await storageReference.delete();
-      } catch (_) {}
-
-      rethrow;
-    }
-  }
-
   @override
   Future<void> deleteNote(String noteId) async {
     final reference = noteReference(noteId);
@@ -395,30 +338,6 @@ class FirebaseNoteRepository implements NoteRepository {
       categoryId: selectedCategoryId,
       categoryPath: resolvedPath,
     );
-  }
-
-  String _imageExtension(String path) {
-    final parts = path.split('.');
-
-    if (parts.length < 2) {
-      return 'jpg';
-    }
-
-    final extension = parts.last.toLowerCase();
-    const allowedExtensions = <String>{'jpg', 'jpeg', 'png', 'webp'};
-
-    return allowedExtensions.contains(extension) ? extension : 'jpg';
-  }
-
-  String _contentType(String extension) {
-    switch (extension) {
-      case 'png':
-        return 'image/png';
-      case 'webp':
-        return 'image/webp';
-      default:
-        return 'image/jpeg';
-    }
   }
 }
 

@@ -10,6 +10,8 @@ import '../../features/chat/domain/repositories/chat_repository.dart';
 import '../../features/chat/domain/repositories/live_draft_repository.dart';
 import '../../features/discover/data/repositories/firestore_discover_repository.dart';
 import '../../features/discover/domain/repositories/discover_repository.dart';
+import '../../features/notes/application/ports/note_media_repository.dart';
+import '../../features/notes/data/repositories/firebase_note_media_repository.dart';
 import '../../features/notes/data/repositories/firebase_note_repository.dart';
 import '../../features/notes/domain/repositories/note_repository.dart';
 import '../../features/post/application/ports/post_media_repository.dart';
@@ -37,6 +39,7 @@ final class AppDependencies {
     required this.liveDraftRepository,
     required this.discoverRepository,
     required this.noteRepository,
+    required this.noteMediaRepository,
     required this.postRepository,
     required this.postMediaRepository,
     required this.profileRepository,
@@ -55,6 +58,7 @@ final class AppDependencies {
       liveDraftRepository: FirebaseLiveDraftRepository(),
       discoverRepository: FirestoreDiscoverRepository(),
       noteRepository: FirebaseNoteRepository(),
+      noteMediaRepository: FirebaseNoteMediaRepository(),
       postRepository: PostRepositoryImpl(),
       postMediaRepository: FirebasePostMediaRepository(),
       profileRepository: ProfileRepositoryImpl(
@@ -72,6 +76,7 @@ final class AppDependencies {
   final LiveDraftRepository liveDraftRepository;
   final DiscoverRepository discoverRepository;
   final NoteRepository noteRepository;
+  final NoteMediaRepository noteMediaRepository;
   final PostRepository postRepository;
   final PostMediaRepository postMediaRepository;
   final ProfileRepository profileRepository;
