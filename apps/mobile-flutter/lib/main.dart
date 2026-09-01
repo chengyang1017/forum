@@ -5,9 +5,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:provider/provider.dart';
 
+import 'app/cubit/app_language_cubit.dart';
+import 'app/cubit/app_language_state.dart';
 import 'app/di/app_dependencies.dart';
 import 'app/l10n/localizations_delegate.dart';
-import 'app/providers/app_language.dart';
 import 'app/router/app_router.dart';
 import 'app/router/app_routes.dart';
 import 'core/services/deep_link_service.dart';
@@ -94,7 +95,9 @@ class MyApp extends StatelessWidget {
           value: dependencies.profileMediaRepository,
         ),
         Provider<FriendRepository>.value(value: dependencies.friendRepository),
-        ChangeNotifierProvider(create: (_) => AppLanguage()),
+        BlocProvider<AppLanguageCubit>(
+          create: (_) => AppLanguageCubit(),
+        ),
         BlocProvider<auth_cubit.AuthCubit>(
           create: (context) => auth_cubit.AuthCubit(
             authRepository: context.read<AuthRepository>(),
@@ -131,8 +134,8 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ],
-      child: Consumer<AppLanguage>(
-        builder: (context, appLanguage, child) {
+      child: BlocBuilder<AppLanguageCubit, AppLanguageState>(
+        builder: (context, languageState) {
           return BlocListener<auth_cubit.AuthCubit, AuthState>(
             listenWhen: (previous, current) {
               return previous.isInitialized != current.isInitialized ||
@@ -144,7 +147,7 @@ class MyApp extends StatelessWidget {
             child: MaterialApp.router(
               debugShowCheckedModeBanner: false,
               title: '论坛App',
-              locale: appLanguage.locale,
+              locale: languageState.locale,
               supportedLocales: const [
                 Locale('zh'),
                 Locale('en'),
