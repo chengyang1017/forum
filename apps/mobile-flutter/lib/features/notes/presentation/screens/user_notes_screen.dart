@@ -1,12 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../app/router/app_routes.dart';
-
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
+import '../../../profile/domain/repositories/profile_repository.dart';
 import '../../domain/models/note_model.dart';
-import '../../data/services/note_service.dart';
+import '../../domain/repositories/note_repository.dart';
 
 class UserNotesRouteScreen extends StatefulWidget {
   final String otherUserId;
@@ -24,10 +24,17 @@ class UserNotesRouteScreen extends StatefulWidget {
 
 class _UserNotesRouteScreenState extends State<UserNotesRouteScreen> {
   Future<String>? _otherUserNameFuture;
+  bool _prepared = false;
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (_prepared) {
+      return;
+    }
+
+    _prepared = true;
     _prepareRoute();
   }
 
@@ -53,20 +60,17 @@ class _UserNotesRouteScreenState extends State<UserNotesRouteScreen> {
   }
 
   Future<String> _resolveOtherUserName() async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(widget.otherUserId)
-        .get();
+    final user = await context.read<ProfileRepository>().getProfile(
+      widget.otherUserId,
+    );
 
-    final data = snapshot.data();
-
-    if (data == null) {
+    if (user == null) {
       return '未知用户';
     }
 
-    final nickname = (data['nickname'] as String? ?? '').trim();
-    final username = (data['username'] as String? ?? '').trim();
-    final email = (data['email'] as String? ?? '').trim();
+    final nickname = user.nickname?.trim() ?? '';
+    final username = user.username.trim();
+    final email = user.email?.trim() ?? '';
 
     if (nickname.isNotEmpty) {
       return nickname;
@@ -150,12 +154,14 @@ class UserNotesScreen extends StatefulWidget {
 }
 
 class _UserNotesScreenState extends State<UserNotesScreen> {
-  final NoteService _noteService = NoteService();
-
   bool _isCreating = false;
 
   String? get _currentUserId {
-    return FirebaseAuth.instance.currentUser?.uid;
+    return context.read<auth_cubit.AuthCubit>().user?.id;
+  }
+
+  NoteRepository get _noteRepository {
+    return context.read<NoteRepository>();
   }
 
   Future<void> _createNote() async {
@@ -170,7 +176,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
     });
 
     try {
-      final noteId = await _noteService.createNote(
+      final noteId = await _noteRepository.createNote(
         ownerId: currentUserId,
         sharedUserIds: [widget.otherUserId],
       );
@@ -218,7 +224,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
         ),
       ),
       body: StreamBuilder<List<NoteModel>>(
-        stream: _noteService.watchNotesWithUser(
+        stream: _noteRepository.watchNotesWithUser(
           currentUserId: currentUserId,
           otherUserId: widget.otherUserId,
         ),

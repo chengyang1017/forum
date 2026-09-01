@@ -23,6 +23,7 @@ import 'features/discover/domain/repositories/discover_repository.dart';
 import 'features/discover/presentation/providers/discover_provider.dart'
     as discover_prov;
 import 'features/feed/presentation/providers/feed_provider.dart' as feed_prov;
+import 'features/notes/domain/repositories/note_repository.dart';
 import 'features/post/application/ports/post_media_repository.dart';
 import 'features/post/domain/repositories/post_repository.dart';
 import 'features/post/presentation/providers/post_provider.dart' as post_prov;
@@ -75,6 +76,7 @@ class MyApp extends StatelessWidget {
         Provider<DiscoverRepository>.value(
           value: dependencies.discoverRepository,
         ),
+        Provider<NoteRepository>.value(value: dependencies.noteRepository),
         Provider<PostRepository>.value(value: dependencies.postRepository),
         Provider<PostMediaRepository>.value(
           value: dependencies.postMediaRepository,
