@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../../auth/domain/models/user_model.dart';
-import '../../../chat/presentation/providers/chat_provider.dart' as chat_prov;
+import '../../../chat/presentation/cubit/chat_cubit.dart';
 import '../../../profile/domain/repositories/profile_repository.dart';
 import '../../domain/repositories/friend_repository.dart';
 
@@ -19,7 +19,7 @@ class FriendsListScreen extends StatefulWidget {
 class _FriendsListScreenState extends State<FriendsListScreen> {
   late final FriendRepository _friendRepository;
   late final ProfileRepository _profileRepository;
-  late final chat_prov.ChatProvider _chatProvider;
+  late final ChatCubit _chatCubit;
 
   final Map<String, Future<UserModel?>> _userCache = {};
 
@@ -28,7 +28,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
     super.initState();
     _friendRepository = context.read<FriendRepository>();
     _profileRepository = context.read<ProfileRepository>();
-    _chatProvider = context.read<chat_prov.ChatProvider>();
+    _chatCubit = context.read<ChatCubit>();
   }
 
   Future<UserModel?> _getUser(String userId) {
@@ -271,7 +271,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                             splashRadius: 24,
                             onPressed: () async {
                               try {
-                                final chatId = await _chatProvider
+                                final chatId = await _chatCubit
                                     .getOrCreateChat(friendId);
                                 if (!mounted) return;
                                 context.push(
