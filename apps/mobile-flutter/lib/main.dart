@@ -11,6 +11,7 @@ import 'app/providers/app_language.dart';
 import 'app/router/app_router.dart';
 import 'app/router/app_routes.dart';
 import 'core/services/deep_link_service.dart';
+import 'features/auth/domain/repositories/account_history_repository.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/repositories/user_backend_repository.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
@@ -64,6 +65,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<AuthRepository>.value(value: dependencies.authRepository),
+        Provider<AccountHistoryRepository>.value(
+          value: dependencies.accountHistoryRepository,
+        ),
         Provider<UserBackendRepository>.value(
           value: dependencies.userBackendRepository,
         ),

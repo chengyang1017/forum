@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -29,6 +30,12 @@ final class FirebaseAuthRepository implements AuthRepository {
     if (userMap['banned'] == true) {
       await _authService.logout();
       throw Exception('账号已被封禁');
+    }
+
+    try {
+      await _authService.recordSuccessfulLogin(uid);
+    } catch (error) {
+      debugPrint('Legacy lastLogin mirror failed: $error');
     }
 
     return UserModelMapper.fromMap(userMap);

@@ -1,13 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../app/router/app_routes.dart';
-// ✅ 别名导入
+import '../../domain/models/saved_account.dart';
+import '../../domain/models/user_model.dart';
+import '../../domain/repositories/account_history_repository.dart';
 import '../cubit/auth_cubit.dart' as auth_cubit;
 
 class LoginScreen extends StatefulWidget {
@@ -23,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool isLoading = false;
   bool showForm = false;
-  List<Map<String, String>> savedAccounts = [];
+  List<SavedAccount> savedAccounts = const <SavedAccount>[];
 
   @override
   void initState() {
@@ -32,44 +30,25 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _loadSavedAccounts() async {
-    final prefs = await SharedPreferences.getInstance();
-    final accountsJson = prefs.getString('saved_accounts');
-    if (accountsJson != null) {
-      final list = jsonDecode(accountsJson) as List;
-      savedAccounts = list.map((e) => Map<String, String>.from(e)).toList();
-      setState(() {});
-    }
+    final repository = context.read<AccountHistoryRepository>();
+    final accounts = await repository.loadAccounts();
+    if (!mounted) return;
+    setState(() => savedAccounts = accounts);
   }
 
-  Future<void> _saveAccount(User user) async {
-    final prefs = await SharedPreferences.getInstance();
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
-    final data = doc.data();
-
-    final newAccount = <String, String>{
-      'email': user.email ?? '',
-      'username': (data?['username'] ?? user.email?.split('@')[0] ?? '用户')
-          .toString(),
-      'avatar': (data?['avatar'] ?? '').toString(),
-      'uid': user.uid,
-    };
-
-    savedAccounts.removeWhere((a) => a['uid'] == user.uid);
-    savedAccounts.insert(0, newAccount);
-    if (savedAccounts.length > 5) savedAccounts = savedAccounts.sublist(0, 5);
-
-    await prefs.setString('saved_accounts', jsonEncode(savedAccounts));
-    setState(() {});
+  Future<void> _saveAccount(UserModel user) async {
+    final repository = context.read<AccountHistoryRepository>();
+    final accounts = await repository.saveAccount(user);
+    if (!mounted) return;
+    setState(() => savedAccounts = accounts);
   }
 
   Future<void> _removeAccount(int index) async {
-    final prefs = await SharedPreferences.getInstance();
-    savedAccounts.removeAt(index);
-    await prefs.setString('saved_accounts', jsonEncode(savedAccounts));
-    setState(() {});
+    final repository = context.read<AccountHistoryRepository>();
+    final userId = savedAccounts[index].userId;
+    final accounts = await repository.removeAccount(userId);
+    if (!mounted) return;
+    setState(() => savedAccounts = accounts);
   }
 
   Future<void> login() async {
@@ -97,16 +76,9 @@ class _LoginScreenState extends State<LoginScreen> {
       // 登录完成后同步 Node 用户，并加载当前账号 interests。
       await authProvider.loadUser();
 
-      final firebaseUser = FirebaseAuth.instance.currentUser;
-      if (firebaseUser != null) {
-        await _saveAccount(firebaseUser);
-      }
-
-      final uid = FirebaseAuth.instance.currentUser?.uid;
-      if (uid != null) {
-        await FirebaseFirestore.instance.collection('users').doc(uid).set({
-          'lastLogin': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+      final user = authProvider.user;
+      if (user != null) {
+        await _saveAccount(user);
       }
 
       if (!mounted) return;
@@ -129,8 +101,8 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _selectAccount(Map<String, String> account) {
-    emailController.text = account['email'] ?? '';
+  void _selectAccount(SavedAccount account) {
+    emailController.text = account.email;
     setState(() => showForm = true);
   }
 
@@ -181,16 +153,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         leading: CircleAvatar(
                           radius: 22,
                           backgroundColor: Colors.blue.shade50,
-                          backgroundImage:
-                              account['avatar'] != null &&
-                                  account['avatar']!.isNotEmpty
-                              ? NetworkImage(account['avatar']!)
+                          backgroundImage: account.avatarUrl.isNotEmpty
+                              ? NetworkImage(account.avatarUrl)
                               : null,
-                          child:
-                              account['avatar'] == null ||
-                                  account['avatar']!.isEmpty
+                          child: account.avatarUrl.isEmpty
                               ? Text(
-                                  (account['username'] ?? 'U')[0].toUpperCase(),
+                                  account.username.isEmpty
+                                      ? 'U'
+                                      : account.username[0].toUpperCase(),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.blue,
@@ -199,11 +169,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               : null,
                         ),
                         title: Text(
-                          account['username'] ?? '用户',
+                          account.username,
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         subtitle: Text(
-                          account['email'] ?? '',
+                          account.email,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade500,
