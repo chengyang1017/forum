@@ -23,7 +23,7 @@ import 'features/chat/presentation/providers/chat_provider.dart' as chat_prov;
 import 'features/discover/domain/repositories/discover_repository.dart';
 import 'features/discover/presentation/providers/discover_provider.dart'
     as discover_prov;
-import 'features/feed/presentation/providers/feed_provider.dart' as feed_prov;
+import 'features/feed/presentation/cubit/feed_cubit.dart';
 import 'features/notes/application/ports/note_media_repository.dart';
 import 'features/notes/domain/repositories/note_repository.dart';
 import 'features/post/application/ports/post_media_repository.dart';
@@ -121,8 +121,8 @@ class MyApp extends StatelessWidget {
             friendRepository: context.read<FriendRepository>(),
           ),
         ),
-        ChangeNotifierProvider(
-          create: (context) => feed_prov.FeedProvider(
+        BlocProvider<FeedCubit>(
+          create: (context) => FeedCubit(
             repository: context.read<PostRepository>(),
           ),
         ),
