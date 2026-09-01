@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:glyphora_mobile/features/post/application/models/local_post_image.dart';
 import 'package:glyphora_mobile/features/post/application/ports/post_media_repository.dart';
 import 'package:glyphora_mobile/features/post/domain/models/post_edit_history_entry.dart';
+import 'package:glyphora_mobile/features/post/domain/models/post_language_version.dart';
 import 'package:glyphora_mobile/features/post/domain/models/post_model.dart';
 import 'package:glyphora_mobile/features/post/domain/repositories/post_repository.dart';
 import 'package:glyphora_mobile/features/post/presentation/providers/post_provider.dart';
@@ -124,6 +125,24 @@ final class _FakePostRepository implements PostRepository {
   }) async {}
 
   @override
+  Future<PostLanguageVersion> getLanguageVersion({
+    required String postId,
+    required String languageCode,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updateLanguageVersionContent({
+    required String postId,
+    required String languageCode,
+    required String title,
+    required String content,
+    required List<String> imageUrls,
+    List<dynamic>? bodyDelta,
+  }) async {}
+
+  @override
   Future<PostModel> updatePost(String postId, {required String content}) {
     throw UnimplementedError();
   }
@@ -148,6 +167,13 @@ final class _FakePostRepository implements PostRepository {
   Future<List<PostModel>> getBookmarkedPosts() async {
     return const <PostModel>[];
   }
+
+  @override
+  Future<void> reportPost({
+    required String postId,
+    required String reason,
+    String? details,
+  }) async {}
 
   @override
   Future<List<PostEditHistoryEntry>> getEditHistory(String postId) async {
