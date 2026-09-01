@@ -17,6 +17,7 @@ import 'features/chat/application/ports/chat_media_repository.dart';
 import 'features/chat/domain/repositories/chat_repository.dart';
 import 'features/chat/domain/repositories/live_draft_repository.dart';
 import 'features/chat/presentation/providers/chat_provider.dart' as chat_prov;
+import 'features/discover/domain/repositories/discover_repository.dart';
 import 'features/discover/presentation/providers/discover_provider.dart'
     as discover_prov;
 import 'features/feed/presentation/providers/feed_provider.dart' as feed_prov;
@@ -65,6 +66,9 @@ class MyApp extends StatelessWidget {
         Provider<LiveDraftRepository>.value(
           value: dependencies.liveDraftRepository,
         ),
+        Provider<DiscoverRepository>.value(
+          value: dependencies.discoverRepository,
+        ),
         Provider<PostRepository>.value(value: dependencies.postRepository),
         Provider<PostMediaRepository>.value(
           value: dependencies.postMediaRepository,
@@ -91,7 +95,13 @@ class MyApp extends StatelessWidget {
             repository: context.read<FriendRepository>(),
           ),
         ),
-        ChangeNotifierProvider(create: (_) => discover_prov.DiscoverProvider()),
+        ChangeNotifierProvider(
+          create: (context) => discover_prov.DiscoverProvider(
+            repository: context.read<DiscoverRepository>(),
+            chatRepository: context.read<ChatRepository>(),
+            friendRepository: context.read<FriendRepository>(),
+          ),
+        ),
         ChangeNotifierProvider(
           create: (context) => feed_prov.FeedProvider(
             repository: context.read<PostRepository>(),
