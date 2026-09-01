@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
-import '../../../chat/presentation/providers/chat_provider.dart' as chat_prov;
+import '../../../chat/presentation/cubit/chat_cubit.dart';
 import '../../../chat/presentation/screens/chat_list_screen.dart';
 import '../../../profile/presentation/screens/my_profile_screen.dart';
 import 'home_tab.dart';
@@ -144,9 +144,7 @@ class _UnreadChatIconState extends State<_UnreadChatIcon> {
   }
 
   void _createUnreadStream() {
-    _unreadStream = context.read<chat_prov.ChatProvider>().watchTotalUnread(
-      widget.userId,
-    );
+    _unreadStream = context.read<ChatCubit>().watchTotalUnread(widget.userId);
   }
 
   @override
