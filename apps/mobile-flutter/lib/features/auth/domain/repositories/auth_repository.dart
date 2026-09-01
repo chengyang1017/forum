@@ -15,9 +15,7 @@ abstract interface class AuthRepository {
 
   Future<void> changePassword(String currentPassword, String newPassword);
 
-  Future<(String uid, String question)?> getSecurityQuestion(String email);
-
-  Future<bool> verifySecurityAnswer(String uid, String answer);
+  Future<void> sendPasswordResetEmail(String email);
 
   Future<Set<String>> getLegacyInterests(String userId);
 

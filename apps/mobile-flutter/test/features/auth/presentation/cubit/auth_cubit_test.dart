@@ -95,6 +95,12 @@ void main() {
       expect(cubit.state.isAuthenticated, isTrue);
     });
 
+    test('password reset delegates to repository', () async {
+      await cubit.sendPasswordResetEmail('alice@example.com');
+
+      expect(authRepository.passwordResetEmails, ['alice@example.com']);
+    });
+
     test('logout clears user and keeps auth initialized', () async {
       authRepository.onLogin = (_, _) async => user;
 
@@ -117,6 +123,7 @@ class _FakeAuthRepository implements AuthRepository {
 
   UserModel? currentUser;
   int logoutCalls = 0;
+  final List<String> passwordResetEmails = [];
 
   @override
   Future<UserModel> login(String email, String password) {
@@ -155,15 +162,8 @@ class _FakeAuthRepository implements AuthRepository {
   ) async {}
 
   @override
-  Future<(String uid, String question)?> getSecurityQuestion(
-    String email,
-  ) async {
-    return null;
-  }
-
-  @override
-  Future<bool> verifySecurityAnswer(String uid, String answer) async {
-    return false;
+  Future<void> sendPasswordResetEmail(String email) async {
+    passwordResetEmails.add(email);
   }
 
   @override

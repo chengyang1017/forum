@@ -110,7 +110,8 @@ final class FirebaseAuthRepository implements AuthRepository {
       await _authService.updatePassword(newPassword);
     } on FirebaseAuthException catch (error) {
       var message = '修改失败';
-      if (error.code == 'wrong-password') {
+      if (error.code == 'wrong-password' ||
+          error.code == 'invalid-credential') {
         message = '当前密码错误';
       } else if (error.code == 'weak-password') {
         message = '新密码太弱，至少6位';
@@ -124,31 +125,18 @@ final class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<(String uid, String question)?> getSecurityQuestion(
-    String email,
-  ) async {
-    final userMap = await _authService.getUserByEmail(email);
-    if (userMap == null) {
-      return null;
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _authService.sendPasswordResetEmail(email.trim());
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'invalid-email') {
+        throw Exception('邮箱格式不正确');
+      }
+      if (error.code == 'too-many-requests') {
+        throw Exception('请求过于频繁，请稍后再试');
+      }
+      throw Exception(error.message ?? '发送重置邮件失败');
     }
-
-    final question = userMap['securityQuestion'] as String?;
-    final uid = userMap['uid'] as String?;
-    if (question == null || question.isEmpty || uid == null || uid.isEmpty) {
-      return null;
-    }
-
-    return (uid, question);
-  }
-
-  @override
-  Future<bool> verifySecurityAnswer(String uid, String answer) async {
-    final userMap = await _authService.getUserData(uid);
-    if (userMap == null) {
-      return false;
-    }
-
-    return answer == (userMap['securityAnswer'] ?? '');
   }
 
   @override
