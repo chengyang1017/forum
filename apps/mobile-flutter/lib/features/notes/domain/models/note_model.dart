@@ -1,7 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../../../../core/constants/forum_categories.dart';
-
 class NoteModel {
   final String id;
   final String ownerId;
@@ -12,21 +8,18 @@ class NoteModel {
   final String content;
   final List<dynamic> bodyDelta;
 
-  // 来源
   final String sourceType;
   final String? sourceId;
 
-  // 一级分类。继续保留，兼容当前笔记筛选和旧数据。
+  /// Root category kept for compatibility with existing note filters.
   final String? category;
 
-  // 当前真正选中的分类节点。
+  /// Currently selected category node.
   final String? categoryId;
 
-  // 从一级分类到当前节点的完整路径。
+  /// Full path from root category to the selected node.
   final List<String> categoryPath;
 
-  // 笔记主语言
-  // 可不选择
   final String? languageCode;
 
   final bool allowOthersEdit;
@@ -54,61 +47,6 @@ class NoteModel {
     required this.updatedBy,
   });
 
-  factory NoteModel.fromDocument(
-    DocumentSnapshot<Map<String, dynamic>> document,
-  ) {
-    final data = document.data() ?? const <String, dynamic>{};
-
-    final legacyCategory = data['category']?.toString();
-    final categoryId = data['categoryId']?.toString() ?? legacyCategory;
-
-    final rawCategoryPath =
-        (data['categoryPath'] as List<dynamic>?)
-            ?.map((value) => value.toString())
-            .where((value) => value.isNotEmpty)
-            .toList() ??
-        const <String>[];
-
-    final derivedCategoryPath = categoryId == null || categoryId.isEmpty
-        ? const <String>[]
-        : ForumCategories.pathOf(categoryId);
-
-    return NoteModel(
-      id: document.id,
-      ownerId: data['ownerId']?.toString() ?? '',
-      participantIds: List<String>.from(
-        data['participantIds'] ?? const <String>[],
-      ),
-      sharedUserIds: List<String>.from(
-        data['sharedUserIds'] ?? const <String>[],
-      ),
-      title: data['title']?.toString() ?? '',
-      content: data['content']?.toString() ?? '',
-      bodyDelta: data['bodyDelta'] is List
-          ? List<dynamic>.from(data['bodyDelta'] as List)
-          : const <dynamic>[
-              <String, dynamic>{'insert': '\n'},
-            ],
-      sourceType: data['sourceType']?.toString() ?? 'manual',
-      sourceId: data['sourceId']?.toString(),
-      category: legacyCategory,
-      categoryId: categoryId,
-      categoryPath: rawCategoryPath.isNotEmpty
-          ? rawCategoryPath
-          : derivedCategoryPath.isNotEmpty
-          ? derivedCategoryPath
-          : [
-              if (legacyCategory != null && legacyCategory.isNotEmpty)
-                legacyCategory,
-            ],
-      languageCode: data['languageCode']?.toString(),
-      allowOthersEdit: data['allowOthersEdit'] as bool? ?? false,
-      createdAt: _readDateTime(data['createdAt']),
-      updatedAt: _readDateTime(data['updatedAt'] ?? data['createdAt']),
-      updatedBy: data['updatedBy']?.toString() ?? '',
-    );
-  }
-
   String? otherUserId(String currentUserId) {
     for (final userId in participantIds) {
       if (userId != currentUserId) {
@@ -124,18 +62,7 @@ class NoteModel {
   }
 
   bool canEdit(String currentUserId) {
-    return ownerId == currentUserId || allowOthersEdit;
-  }
-
-  static DateTime _readDateTime(dynamic value) {
-    if (value is Timestamp) {
-      return value.toDate();
-    }
-
-    if (value is DateTime) {
-      return value;
-    }
-
-    return DateTime.fromMillisecondsSinceEpoch(0);
+    return ownerId == currentUserId ||
+        (allowOthersEdit && participantIds.contains(currentUserId));
   }
 }
