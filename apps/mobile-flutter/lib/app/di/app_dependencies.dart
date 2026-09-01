@@ -1,3 +1,7 @@
+import '../../features/auth/data/repositories/firebase_auth_repository.dart';
+import '../../features/auth/data/services/user_api.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/domain/repositories/user_backend_repository.dart';
 import '../../features/chat/application/ports/chat_media_repository.dart';
 import '../../features/chat/data/repositories/chat_repository_impl.dart';
 import '../../features/chat/data/repositories/firebase_chat_media_repository.dart';
@@ -24,6 +28,8 @@ import '../../features/social/domain/repositories/friend_repository.dart';
 /// features are migrated to constructor injection.
 final class AppDependencies {
   AppDependencies({
+    required this.authRepository,
+    required this.userBackendRepository,
     required this.chatRepository,
     required this.chatMediaRepository,
     required this.liveDraftRepository,
@@ -36,19 +42,27 @@ final class AppDependencies {
   });
 
   factory AppDependencies.create() {
+    final userBackendRepository = UserApi();
+
     return AppDependencies(
+      authRepository: FirebaseAuthRepository(),
+      userBackendRepository: userBackendRepository,
       chatRepository: ChatRepositoryImpl(),
       chatMediaRepository: FirebaseChatMediaRepository(),
       liveDraftRepository: FirebaseLiveDraftRepository(),
       discoverRepository: FirestoreDiscoverRepository(),
       postRepository: PostRepositoryImpl(),
       postMediaRepository: FirebasePostMediaRepository(),
-      profileRepository: ProfileRepositoryImpl(),
+      profileRepository: ProfileRepositoryImpl(
+        userRepository: userBackendRepository,
+      ),
       profileMediaRepository: FirebaseProfileMediaRepository(),
       friendRepository: FirestoreFriendRepository(),
     );
   }
 
+  final AuthRepository authRepository;
+  final UserBackendRepository userBackendRepository;
   final ChatRepository chatRepository;
   final ChatMediaRepository chatMediaRepository;
   final LiveDraftRepository liveDraftRepository;

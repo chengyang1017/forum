@@ -1,11 +1,14 @@
 import '../../../../core/network/api_client.dart';
 import '../../domain/models/user_model.dart';
+import '../../domain/repositories/user_backend_repository.dart';
+import '../mappers/user_model_mapper.dart';
 
-class UserApi {
+class UserApi implements UserBackendRepository {
   UserApi({ApiClient? client}) : _client = client ?? ApiClient();
 
   final ApiClient _client;
 
+  @override
   Future<void> syncCurrentUser(UserModel user) async {
     await _client.put('/users/me', {
       'username': user.username,
@@ -16,46 +19,43 @@ class UserApi {
     });
   }
 
+  @override
   Future<UserModel?> getCurrentUser() async {
     final response = await _client.get('/users/me');
-
     final data = response['user'];
 
     if (data is! Map) {
       return null;
     }
 
-    return UserModel.fromJson(Map<String, dynamic>.from(data));
+    return UserModelMapper.fromMap(Map<String, dynamic>.from(data));
   }
 
+  @override
   Future<UserModel> updateCurrentUser(Map<String, dynamic> data) async {
     final response = await _client.patch('/users/me', data);
-
     final userData = response['user'];
 
     if (userData is! Map) {
       throw Exception('Invalid user response');
     }
 
-    return UserModel.fromJson(Map<String, dynamic>.from(userData));
+    return UserModelMapper.fromMap(Map<String, dynamic>.from(userData));
   }
 
+  @override
   Future<UserModel?> getUser(String uid) async {
     final response = await _client.get('/users/$uid');
-
     final data = response['user'];
 
     if (data is! Map) {
       return null;
     }
 
-    return UserModel.fromJson(Map<String, dynamic>.from(data));
+    return UserModelMapper.fromMap(Map<String, dynamic>.from(data));
   }
 
-  // ============================================================
-  // Interests
-  // ============================================================
-
+  @override
   Future<({Set<String> interests, bool migrated})> getInterestState() async {
     final response = await _client.get('/users/me/interests');
 
@@ -65,6 +65,7 @@ class UserApi {
     );
   }
 
+  @override
   Future<Set<String>> updateInterests(Set<String> interests) async {
     final response = await _client.put('/users/me/interests', {
       'interests': interests.toList()..sort(),
@@ -73,6 +74,7 @@ class UserApi {
     return _readInterests(response['interests']);
   }
 
+  @override
   Future<Set<String>> migrateInterests(Set<String> legacyInterests) async {
     final response = await _client.post(
       '/users/me/interests/migrate',

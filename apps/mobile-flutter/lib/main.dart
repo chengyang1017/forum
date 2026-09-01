@@ -11,6 +11,8 @@ import 'app/providers/app_language.dart';
 import 'app/router/app_router.dart';
 import 'app/router/app_routes.dart';
 import 'core/services/deep_link_service.dart';
+import 'features/auth/domain/repositories/auth_repository.dart';
+import 'features/auth/domain/repositories/user_backend_repository.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import 'features/auth/presentation/cubit/auth_state.dart';
 import 'features/chat/application/ports/chat_media_repository.dart';
@@ -59,6 +61,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<AuthRepository>.value(value: dependencies.authRepository),
+        Provider<UserBackendRepository>.value(
+          value: dependencies.userBackendRepository,
+        ),
         Provider<ChatRepository>.value(value: dependencies.chatRepository),
         Provider<ChatMediaRepository>.value(
           value: dependencies.chatMediaRepository,
@@ -82,7 +88,10 @@ class MyApp extends StatelessWidget {
         Provider<FriendRepository>.value(value: dependencies.friendRepository),
         ChangeNotifierProvider(create: (_) => AppLanguage()),
         BlocProvider<auth_cubit.AuthCubit>(
-          create: (_) => auth_cubit.AuthCubit()..loadUser(),
+          create: (context) => auth_cubit.AuthCubit(
+            authRepository: context.read<AuthRepository>(),
+            userRepository: context.read<UserBackendRepository>(),
+          )..loadUser(),
         ),
         ChangeNotifierProvider(
           create: (context) => chat_prov.ChatProvider(

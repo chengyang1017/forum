@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:glyphora_mobile/features/auth/data/repositories/auth_repository.dart';
-import 'package:glyphora_mobile/features/auth/data/services/user_api.dart';
 import 'package:glyphora_mobile/features/auth/domain/models/user_model.dart';
+import 'package:glyphora_mobile/features/auth/domain/repositories/auth_repository.dart';
+import 'package:glyphora_mobile/features/auth/domain/repositories/user_backend_repository.dart';
 import 'package:glyphora_mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:glyphora_mobile/features/auth/presentation/cubit/auth_state.dart';
 
@@ -42,14 +42,17 @@ void main() {
 
   group('AuthCubit', () {
     late _FakeAuthRepository authRepository;
-    late _FakeUserApi userApi;
+    late _FakeUserBackendRepository userRepository;
     late AuthCubit cubit;
 
     setUp(() {
       authRepository = _FakeAuthRepository();
-      userApi = _FakeUserApi();
+      userRepository = _FakeUserBackendRepository();
 
-      cubit = AuthCubit(authRepository: authRepository, userApi: userApi);
+      cubit = AuthCubit(
+        authRepository: authRepository,
+        userRepository: userRepository,
+      );
     });
 
     tearDown(() async {
@@ -84,7 +87,6 @@ void main() {
       expect(cubit.state.isLoading, isTrue);
 
       completer.complete(user);
-
       await loginFuture;
 
       expect(cubit.state.isLoading, isFalse);
@@ -97,7 +99,6 @@ void main() {
       authRepository.onLogin = (_, _) async => user;
 
       await cubit.login('alice@example.com', 'password');
-
       await cubit.logout();
 
       expect(authRepository.logoutCalls, 1);
@@ -166,12 +167,17 @@ class _FakeAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<Set<String>> getLegacyInterests(String userId) async {
+    return <String>{};
+  }
+
+  @override
   Future<void> logout() async {
     logoutCalls++;
   }
 }
 
-class _FakeUserApi implements UserApi {
+class _FakeUserBackendRepository implements UserBackendRepository {
   @override
   Future<void> syncCurrentUser(UserModel user) async {}
 
