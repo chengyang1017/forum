@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../auth/domain/models/user_model.dart';
 import '../../../post/domain/models/post_model.dart';
 import '../../../post/domain/repositories/post_repository.dart';
 import '../../application/models/local_profile_image.dart';
@@ -162,8 +163,8 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
 
   Future<void> _commitOptimistic({
-    required dynamic optimistic,
-    required Future<dynamic> Function() persist,
+    required UserModel optimistic,
+    required Future<UserModel> Function() persist,
   }) async {
     final previous = state.userProfile;
     emit(state.copyWith(userProfile: optimistic));
