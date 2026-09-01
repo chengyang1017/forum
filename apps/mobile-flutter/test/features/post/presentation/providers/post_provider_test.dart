@@ -113,6 +113,17 @@ final class _FakePostRepository implements PostRepository {
   }
 
   @override
+  Future<void> addLanguageVersion({
+    required String postId,
+    required String languageCode,
+    required String languageName,
+    required String title,
+    required String content,
+    required String type,
+    List<dynamic> bodyDelta = const [],
+  }) async {}
+
+  @override
   Future<PostModel> updatePost(String postId, {required String content}) {
     throw UnimplementedError();
   }

@@ -1,9 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../notes/data/services/note_service.dart';
-import '../../../post/data/services/post_node_service.dart';
 import '../../../post/domain/models/post_model.dart';
+import '../../../post/domain/repositories/post_repository.dart';
 import '../../data/services/ai_translation_service.dart';
 
 enum TranslationMode { manual, ai }
@@ -31,8 +33,6 @@ class PostTranslationScreen extends StatefulWidget {
 }
 
 class _PostTranslationScreenState extends State<PostTranslationScreen> {
-  final PostService _postService = PostService();
-
   final NoteService _noteService = NoteService();
 
   final AiTranslationService _aiTranslationService = AiTranslationService();
@@ -144,7 +144,7 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
       return;
     }
 
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final userId = BlocProvider.of<AuthCubit>(context).user?.id;
 
     if (userId == null) {
       ScaffoldMessenger.of(
@@ -226,6 +226,8 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
       return;
     }
 
+    final postRepository = Provider.of<PostRepository>(context, listen: false);
+
     setState(() {
       _saving = true;
     });
@@ -240,7 +242,7 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
           (finalTitle != _aiPreviewTitle.trim() ||
               finalContent != _aiPreviewContent.trim());
 
-      await _postService.addLanguageVersion(
+      await postRepository.addLanguageVersion(
         postId: widget.post.id,
 
         languageCode: widget.targetLanguageCode,

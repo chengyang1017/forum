@@ -56,6 +56,27 @@ final class PostRepositoryImpl implements PostRepository {
   }
 
   @override
+  Future<void> addLanguageVersion({
+    required String postId,
+    required String languageCode,
+    required String languageName,
+    required String title,
+    required String content,
+    required String type,
+    List<dynamic> bodyDelta = const [],
+  }) {
+    return _service.addLanguageVersion(
+      postId: postId,
+      languageCode: languageCode,
+      languageName: languageName,
+      title: title,
+      content: content,
+      type: type,
+      bodyDelta: bodyDelta,
+    );
+  }
+
+  @override
   Future<PostModel> updatePost(String postId, {required String content}) async {
     await _service.updatePost(postId, content: content);
     return _service.getPost(postId);
