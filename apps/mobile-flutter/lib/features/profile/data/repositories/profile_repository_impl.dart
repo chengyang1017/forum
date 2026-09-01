@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../auth/data/mappers/user_model_mapper.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../auth/domain/repositories/user_backend_repository.dart';
 import '../../domain/repositories/profile_repository.dart';
@@ -23,6 +24,23 @@ final class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<UserModel?> getProfile(String userId) {
     return _userRepository.getUser(userId);
+  }
+
+  @override
+  Stream<UserModel?> watchProfile(String userId) {
+    return _firestore.collection('users').doc(userId).snapshots().map((
+      snapshot,
+    ) {
+      final data = snapshot.data();
+      if (!snapshot.exists || data == null) {
+        return null;
+      }
+
+      return UserModelMapper.fromMap(<String, dynamic>{
+        ...data,
+        'uid': data['uid'] ?? snapshot.id,
+      });
+    });
   }
 
   @override
