@@ -14,10 +14,10 @@ import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../../../core/widgets/user_name_display.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../domain/models/post_model.dart';
+import '../../domain/repositories/post_repository.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
 import '../../../translation/presentation/screens/post_translation_screen.dart';
 import 'package:flutter/services.dart';
-import '../../data/services/post_node_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
@@ -38,9 +38,9 @@ class PostDetailRouteScreen extends StatefulWidget {
 }
 
 class _PostDetailRouteScreenState extends State<PostDetailRouteScreen> {
-  final PostService _postService = PostService();
-
   Future<PostModel>? _postFuture;
+
+  PostRepository get _postRepository => context.read<PostRepository>();
 
   @override
   void initState() {
@@ -64,12 +64,12 @@ class _PostDetailRouteScreenState extends State<PostDetailRouteScreen> {
       return;
     }
 
-    _postFuture = _postService.getPost(widget.postId);
+    _postFuture = _postRepository.getPost(widget.postId);
   }
 
   void _retry() {
     setState(() {
-      _postFuture = _postService.getPost(widget.postId);
+      _postFuture = _postRepository.getPost(widget.postId);
     });
   }
 
@@ -81,7 +81,7 @@ class _PostDetailRouteScreenState extends State<PostDetailRouteScreen> {
       return PostDetailScreen(postId: widget.postId, post: initialPost);
     }
 
-    final future = _postFuture ??= _postService.getPost(widget.postId);
+    final future = _postFuture ??= _postRepository.getPost(widget.postId);
 
     return FutureBuilder<PostModel>(
       future: future,
@@ -173,8 +173,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   bool _isUploadingImage = false;
   bool _isEditingImages = false;
   String? _currentUserId;
-  final PostService _postService = PostService();
   DateTime? _currentVersionCreatedAt;
+
+  PostRepository get _postRepository => context.read<PostRepository>();
 
   @override
   void initState() {
@@ -205,18 +206,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     _loadCurrentVersionCreatedAt();
   }
 
-  DateTime? _toDateTime(dynamic value) {
-    if (value is DateTime) {
-      return value;
-    }
-
-    if (value is String) {
-      return DateTime.tryParse(value);
-    }
-
-    return null;
-  }
-
   Future<void> _loadCurrentVersionCreatedAt() async {
     final currentLanguageCode = _post.languageCode;
 
@@ -235,17 +224,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     }
 
     try {
-      final version = await _postService.getLanguageVersion(
+      final version = await _postRepository.getLanguageVersion(
         postId: widget.postId,
         languageCode: currentLanguageCode,
       );
 
-      if (!mounted || version == null) {
+      if (!mounted) {
         return;
       }
 
       setState(() {
-        _currentVersionCreatedAt = _toDateTime(version['createdAt']);
+        _currentVersionCreatedAt = version.createdAt;
       });
     } catch (e) {
       debugPrint('加载语言版本发布时间失败: $e');
@@ -319,7 +308,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
     try {
       // 正文、图片和“修改前历史快照”由 Node 在同一个事务中处理。
-      await _postService.updateLanguageVersionContent(
+      await _postRepository.updateLanguageVersionContent(
         postId: widget.postId,
         languageCode: currentLanguageCode,
         title: result.title,
@@ -757,39 +746,25 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           widget.post.primaryLanguageCode ??
           widget.post.languageCode;
 
-      final version = await _postService.getLanguageVersion(
+      final version = await _postRepository.getLanguageVersion(
         postId: widget.postId,
         languageCode: language.code,
       );
 
       if (!mounted) return;
 
-      if (version != null) {
-        final versionCreatedAt = _toDateTime(version['createdAt']);
+      setState(() {
+        _post = _post.copyWith(
+          title: version.title,
+          content: version.content,
+          bodyDelta: version.bodyDelta,
+          languageCode: language.code,
+        );
 
-        final versionBodyDelta =
-            (version['bodyDelta'] as List<dynamic>?)?.map((e) => e).toList() ??
-            const [];
-
-        setState(() {
-          _post = _post.copyWith(
-            title: version['title']?.toString(),
-            content: version['content']?.toString(),
-            bodyDelta: versionBodyDelta,
-            languageCode: language.code,
-          );
-
-          _currentVersionCreatedAt = language.code == primaryLanguageCode
-              ? _post.createdAt
-              : versionCreatedAt;
-        });
-
-        return;
-      }
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('这个语言版本不存在')));
+        _currentVersionCreatedAt = language.code == primaryLanguageCode
+            ? _post.createdAt
+            : version.createdAt;
+      });
     } catch (e) {
       if (!mounted) return;
 
@@ -1090,7 +1065,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     });
 
     try {
-      await _postService.reportPost(
+      await _postRepository.reportPost(
         postId: widget.postId,
         reason: draft.reason,
         details: draft.details,
