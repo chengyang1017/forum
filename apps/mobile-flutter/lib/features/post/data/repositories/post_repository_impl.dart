@@ -1,4 +1,5 @@
 import '../../domain/models/post_edit_history_entry.dart';
+import '../../domain/models/post_language_version.dart';
 import '../../domain/models/post_model.dart';
 import '../../domain/repositories/post_repository.dart';
 import '../services/post_node_service.dart';
@@ -77,6 +78,42 @@ final class PostRepositoryImpl implements PostRepository {
   }
 
   @override
+  Future<PostLanguageVersion> getLanguageVersion({
+    required String postId,
+    required String languageCode,
+  }) async {
+    final version = await _service.getLanguageVersion(
+      postId: postId,
+      languageCode: languageCode,
+    );
+
+    if (version == null) {
+      throw StateError('Post language version not found');
+    }
+
+    return PostLanguageVersion.fromJson(version);
+  }
+
+  @override
+  Future<void> updateLanguageVersionContent({
+    required String postId,
+    required String languageCode,
+    required String title,
+    required String content,
+    required List<String> imageUrls,
+    List<dynamic>? bodyDelta,
+  }) {
+    return _service.updateLanguageVersionContent(
+      postId: postId,
+      languageCode: languageCode,
+      title: title,
+      content: content,
+      imageUrls: imageUrls,
+      bodyDelta: bodyDelta,
+    );
+  }
+
+  @override
   Future<PostModel> updatePost(String postId, {required String content}) async {
     await _service.updatePost(postId, content: content);
     return _service.getPost(postId);
@@ -95,6 +132,19 @@ final class PostRepositoryImpl implements PostRepository {
   @override
   Future<List<PostModel>> getBookmarkedPosts() {
     return _service.getBookmarkedPosts();
+  }
+
+  @override
+  Future<void> reportPost({
+    required String postId,
+    required String reason,
+    String? details,
+  }) async {
+    await _service.reportPost(
+      postId: postId,
+      reason: reason,
+      details: details,
+    );
   }
 
   @override
