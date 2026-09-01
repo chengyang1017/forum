@@ -2,14 +2,17 @@
 
 ## 整體架構
 
-`lib/main.dart` 初始化 Firebase、建立 `AppDependencies`，再以 `MultiProvider` 注入語言、Auth、Chat、Friend、Discover、Feed、Post 等狀態與 repository。整體仍是 feature-first，但 Auth、Post、Profile、Social、Chat、Discover 等核心功能已逐步改成由 application composition root 注入抽象依賴，而不是讓 presentation 直接依賴 Firebase 型別。
+`lib/main.dart` 初始化 Firebase、建立 `AppDependencies`，再以 `Provider` 注入 repository，以 `BlocProvider` 注入 AppLanguage、Auth、Chat、Friend、Discover、Feed、Post 等 UI 狀態。整體仍是 feature-first，但 Auth、Post、Profile、Social、Chat、Discover 等核心功能已逐步改成由 application composition root 注入抽象依賴，而不是讓 presentation 直接依賴 Firebase 型別。
 
-1. `features/*/presentation`：畫面、互動與狀態。
+1. `features/*/presentation`：畫面、互動與 Cubit/BLoC UI state。
 2. `features/*/domain`：domain model 與 repository contract。
 3. `features/*/application`：跨資料來源或平台能力的 port，例如 media storage。
 4. `features/*/data`：Firebase/HTTP 等具體 adapter、mapper 與 service。
 5. `app/di/app_dependencies.dart`：組合長生命週期依賴並注入 feature。
-6. `core` 與 `app`：routing、l10n、共用 service/widget 等。
+6. `app/cubit`：App 級 UI state，例如 `AppLanguageCubit`。
+7. `core` 與 `app`：routing、l10n、共用 service/widget 等。
+
+目前 `provider` 套件仍保留，但主要用途是 repository dependency injection，例如 `PostRepository`、`ProfileRepository`、`NoteRepository` 等；畫面層的主要可變 UI state 已由 Cubit/BLoC 管理。不要因為某個畫面仍 import `provider.dart` 就假設它仍使用 ChangeNotifier 狀態管理。
 
 注意：此專案仍在漸進式重構中，不是所有 feature 都已完全切到同一架構。RN 遷移必須追實際 writer 與 repository contract，不能只照舊 generated model。
 
@@ -18,7 +21,7 @@
 | 模組 | 功能 | 主要入口/原始檔 |
 |---|---|---|
 | Auth | email/password 登入、註冊、登出、auth state、改密碼、密保、封禁檢查、legacy interests 遷移 | `features/auth/domain/repositories/*`, `features/auth/data/repositories/firebase_auth_repository.dart`, `features/auth/presentation/cubit/*` |
-| Home/語言頻道 | 主導航、語言頻道、推薦帖子、使用者偏好 | `features/home/*`, `features/language/*`, `app/providers/app_language.dart` |
+| Home/語言頻道 | 主導航、語言頻道、推薦帖子、使用者偏好 | `features/home/*`, `features/language/*`, `app/cubit/app_language_cubit.dart` |
 | Feed/Post | 分類/語言 feed、建帖、多圖、詳情、編輯、刪除、like、deep link | `features/feed/*`, `features/post/*`, `core/services/deep_link_service.dart` |
 | Comments | 文字/圖片評論、巢狀回覆、emoji | `features/post/*` |
 | Profile | 個人/他人 profile、作者帖子、avatar、username/nickname/bio/tags/languages/birthday/showAge | `features/profile/*` |
@@ -28,7 +31,7 @@
 | Live draft | Realtime Database 輸入預覽、150ms debounce、onDisconnect 清理、member opt-in | `features/chat/domain/repositories/live_draft_repository.dart`, `features/chat/data/repositories/firebase_live_draft_repository.dart`, `features/chat/domain/models/live_draft.dart` |
 | Notes | 私人/共享 Quill 筆記、編輯權限、分享名單、inline 圖片、刪除 | `features/notes/*` |
 | Admin | role 判斷、帖子/使用者統計、刪帖、封禁使用者 | `features/admin/*` |
-| Localization | UI locale、語言 channel 清單、Glyphora language config | `app/l10n/*`, `features/language/*`, `app/providers/app_language.dart` |
+| Localization | UI locale、語言 channel 清單、Glyphora language config | `app/l10n/*`, `features/language/*`, `app/cubit/app_language_cubit.dart`, `app/cubit/app_language_state.dart` |
 
 ## Model 清單
 
@@ -51,10 +54,11 @@
 | repository | `ChatRepository` | typed chat contract；聊天室、訊息、未讀、詞彙訊息、member settings；Firebase snapshot/timestamp 不越過此 boundary |
 | repository | `LiveDraftRepository` | realtime draft contract；prepare/watch/update/clear，不暴露 Firebase Database 型別 |
 | repository | `FriendRepository` | 好友關係 contract；presentation state 依賴抽象 |
+| cubit | `AppLanguageCubit` | App 級 locale state、語言切換與 SharedPreferences 持久化 |
 | cubit | `AuthCubit` | auth/user/interests UI state；只依賴 `AuthRepository` 與 `UserBackendRepository` |
 | cubit | `FeedCubit` | feed loading/error 與帖子 stream |
 | cubit | `PostCubit` | 單篇 edit/like/bookmark/delete/image 等 UI state 與 orchestration |
-| cubit | `ChatCubit` | chat UI state 與 orchestration；透過 `ChatRepository` / `ChatMediaRepository` 工作；舊 `ChatProvider` 目前僅為 deprecated compatibility alias |
+| cubit | `ChatCubit` | chat UI state 與 orchestration；透過 `ChatRepository` / `ChatMediaRepository` 工作 |
 | cubit | `FriendCubit` | 好友 UID、首次 load 與 friend stream |
 | cubit | `DiscoverCubit` | discover loading/error；聊天與好友 mutation 委派給各自 repository |
 | cubit | `ProfileCubit` | profile UI state；透過 repository/media port 提供資料 |
