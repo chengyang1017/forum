@@ -155,7 +155,20 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(isLoading: true));
 
     try {
-      final user = await _authRepository.register(email, password, username);
+      final normalizedUsername = username.trim();
+      final isAvailable = await _userRepository.isUsernameAvailable(
+        normalizedUsername,
+      );
+
+      if (!isAvailable) {
+        throw Exception('该用户名已被使用，请换一个');
+      }
+
+      final user = await _authRepository.register(
+        email,
+        password,
+        normalizedUsername,
+      );
       emit(state.copyWith(user: user, isLoading: false, isInitialized: true));
     } catch (_) {
       emit(state.copyWith(isLoading: false));

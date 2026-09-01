@@ -95,6 +95,39 @@ void main() {
       expect(cubit.state.isAuthenticated, isTrue);
     });
 
+    test(
+      'register rejects an unavailable username before auth creation',
+      () async {
+        userRepository.usernameAvailable = false;
+
+        await expectLater(
+          cubit.register('alice@example.com', 'password', 'alice'),
+          throwsA(
+            isA<Exception>().having(
+              (error) => error.toString(),
+              'message',
+              contains('该用户名已被使用'),
+            ),
+          ),
+        );
+
+        expect(userRepository.checkedUsernames, ['alice']);
+        expect(authRepository.registerCalls, 0);
+        expect(cubit.state.isLoading, isFalse);
+      },
+    );
+
+    test(
+      'register normalizes username before availability and auth calls',
+      () async {
+        await cubit.register('alice@example.com', 'password', '  alice  ');
+
+        expect(userRepository.checkedUsernames, ['alice']);
+        expect(authRepository.lastRegisteredUsername, 'alice');
+        expect(cubit.state.user?.username, 'alice');
+      },
+    );
+
     test('password reset delegates to repository', () async {
       await cubit.sendPasswordResetEmail('alice@example.com');
 
@@ -123,6 +156,8 @@ class _FakeAuthRepository implements AuthRepository {
 
   UserModel? currentUser;
   int logoutCalls = 0;
+  int registerCalls = 0;
+  String? lastRegisteredUsername;
   final List<String> passwordResetEmails = [];
 
   @override
@@ -142,6 +177,8 @@ class _FakeAuthRepository implements AuthRepository {
     String password,
     String username,
   ) async {
+    registerCalls++;
+    lastRegisteredUsername = username;
     return UserModel(id: 'registered-user', username: username, email: email);
   }
 
@@ -178,6 +215,15 @@ class _FakeAuthRepository implements AuthRepository {
 }
 
 class _FakeUserBackendRepository implements UserBackendRepository {
+  bool usernameAvailable = true;
+  final List<String> checkedUsernames = [];
+
+  @override
+  Future<bool> isUsernameAvailable(String username) async {
+    checkedUsernames.add(username);
+    return usernameAvailable;
+  }
+
   @override
   Future<void> syncCurrentUser(UserModel user) async {}
 

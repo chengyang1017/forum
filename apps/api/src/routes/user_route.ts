@@ -123,6 +123,62 @@ function prismaErrorCode(
 }
 
 // ============================================================
+// GET /api/v1/users/username-availability
+//
+// Registration happens before a Firebase session exists, so this endpoint is
+// intentionally public. PostgreSQL is the authoritative username store.
+// ============================================================
+
+const usernameAvailabilitySchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(1)
+    .max(50),
+});
+
+userRouter.get(
+  '/username-availability',
+  async (request, response) => {
+    const parsed = usernameAvailabilitySchema.safeParse(request.query);
+
+    if (!parsed.success) {
+      response.status(400).json({
+        error: 'INVALID_USERNAME',
+        message: 'Invalid username',
+      });
+
+      return;
+    }
+
+    try {
+      const existingUser = await prisma.user.findUnique({
+        where: {
+          username: parsed.data.username,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      response.status(200).json({
+        available: existingUser == null,
+      });
+    } catch (error) {
+      console.error(
+        'Check username availability failed:',
+        error,
+      );
+
+      response.status(500).json({
+        error: 'USERNAME_AVAILABILITY_FAILED',
+        message: 'Unable to check username availability',
+      });
+    }
+  },
+);
+
+// ============================================================
 // PUT /api/v1/users/me
 //
 // 迁移阶段：
