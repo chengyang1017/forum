@@ -57,11 +57,13 @@ Discover 与 Feed 分开管理，使首页内容流与主动探索功能保持�
 
 ```text
 features/chat/
-├── models/
-├── providers/
-├── screens/
-├── services/
-└── widgets/
+├── domain/
+├── data/
+├── presentation/
+│   ├── cubit/
+│   ├── screens/
+│   └── widgets/
+└── services/
 ```
 
 主要页面包括：
@@ -306,8 +308,11 @@ admin_users.dart
 ```text
 lib/
 │
-├── config/
-│   └── l10n/
+├── app/
+│   ├── cubit/
+│   ├── di/
+│   ├── l10n/
+│   └── router/
 │
 ├── core/
 │
@@ -321,13 +326,11 @@ lib/
 │   ├── feed/
 │   ├── home/
 │   ├── notes/
+│   ├── post/
 │   ├── profile/
 │   └── social/
 │
 ├── shared/
-│   ├── providers/
-│   └── services/
-│
 ├── firebase_options.dart
 │
 └── main.dart
@@ -339,57 +342,65 @@ lib/
 Feature-oriented Architecture
 ```
 
-每个业务领域拥有自己的：
+核心业务 Feature 逐步按照以下边界组织：
 
 ```text
-Model
-Provider
-Service
-Screen
-Widget
+domain
+application
+data
+presentation
+  ├── cubit
+  ├── screens
+  └── widgets
 ```
+
+其中 domain 定义模型与 repository contract，data 提供 Firebase / HTTP 等 adapter，presentation 负责界面与 Cubit 状态。
 
 ---
 
 # State Management
 
-项目当前使用：
+项目当前以 **BLoC / Cubit** 管理 UI 可变状态，并继续使用 **Provider** 注入 Repository 等长生命周期依赖。
+
+主要 UI 状态包括：
 
 ```text
-Provider
-ChangeNotifier
+AppLanguageCubit
+AuthCubit
+ChatCubit
+FriendCubit
+DiscoverCubit
+FeedCubit
+PostCubit
+ProfileCubit
 ```
 
-管理主要应用状态。
-
-应用入口通过 `MultiProvider` 注入：
-
-```text
-AppLanguage
-AuthProvider
-ChatProvider
-FriendProvider
-DiscoverProvider
-FeedProvider
-PostProvider
-```
-
-整体结构：
+应用入口的职责可以概括为：
 
 ```text
 MaterialApp
     │
     ▼
-MultiProvider
+Composition Root
     │
-    ├── Auth
-    ├── Chat
-    ├── Friends
-    ├── Discover
-    ├── Feed
-    ├── Posts
-    └── Language
+    ├── Provider<Repository>
+    │     ├── AuthRepository
+    │     ├── PostRepository
+    │     ├── ChatRepository
+    │     └── ...
+    │
+    └── BlocProvider<Cubit>
+          ├── AppLanguageCubit
+          ├── AuthCubit
+          ├── ChatCubit
+          ├── FriendCubit
+          ├── DiscoverCubit
+          ├── FeedCubit
+          ├── PostCubit
+          └── ProfileCubit
 ```
+
+因此，代码中仍然出现的 `package:provider/provider.dart` 不等于继续使用旧的 ChangeNotifier 状态管理；部分页面使用它读取 Repository，而 UI 状态由 Cubit/BLoC 负责。
 
 ---
 
@@ -517,10 +528,10 @@ Other content
 * Dart
 * Material 3
 
-## State Management
+## State Management & Dependency Injection
 
-* Provider
-* ChangeNotifier
+* flutter_bloc / Cubit — UI state and orchestration
+* Provider — Repository dependency injection
 
 ## Backend
 
@@ -657,7 +668,6 @@ glyphora_language_core:
 
 1. 获取对应 package
 2. 修改成本机路径
-
 或者将这些 package 改为 Git / pub dependency。
 
 ---
