@@ -23,7 +23,8 @@ final class PostLanguageVersion {
       languageCode: json['languageCode']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       content: json['content']?.toString() ?? '',
-      bodyDelta: (json['bodyDelta'] as List<dynamic>?)
+      bodyDelta:
+          (json['bodyDelta'] as List<dynamic>?)
               ?.map<dynamic>((item) => item)
               .toList(growable: false) ??
           const <dynamic>[],
