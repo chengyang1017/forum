@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
-import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
-import '../providers/chat_provider.dart' as chat_prov;
-import '../../../social/presentation/providers/friend_provider.dart'
-    as friend_prov;
-import '../../../../core/widgets/user_avatar.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/user_avatar.dart';
+import '../../../auth/domain/models/user_model.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
+import '../../../profile/domain/repositories/profile_repository.dart';
+import '../../../social/domain/repositories/friend_repository.dart';
+import '../../domain/models/chat_thread.dart';
+import '../providers/chat_provider.dart' as chat_prov;
 
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
@@ -22,16 +23,18 @@ class ChatListScreen extends StatefulWidget {
 
 class _ChatListScreenState extends State<ChatListScreen>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  late final TabController _tabController;
+  late final ProfileRepository _profileRepository;
+  late final FriendRepository _friendRepository;
 
-  // ✅ 不再存储 currentUserId，改为从 AuthCubit 实时获取
-
-  final Map<String, Map<String, dynamic>> _userCache = {};
+  final Map<String, UserModel?> _userCache = {};
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _profileRepository = context.read<ProfileRepository>();
+    _friendRepository = context.read<FriendRepository>();
   }
 
   @override
@@ -40,58 +43,59 @@ class _ChatListScreenState extends State<ChatListScreen>
     super.dispose();
   }
 
-  // ========== 用户信息缓存 ==========
-  Future<Map<String, dynamic>> _getUserInfo(String uid) async {
-    if (_userCache.containsKey(uid)) return _userCache[uid]!;
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .get();
-    if (doc.exists && doc.data() != null) {
-      _userCache[uid] = doc.data()!;
-      return doc.data()!;
+  Future<UserModel?> _getUser(String userId) async {
+    if (_userCache.containsKey(userId)) {
+      return _userCache[userId];
     }
-    return {'username': '未知用户', 'email': '', 'avatar': ''};
+
+    final user = await _profileRepository.getProfile(userId);
+    _userCache[userId] = user;
+    return user;
   }
 
-  String _formatTime(dynamic timestamp, AppLocalizations l10n) {
-    if (timestamp == null) return '';
-    DateTime date;
-    if (timestamp is Timestamp) {
-      date = timestamp.toDate();
-    } else {
-      return '';
+  String _displayNameOf(UserModel? user) {
+    final displayName = user?.profileDisplayName.trim() ?? '';
+    if (displayName.isNotEmpty) {
+      return displayName;
     }
+
+    final email = user?.email?.trim() ?? '';
+    return email.isNotEmpty ? email : '未知用户';
+  }
+
+  String _formatTime(DateTime? date, AppLocalizations l10n) {
+    if (date == null) return '';
+
+    final localDate = date.toLocal();
     final now = DateTime.now();
-    final diff = now.difference(date);
+    final diff = now.difference(localDate);
+
     if (diff.inMinutes < 1) return l10n.justNow;
     if (diff.inHours < 1) return '${diff.inMinutes}${l10n.minutesAgo}';
     if (diff.inDays < 1) return '${diff.inHours}${l10n.hoursAgo}';
     if (diff.inDays < 7) return '${diff.inDays}${l10n.daysAgo}';
-    return '${date.month}/${date.day}';
+    return '${localDate.month}/${localDate.day}';
   }
 
-  // ========== 显示用户资料 ==========
-  void _showUserProfile(String uid, String displayName, String? avatar) {
-    showModalBottomSheet(
+  void _showUserProfile(String userId) {
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) {
-        final l10n = AppLocalizations.of(context)!;
-        return FutureBuilder<Map<String, dynamic>>(
-          future: _getUserInfo(uid),
+      builder: (sheetContext) {
+        return FutureBuilder<UserModel?>(
+          future: _getUser(userId),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) {
+            if (snapshot.connectionState != ConnectionState.done) {
               return const Center(child: LoadingIndicator());
             }
-            final data = snapshot.data!;
-            final nickname = data['nickname'] ?? '';
-            final username = data['username'] ?? '未知用户';
-            final displayName2 = nickname.isNotEmpty ? nickname : username;
-            final avatar2 = data['avatar'] ?? '';
-            final bio = data['bio'] ?? '';
-            final tags = List<String>.from(data['tags'] ?? []);
+
+            final user = snapshot.data;
+            final displayName = _displayNameOf(user);
+            final username = user?.username ?? '';
+            final avatarUrl = user?.avatarUrl ?? '';
+            final bio = user?.bioText ?? '';
+            final tags = user?.tagsList ?? const <String>[];
 
             return SingleChildScrollView(
               child: Container(
@@ -113,19 +117,19 @@ class _ChatListScreenState extends State<ChatListScreen>
                     ),
                     const SizedBox(height: 10),
                     UserAvatar(
-                      imageUrl: avatar2,
-                      displayName: displayName2,
+                      imageUrl: avatarUrl,
+                      displayName: displayName,
                       radius: 48,
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      displayName2,
+                      displayName,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    if (nickname.isNotEmpty) ...[
+                    if (username.isNotEmpty && username != displayName) ...[
                       const SizedBox(height: 2),
                       Text(
                         '@$username',
@@ -192,33 +196,21 @@ class _ChatListScreenState extends State<ChatListScreen>
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           _buildAction(
-                            Icons.chat_bubble_outline_rounded,
-                            l10n.send,
-                            () async {
-                              Navigator.pop(context);
-
-                              final chatProvider = this.context
-                                  .read<chat_prov.ChatProvider>();
-
-                              final chatId = await chatProvider.getOrCreateChat(
-                                uid,
-                              );
-
-                              if (!mounted) {
-                                return;
-                              }
-
-                              this.context.push(
-                                AppRoutes.chatLocation(chatId: chatId),
-                                extra: displayName2,
-                              );
+                            icon: Icons.chat_bubble_outline_rounded,
+                            label: '发送消息',
+                            onTap: () async {
+                              Navigator.pop(sheetContext);
+                              await _openChat(userId, displayName);
                             },
                           ),
                           _buildAction(
-                            Icons.person_remove_outlined,
-                            l10n.delete,
-                            () {
-                              Navigator.pop(context);
+                            icon: Icons.person_outline_rounded,
+                            label: '查看主页',
+                            onTap: () {
+                              Navigator.pop(sheetContext);
+                              context.push(
+                                AppRoutes.userProfileLocation(uid: userId),
+                              );
                             },
                           ),
                         ],
@@ -235,7 +227,11 @@ class _ChatListScreenState extends State<ChatListScreen>
     );
   }
 
-  Widget _buildAction(IconData icon, String label, VoidCallback onTap) {
+  Widget _buildAction({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -259,20 +255,27 @@ class _ChatListScreenState extends State<ChatListScreen>
     );
   }
 
-  // ============================================================
-  // Build
-  // ============================================================
+  Future<void> _openChat(String otherUserId, String displayName) async {
+    try {
+      final chatProvider = context.read<chat_prov.ChatProvider>();
+      final chatId = await chatProvider.getOrCreateChat(otherUserId);
+      if (!mounted) return;
+
+      context.push(AppRoutes.chatLocation(chatId: chatId), extra: displayName);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('创建聊天失败: $error')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final currentUserId = context.watch<auth_cubit.AuthCubit>().user?.id;
 
-    // ✅ 使用 watch 监听 AuthCubit，用户变化时自动重建
-    final authProvider = context.watch<auth_cubit.AuthCubit>();
-    final currentUserId = authProvider.user?.id;
-
-    // ✅ 如果未登录，显示提示页
     if (currentUserId == null) {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.messages), centerTitle: true),
@@ -280,8 +283,6 @@ class _ChatListScreenState extends State<ChatListScreen>
       );
     }
 
-    // ✅ 用户已登录，加载数据（在 didChangeDependencies 中触发，但这里确保数据加载）
-    // 利用 didChangeDependencies 加载数据（因为 currentUserId 变化时会触发重建）
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -306,20 +307,16 @@ class _ChatListScreenState extends State<ChatListScreen>
                     color: Colors.black87,
                   ),
                   tooltip: l10n.reply,
-                  onPressed: () {
-                    context.push(AppRoutes.friendRequests);
-                  },
+                  onPressed: () => context.push(AppRoutes.friendRequests),
                 ),
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('friend_requests')
-                      .where('to', isEqualTo: currentUserId)
-                      .where('status', isEqualTo: 'pending')
-                      .snapshots(),
+                StreamBuilder<int>(
+                  stream: _friendRepository.watchIncomingRequestCount(),
                   builder: (context, snapshot) {
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    final count = snapshot.data ?? 0;
+                    if (count <= 0) {
                       return const SizedBox();
                     }
+
                     return Positioned(
                       right: 4,
                       top: 4,
@@ -335,12 +332,13 @@ class _ChatListScreenState extends State<ChatListScreen>
                           border: Border.all(color: Colors.white, width: 1.5),
                         ),
                         child: Text(
-                          '${snapshot.data!.docs.length}',
+                          count > 99 ? '99+' : '$count',
+                          textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 9,
                             fontWeight: FontWeight.bold,
-                            height: 1.0,
+                            height: 1,
                           ),
                         ),
                       ),
@@ -369,24 +367,16 @@ class _ChatListScreenState extends State<ChatListScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildChatList(currentUserId),
-          _buildFriendsList(currentUserId),
-        ],
+        children: [_buildChatList(currentUserId), _buildFriendsList()],
       ),
     );
   }
 
-  // ========== 聊天列表（传入 currentUserId） ==========
   Widget _buildChatList(String currentUserId) {
     final chatProvider = context.watch<chat_prov.ChatProvider>();
     final l10n = AppLocalizations.of(context)!;
 
-    // 数据加载（由 Provider 内部处理，或在此触发）
-    // 使用 didChangeDependencies 触发加载，但这里只负责展示
-
-    // 使用 Stream 实时更新
-    return StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<List<ChatThread>>(
       stream: chatProvider.watchChats(currentUserId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -395,15 +385,15 @@ class _ChatListScreenState extends State<ChatListScreen>
         if (snapshot.hasError) {
           return Center(child: Text('${l10n.loadFailed}：${snapshot.error}'));
         }
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+
+        final chats = snapshot.data ?? const <ChatThread>[];
+        if (chats.isEmpty) {
           return EmptyState(
             icon: Icons.chat_bubble_outline,
             title: l10n.noPosts,
             subtitle: '还没有聊天，开始对话吧',
           );
         }
-
-        final chats = snapshot.data!.docs;
 
         return ListView.separated(
           padding: const EdgeInsets.symmetric(vertical: 4),
@@ -412,39 +402,30 @@ class _ChatListScreenState extends State<ChatListScreen>
               Divider(height: 1, indent: 76, color: Colors.grey.shade100),
           itemBuilder: (context, index) {
             final chat = chats[index];
-            final chatData = chat.data() as Map<String, dynamic>;
-            final users = List<String>.from(chatData['users'] ?? []);
-            final otherUserId = users.firstWhere(
-              (id) => id != currentUserId,
-              orElse: () => '',
-            );
-
+            final otherUserId = chat.otherParticipantId(currentUserId);
             final unreadCount = chatProvider.getUnreadCount(
-              chatData,
+              chat,
               currentUserId,
             );
-            final hasUnread = unreadCount > 0;
 
-            return FutureBuilder<Map<String, dynamic>>(
-              future: _getUserInfo(otherUserId),
+            return FutureBuilder<UserModel?>(
+              future: _getUser(otherUserId),
               builder: (context, userSnapshot) {
-                if (!userSnapshot.hasData) {
+                if (userSnapshot.connectionState != ConnectionState.done) {
                   return _buildSkeletonTile();
                 }
-                final userData = userSnapshot.data!;
-                final name =
-                    userData['username'] ?? userData['email'] ?? '未知用户';
-                final avatar = userData['avatar'] ?? '';
-                final lastMsg = chatData['lastMessage'];
-                final hasMsg = lastMsg != null && lastMsg.toString().isNotEmpty;
+
+                final user = userSnapshot.data;
+                final displayName = _displayNameOf(user);
+                final avatarUrl = user?.avatarUrl ?? '';
+                final hasMessage = chat.lastMessage.trim().isNotEmpty;
 
                 return InkWell(
                   onTap: () {
                     chatProvider.markAsRead(chat.id, currentUserId);
-
                     context.push(
                       AppRoutes.chatLocation(chatId: chat.id),
-                      extra: name,
+                      extra: displayName,
                     );
                   },
                   child: Padding(
@@ -455,14 +436,12 @@ class _ChatListScreenState extends State<ChatListScreen>
                     child: Row(
                       children: [
                         UserAvatar(
-                          imageUrl: avatar,
-                          displayName: name,
+                          imageUrl: avatarUrl,
+                          displayName: displayName,
                           radius: 24,
-                          onTap: () {
-                            if (otherUserId.isNotEmpty) {
-                              _showUserProfile(otherUserId, name, avatar);
-                            }
-                          },
+                          onTap: otherUserId.isEmpty
+                              ? null
+                              : () => _showUserProfile(otherUserId),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -470,7 +449,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                name,
+                                displayName,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
@@ -480,11 +459,11 @@ class _ChatListScreenState extends State<ChatListScreen>
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                hasMsg ? lastMsg : l10n.noPosts,
+                                hasMessage ? chat.lastMessage : l10n.noPosts,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  color: hasMsg
+                                  color: hasMessage
                                       ? Colors.grey[600]
                                       : Colors.grey[400],
                                   fontSize: 13,
@@ -493,7 +472,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                             ],
                           ),
                         ),
-                        if (hasUnread)
+                        if (unreadCount > 0)
                           Container(
                             margin: const EdgeInsets.only(left: 8),
                             padding: const EdgeInsets.symmetric(
@@ -514,17 +493,12 @@ class _ChatListScreenState extends State<ChatListScreen>
                             ),
                           ),
                         const SizedBox(width: 8),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              _formatTime(chatData['updatedAt'], l10n),
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          _formatTime(chat.updatedAt, l10n),
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 11,
+                          ),
                         ),
                       ],
                     ),
@@ -538,46 +512,45 @@ class _ChatListScreenState extends State<ChatListScreen>
     );
   }
 
-  // ========== 好友列表 ==========
-  Widget _buildFriendsList(String currentUserId) {
-    final friendProvider = context.watch<friend_prov.FriendProvider>();
-
+  Widget _buildFriendsList() {
     return StreamBuilder<List<String>>(
-      stream: friendProvider.watchFriends(),
+      stream: _friendRepository.watchFriends(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: LoadingIndicator());
         }
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return EmptyState(
+
+        final friendIds = snapshot.data ?? const <String>[];
+        if (friendIds.isEmpty) {
+          return const EmptyState(
             icon: Icons.people_alt_outlined,
             title: '暂无好友',
             subtitle: '去发现页面添加好友吧',
           );
         }
 
-        final friendUids = snapshot.data!;
-
         return ListView.separated(
           padding: const EdgeInsets.symmetric(vertical: 8),
-          itemCount: friendUids.length,
+          itemCount: friendIds.length,
           separatorBuilder: (_, _) =>
               Divider(height: 1, indent: 76, color: Colors.grey.shade100),
           itemBuilder: (context, index) {
-            final friendUid = friendUids[index];
+            final friendId = friendIds[index];
 
-            return FutureBuilder<Map<String, dynamic>>(
-              future: _getUserInfo(friendUid),
+            return FutureBuilder<UserModel?>(
+              future: _getUser(friendId),
               builder: (context, userSnapshot) {
-                if (!userSnapshot.hasData) return _buildSkeletonTile();
+                if (userSnapshot.connectionState != ConnectionState.done) {
+                  return _buildSkeletonTile();
+                }
 
-                final userData = userSnapshot.data!;
-                final name = userData['username'] ?? '未知用户';
-                final email = userData['email'] ?? '';
-                final avatar = userData['avatar'] ?? '';
+                final user = userSnapshot.data;
+                final displayName = _displayNameOf(user);
+                final email = user?.email ?? '';
+                final avatarUrl = user?.avatarUrl ?? '';
 
                 return InkWell(
-                  onTap: () => _showUserProfile(friendUid, name, avatar),
+                  onTap: () => _showUserProfile(friendId),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -586,8 +559,8 @@ class _ChatListScreenState extends State<ChatListScreen>
                     child: Row(
                       children: [
                         UserAvatar(
-                          imageUrl: avatar,
-                          displayName: name,
+                          imageUrl: avatarUrl,
+                          displayName: displayName,
                           radius: 24,
                         ),
                         const SizedBox(width: 14),
@@ -596,7 +569,9 @@ class _ChatListScreenState extends State<ChatListScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                name,
+                                displayName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
@@ -605,6 +580,8 @@ class _ChatListScreenState extends State<ChatListScreen>
                               if (email.isNotEmpty)
                                 Text(
                                   email,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey.shade500,
@@ -620,23 +597,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                           ),
                           color: Theme.of(context).primaryColor,
                           splashRadius: 24,
-                          onPressed: () async {
-                            final chatProvider = this.context
-                                .read<chat_prov.ChatProvider>();
-
-                            final chatId = await chatProvider.getOrCreateChat(
-                              friendUid,
-                            );
-
-                            if (!mounted) {
-                              return;
-                            }
-
-                            this.context.push(
-                              AppRoutes.chatLocation(chatId: chatId),
-                              extra: name,
-                            );
-                          },
+                          onPressed: () => _openChat(friendId, displayName),
                         ),
                       ],
                     ),

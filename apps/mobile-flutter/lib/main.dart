@@ -13,6 +13,8 @@ import 'app/router/app_routes.dart';
 import 'core/services/deep_link_service.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import 'features/auth/presentation/cubit/auth_state.dart';
+import 'features/chat/application/ports/chat_media_repository.dart';
+import 'features/chat/domain/repositories/chat_repository.dart';
 import 'features/chat/presentation/providers/chat_provider.dart' as chat_prov;
 import 'features/discover/presentation/providers/discover_provider.dart'
     as discover_prov;
@@ -55,6 +57,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<ChatRepository>.value(value: dependencies.chatRepository),
+        Provider<ChatMediaRepository>.value(
+          value: dependencies.chatMediaRepository,
+        ),
         Provider<PostRepository>.value(value: dependencies.postRepository),
         Provider<PostMediaRepository>.value(
           value: dependencies.postMediaRepository,
@@ -70,7 +76,12 @@ class MyApp extends StatelessWidget {
         BlocProvider<auth_cubit.AuthCubit>(
           create: (_) => auth_cubit.AuthCubit()..loadUser(),
         ),
-        ChangeNotifierProvider(create: (_) => chat_prov.ChatProvider()),
+        ChangeNotifierProvider(
+          create: (context) => chat_prov.ChatProvider(
+            repository: context.read<ChatRepository>(),
+            mediaRepository: context.read<ChatMediaRepository>(),
+          ),
+        ),
         ChangeNotifierProvider(
           create: (context) => friend_prov.FriendProvider(
             repository: context.read<FriendRepository>(),
