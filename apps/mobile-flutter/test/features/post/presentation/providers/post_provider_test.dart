@@ -7,52 +7,56 @@ import 'package:glyphora_mobile/features/post/domain/models/post_edit_history_en
 import 'package:glyphora_mobile/features/post/domain/models/post_language_version.dart';
 import 'package:glyphora_mobile/features/post/domain/models/post_model.dart';
 import 'package:glyphora_mobile/features/post/domain/repositories/post_repository.dart';
-import 'package:glyphora_mobile/features/post/presentation/providers/post_provider.dart';
+import 'package:glyphora_mobile/features/post/presentation/cubit/post_cubit.dart';
 
 void main() {
-  group('PostProvider', () {
+  group('PostCubit', () {
     late _FakePostRepository repository;
     late _FakePostMediaRepository mediaRepository;
-    late PostProvider provider;
+    late PostCubit cubit;
 
     setUp(() {
       repository = _FakePostRepository();
       mediaRepository = _FakePostMediaRepository();
-      provider = PostProvider(
+      cubit = PostCubit(
         repository: repository,
         mediaRepository: mediaRepository,
       );
     });
 
+    tearDown(() async {
+      await cubit.close();
+    });
+
     test(
       'rolls back optimistic bookmark state when persistence fails',
       () async {
-        provider.seedBookmarkState('post-1', false);
+        cubit.seedBookmarkState('post-1', false);
         repository.bookmarkError = StateError('failed');
 
         await expectLater(
-          provider.toggleBookmark('post-1', bookmarked: true),
+          cubit.toggleBookmark('post-1', bookmarked: true),
           throwsA(isA<StateError>()),
         );
 
-        expect(provider.bookmarkState('post-1', fallback: true), isFalse);
+        expect(cubit.bookmarkState('post-1', fallback: true), isFalse);
       },
     );
 
     test('uses the bookmark state confirmed by the repository', () async {
-      provider.seedBookmarkState('post-1', false);
+      cubit.seedBookmarkState('post-1', false);
       repository.bookmarkResult = false;
 
-      final result = await provider.toggleBookmark('post-1', bookmarked: true);
+      final result = await cubit.toggleBookmark('post-1', bookmarked: true);
 
       expect(result, isFalse);
-      expect(provider.bookmarkState('post-1', fallback: true), isFalse);
+      expect(cubit.bookmarkState('post-1', fallback: true), isFalse);
     });
 
     test('maps plugin files to framework-neutral media requests', () async {
       final source = XFile('/tmp/example.png');
 
-      final urls = await provider.uploadImages('post-1', [source]);
+      final urls = await cubit.uploadImages('post-1', [source]);
 
       expect(urls, ['https://example.test/image.png']);
       expect(mediaRepository.lastPostId, 'post-1');
@@ -62,7 +66,7 @@ void main() {
     });
 
     test('delegates storage deletion to the media repository', () async {
-      await provider.deleteImageFromStorage('https://example.test/image.png');
+      await cubit.deleteImageFromStorage('https://example.test/image.png');
 
       expect(
         mediaRepository.lastDeletedImageUrl,
