@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 import 'node_comment_screen.dart';
-import '../providers/post_provider.dart' as post_prov;
+import '../cubit/post_cubit.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../../../core/widgets/user_name_display.dart';
 import '../../../../core/widgets/loading_indicator.dart';
@@ -193,7 +193,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     _images = List<String>.from(_post.imageUrls ?? []);
     _isLiked = _currentUserId != null && _likes.contains(_currentUserId);
 
-    final postProvider = context.read<post_prov.PostProvider>();
+    final postProvider = context.read<PostCubit>();
 
     postProvider.seedBookmarkState(_post.id, _post.isBookmarked);
 
@@ -348,7 +348,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     });
 
     try {
-      final postProvider = context.read<post_prov.PostProvider>();
+      final postProvider = context.read<PostCubit>();
 
       final confirmedLikeCount = await postProvider.toggleLike(
         widget.postId,
@@ -388,7 +388,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       return;
     }
 
-    final postProvider = context.read<post_prov.PostProvider>();
+    final postProvider = context.read<PostCubit>();
 
     final previousBookmarked = postProvider.bookmarkState(
       widget.postId,
@@ -788,7 +788,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     if (confirm != true || !mounted) return;
 
     try {
-      final postProvider = context.read<post_prov.PostProvider>();
+      final postProvider = context.read<PostCubit>();
       await postProvider.deletePost(widget.postId);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -836,7 +836,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     setState(() => _isUploadingImage = true);
 
     try {
-      final postProvider = context.read<post_prov.PostProvider>();
+      final postProvider = context.read<PostCubit>();
       final newUrls = await postProvider.uploadImages(widget.postId, picked);
 
       if (mounted) {
@@ -890,7 +890,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         if (_currentIndex >= _images.length) _currentIndex = 0;
       });
 
-      final postProvider = context.read<post_prov.PostProvider>();
+      final postProvider = context.read<PostCubit>();
       await postProvider.removeImage(widget.postId, _images);
       await postProvider.deleteImageFromStorage(targetUrl);
       _post = _post.copyWith(imageUrls: _images);
@@ -914,7 +914,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       _currentIndex = newIndex;
     });
     try {
-      final postProvider = context.read<post_prov.PostProvider>();
+      final postProvider = context.read<PostCubit>();
       await postProvider.updateImages(widget.postId, _images);
       _post = _post.copyWith(imageUrls: _images);
     } catch (e) {
@@ -1628,7 +1628,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   // ============================================================
   Widget _buildBottomBar() {
     final globalBookmarked = context
-        .watch<post_prov.PostProvider>()
+        .watch<PostCubit>()
         .bookmarkState(widget.postId, fallback: _isBookmarked);
 
     return Container(
