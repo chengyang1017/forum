@@ -70,13 +70,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       // ✅ 使用别名调用
-      final authProvider = context.read<auth_cubit.AuthCubit>();
-      await authProvider.login(email, password);
+      final authCubit = context.read<auth_cubit.AuthCubit>();
+      await authCubit.login(email, password);
 
       // 登录完成后同步 Node 用户，并加载当前账号 interests。
-      await authProvider.loadUser();
+      await authCubit.loadUser();
 
-      final user = authProvider.user;
+      final user = authCubit.user;
       if (user != null) {
         await _saveAccount(user);
       }
