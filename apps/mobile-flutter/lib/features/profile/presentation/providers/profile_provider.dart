@@ -7,9 +7,13 @@ import '../../../post/domain/models/post_model.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../auth/data/services/user_api.dart';
-import '../../../post/data/services/post_node_service.dart';
+import '../../../post/domain/repositories/post_repository.dart';
 
 class ProfileProvider extends ChangeNotifier {
+  ProfileProvider({required PostRepository postRepository})
+    : _postRepository = postRepository;
+
+  final PostRepository _postRepository;
   final StorageService _storageService = StorageService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final UserApi _userApi = UserApi();
@@ -29,7 +33,6 @@ class ProfileProvider extends ChangeNotifier {
   DateTime? get birthday => _userProfile.birthday;
   bool get showAge => _userProfile.showAge;
   String get displayName => _userProfile.profileDisplayName;
-  final PostService _postService = PostService();
   // Future<void> loadProfile(String uid) async {
   //   loadingProfile = true;
   //   notifyListeners();
@@ -210,7 +213,7 @@ class ProfileProvider extends ChangeNotifier {
   // }
 
   Stream<List<PostModel>> watchUserPosts(String uid) {
-    return _postService.watchUserPosts(uid);
+    return _postRepository.watchUserPosts(uid);
   }
 
   int totalLikesOf(List<PostModel> posts) {

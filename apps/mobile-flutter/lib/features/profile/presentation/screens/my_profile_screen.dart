@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../post/domain/models/post_model.dart';
+import '../../../post/domain/repositories/post_repository.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/birthday_editor_dialog.dart';
 import '../widgets/language_editor_sheet.dart';
@@ -127,7 +128,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _profileProvider = ProfileProvider();
+    _profileProvider = ProfileProvider(
+      postRepository: context.read<PostRepository>(),
+    );
     loadProfile();
   }
 
