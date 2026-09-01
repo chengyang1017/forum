@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../app/router/app_routes.dart';
-import '../../data/services/post_node_service.dart';
 import '../../domain/models/post_model.dart';
+import '../../domain/repositories/post_repository.dart';
 import '../widgets/post_item_card.dart';
 
 class BookmarkedPostsScreen extends StatefulWidget {
@@ -14,15 +15,23 @@ class BookmarkedPostsScreen extends StatefulWidget {
 }
 
 class _BookmarkedPostsScreenState extends State<BookmarkedPostsScreen> {
-  final PostService _postService = PostService();
+  late PostRepository _repository;
+  bool _dependenciesReady = false;
 
   List<PostModel> _posts = const [];
   bool _loading = true;
   Object? _error;
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (_dependenciesReady) {
+      return;
+    }
+
+    _repository = context.read<PostRepository>();
+    _dependenciesReady = true;
     _loadBookmarks();
   }
 
@@ -35,7 +44,7 @@ class _BookmarkedPostsScreenState extends State<BookmarkedPostsScreen> {
     }
 
     try {
-      final posts = await _postService.getBookmarkedPosts();
+      final posts = await _repository.getBookmarkedPosts();
 
       if (!mounted) {
         return;
@@ -67,8 +76,7 @@ class _BookmarkedPostsScreenState extends State<BookmarkedPostsScreen> {
       return;
     }
 
-    // 从详情页返回时重新读取。
-    // 如果刚刚取消收藏，这里会立刻从列表消失。
+    // Returning from details may have changed bookmark state.
     await _loadBookmarks();
   }
 
@@ -118,9 +126,7 @@ class _BookmarkedPostsScreenState extends State<BookmarkedPostsScreen> {
             _BookmarksMessage(
               icon: Icons.bookmark_border_rounded,
               title: '还没有收藏',
-              description:
-                  '在帖子详情页点击收藏后，'
-                  '会出现在这里。',
+              description: '在帖子详情页点击收藏后，会出现在这里。',
             ),
           ],
         ),

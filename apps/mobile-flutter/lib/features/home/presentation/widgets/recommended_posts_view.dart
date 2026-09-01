@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
-import '../../../post/data/services/post_node_service.dart';
 import '../../../post/domain/models/post_model.dart';
+import '../../../post/domain/repositories/post_repository.dart';
 import '../../../post/presentation/widgets/post_item_card.dart';
 
 class RecommendedPostsView extends StatelessWidget {
@@ -99,10 +99,8 @@ class _InterestedPostListState extends State<_InterestedPostList> {
   }
 
   Future<List<PostModel>> _loadPosts() async {
-    final service = PostService();
-
+    final repository = context.read<PostRepository>();
     final orderedInterests = widget.interests.toList()..sort();
-
     final requests = <Future<List<PostModel>>>[];
 
     for (final interest in orderedInterests) {
@@ -113,7 +111,6 @@ class _InterestedPostListState extends State<_InterestedPostList> {
       }
 
       final languageCode = interest.substring(0, separatorIndex).trim();
-
       final category = interest.substring(separatorIndex + 2).trim();
 
       if (languageCode.isEmpty || category.isEmpty) {
@@ -121,7 +118,7 @@ class _InterestedPostListState extends State<_InterestedPostList> {
       }
 
       requests.add(
-        service.getPosts(category: category, languageCode: languageCode),
+        repository.getPosts(category: category, languageCode: languageCode),
       );
     }
 
@@ -130,7 +127,6 @@ class _InterestedPostListState extends State<_InterestedPostList> {
     }
 
     final batches = await Future.wait(requests);
-
     final byPostId = <String, PostModel>{};
 
     for (final batch in batches) {
@@ -143,7 +139,6 @@ class _InterestedPostListState extends State<_InterestedPostList> {
 
     posts.sort((a, b) {
       final aTime = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-
       final bTime = b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
 
       return bTime.compareTo(aTime);

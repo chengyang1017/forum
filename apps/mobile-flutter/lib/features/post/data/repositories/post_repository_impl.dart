@@ -1,3 +1,4 @@
+import '../../domain/models/post_edit_history_entry.dart';
 import '../../domain/models/post_model.dart';
 import '../../domain/repositories/post_repository.dart';
 import '../services/post_node_service.dart';
@@ -18,6 +19,19 @@ final class PostRepositoryImpl implements PostRepository {
     required String languageCode,
   }) {
     return _service.watchPosts(category: category, languageCode: languageCode);
+  }
+
+  @override
+  Stream<List<PostModel>> watchUserPosts(String userId) {
+    return _service.watchUserPosts(userId);
+  }
+
+  @override
+  Future<List<PostModel>> getPosts({
+    required String category,
+    required String languageCode,
+  }) {
+    return _service.getPosts(category: category, languageCode: languageCode);
   }
 
   @override
@@ -55,6 +69,20 @@ final class PostRepositoryImpl implements PostRepository {
   @override
   Future<bool> toggleBookmark(String postId, {required bool bookmarked}) {
     return _service.toggleBookmark(postId, bookmarked: bookmarked);
+  }
+
+  @override
+  Future<List<PostModel>> getBookmarkedPosts() {
+    return _service.getBookmarkedPosts();
+  }
+
+  @override
+  Future<List<PostEditHistoryEntry>> getEditHistory(String postId) async {
+    final history = await _service.getEditHistory(postId);
+
+    return history
+        .map(PostEditHistoryEntry.fromJson)
+        .toList(growable: false);
   }
 
   @override

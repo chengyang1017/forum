@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
+import 'package:provider/provider.dart';
 
-import '../../data/services/post_node_service.dart';
+import '../../domain/models/post_edit_history_entry.dart';
+import '../../domain/repositories/post_repository.dart';
 
 class PostEditHistoryScreen extends StatefulWidget {
   final String postId;
@@ -14,18 +16,25 @@ class PostEditHistoryScreen extends StatefulWidget {
 }
 
 class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
-  final PostService _service = PostService();
-
-  late Future<List<Map<String, dynamic>>> _historyFuture;
+  late PostRepository _repository;
+  late Future<List<PostEditHistoryEntry>> _historyFuture;
+  bool _dependenciesReady = false;
 
   @override
-  void initState() {
-    super.initState();
-    _historyFuture = _service.getEditHistory(widget.postId);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (_dependenciesReady) {
+      return;
+    }
+
+    _repository = context.read<PostRepository>();
+    _historyFuture = _repository.getEditHistory(widget.postId);
+    _dependenciesReady = true;
   }
 
   Future<void> _reload() async {
-    final future = _service.getEditHistory(widget.postId);
+    final future = _repository.getEditHistory(widget.postId);
 
     setState(() {
       _historyFuture = future;
@@ -34,21 +43,7 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
     await future;
   }
 
-  DateTime? _toDateTime(Object? value) {
-    if (value is DateTime) {
-      return value;
-    }
-
-    if (value is String) {
-      return DateTime.tryParse(value);
-    }
-
-    return null;
-  }
-
-  String _formatTime(Object? value) {
-    final time = _toDateTime(value);
-
+  String _formatTime(DateTime? time) {
     if (time == null) {
       return '时间未知';
     }
@@ -65,7 +60,7 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('编辑历史')),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<PostEditHistoryEntry>>(
         future: _historyFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -76,7 +71,7 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
             return Center(child: Text('加载失败：${snapshot.error}'));
           }
 
-          final history = snapshot.data ?? const <Map<String, dynamic>>[];
+          final history = snapshot.data ?? const <PostEditHistoryEntry>[];
 
           if (history.isEmpty) {
             return const Center(child: Text('暂无编辑历史'));
@@ -89,18 +84,20 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
               itemCount: history.length,
               separatorBuilder: (_, _) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                final data = history[index];
-                final languageCode = data['languageCode']?.toString() ?? '';
-                final title = data['title']?.toString() ?? '';
+                final entry = history[index];
 
                 return ListTile(
                   leading: const Icon(Icons.history_rounded),
-                  title: Text(_formatTime(data['editedAt'])),
+                  title: Text(_formatTime(entry.editedAt)),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (title.isNotEmpty) Text(title),
-                      Text(languageCode.isEmpty ? '语言未知' : '语言：$languageCode'),
+                      if (entry.title.isNotEmpty) Text(entry.title),
+                      Text(
+                        entry.languageCode.isEmpty
+                            ? '语言未知'
+                            : '语言：${entry.languageCode}',
+                      ),
                     ],
                   ),
                   trailing: const Icon(Icons.chevron_right),
@@ -108,7 +105,7 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => _PostHistoryDetailScreen(data: data),
+                        builder: (_) => _PostHistoryDetailScreen(entry: entry),
                       ),
                     );
                   },
@@ -123,9 +120,9 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
 }
 
 class _PostHistoryDetailScreen extends StatefulWidget {
-  final Map<String, dynamic> data;
+  final PostEditHistoryEntry entry;
 
-  const _PostHistoryDetailScreen({required this.data});
+  const _PostHistoryDetailScreen({required this.entry});
 
   @override
   State<_PostHistoryDetailScreen> createState() =>
@@ -139,16 +136,10 @@ class _PostHistoryDetailScreenState extends State<_PostHistoryDetailScreen> {
   void initState() {
     super.initState();
 
-    final bodyDelta =
-        (widget.data['bodyDelta'] as List<dynamic>?)?.toList() ??
-        const <dynamic>[];
-
-    final content = widget.data['content']?.toString() ?? '';
-
-    final document = bodyDelta.isNotEmpty
-        ? quill.Document.fromJson(bodyDelta)
+    final document = widget.entry.bodyDelta.isNotEmpty
+        ? quill.Document.fromJson(widget.entry.bodyDelta)
         : quill.Document.fromJson([
-            {'insert': '$content\n'},
+            {'insert': '${widget.entry.content}\n'},
           ]);
 
     _controller = quill.QuillController(
@@ -166,13 +157,7 @@ class _PostHistoryDetailScreenState extends State<_PostHistoryDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.data['title']?.toString() ?? '';
-
-    final images =
-        (widget.data['imageUrls'] as List<dynamic>?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        const <String>[];
+    final entry = widget.entry;
 
     return Scaffold(
       appBar: AppBar(title: const Text('历史版本')),
@@ -181,9 +166,9 @@ class _PostHistoryDetailScreenState extends State<_PostHistoryDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (title.isNotEmpty) ...[
+            if (entry.title.isNotEmpty) ...[
               Text(
-                title,
+                entry.title,
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -191,18 +176,18 @@ class _PostHistoryDetailScreenState extends State<_PostHistoryDetailScreen> {
               ),
               const SizedBox(height: 16),
             ],
-            if (images.isNotEmpty)
+            if (entry.imageUrls.isNotEmpty)
               SizedBox(
                 height: 180,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: images.length,
+                  itemCount: entry.imageUrls.length,
                   separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        images[index],
+                        entry.imageUrls[index],
                         width: 150,
                         height: 180,
                         fit: BoxFit.cover,
@@ -211,7 +196,7 @@ class _PostHistoryDetailScreenState extends State<_PostHistoryDetailScreen> {
                   },
                 ),
               ),
-            if (images.isNotEmpty) const SizedBox(height: 20),
+            if (entry.imageUrls.isNotEmpty) const SizedBox(height: 20),
             quill.QuillEditor.basic(
               controller: _controller,
               config: quill.QuillEditorConfig(
