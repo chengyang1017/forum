@@ -41,7 +41,7 @@
 - `UploadedNoteImage`：非獨立 domain model；保存 image metadata。
 - `LiveDraft`：`userId`, `text`, `updatedAt`（epoch milliseconds）。
 
-## Repository / Provider / Service 職責
+## Repository / Cubit / Service 職責
 
 | 層 | 類別 | 職責/注意事項 |
 |---|---|---|
@@ -50,14 +50,14 @@
 | repository | `PostRepository` | Post domain contract；具體 Firebase/Node 存取由 data adapter 處理 |
 | repository | `ChatRepository` | typed chat contract；聊天室、訊息、未讀、詞彙訊息、member settings；Firebase snapshot/timestamp 不越過此 boundary |
 | repository | `LiveDraftRepository` | realtime draft contract；prepare/watch/update/clear，不暴露 Firebase Database 型別 |
-| repository | `FriendRepository` | 好友關係 contract；presentation/provider 依賴抽象 |
-| provider | `AuthCubit` | auth/user/interests UI state；只依賴 `AuthRepository` 與 `UserBackendRepository` |
-| provider | `FeedProvider` | feed loading/error 與帖子 stream |
-| provider | `PostProvider` | 單篇 edit/like/delete/image 等 UI 狀態 |
-| provider | `ChatProvider` | chat UI state 與 orchestration；透過 `ChatRepository` / `ChatMediaRepository` 工作 |
-| provider | `FriendProvider` | 好友 UID stream/首次 load |
-| provider | `DiscoverProvider` | discover loading/error；聊天與好友 mutation 委派給各自 repository |
-| provider | `ProfileProvider` | profile UI 狀態；逐步改由 repository/media port 提供資料 |
+| repository | `FriendRepository` | 好友關係 contract；presentation state 依賴抽象 |
+| cubit | `AuthCubit` | auth/user/interests UI state；只依賴 `AuthRepository` 與 `UserBackendRepository` |
+| cubit | `FeedCubit` | feed loading/error 與帖子 stream |
+| cubit | `PostCubit` | 單篇 edit/like/bookmark/delete/image 等 UI state 與 orchestration |
+| cubit | `ChatCubit` | chat UI state 與 orchestration；透過 `ChatRepository` / `ChatMediaRepository` 工作；舊 `ChatProvider` 目前僅為 deprecated compatibility alias |
+| cubit | `FriendCubit` | 好友 UID、首次 load 與 friend stream |
+| cubit | `DiscoverCubit` | discover loading/error；聊天與好友 mutation 委派給各自 repository |
+| cubit | `ProfileCubit` | profile UI state；透過 repository/media port 提供資料 |
 | data | `FirebaseAuthRepository` | Firebase Auth/Firestore adapter；ban 檢查、user doc、密碼/密保與 legacy interests |
 | data | `UserApi` | `UserBackendRepository` 的 HTTP adapter，連接 Node/PostgreSQL `/users` API |
 | data | `UserModelMapper` | 把 Firestore Timestamp/API map 轉成純 `UserModel`，並建立 Firestore update map |
