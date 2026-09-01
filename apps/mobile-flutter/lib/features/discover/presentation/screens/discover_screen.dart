@@ -28,8 +28,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   void _loadCurrentUser() {
-    final authProvider = context.read<auth_cubit.AuthCubit>();
-    final user = authProvider.user;
+    final authCubit = context.read<auth_cubit.AuthCubit>();
+    final user = authCubit.user;
     if (user != null) {
       _currentUserId = user.id;
     }
