@@ -12,7 +12,7 @@ import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../../profile/domain/repositories/profile_repository.dart';
 import '../../../social/domain/repositories/friend_repository.dart';
 import '../../domain/models/chat_thread.dart';
-import '../providers/chat_provider.dart' as chat_prov;
+import '../cubit/chat_cubit.dart';
 
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
@@ -257,8 +257,8 @@ class _ChatListScreenState extends State<ChatListScreen>
 
   Future<void> _openChat(String otherUserId, String displayName) async {
     try {
-      final chatProvider = context.read<chat_prov.ChatProvider>();
-      final chatId = await chatProvider.getOrCreateChat(otherUserId);
+      final chatCubit = context.read<ChatCubit>();
+      final chatId = await chatCubit.getOrCreateChat(otherUserId);
       if (!mounted) return;
 
       context.push(AppRoutes.chatLocation(chatId: chatId), extra: displayName);
@@ -373,11 +373,11 @@ class _ChatListScreenState extends State<ChatListScreen>
   }
 
   Widget _buildChatList(String currentUserId) {
-    final chatProvider = context.watch<chat_prov.ChatProvider>();
+    final chatCubit = context.watch<ChatCubit>();
     final l10n = AppLocalizations.of(context)!;
 
     return StreamBuilder<List<ChatThread>>(
-      stream: chatProvider.watchChats(currentUserId),
+      stream: chatCubit.watchChats(currentUserId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: LoadingIndicator());
@@ -403,7 +403,7 @@ class _ChatListScreenState extends State<ChatListScreen>
           itemBuilder: (context, index) {
             final chat = chats[index];
             final otherUserId = chat.otherParticipantId(currentUserId);
-            final unreadCount = chatProvider.getUnreadCount(
+            final unreadCount = chatCubit.getUnreadCount(
               chat,
               currentUserId,
             );
@@ -422,7 +422,7 @@ class _ChatListScreenState extends State<ChatListScreen>
 
                 return InkWell(
                   onTap: () {
-                    chatProvider.markAsRead(chat.id, currentUserId);
+                    chatCubit.markAsRead(chat.id, currentUserId);
                     context.push(
                       AppRoutes.chatLocation(chatId: chat.id),
                       extra: displayName,
