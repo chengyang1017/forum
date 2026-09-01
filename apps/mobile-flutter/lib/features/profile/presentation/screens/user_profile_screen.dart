@@ -14,7 +14,7 @@ import '../../../../app/router/app_routes.dart';
 import '../widgets/profile_post_sliver_list.dart';
 import '../widgets/profile_language_section.dart';
 import '../../../auth/data/services/user_api.dart';
-import '../../../post/data/services/post_node_service.dart';
+import '../../../post/domain/repositories/post_repository.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final String uid;
@@ -29,7 +29,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   final FriendService friendService = FriendService();
   final ChatService chatService = ChatService();
   final UserApi _userApi = UserApi();
-  final PostService _postService = PostService();
+  late final PostRepository _postRepository;
   String? _currentUserId;
   UserModel? _userProfile;
 
@@ -40,6 +40,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _postRepository = context.read<PostRepository>();
     _loadCurrentUser();
     _loadPageData();
   }
@@ -330,7 +331,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Stream<List<PostModel>> _watchUserPosts() {
-    return _postService.watchUserPosts(widget.uid);
+    return _postRepository.watchUserPosts(widget.uid);
   }
 
   int _totalLikesOf(List<PostModel> posts) {
