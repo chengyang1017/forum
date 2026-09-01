@@ -21,8 +21,7 @@ import 'features/chat/domain/repositories/chat_repository.dart';
 import 'features/chat/domain/repositories/live_draft_repository.dart';
 import 'features/chat/presentation/cubit/chat_cubit.dart';
 import 'features/discover/domain/repositories/discover_repository.dart';
-import 'features/discover/presentation/providers/discover_provider.dart'
-    as discover_prov;
+import 'features/discover/presentation/cubit/discover_cubit.dart';
 import 'features/feed/presentation/cubit/feed_cubit.dart';
 import 'features/notes/application/ports/note_media_repository.dart';
 import 'features/notes/domain/repositories/note_repository.dart';
@@ -113,8 +112,8 @@ class MyApp extends StatelessWidget {
             repository: context.read<FriendRepository>(),
           ),
         ),
-        ChangeNotifierProvider(
-          create: (context) => discover_prov.DiscoverProvider(
+        BlocProvider<DiscoverCubit>(
+          create: (context) => DiscoverCubit(
             repository: context.read<DiscoverRepository>(),
             chatRepository: context.read<ChatRepository>(),
             friendRepository: context.read<FriendRepository>(),
