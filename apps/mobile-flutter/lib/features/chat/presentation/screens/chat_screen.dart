@@ -12,8 +12,8 @@ import '../widgets/emoji_picker.dart';
 import '../widgets/chat_input_bar.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../data/services/live_draft_service.dart';
 import '../../domain/models/live_draft.dart';
+import '../../domain/repositories/live_draft_repository.dart';
 import '../../domain/models/chat_message.dart';
 import '../../../profile/domain/repositories/profile_repository.dart';
 import '../../../auth/domain/models/user_model.dart';
@@ -195,7 +195,7 @@ class _ChatScreenState extends State<ChatScreen> {
   String? _currentUserId;
   String? _otherUid;
 
-  late final LiveDraftService _liveDraftService;
+  late final LiveDraftRepository _liveDraftRepository;
   Stream<List<LiveDraft>>? _draftsStream;
 
   bool _shareMyLiveDraft = false;
@@ -524,7 +524,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   // 关闭时先删除实时内容。
                   // 不要等待 Firestore 设置保存完成。
                   if (!value) {
-                    await _liveDraftService.clearDraft(
+                    await _liveDraftRepository.clearDraft(
                       chatId: widget.chatId,
                       userId: userId,
                     );
@@ -568,7 +568,7 @@ class _ChatScreenState extends State<ChatScreen> {
     //   vsync: this,
     // );
 
-    _liveDraftService = LiveDraftService();
+    _liveDraftRepository = context.read<LiveDraftRepository>();
 
     _messageController.addListener(_onMessageChanged);
 
@@ -594,7 +594,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
 
       if (!enabled) {
-        await _liveDraftService.clearDraft(
+        await _liveDraftRepository.clearDraft(
           chatId: widget.chatId,
           userId: userId,
         );
@@ -633,7 +633,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // 先建立监听。即使断线清理注册失败，
     // 也不能影响实时预览。
-    final draftsStream = _liveDraftService.watchChatDrafts(
+    final draftsStream = _liveDraftRepository.watchDrafts(
       chatId: widget.chatId,
       currentUserId: currentUserId,
     );
@@ -646,7 +646,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // 单独处理断线清理错误。
     try {
-      await _liveDraftService.prepare(
+      await _liveDraftRepository.prepare(
         chatId: widget.chatId,
         userId: currentUserId,
       );
@@ -674,11 +674,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (userId != null) {
       unawaited(
-        _liveDraftService.clearDraft(chatId: widget.chatId, userId: userId),
+        _liveDraftRepository.clearDraft(chatId: widget.chatId, userId: userId),
       );
     }
 
-    _liveDraftService.dispose();
     _messageController.dispose();
     //_tabController.dispose();
 
@@ -699,7 +698,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final text = _messageController.text;
 
-    _liveDraftService.updateDraft(
+    _liveDraftRepository.updateDraft(
       chatId: widget.chatId,
       userId: userId,
       text: text,
