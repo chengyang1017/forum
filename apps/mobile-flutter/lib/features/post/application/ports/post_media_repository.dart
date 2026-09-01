@@ -14,10 +14,7 @@ abstract interface class PostMediaRepository {
     PostUploadProgress? onProgress,
   });
 
-  Future<String> uploadInlineImage(
-    String postId,
-    LocalPostImage image,
-  );
+  Future<String> uploadInlineImage(String postId, LocalPostImage image);
 
   Future<String> copyInlineImageToPost(
     String postId,
