@@ -140,11 +140,7 @@ final class PostRepositoryImpl implements PostRepository {
     required String reason,
     String? details,
   }) async {
-    await _service.reportPost(
-      postId: postId,
-      reason: reason,
-      details: details,
-    );
+    await _service.reportPost(postId: postId, reason: reason, details: details);
   }
 
   @override
