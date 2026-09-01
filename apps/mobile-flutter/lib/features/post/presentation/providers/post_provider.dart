@@ -10,8 +10,9 @@ class PostProvider extends ChangeNotifier {
   PostProvider({
     required PostRepository repository,
     required PostMediaRepository mediaRepository,
-  }) : _repository = repository,
-       _mediaRepository = mediaRepository;
+  }) : this._(repository, mediaRepository);
+
+  PostProvider._(this._repository, this._mediaRepository);
 
   final PostRepository _repository;
   final PostMediaRepository _mediaRepository;

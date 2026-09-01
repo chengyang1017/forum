@@ -4,7 +4,9 @@ import '../../../post/domain/models/post_model.dart';
 import '../../../post/domain/repositories/post_repository.dart';
 
 class FeedProvider extends ChangeNotifier {
-  FeedProvider({required PostRepository repository}) : _repository = repository;
+  FeedProvider({required PostRepository repository}) : this._(repository);
+
+  FeedProvider._(this._repository);
 
   final PostRepository _repository;
 

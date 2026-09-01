@@ -23,7 +23,7 @@ final class FirebasePostMediaRepository implements PostMediaRepository {
     for (var index = 0; index < images.length; index++) {
       final image = images[index];
       final objectName =
-          '${DateTime.now().microsecondsSinceEpoch}_$index_${_safeName(image.name)}';
+          '${DateTime.now().microsecondsSinceEpoch}_${index}_${_safeName(image.name)}';
       final ref = _storage.ref().child('posts/$postId/$objectName');
 
       await ref.putFile(File(image.path));
