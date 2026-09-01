@@ -2,6 +2,8 @@ import '../models/user_model.dart';
 
 /// Domain boundary for the server-backed user/profile API.
 abstract interface class UserBackendRepository {
+  Future<bool> isUsernameAvailable(String username);
+
   Future<void> syncCurrentUser(UserModel user);
 
   Future<UserModel?> getCurrentUser();

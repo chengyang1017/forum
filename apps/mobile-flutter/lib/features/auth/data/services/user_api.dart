@@ -9,6 +9,16 @@ class UserApi implements UserBackendRepository {
   final ApiClient _client;
 
   @override
+  Future<bool> isUsernameAvailable(String username) async {
+    final response = await _client.get(
+      '/users/username-availability',
+      queryParameters: {'username': username.trim()},
+    );
+
+    return response['available'] == true;
+  }
+
+  @override
   Future<void> syncCurrentUser(UserModel user) async {
     await _client.put('/users/me', {
       'username': user.username,

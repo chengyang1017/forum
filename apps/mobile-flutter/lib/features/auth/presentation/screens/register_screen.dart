@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
@@ -41,28 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
-      // 检查用户名是否已被使用
-      final usernameQuery = await FirebaseFirestore.instance
-          .collection('users')
-          .where('username', isEqualTo: username)
-          .get();
-
-      if (!mounted) return;
-
-      if (usernameQuery.docs.isNotEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('该用户名已被使用，请换一个'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      // ✅ 使用别名调用
+      // Username uniqueness is checked by AuthCubit against PostgreSQL.
       final authProvider = context.read<auth_cubit.AuthCubit>();
       await authProvider.register(email, password, username);
 
