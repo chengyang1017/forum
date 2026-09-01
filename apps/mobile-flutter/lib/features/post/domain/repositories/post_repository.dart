@@ -1,11 +1,9 @@
-import 'package:image_picker/image_picker.dart';
-
 import '../models/post_model.dart';
 
-/// Domain boundary for post operations used by the Flutter client.
+/// Domain boundary for post business operations used by the Flutter client.
 ///
-/// Presentation code depends on this contract instead of constructing data
-/// services directly. The concrete implementation lives in the data layer.
+/// Framework and infrastructure types must not leak through this contract.
+/// Media upload concerns live behind a separate application port.
 abstract interface class PostRepository {
   Stream<List<PostModel>> watchPosts({
     required String category,
@@ -29,11 +27,5 @@ abstract interface class PostRepository {
 
   Future<void> deletePost(String postId);
 
-  Future<List<String>> uploadImages(String postId, List<XFile> images);
-
   Future<void> updateImages(String postId, List<String> imageUrls);
-
-  Future<void> deleteImageFromStorage(String imageUrl);
-
-  Future<void> removeImage(String postId, List<String> imageUrls);
 }

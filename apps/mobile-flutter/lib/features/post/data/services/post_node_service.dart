@@ -1,18 +1,16 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../domain/models/post_model.dart';
 import 'post_api.dart';
 
 /// Node/PostgreSQL-backed post service.
 ///
-/// Firebase Auth remains the identity provider and Firebase Storage still
-/// stores image files. Post metadata and post business data are read/written
-/// through the Node API only.
+/// Firebase Auth remains the identity provider and Firebase Storage is used
+/// only for cleanup that is part of deleting a post. New media uploads are
+/// handled by the dedicated post-media adapter.
 class PostService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -198,34 +196,8 @@ class PostService {
     }
   }
 
-  Future<List<String>> uploadImages(String postId, List<XFile> images) async {
-    final urls = <String>[];
-
-    for (final file in images) {
-      final ref = _storage.ref().child(
-        'posts/$postId/'
-        '${DateTime.now().millisecondsSinceEpoch}_${file.name}',
-      );
-
-      await ref.putFile(File(file.path));
-      urls.add(await ref.getDownloadURL());
-    }
-
-    return urls;
-  }
-
   Future<void> updateImages(String postId, List<String> imageUrls) async {
     await _postApi.updateImages(postId: postId, images: imageUrls);
-  }
-
-  Future<void> deleteImageFromStorage(String imageUrl) async {
-    try {
-      await _storage.refFromURL(imageUrl).delete();
-    } catch (_) {}
-  }
-
-  Future<void> removeImage(String postId, List<String> imageUrls) {
-    return updateImages(postId, imageUrls);
   }
 
   Future<void> updateLanguageVersionContent({
