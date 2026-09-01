@@ -30,8 +30,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final authProvider = context.read<auth_cubit.AuthCubit>();
-      await authProvider.changePassword(
+      final authCubit = context.read<auth_cubit.AuthCubit>();
+      await authCubit.changePassword(
         _currentPasswordController.text,
         _newPasswordController.text,
       );
