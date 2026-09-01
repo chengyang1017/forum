@@ -19,7 +19,7 @@ import 'features/auth/presentation/cubit/auth_state.dart';
 import 'features/chat/application/ports/chat_media_repository.dart';
 import 'features/chat/domain/repositories/chat_repository.dart';
 import 'features/chat/domain/repositories/live_draft_repository.dart';
-import 'features/chat/presentation/providers/chat_provider.dart' as chat_prov;
+import 'features/chat/presentation/cubit/chat_cubit.dart';
 import 'features/discover/domain/repositories/discover_repository.dart';
 import 'features/discover/presentation/providers/discover_provider.dart'
     as discover_prov;
@@ -102,8 +102,8 @@ class MyApp extends StatelessWidget {
             userRepository: context.read<UserBackendRepository>(),
           )..loadUser(),
         ),
-        ChangeNotifierProvider(
-          create: (context) => chat_prov.ChatProvider(
+        BlocProvider<ChatCubit>(
+          create: (context) => ChatCubit(
             repository: context.read<ChatRepository>(),
             mediaRepository: context.read<ChatMediaRepository>(),
           ),
