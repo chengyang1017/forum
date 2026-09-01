@@ -17,6 +17,7 @@ import 'features/chat/presentation/providers/chat_provider.dart' as chat_prov;
 import 'features/discover/presentation/providers/discover_provider.dart'
     as discover_prov;
 import 'features/feed/presentation/providers/feed_provider.dart' as feed_prov;
+import 'features/post/application/ports/post_media_repository.dart';
 import 'features/post/domain/repositories/post_repository.dart';
 import 'features/post/presentation/providers/post_provider.dart' as post_prov;
 import 'features/social/presentation/providers/friend_provider.dart'
@@ -52,6 +53,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<PostRepository>.value(value: dependencies.postRepository),
+        Provider<PostMediaRepository>.value(
+          value: dependencies.postMediaRepository,
+        ),
         ChangeNotifierProvider(create: (_) => AppLanguage()),
         BlocProvider<auth_cubit.AuthCubit>(
           create: (_) => auth_cubit.AuthCubit()..loadUser(),
@@ -67,6 +71,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => post_prov.PostProvider(
             repository: context.read<PostRepository>(),
+            mediaRepository: context.read<PostMediaRepository>(),
           ),
         ),
       ],

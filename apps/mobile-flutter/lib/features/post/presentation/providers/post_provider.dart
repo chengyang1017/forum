@@ -1,13 +1,20 @@
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../application/models/local_post_image.dart';
+import '../../application/ports/post_media_repository.dart';
 import '../../domain/models/post_model.dart';
 import '../../domain/repositories/post_repository.dart';
 
 class PostProvider extends ChangeNotifier {
-  PostProvider({required PostRepository repository}) : _repository = repository;
+  PostProvider({
+    required PostRepository repository,
+    required PostMediaRepository mediaRepository,
+  }) : _repository = repository,
+       _mediaRepository = mediaRepository;
 
   final PostRepository _repository;
+  final PostMediaRepository _mediaRepository;
 
   bool _isLoading = false;
   String? _error;
@@ -94,7 +101,11 @@ class PostProvider extends ChangeNotifier {
   }
 
   Future<List<String>> uploadImages(String postId, List<XFile> images) {
-    return _repository.uploadImages(postId, images);
+    final media = images
+        .map((image) => LocalPostImage(path: image.path, name: image.name))
+        .toList(growable: false);
+
+    return _mediaRepository.uploadImages(postId, media);
   }
 
   Future<void> updateImages(String postId, List<String> imageUrls) {
@@ -102,11 +113,11 @@ class PostProvider extends ChangeNotifier {
   }
 
   Future<void> deleteImageFromStorage(String imageUrl) {
-    return _repository.deleteImageFromStorage(imageUrl);
+    return _mediaRepository.deleteImage(imageUrl);
   }
 
   Future<void> removeImage(String postId, List<String> imageUrls) {
-    return _repository.removeImage(postId, imageUrls);
+    return _repository.updateImages(postId, imageUrls);
   }
 
   void clear() {

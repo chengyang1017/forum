@@ -1,15 +1,12 @@
-import 'package:image_picker/image_picker.dart';
-
 import '../../domain/models/post_model.dart';
 import '../../domain/repositories/post_repository.dart';
 import '../services/post_node_service.dart';
 
 /// Data-layer implementation of [PostRepository].
 ///
-/// This class is intentionally thin: orchestration and UI state belong in the
-/// presentation/application layers, while transport details stay in
-/// [PostService].
-class PostRepositoryImpl implements PostRepository {
+/// This adapter keeps transport details behind the domain boundary so
+/// presentation code can be tested without concrete API clients.
+final class PostRepositoryImpl implements PostRepository {
   PostRepositoryImpl({PostService? service})
     : _service = service ?? PostService();
 
@@ -66,22 +63,7 @@ class PostRepositoryImpl implements PostRepository {
   }
 
   @override
-  Future<List<String>> uploadImages(String postId, List<XFile> images) {
-    return _service.uploadImages(postId, images);
-  }
-
-  @override
   Future<void> updateImages(String postId, List<String> imageUrls) {
     return _service.updateImages(postId, imageUrls);
-  }
-
-  @override
-  Future<void> deleteImageFromStorage(String imageUrl) {
-    return _service.deleteImageFromStorage(imageUrl);
-  }
-
-  @override
-  Future<void> removeImage(String postId, List<String> imageUrls) {
-    return _service.removeImage(postId, imageUrls);
   }
 }
