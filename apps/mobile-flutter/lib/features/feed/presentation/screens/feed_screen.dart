@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/forum_categories.dart';
@@ -10,7 +10,7 @@ import '../../../../core/widgets/loading_indicator.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../../post/domain/models/post_model.dart';
 import '../../../post/presentation/widgets/post_item_card.dart';
-import '../providers/feed_provider.dart' as feed_prov;
+import '../cubit/feed_cubit.dart';
 
 class FeedScreen extends StatelessWidget {
   final String channelKey;
@@ -34,9 +34,8 @@ class FeedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<auth_cubit.AuthCubit>();
-    final currentUserId = authProvider.user?.id;
-
+    final authCubit = context.watch<auth_cubit.AuthCubit>();
+    final currentUserId = authCubit.user?.id;
     final children = ForumCategories.childrenOf(_selectedCategoryId);
 
     return Scaffold(
@@ -63,7 +62,7 @@ class FeedScreen extends StatelessWidget {
             ),
           Expanded(
             child: StreamBuilder<List<PostModel>>(
-              stream: context.read<feed_prov.FeedProvider>().watchPosts(
+              stream: context.read<FeedCubit>().watchPosts(
                 category: _rootCategoryId,
                 languageCode: languageCode,
                 currentUserId: currentUserId,
@@ -86,7 +85,7 @@ class FeedScreen extends StatelessWidget {
 
                 return RefreshIndicator(
                   onRefresh: () async {
-                    await context.read<feed_prov.FeedProvider>().refreshPosts(
+                    await context.read<FeedCubit>().refreshPosts(
                       category: _rootCategoryId,
                       languageCode: languageCode,
                       currentUserId: currentUserId,
