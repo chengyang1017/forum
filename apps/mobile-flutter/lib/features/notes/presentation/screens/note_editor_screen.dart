@@ -1,23 +1,24 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
+import 'package:glyphora_language_core/glyphora_language_core.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
-import '../../domain/models/note_model.dart';
-import '../../data/services/note_service.dart';
-import 'package:glyphora_language_core/glyphora_language_core.dart';
-
-import '../../../language/data/forum_languages.dart';
 import '../../../../app/l10n/app_localizations.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
+import '../../../discover/domain/models/discover_user.dart';
+import '../../../discover/domain/repositories/discover_repository.dart';
+import '../../../language/data/forum_languages.dart';
 import '../../../post/presentation/screens/create_post_screen.dart';
+import '../../application/models/local_note_image.dart';
+import '../../application/ports/note_media_repository.dart';
+import '../../domain/models/note_model.dart';
+import '../../domain/repositories/note_repository.dart';
 
 class NoteEditorScreen extends StatefulWidget {
   final String noteId;
@@ -34,7 +35,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   final _editorFocusNode = FocusNode();
   final _editorScrollController = ScrollController();
   final _imagePicker = ImagePicker();
-  final _noteService = NoteService();
+
+  late final NoteRepository _noteRepository;
+  late final NoteMediaRepository _noteMediaRepository;
+  late final DiscoverRepository _discoverRepository;
 
   static const List<String> _publishCategoryIds = [
     'language_learning',
@@ -58,7 +62,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   String? _currentUserId;
   String? _ownerId;
-
   String? _category;
   String? _languageCode;
 
@@ -66,6 +69,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   bool _isUpdatingMembers = false;
 
   bool _initialized = false;
+  bool _isParticipant = false;
   bool _allowOthersEdit = false;
   bool _isLoaded = false;
   bool _isDeleted = false;
@@ -83,7 +87,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   bool get _canEdit {
-    return _isOwner || _allowOthersEdit;
+    return _isOwner || (_isParticipant && _allowOthersEdit);
   }
 
   @override
@@ -95,6 +99,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     }
 
     _initialized = true;
+    _noteRepository = context.read<NoteRepository>();
+    _noteMediaRepository = context.read<NoteMediaRepository>();
+    _discoverRepository = context.read<DiscoverRepository>();
     _currentUserId = context.read<auth_cubit.AuthCubit>().user?.id;
 
     if (_currentUserId == null) {
@@ -107,7 +114,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   void _listenToNote() {
-    _noteSubscription = _noteService
+    _noteSubscription = _noteRepository
         .watchNote(widget.noteId)
         .listen(_applyRemoteNote, onError: _handleNoteError);
   }
@@ -136,20 +143,20 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       );
     }
 
-    final canEdit = note.ownerId == _currentUserId || note.allowOthersEdit;
+    final currentUserId = _currentUserId;
+    final isParticipant =
+        currentUserId != null && note.participantIds.contains(currentUserId);
+    final canEdit = currentUserId != null && note.canEdit(currentUserId);
 
     _bodyController.readOnly = !canEdit;
 
     setState(() {
       _ownerId = note.ownerId;
-
       _category = note.category;
       _languageCode = note.languageCode;
-
       _sharedUserIds = List<String>.from(note.sharedUserIds);
-
+      _isParticipant = isParticipant;
       _allowOthersEdit = note.allowOthersEdit;
-
       _isDeleted = false;
       _isLoaded = true;
     });
@@ -186,15 +193,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             ]
           : bodyDelta;
 
-      /*
-     * 内容完全相同就不要重新设置 document。
-     *
-     * 这是解决输入法跳动最关键的一步。
-     */
       final currentDeltaJson = jsonEncode(
         _bodyController.document.toDelta().toJson(),
       );
-
       final remoteDeltaJson = jsonEncode(normalizedDelta);
 
       if (currentDeltaJson == remoteDeltaJson) {
@@ -202,15 +203,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       }
 
       final document = quill.Document.fromJson(normalizedDelta);
-
       final oldOffset = _bodyController.selection.baseOffset;
 
       _applyingRemoteBody = true;
-
       _bodyController.document = document;
 
       final maximumOffset = max(0, document.length - 1);
-
       final safeOffset = min(max(oldOffset, 0), maximumOffset);
 
       _bodyController.updateSelection(
@@ -225,7 +223,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           : fallbackContent.endsWith('\n')
           ? fallbackContent
           : '$fallbackContent\n';
-
       final currentPlainText = _bodyController.document.toPlainText();
 
       if (currentPlainText == content) {
@@ -233,7 +230,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       }
 
       _applyingRemoteBody = true;
-
       _bodyController.document = quill.Document.fromJson([
         <String, dynamic>{'insert': content},
       ]);
@@ -263,7 +259,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
     _titleDirty = true;
     _titleRevision++;
-
     _scheduleSave();
   }
 
@@ -274,7 +269,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
     _bodyDirty = true;
     _bodyRevision++;
-
     _scheduleSave();
   }
 
@@ -290,10 +284,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       return;
     }
 
-    /*
-   * 防止上一次保存还没结束，
-   * 下一次保存又同时开始。
-   */
     if (_isSaving) {
       return;
     }
@@ -305,22 +295,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       return;
     }
 
-    /*
-   * 记录本次保存开始时的版本。
-   *
-   * 保存过程中用户可能继续输入，
-   * 只有版本没有变化，才能把 dirty 清除。
-   */
     final savingTitleRevision = _titleRevision;
-
     final savingBodyRevision = _bodyRevision;
-
     final title = saveTitle ? _titleController.text : null;
-
     final bodyDelta = saveBody
         ? _bodyController.document.toDelta().toJson()
         : null;
-
     final content = saveBody
         ? _bodyController.document.toPlainText().trim()
         : null;
@@ -328,7 +308,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     _isSaving = true;
 
     try {
-      await _noteService.updateNote(
+      await _noteRepository.updateNote(
         noteId: widget.noteId,
         userId: userId,
         title: title,
@@ -336,10 +316,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         bodyDelta: bodyDelta,
       );
 
-      /*
-     * 保存期间没有继续修改，
-     * 才表示当前内容已保存。
-     */
       if (saveTitle && _titleRevision == savingTitleRevision) {
         _titleDirty = false;
       }
@@ -348,10 +324,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         _bodyDirty = false;
       }
     } catch (error) {
-      /*
-     * 这里不需要重新把 dirty 改成 true，
-     * 因为保存开始前没有提前清除 dirty。
-     */
       if (!mounted) {
         return;
       }
@@ -362,10 +334,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     } finally {
       _isSaving = false;
 
-      /*
-     * 保存期间又产生了新输入，
-     * 再保存最新版本。
-     */
       if (mounted && (_titleDirty || _bodyDirty)) {
         _scheduleSave();
       }
@@ -383,11 +351,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
     setState(() {
       _allowOthersEdit = value;
-      _bodyController.readOnly = !(_isOwner || value);
+      _bodyController.readOnly = !(_isOwner || (_isParticipant && value));
     });
 
     try {
-      await _noteService.updateEditPermission(
+      await _noteRepository.updateEditPermission(
         noteId: widget.noteId,
         ownerId: userId,
         allowOthersEdit: value,
@@ -399,7 +367,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
       setState(() {
         _allowOthersEdit = oldValue;
-        _bodyController.readOnly = !(_isOwner || oldValue);
+        _bodyController.readOnly = !(_isOwner || (_isParticipant && oldValue));
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -416,14 +384,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     }
 
     try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .limit(200)
-          .get();
-
-      final users = snapshot.docs
-          .where((document) => document.id != currentUserId)
-          .map(_NoteSharedUser.fromDocument)
+      final discoverUsers = await _discoverRepository
+          .watchAllUsers(currentUserId)
+          .first;
+      final users = discoverUsers
+          .where((user) => user.id != currentUserId)
+          .map(_NoteSharedUser.fromDiscoverUser)
           .toList();
 
       users.sort((first, second) {
@@ -454,7 +420,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
         _isUpdatingMembers = true;
       });
 
-      await _noteService.updateSharedUsers(
+      await _noteRepository.updateSharedUsers(
         noteId: widget.noteId,
         ownerId: currentUserId,
         sharedUserIds: result.toList(),
@@ -516,13 +482,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     });
 
     try {
-      final uploadedImage = await _noteService.uploadInlineImage(
+      final imageUrl = await _noteMediaRepository.uploadInlineImage(
         noteId: widget.noteId,
         userId: userId,
-        file: File(selectedImage.path),
+        image: LocalNoteImage(
+          path: selectedImage.path,
+          name: selectedImage.name,
+        ),
       );
 
-      _insertImageEmbed(uploadedImage.imageUrl);
+      _insertImageEmbed(imageUrl);
       _bodyDirty = true;
       await _saveNow();
     } catch (error) {
@@ -578,7 +547,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
     return operations.where((operation) {
       final insert = operation['insert'];
-
       return insert is Map && insert.containsKey('image');
     }).length;
   }
@@ -609,13 +577,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                     ),
                   ),
                 ),
-
                 Expanded(
                   child: ListView.builder(
                     itemCount: _publishCategoryIds.length,
                     itemBuilder: (context, index) {
                       final category = _publishCategoryIds[index];
-
                       final categoryName = index < l10n.categoryNames.length
                           ? l10n.categoryNames[index]
                           : category;
@@ -681,7 +647,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     });
 
     try {
-      await _noteService.updateNote(
+      await _noteRepository.updateNote(
         noteId: widget.noteId,
         userId: userId,
         category: category,
@@ -703,7 +669,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   Future<LanguageConfig?> _selectPublishLanguage() async {
     final languages = ForumLanguages.supportedLanguages;
-
     final uiLanguageCode = Localizations.localeOf(context).languageCode;
 
     return showModalBottomSheet<LanguageConfig>(
@@ -729,7 +694,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                     ),
                   ),
                 ),
-
                 Expanded(
                   child: ListView.builder(
                     itemCount: languages.length,
@@ -759,33 +723,24 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   Future<void> _publishAsPost() async {
-    // 只有笔记创建者可以发布
     if (!_isOwner) {
       return;
     }
 
     final userId = _currentUserId;
-
     if (userId == null) {
       return;
     }
 
     FocusScope.of(context).unfocus();
-
-    // 先保存当前正在编辑的标题和正文
     await _saveNow();
 
     if (!mounted) {
       return;
     }
 
-    // =========================
-    // 分类
-    // =========================
-
     String? category = _category?.trim();
 
-    // 笔记没有分类，发布时才要求选择
     if (category == null || category.isEmpty) {
       final selectedCategory = await _selectPublishCategory();
 
@@ -795,8 +750,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
       category = selectedCategory;
 
-      // 顺便保存到笔记
-      await _noteService.updateNote(
+      await _noteRepository.updateNote(
         noteId: widget.noteId,
         userId: userId,
         category: selectedCategory,
@@ -811,15 +765,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       });
     }
 
-    // =========================
-    // 语言
-    // =========================
-
     String? languageCode = _languageCode?.trim();
-
     LanguageConfig? selectedLanguage;
 
-    // 笔记没有语言，发布时才要求选择
     if (languageCode == null || languageCode.isEmpty) {
       selectedLanguage = await _selectPublishLanguage();
 
@@ -829,8 +777,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
       languageCode = selectedLanguage.code;
 
-      // 顺便保存到笔记
-      await _noteService.updateNote(
+      await _noteRepository.updateNote(
         noteId: widget.noteId,
         userId: userId,
         languageCode: selectedLanguage.code,
@@ -845,65 +792,37 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       });
     }
 
-    // =========================
-    // 到这里发布所需字段一定存在
-    // =========================
-
     if (category.isEmpty || languageCode.isEmpty) {
       return;
     }
 
-    final String publishCategory = category;
-
-    final String publishLanguageCode = languageCode;
-
-    // =========================
-    // 获取语言显示名称
-    // =========================
-
+    final publishCategory = category;
+    final publishLanguageCode = languageCode;
     final uiLanguageCode = Localizations.localeOf(context).languageCode;
-
     String languageName = publishLanguageCode;
 
-    // 如果刚才选择了语言，直接使用
     if (selectedLanguage != null) {
       languageName = selectedLanguage.nameOf(uiLanguageCode);
     } else {
-      // 如果笔记本来就已经有语言，
-      // 根据 languageCode 找对应语言名称
       for (final language in ForumLanguages.supportedLanguages) {
         if (language.code == publishLanguageCode) {
           languageName = language.nameOf(uiLanguageCode);
-
           break;
         }
       }
     }
 
-    // =========================
-    // 笔记正文
-    // =========================
-
     final bodyDelta = _bodyController.document.toDelta().toJson();
-
-    // =========================
-    // 进入发帖页
-    // =========================
 
     final published = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (_) => CreatePostScreen(
           category: publishCategory,
-
           languageCode: publishLanguageCode,
-
           languageName: languageName,
-
           initialTitle: _titleController.text.trim(),
-
           initialBodyDelta: bodyDelta,
-
           sourceNoteId: widget.noteId,
         ),
       ),
@@ -955,7 +874,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     }
 
     try {
-      await _noteService.deleteNote(widget.noteId);
+      await _noteRepository.deleteNote(widget.noteId);
 
       if (!mounted) {
         return;
@@ -992,7 +911,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.pop(sheetContext);
-
                         _publishAsPost();
                       },
                     ),
@@ -1004,7 +922,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.pop(sheetContext);
-
                         _changeCategory();
                       },
                     ),
@@ -1015,8 +932,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                       subtitle: Text(
                         _sharedUserIds.isEmpty
                             ? '当前仅自己可见'
-                            : '已共享给 '
-                                  '${_sharedUserIds.length} 人',
+                            : '已共享给 ${_sharedUserIds.length} 人',
                       ),
                       trailing: _isUpdatingMembers
                           ? const SizedBox(
@@ -1029,7 +945,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                           ? null
                           : () {
                               Navigator.pop(sheetContext);
-
                               _manageSharedUsers();
                             },
                     )
@@ -1039,7 +954,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                       title: const Text('共享成员'),
                       subtitle: Text('共 ${_sharedUserIds.length + 1} 人'),
                     ),
-
                   if (_isOwner)
                     SwitchListTile(
                       title: const Text('允许共享成员编辑'),
@@ -1062,7 +976,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                       ),
                       title: Text(_canEdit ? '你可以编辑这条笔记' : '这条笔记只能查看'),
                     ),
-
                   if (_isOwner)
                     ListTile(
                       leading: const Icon(
@@ -1075,7 +988,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                       ),
                       onTap: () {
                         Navigator.pop(sheetContext);
-
                         _deleteNote();
                       },
                     ),
@@ -1252,15 +1164,12 @@ class _SharedMembersPicker extends StatefulWidget {
 
 class _SharedMembersPickerState extends State<_SharedMembersPicker> {
   final _searchController = TextEditingController();
-
   late final Set<String> _selectedUserIds;
-
   String _keyword = '';
 
   @override
   void initState() {
     super.initState();
-
     _selectedUserIds = Set<String>.from(widget.selectedUserIds);
   }
 
@@ -1314,7 +1223,6 @@ class _SharedMembersPickerState extends State<_SharedMembersPicker> {
                 ],
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
@@ -1335,9 +1243,7 @@ class _SharedMembersPickerState extends State<_SharedMembersPicker> {
                 ),
               ),
             ),
-
             const SizedBox(height: 8),
-
             Expanded(
               child: users.isEmpty
                   ? const Center(child: Text('没有找到用户'))
@@ -1345,7 +1251,6 @@ class _SharedMembersPickerState extends State<_SharedMembersPicker> {
                       itemCount: users.length,
                       itemBuilder: (context, index) {
                         final user = users[index];
-
                         final selected = _selectedUserIds.contains(user.id);
 
                         return CheckboxListTile(
@@ -1399,39 +1304,15 @@ class _NoteSharedUser {
     required this.avatarUrl,
   });
 
-  factory _NoteSharedUser.fromDocument(
-    DocumentSnapshot<Map<String, dynamic>> document,
-  ) {
-    final data = document.data() ?? const <String, dynamic>{};
-
-    final nickname = data['nickname']?.toString().trim();
-
-    final displayName = data['displayName']?.toString().trim();
-
-    final username = data['username']?.toString().trim() ?? '';
-
-    final email = data['email']?.toString().trim();
-
-    final name = nickname != null && nickname.isNotEmpty
-        ? nickname
-        : displayName != null && displayName.isNotEmpty
-        ? displayName
-        : username.isNotEmpty
-        ? username
-        : email != null && email.isNotEmpty
-        ? email
-        : '用户';
-
-    final avatarUrl =
-        data['avatarUrl']?.toString().trim() ??
-        data['avatar']?.toString().trim() ??
-        data['photoUrl']?.toString().trim();
+  factory _NoteSharedUser.fromDiscoverUser(DiscoverUser user) {
+    final name = user.displayName.trim();
+    final avatarUrl = user.avatarUrl.trim();
 
     return _NoteSharedUser(
-      id: document.id,
-      name: name,
-      username: username,
-      avatarUrl: avatarUrl,
+      id: user.id,
+      name: name.isEmpty ? '用户' : name,
+      username: user.username.trim(),
+      avatarUrl: avatarUrl.isEmpty ? null : avatarUrl,
     );
   }
 }
