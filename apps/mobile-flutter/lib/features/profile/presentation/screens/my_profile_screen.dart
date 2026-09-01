@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../post/domain/models/post_model.dart';
 import '../../../post/domain/repositories/post_repository.dart';
 import '../../application/ports/profile_media_repository.dart';
@@ -30,7 +30,8 @@ class MyProfileScreen extends StatefulWidget {
 }
 
 class _MyProfileScreenState extends State<MyProfileScreen> {
-  final user = FirebaseAuth.instance.currentUser;
+  late final String? _userId;
+  late final String _userEmail;
   late final ProfileProvider _profileProvider;
 
   final List<String> _presetTags = [
@@ -130,6 +131,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   @override
   void initState() {
     super.initState();
+    final authUser = context.read<AuthCubit>().user;
+    _userId = authUser?.id;
+    _userEmail = authUser?.email ?? '';
+
     _profileProvider = ProfileProvider(
       postRepository: context.read<PostRepository>(),
       profileRepository: context.read<ProfileRepository>(),
@@ -145,8 +150,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Future<void> loadProfile() async {
-    if (user == null) return;
-    await _profileProvider.loadProfile(user!.uid);
+    if (_userId == null) return;
+    await _profileProvider.loadProfile(_userId);
   }
 
   void _showSuccess(String message) {
@@ -164,7 +169,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Future<void> _editTags() async {
-    if (user == null) return;
+    if (_userId == null) return;
 
     final result = await showTagEditorSheet(
       context: context,
@@ -175,7 +180,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     if (result == null) return;
 
     try {
-      await _profileProvider.updateTags(user!.uid, result);
+      await _profileProvider.updateTags(_userId, result);
       _showSuccess('标签更新成功');
     } catch (e) {
       _showError('更新失败: $e');
@@ -183,7 +188,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Future<void> _editLanguages() async {
-    if (user == null) return;
+    if (_userId == null) return;
 
     final result = await showLanguageEditorSheet(
       context: context,
@@ -194,7 +199,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     if (result == null) return;
 
     try {
-      await _profileProvider.updateLanguages(user!.uid, result);
+      await _profileProvider.updateLanguages(_userId, result);
       _showSuccess('语言已更新');
     } catch (e) {
       _showError('更新失败: $e');
@@ -202,7 +207,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Future<void> _editAge() async {
-    if (user == null) return;
+    if (_userId == null) return;
 
     final result = await showBirthdayEditorDialog(
       context: context,
@@ -214,7 +219,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
     try {
       await _profileProvider.updateBirthday(
-        user!.uid,
+        _userId,
         result.birthday,
         result.showAge,
       );
@@ -226,7 +231,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   Future<void> changeAvatar() async {
     try {
-      if (user == null) return;
+      if (_userId == null) return;
 
       final picker = ImagePicker();
       final image = await picker.pickImage(
@@ -238,7 +243,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
       if (image == null) return;
 
-      await _profileProvider.updateAvatar(user!.uid, File(image.path));
+      await _profileProvider.updateAvatar(_userId, File(image.path));
       _showSuccess('头像更新成功');
     } on PlatformException catch (e) {
       if (!mounted) return;
@@ -254,7 +259,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Future<void> editNickname() async {
-    if (user == null) return;
+    if (_userId == null) return;
 
     final controller = TextEditingController(text: _profileProvider.nickname);
     final newNickname = await showDialog<String>(
@@ -292,7 +297,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     if (newNickname == null) return;
 
     try {
-      await _profileProvider.updateNickname(user!.uid, newNickname);
+      await _profileProvider.updateNickname(_userId, newNickname);
       _showSuccess('昵称修改成功');
     } catch (e) {
       _showError('修改失败: $e');
@@ -300,7 +305,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Future<void> editUsername() async {
-    if (user == null) return;
+    if (_userId == null) return;
 
     final controller = TextEditingController(text: _profileProvider.username);
     final newUsername = await showDialog<String>(
@@ -338,7 +343,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     if (newUsername == null || newUsername.isEmpty) return;
 
     try {
-      await _profileProvider.updateUsername(user!.uid, newUsername);
+      await _profileProvider.updateUsername(_userId, newUsername);
       _showSuccess('用户名修改成功');
     } catch (e) {
       _showError('修改失败: $e');
@@ -346,7 +351,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Future<void> _editBio() async {
-    if (user == null) return;
+    if (_userId == null) return;
 
     final controller = TextEditingController(text: _profileProvider.bio);
     final newBio = await showDialog<String>(
@@ -384,7 +389,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     if (newBio == null) return;
 
     try {
-      await _profileProvider.updateBio(user!.uid, newBio);
+      await _profileProvider.updateBio(_userId, newBio);
       _showSuccess('个人简介更新成功');
     } catch (e) {
       _showError('更新失败: $e');
@@ -406,7 +411,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     final theme = Theme.of(context);
 
     // 用户未登录。
-    if (user == null) {
+    if (_userId == null) {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.profile), centerTitle: true),
         body: Center(
@@ -459,7 +464,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         onRefresh: loadProfile,
 
         child: StreamBuilder<List<PostModel>>(
-          stream: profile.watchUserPosts(user!.uid),
+          stream: profile.watchUserPosts(_userId),
 
           builder: (context, postSnapshot) {
             final posts = postSnapshot.data ?? const <PostModel>[];
@@ -477,7 +482,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 SliverToBoxAdapter(
                   child: ProfileHeader(
                     profile: profile,
-                    email: user!.email ?? '',
+                    email: _userEmail,
                     postCount: postCount,
                     totalLikes: totalLikes,
                     l10n: l10n,
