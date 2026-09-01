@@ -28,7 +28,7 @@ import 'features/notes/application/ports/note_media_repository.dart';
 import 'features/notes/domain/repositories/note_repository.dart';
 import 'features/post/application/ports/post_media_repository.dart';
 import 'features/post/domain/repositories/post_repository.dart';
-import 'features/post/presentation/providers/post_provider.dart' as post_prov;
+import 'features/post/presentation/cubit/post_cubit.dart';
 import 'features/profile/application/ports/profile_media_repository.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/social/domain/repositories/friend_repository.dart';
@@ -126,8 +126,8 @@ class MyApp extends StatelessWidget {
             repository: context.read<PostRepository>(),
           ),
         ),
-        ChangeNotifierProvider(
-          create: (context) => post_prov.PostProvider(
+        BlocProvider<PostCubit>(
+          create: (context) => PostCubit(
             repository: context.read<PostRepository>(),
             mediaRepository: context.read<PostMediaRepository>(),
           ),
