@@ -1,29 +1,33 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../../post/domain/models/post_model.dart';
 import '../../../auth/domain/models/user_model.dart';
-import '../../../../core/services/storage_service.dart';
-import '../../../auth/data/services/user_api.dart';
+import '../../../post/domain/models/post_model.dart';
 import '../../../post/domain/repositories/post_repository.dart';
+import '../../application/models/local_profile_image.dart';
+import '../../application/ports/profile_media_repository.dart';
+import '../../domain/repositories/profile_repository.dart';
 
 class ProfileProvider extends ChangeNotifier {
-  ProfileProvider({required PostRepository postRepository})
-    : _postRepository = postRepository;
+  ProfileProvider({
+    required PostRepository postRepository,
+    required ProfileRepository profileRepository,
+    required ProfileMediaRepository mediaRepository,
+  })  : _postRepository = postRepository,
+        _profileRepository = profileRepository,
+        _mediaRepository = mediaRepository;
 
   final PostRepository _postRepository;
-  final StorageService _storageService = StorageService();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final UserApi _userApi = UserApi();
+  final ProfileRepository _profileRepository;
+  final ProfileMediaRepository _mediaRepository;
+
   UserModel _userProfile = const UserModel(id: '', username: '');
 
   bool loadingProfile = true;
   bool uploadingAvatar = false;
 
   UserModel get userProfile => _userProfile;
-
   String get avatarUrl => _userProfile.avatarUrl;
   String get username => _userProfile.username;
   String get nickname => _userProfile.nicknameText;
@@ -33,184 +37,23 @@ class ProfileProvider extends ChangeNotifier {
   DateTime? get birthday => _userProfile.birthday;
   bool get showAge => _userProfile.showAge;
   String get displayName => _userProfile.profileDisplayName;
-  // Future<void> loadProfile(String uid) async {
-  //   loadingProfile = true;
-  //   notifyListeners();
-
-  //   try {
-  //     final doc = await _firestore.collection('users').doc(uid).get();
-
-  //     if (doc.exists) {
-  //       _userProfile = UserModel.fromJson({'uid': doc.id, ...?doc.data()});
-  //     }
-  //   } catch (e) {
-  //     debugPrint('加载资料失败: $e');
-  //   } finally {
-  //     loadingProfile = false;
-  //     notifyListeners();
-  //   }
-  // }
-
-  //   Future<void> loadProfile(String uid) async {
-  //   loadingProfile = true;
-  //   notifyListeners();
-
-  //   try {
-  //     final backendUser = await _userApi.getUser(uid);
-
-  //     final doc =
-  //         await _firestore
-  //             .collection('users')
-  //             .doc(uid)
-  //             .get();
-
-  //     if (backendUser == null) {
-  //       return;
-  //     }
-
-  //     final legacyUser =
-  //         doc.exists
-  //             ? UserModel.fromJson({
-  //                 'uid': doc.id,
-  //                 ...?doc.data(),
-  //               })
-  //             : const UserModel(
-  //                 id: '',
-  //                 username: '',
-  //               );
-
-  //     _userProfile = legacyUser.copyWith(
-  //       id: backendUser.id,
-  //       username: backendUser.username,
-  //       email: backendUser.email,
-  //       nickname: backendUser.nickname,
-  //       avatar: backendUser.avatar,
-  //       bio: backendUser.bio,
-  //       birthday: backendUser.birthday,
-  //       clearBirthday: backendUser.birthday == null,
-  //       showAge: backendUser.showAge,
-  //       createdAt: backendUser.createdAt,
-  //       lastActive: backendUser.lastActive,
-  //     );
-  //   } catch (e) {
-  //     debugPrint('加载资料失败: $e');
-  //   } finally {
-  //     loadingProfile = false;
-  //     notifyListeners();
-  //   }
-  // }
-  //Firebase保底
-  // Future<void> loadProfile(String uid) async {
-  //   loadingProfile = true;
-  //   notifyListeners();
-
-  //   try {
-  //     final doc = await _firestore
-  //         .collection('users')
-  //         .doc(uid)
-  //         .get();
-
-  //     if (!doc.exists) {
-  //       return;
-  //     }
-
-  //     final legacyUser = UserModel.fromJson({
-  //       'uid': doc.id,
-  //       ...?doc.data(),
-  //     });
-
-  //     // 先保证旧系统资料一定能显示
-  //     _userProfile = legacyUser;
-
-  //     try {
-  //       final backendUser = await _userApi.getUser(uid);
-
-  //       if (backendUser != null) {
-  //         _userProfile = legacyUser.copyWith(
-  //           username: backendUser.username,
-  //           email: backendUser.email,
-  //           nickname: backendUser.nickname,
-  //           avatar: backendUser.avatar,
-  //           bio: backendUser.bio,
-  //           birthday: backendUser.birthday,
-  //           clearBirthday: backendUser.birthday == null,
-  //           showAge: backendUser.showAge,
-  //           createdAt: backendUser.createdAt,
-  //           lastActive: backendUser.lastActive,
-  //         );
-  //       }
-  //     } catch (e) {
-  //       debugPrint('Node profile load failed, fallback Firestore: $e');
-  //     }
-  //   } catch (e) {
-  //     debugPrint('加载资料失败: $e');
-  //   } finally {
-  //     loadingProfile = false;
-  //     notifyListeners();
-  //   }
-  // }
 
   Future<void> loadProfile(String uid) async {
     loadingProfile = true;
     notifyListeners();
 
     try {
-      final backendUser = await _userApi.getUser(uid);
-
-      if (backendUser == null) {
-        return;
+      final profile = await _profileRepository.getProfile(uid);
+      if (profile != null) {
+        _userProfile = profile;
       }
-
-      _userProfile = backendUser;
-    } catch (e) {
-      debugPrint('加载资料失败: $e');
+    } catch (error) {
+      debugPrint('加载资料失败: $error');
     } finally {
       loadingProfile = false;
       notifyListeners();
     }
   }
-
-  // Future<void> loadProfile(String uid) async {
-  //   loadingProfile = true;
-  //   notifyListeners();
-
-  //   try {
-  //     final results = await Future.wait([
-  //       _userApi.getCurrentUser(),
-  //       _firestore.collection('users').doc(uid).get(),
-  //     ]);
-
-  //     final backendUser = results[0] as UserModel?;
-  //     final doc =
-  //         results[1] as DocumentSnapshot<Map<String, dynamic>>;
-
-  //     if (backendUser == null) {
-  //       throw Exception('PostgreSQL user not found');
-  //     }
-
-  //     final legacyData = doc.data();
-
-  //     _userProfile = backendUser.copyWith(
-  //       tags: legacyData?['tags'] is List
-  //           ? List<String>.from(legacyData!['tags'])
-  //           : const [],
-  //       languages: legacyData?['languages'] is List
-  //           ? (legacyData!['languages'] as List)
-  //               .whereType<Map>()
-  //               .map(
-  //                 (item) =>
-  //                     Map<String, dynamic>.from(item),
-  //               )
-  //               .toList()
-  //           : const [],
-  //     );
-  //   } catch (e) {
-  //     debugPrint('加载资料失败: $e');
-  //   } finally {
-  //     loadingProfile = false;
-  //     notifyListeners();
-  //   }
-  // }
 
   Stream<List<PostModel>> watchUserPosts(String uid) {
     return _postRepository.watchUserPosts(uid);
@@ -220,417 +63,151 @@ class ProfileProvider extends ChangeNotifier {
     return posts.fold<int>(0, (total, post) => total + post.likeCount);
   }
 
-  // Stream<List<PostModel>> watchUserPosts(String uid) {
-  //   return _firestore
-  //       .collection('posts')
-  //       .where('uid', isEqualTo: uid)
-  //       .orderBy('timestamp', descending: true)
-  //       .snapshots()
-  //       .map((snapshot) {
-  //         return snapshot.docs.map((doc) {
-  //           return PostModel.fromJson({'id': doc.id, ...doc.data()});
-  //         }).toList();
-  //       });
-  // }
-
-  // int totalLikesOf(List<PostModel> posts) {
-  //   return posts.fold<int>(0, (total, post) {
-  //     return total + (post.likes?.length ?? post.likeCount);
-  //   });
-  // }
-  //旧的firebase
-  // Future<void> updateTags(String uid, List<String> newTags) async {
-  //   await _firestore.collection('users').doc(uid).update({'tags': newTags});
-
-  //   _userProfile = _userProfile.copyWith(tags: List<String>.from(newTags));
-  //   notifyListeners();
-  // }
-
-  Future<void> updateTags(String uid, List<String> newTags) async {
-    final oldTags = _userProfile.tagsList;
-
-    _userProfile = _userProfile.copyWith(tags: List<String>.from(newTags));
-    notifyListeners();
-
-    try {
-      await _userApi.updateCurrentUser({'tags': newTags});
-    } catch (e) {
-      _userProfile = _userProfile.copyWith(tags: oldTags);
-      notifyListeners();
-      rethrow;
-    }
-
-    try {
-      await _firestore.collection('users').doc(uid).update({'tags': newTags});
-    } catch (e) {
-      debugPrint('Firestore tags mirror failed: $e');
-    }
+  Future<void> updateTags(String uid, List<String> newTags) {
+    final copiedTags = List<String>.from(newTags);
+    return _commitOptimistic(
+      optimistic: _userProfile.copyWith(tags: copiedTags),
+      persist: () => _profileRepository.updateTags(
+        userId: uid,
+        tags: copiedTags,
+      ),
+    );
   }
 
   Future<void> updateLanguages(
     String uid,
     List<Map<String, dynamic>> newLanguages,
-  ) async {
-    final oldLanguages = _userProfile.languageList;
-
+  ) {
     final copiedLanguages = newLanguages
         .map((item) => Map<String, dynamic>.from(item))
-        .toList();
+        .toList(growable: false);
 
-    _userProfile = _userProfile.copyWith(languages: copiedLanguages);
-    notifyListeners();
-
-    try {
-      await _userApi.updateCurrentUser({'languages': copiedLanguages});
-    } catch (e) {
-      _userProfile = _userProfile.copyWith(languages: oldLanguages);
-      notifyListeners();
-      rethrow;
-    }
-
-    try {
-      await _firestore.collection('users').doc(uid).update({
-        'languages': copiedLanguages,
-      });
-    } catch (e) {
-      debugPrint('Firestore languages mirror failed: $e');
-    }
+    return _commitOptimistic(
+      optimistic: _userProfile.copyWith(languages: copiedLanguages),
+      persist: () => _profileRepository.updateLanguages(
+        userId: uid,
+        languages: copiedLanguages,
+      ),
+    );
   }
-
-  //旧的firebase
-  // Future<void> updateLanguages(
-  //   String uid,
-  //   List<Map<String, dynamic>> newLanguages,
-  // ) async {
-  //   final copiedLanguages = newLanguages
-  //       .map((item) => Map<String, dynamic>.from(item))
-  //       .toList();
-
-  //   await _firestore.collection('users').doc(uid).update({
-  //     'languages': copiedLanguages,
-  //   });
-
-  //   _userProfile = _userProfile.copyWith(languages: copiedLanguages);
-  //   notifyListeners();
-  // }
-
-  // Future<void> updateBirthday(
-  //   String uid,
-  //   DateTime? newBirthday,
-  //   bool newShowAge,
-  // ) async {
-  //   await _firestore.collection('users').doc(uid).update({
-  //     'birthday': newBirthday == null
-  //         ? FieldValue.delete()
-  //         : Timestamp.fromDate(newBirthday),
-  //     'showAge': newShowAge,
-  //   });
-
-  //   _userProfile = _userProfile.copyWith(
-  //     birthday: newBirthday,
-  //     clearBirthday: newBirthday == null,
-  //     showAge: newShowAge,
-  //   );
-  //   notifyListeners();
-  // }
 
   Future<void> updateBirthday(
     String uid,
     DateTime? newBirthday,
     bool newShowAge,
-  ) async {
-    final oldBirthday = _userProfile.birthday;
-    final oldShowAge = _userProfile.showAge;
-
-    _userProfile = _userProfile.copyWith(
-      birthday: newBirthday,
-      clearBirthday: newBirthday == null,
-      showAge: newShowAge,
+  ) {
+    return _commitOptimistic(
+      optimistic: _userProfile.copyWith(
+        birthday: newBirthday,
+        clearBirthday: newBirthday == null,
+        showAge: newShowAge,
+      ),
+      persist: () => _profileRepository.updateBirthday(
+        userId: uid,
+        birthday: newBirthday,
+        showAge: newShowAge,
+      ),
     );
-    notifyListeners();
-
-    try {
-      await _userApi.updateCurrentUser({
-        'birthday': newBirthday?.toIso8601String(),
-        'showAge': newShowAge,
-      });
-
-      await _firestore.collection('users').doc(uid).update({
-        'birthday': newBirthday == null
-            ? FieldValue.delete()
-            : Timestamp.fromDate(newBirthday),
-        'showAge': newShowAge,
-      });
-    } catch (e) {
-      _userProfile = _userProfile.copyWith(
-        birthday: oldBirthday,
-        clearBirthday: oldBirthday == null,
-        showAge: oldShowAge,
-      );
-      notifyListeners();
-      rethrow;
-    }
   }
 
   Future<void> updateAvatar(String uid, File imageFile) async {
+    if (uploadingAvatar) {
+      return;
+    }
+
     uploadingAvatar = true;
     notifyListeners();
 
-    final oldAvatarUrl = avatarUrl;
+    final previousProfile = _userProfile;
+    final oldAvatarUrl = previousProfile.avatarUrl;
+    String? uploadedAvatarUrl;
 
     try {
-      final downloadUrl = await _storageService.uploadAvatar(imageFile);
+      uploadedAvatarUrl = await _mediaRepository.uploadAvatar(
+        userId: uid,
+        image: LocalProfileImage(path: imageFile.path),
+      );
 
-      await _userApi.updateCurrentUser({'avatarUrl': downloadUrl});
-
-      await _firestore.collection('users').doc(uid).update({
-        'avatar': downloadUrl,
-      });
-
-      _userProfile = _userProfile.copyWith(avatar: downloadUrl);
-
+      _userProfile = await _profileRepository.updateAvatarUrl(
+        userId: uid,
+        avatarUrl: uploadedAvatarUrl,
+      );
       notifyListeners();
 
-      if (oldAvatarUrl.isNotEmpty && oldAvatarUrl.startsWith('http')) {
+      if (_isRemoteAvatar(oldAvatarUrl) && oldAvatarUrl != uploadedAvatarUrl) {
         try {
-          await _storageService.deleteOldAvatar(oldAvatarUrl);
-        } catch (e) {
-          debugPrint('删除旧头像失败: $e');
+          await _mediaRepository.deleteAvatar(oldAvatarUrl);
+        } catch (error) {
+          debugPrint('删除旧头像失败: $error');
         }
       }
+    } catch (error) {
+      _userProfile = previousProfile;
+      notifyListeners();
+
+      if (uploadedAvatarUrl != null) {
+        try {
+          await _mediaRepository.deleteAvatar(uploadedAvatarUrl);
+        } catch (cleanupError) {
+          debugPrint('清理未提交头像失败: $cleanupError');
+        }
+      }
+      rethrow;
     } finally {
       uploadingAvatar = false;
       notifyListeners();
     }
   }
 
-  // Future<void> updateAvatar(String uid, File imageFile) async {
-  //   uploadingAvatar = true;
-  //   notifyListeners();
+  Future<void> updateNickname(String uid, String newNickname) {
+    return _commitOptimistic(
+      optimistic: _userProfile.copyWith(nickname: newNickname),
+      persist: () => _profileRepository.updateNickname(
+        userId: uid,
+        nickname: newNickname,
+      ),
+    );
+  }
 
-  //   try {
-  //     if (avatarUrl.isNotEmpty && avatarUrl.startsWith('http')) {
-  //       await _storageService.deleteOldAvatar(avatarUrl);
-  //     }
+  Future<void> updateUsername(String uid, String newUsername) {
+    return _commitOptimistic(
+      optimistic: _userProfile.copyWith(username: newUsername),
+      persist: () => _profileRepository.updateUsername(
+        userId: uid,
+        username: newUsername,
+      ),
+    );
+  }
 
-  //     final downloadUrl = await _storageService.uploadAvatar(imageFile);
+  Future<void> updateBio(String uid, String newBio) {
+    return _commitOptimistic(
+      optimistic: _userProfile.copyWith(bio: newBio),
+      persist: () => _profileRepository.updateBio(
+        userId: uid,
+        bio: newBio,
+      ),
+    );
+  }
 
-  //     await _firestore.collection('users').doc(uid).update({
-  //       'avatar': downloadUrl,
-  //     });
-
-  //     _userProfile = _userProfile.copyWith(avatar: downloadUrl);
-  //   } finally {
-  //     uploadingAvatar = false;
-  //     notifyListeners();
-  //   }
-  // }
-
-  Future<void> updateNickname(String uid, String newNickname) async {
-    final oldNickname = _userProfile.nickname;
-
-    _userProfile = _userProfile.copyWith(nickname: newNickname);
+  Future<void> _commitOptimistic({
+    required UserModel optimistic,
+    required Future<UserModel> Function() persist,
+  }) async {
+    final previous = _userProfile;
+    _userProfile = optimistic;
     notifyListeners();
 
     try {
-      await _userApi.updateCurrentUser({
-        'nickname': newNickname.isEmpty ? null : newNickname,
-      });
-
-      // Firebase 模块仍可能读取 users 文档，
-      // 所以迁移期保留用户资料镜像。
-      await _firestore.collection('users').doc(uid).update({
-        'nickname': newNickname.isEmpty ? FieldValue.delete() : newNickname,
-      });
-    } catch (e) {
-      _userProfile = _userProfile.copyWith(nickname: oldNickname ?? '');
-
+      _userProfile = await persist();
+      notifyListeners();
+    } catch (_) {
+      _userProfile = previous;
       notifyListeners();
       rethrow;
     }
   }
 
-  //   Future<void> updateNickname(
-  //   String uid,
-  //   String newNickname,
-  // ) async {
-  //   final oldNickname = _userProfile.nickname;
-
-  //   _userProfile = _userProfile.copyWith(
-  //     nickname: newNickname,
-  //   );
-  //   notifyListeners();
-
-  //   try {
-  //     await _userApi.updateCurrentUser({
-  //       'nickname': newNickname.isEmpty ? null : newNickname,
-  //     });
-
-  //     await _firestore.collection('users').doc(uid).update({
-  //       'nickname':
-  //           newNickname.isEmpty
-  //               ? FieldValue.delete()
-  //               : newNickname,
-  //     });
-
-  //     final posts =
-  //         await _firestore
-  //             .collection('posts')
-  //             .where('uid', isEqualTo: uid)
-  //             .get();
-
-  //     final batch = _firestore.batch();
-
-  //     for (final doc in posts.docs) {
-  //       batch.update(doc.reference, {
-  //         'nickname':
-  //             newNickname.isEmpty
-  //                 ? FieldValue.delete()
-  //                 : newNickname,
-  //       });
-  //     }
-
-  //     await batch.commit();
-  //   } catch (e) {
-  //     _userProfile = _userProfile.copyWith(
-  //       nickname: oldNickname ?? '',
-  //     );
-  //     notifyListeners();
-  //     rethrow;
-  //   }
-  // }
-
-  // Future<void> updateNickname(String uid, String newNickname) async {
-  //   await _firestore.collection('users').doc(uid).update({
-  //     'nickname': newNickname.isNotEmpty ? newNickname : FieldValue.delete(),
-  //   });
-
-  //   final posts = await _firestore
-  //       .collection('posts')
-  //       .where('uid', isEqualTo: uid)
-  //       .get();
-
-  //   for (final doc in posts.docs) {
-  //     await doc.reference.update({
-  //       'nickname': newNickname.isNotEmpty ? newNickname : FieldValue.delete(),
-  //     });
-  //   }
-
-  //   _userProfile = _userProfile.copyWith(nickname: newNickname);
-  //   notifyListeners();
-  // }
-
-  // Future<void> updateUsername(String uid, String newUsername) async {
-  //   final query = await _firestore
-  //       .collection('users')
-  //       .where('username', isEqualTo: newUsername)
-  //       .get();
-
-  //   if (query.docs.isNotEmpty && query.docs.first.id != uid) {
-  //     throw Exception('该用户名已被使用');
-  //   }
-
-  //   await _firestore.collection('users').doc(uid).update({
-  //     'username': newUsername,
-  //   });
-
-  //   final posts = await _firestore
-  //       .collection('posts')
-  //       .where('uid', isEqualTo: uid)
-  //       .get();
-
-  //   for (final doc in posts.docs) {
-  //     await doc.reference.update({'username': newUsername});
-  //   }
-
-  //   _userProfile = _userProfile.copyWith(username: newUsername);
-  //   notifyListeners();
-  // }
-
-  Future<void> updateUsername(String uid, String newUsername) async {
-    final oldUsername = _userProfile.username;
-
-    _userProfile = _userProfile.copyWith(username: newUsername);
-
-    notifyListeners();
-
-    try {
-      // PostgreSQL 负责唯一性约束。
-      await _userApi.updateCurrentUser({'username': newUsername});
-
-      // Firebase 模块仍可能读取 users 文档。
-      await _firestore.collection('users').doc(uid).update({
-        'username': newUsername,
-      });
-    } catch (e) {
-      _userProfile = _userProfile.copyWith(username: oldUsername);
-
-      notifyListeners();
-      rethrow;
-    }
-  }
-
-  // Future<void> updateUsername(
-  //   String uid,
-  //   String newUsername,
-  // ) async {
-  //   final oldUsername = _userProfile.username;
-
-  //   // 先改 UI
-  //   _userProfile = _userProfile.copyWith(
-  //     username: newUsername,
-  //   );
-  //   notifyListeners();
-
-  //   try {
-  //     // 新后端负责唯一性判断
-  //     await _userApi.updateCurrentUser({
-  //       'username': newUsername,
-  //     });
-
-  //     // 迁移期暂时同步 Firestore
-  //     await _firestore
-  //         .collection('users')
-  //         .doc(uid)
-  //         .update({
-  //       'username': newUsername,
-  //     });
-
-  //     final posts = await _firestore
-  //         .collection('posts')
-  //         .where('uid', isEqualTo: uid)
-  //         .get();
-
-  //     final batch = _firestore.batch();
-
-  //     for (final doc in posts.docs) {
-  //       batch.update(
-  //         doc.reference,
-  //         {'username': newUsername},
-  //       );
-  //     }
-
-  //     await batch.commit();
-  //   } catch (e) {
-  //     // 后端失败，例如用户名重复 → 回滚
-  //     _userProfile = _userProfile.copyWith(
-  //       username: oldUsername,
-  //     );
-  //     notifyListeners();
-
-  //     rethrow;
-  //   }
-  // }
-
-  Future<void> updateBio(String uid, String newBio) async {
-    await _userApi.updateCurrentUser({'bio': newBio});
-
-    // 迁移期兼容：
-    // 其他页面目前仍可能从 Firestore 读取用户资料。
-    await _firestore.collection('users').doc(uid).update({'bio': newBio});
-
-    _userProfile = _userProfile.copyWith(bio: newBio);
-
-    notifyListeners();
+  bool _isRemoteAvatar(String value) {
+    return value.startsWith('http://') || value.startsWith('https://');
   }
 }
