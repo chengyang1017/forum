@@ -22,26 +22,26 @@ void main() {
       );
     });
 
-    test('rolls back optimistic bookmark state when persistence fails', () async {
-      provider.seedBookmarkState('post-1', false);
-      repository.bookmarkError = StateError('failed');
+    test(
+      'rolls back optimistic bookmark state when persistence fails',
+      () async {
+        provider.seedBookmarkState('post-1', false);
+        repository.bookmarkError = StateError('failed');
 
-      await expectLater(
-        provider.toggleBookmark('post-1', bookmarked: true),
-        throwsA(isA<StateError>()),
-      );
+        await expectLater(
+          provider.toggleBookmark('post-1', bookmarked: true),
+          throwsA(isA<StateError>()),
+        );
 
-      expect(provider.bookmarkState('post-1', fallback: true), isFalse);
-    });
+        expect(provider.bookmarkState('post-1', fallback: true), isFalse);
+      },
+    );
 
     test('uses the bookmark state confirmed by the repository', () async {
       provider.seedBookmarkState('post-1', false);
       repository.bookmarkResult = false;
 
-      final result = await provider.toggleBookmark(
-        'post-1',
-        bookmarked: true,
-      );
+      final result = await provider.toggleBookmark('post-1', bookmarked: true);
 
       expect(result, isFalse);
       expect(provider.bookmarkState('post-1', fallback: true), isFalse);
