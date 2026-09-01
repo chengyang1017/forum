@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
@@ -9,7 +9,7 @@ import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/user_avatar.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../domain/models/discover_user.dart';
-import '../providers/discover_provider.dart' as discover_prov;
+import '../cubit/discover_cubit.dart';
 
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
@@ -37,8 +37,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   Future<void> _startChat(DiscoverUser user) async {
     try {
-      final discoverProvider = context.read<discover_prov.DiscoverProvider>();
-      final chatId = await discoverProvider.getOrCreateChat(user.id);
+      final discoverCubit = context.read<DiscoverCubit>();
+      final chatId = await discoverCubit.getOrCreateChat(user.id);
       if (!mounted) return;
       context.push(
         AppRoutes.chatLocation(chatId: chatId),
@@ -58,8 +58,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   Future<void> _sendFriendRequest(DiscoverUser user) async {
     try {
-      final discoverProvider = context.read<discover_prov.DiscoverProvider>();
-      await discoverProvider.sendFriendRequest(user.id);
+      final discoverCubit = context.read<DiscoverCubit>();
+      await discoverCubit.sendFriendRequest(user.id);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -110,11 +110,11 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   Widget _buildUserList() {
-    final discoverProvider = context.watch<discover_prov.DiscoverProvider>();
+    final discoverCubit = context.watch<DiscoverCubit>();
     final l10n = AppLocalizations.of(context)!;
 
     return StreamBuilder<List<DiscoverUser>>(
-      stream: discoverProvider.watchAllUsers(_currentUserId!),
+      stream: discoverCubit.watchAllUsers(_currentUserId!),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: LoadingIndicator());
