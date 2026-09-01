@@ -8,7 +8,7 @@ import '../../application/ports/profile_media_repository.dart';
 /// Firebase Storage adapter for profile media.
 final class FirebaseProfileMediaRepository implements ProfileMediaRepository {
   FirebaseProfileMediaRepository({FirebaseStorage? storage})
-      : _storage = storage ?? FirebaseStorage.instance;
+    : _storage = storage ?? FirebaseStorage.instance;
 
   final FirebaseStorage _storage;
 

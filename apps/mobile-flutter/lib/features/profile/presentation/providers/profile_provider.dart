@@ -14,9 +14,9 @@ class ProfileProvider extends ChangeNotifier {
     required PostRepository postRepository,
     required ProfileRepository profileRepository,
     required ProfileMediaRepository mediaRepository,
-  })  : _postRepository = postRepository,
-        _profileRepository = profileRepository,
-        _mediaRepository = mediaRepository;
+  }) : _postRepository = postRepository,
+       _profileRepository = profileRepository,
+       _mediaRepository = mediaRepository;
 
   final PostRepository _postRepository;
   final ProfileRepository _profileRepository;
@@ -67,10 +67,8 @@ class ProfileProvider extends ChangeNotifier {
     final copiedTags = List<String>.from(newTags);
     return _commitOptimistic(
       optimistic: _userProfile.copyWith(tags: copiedTags),
-      persist: () => _profileRepository.updateTags(
-        userId: uid,
-        tags: copiedTags,
-      ),
+      persist: () =>
+          _profileRepository.updateTags(userId: uid, tags: copiedTags),
     );
   }
 
@@ -162,30 +160,23 @@ class ProfileProvider extends ChangeNotifier {
   Future<void> updateNickname(String uid, String newNickname) {
     return _commitOptimistic(
       optimistic: _userProfile.copyWith(nickname: newNickname),
-      persist: () => _profileRepository.updateNickname(
-        userId: uid,
-        nickname: newNickname,
-      ),
+      persist: () =>
+          _profileRepository.updateNickname(userId: uid, nickname: newNickname),
     );
   }
 
   Future<void> updateUsername(String uid, String newUsername) {
     return _commitOptimistic(
       optimistic: _userProfile.copyWith(username: newUsername),
-      persist: () => _profileRepository.updateUsername(
-        userId: uid,
-        username: newUsername,
-      ),
+      persist: () =>
+          _profileRepository.updateUsername(userId: uid, username: newUsername),
     );
   }
 
   Future<void> updateBio(String uid, String newBio) {
     return _commitOptimistic(
       optimistic: _userProfile.copyWith(bio: newBio),
-      persist: () => _profileRepository.updateBio(
-        userId: uid,
-        bio: newBio,
-      ),
+      persist: () => _profileRepository.updateBio(userId: uid, bio: newBio),
     );
   }
 

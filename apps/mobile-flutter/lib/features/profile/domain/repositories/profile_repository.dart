@@ -38,8 +38,5 @@ abstract interface class ProfileRepository {
     required String username,
   });
 
-  Future<UserModel> updateBio({
-    required String userId,
-    required String bio,
-  });
+  Future<UserModel> updateBio({required String userId, required String bio});
 }

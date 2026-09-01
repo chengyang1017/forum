@@ -11,11 +11,9 @@ import '../../domain/repositories/profile_repository.dart';
 /// mirror for older Firebase-backed features and never decides whether a
 /// profile mutation succeeded.
 final class ProfileRepositoryImpl implements ProfileRepository {
-  ProfileRepositoryImpl({
-    UserApi? userApi,
-    FirebaseFirestore? firestore,
-  })  : _userApi = userApi ?? UserApi(),
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  ProfileRepositoryImpl({UserApi? userApi, FirebaseFirestore? firestore})
+    : _userApi = userApi ?? UserApi(),
+      _firestore = firestore ?? FirebaseFirestore.instance;
 
   final UserApi _userApi;
   final FirebaseFirestore _firestore;
