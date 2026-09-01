@@ -12,6 +12,7 @@ import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../../../core/widgets/user_name_display.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../application/models/local_post_image.dart';
+import '../../application/models/post_edit_media_cleanup_plan.dart';
 import '../../application/ports/post_media_repository.dart';
 import '../../domain/models/post_model.dart';
 import '../../domain/repositories/post_repository.dart';
@@ -176,8 +177,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   DateTime? _currentVersionCreatedAt;
 
   PostRepository get _postRepository => context.read<PostRepository>();
-  PostMediaRepository get _mediaRepository =>
-      context.read<PostMediaRepository>();
 
   @override
   void initState() {
@@ -282,13 +281,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       return;
     }
 
-    // ===== 编辑前的版本 =====
-    // 注意：这里必须在进入编辑页之前保存。
     final previousTitle = _post.title ?? '';
     final previousContent = _post.content ?? '';
-
     final previousBodyDelta = List<dynamic>.from(_post.bodyDelta);
-
     final previousImageUrls = List<String>.from(_images);
 
     final result = await Navigator.push<_PostEditResult>(
@@ -296,6 +291,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       MaterialPageRoute(
         builder: (_) => _PostRichEditPage(
           postId: widget.postId,
+          languageCode: currentLanguageCode,
           title: previousTitle,
           content: previousContent,
           bodyDelta: previousBodyDelta,
@@ -308,60 +304,28 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       return;
     }
 
-    try {
-      // 正文、图片和“修改前历史快照”由 Node 在同一个事务中处理。
-      await _postRepository.updateLanguageVersionContent(
-        postId: widget.postId,
-        languageCode: currentLanguageCode,
+    setState(() {
+      _images = List<String>.from(result.imageUrls);
+
+      if (_currentIndex >= _images.length) {
+        _currentIndex = 0;
+      }
+
+      _post = _post.copyWith(
         title: result.title,
         content: result.content,
         bodyDelta: result.bodyDelta,
-        imageUrls: result.imageUrls,
+        imageUrls: _images,
       );
+    });
 
-      for (final imageUrl in result.removedImageUrls) {
-        try {
-          await _mediaRepository.deleteImage(imageUrl);
-        } catch (error) {
-          debugPrint('删除已移除的帖子图片失败: $error');
-        }
-      }
-
-      if (!mounted) return;
-
-      setState(() {
-        _images = List<String>.from(result.imageUrls);
-
-        if (_currentIndex >= _images.length) {
-          _currentIndex = 0;
-        }
-
-        _post = _post.copyWith(
-          title: result.title,
-          content: result.content,
-          bodyDelta: result.bodyDelta,
-          imageUrls: _images,
-        );
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('帖子已更新 ✨'),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('更新失败: $e'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('帖子已更新 ✨'),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   // ============================================================
@@ -1860,21 +1824,19 @@ class _PostEditResult {
   final String title;
   final String content;
   final List<dynamic> bodyDelta;
-
   final List<String> imageUrls;
-  final List<String> removedImageUrls;
 
   const _PostEditResult({
     required this.title,
     required this.content,
     required this.bodyDelta,
     required this.imageUrls,
-    required this.removedImageUrls,
   });
 }
 
 class _PostRichEditPage extends StatefulWidget {
   final String postId;
+  final String languageCode;
   final String title;
   final String content;
   final List<dynamic> bodyDelta;
@@ -1882,6 +1844,7 @@ class _PostRichEditPage extends StatefulWidget {
 
   const _PostRichEditPage({
     required this.postId,
+    required this.languageCode,
     required this.title,
     required this.content,
     required this.bodyDelta,
@@ -1895,29 +1858,28 @@ class _PostRichEditPage extends StatefulWidget {
 class _PostRichEditPageState extends State<_PostRichEditPage> {
   late final TextEditingController _titleController;
   late final quill.QuillController _controller;
+  late final PostRepository _postRepository;
+  late final PostMediaRepository _mediaRepository;
 
   final FocusNode _focusNode = FocusNode();
-
   final ScrollController _scrollController = ScrollController();
-
   final ImagePicker _imagePicker = ImagePicker();
 
   bool _uploadingImage = false;
-  final bool _saving = false;
+  bool _saving = false;
+  bool _didSave = false;
   late List<String> _topImages;
   late final List<String> _originalTopImages;
 
   final List<String> _newTopImageUrls = [];
-
   final List<String> _newInlineImageUrls = [];
-
-  PostMediaRepository get _mediaRepository =>
-      context.read<PostMediaRepository>();
 
   @override
   void initState() {
     super.initState();
 
+    _postRepository = context.read<PostRepository>();
+    _mediaRepository = context.read<PostMediaRepository>();
     _titleController = TextEditingController(text: widget.title);
 
     final document = widget.bodyDelta.isNotEmpty
@@ -1932,7 +1894,6 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     );
 
     _originalTopImages = List<String>.from(widget.imageUrls);
-
     _topImages = List<String>.from(widget.imageUrls);
   }
 
@@ -1941,7 +1902,6 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
 
     return delta.where((operation) {
       final insert = operation['insert'];
-
       return insert is Map && insert.containsKey('image');
     }).length;
   }
@@ -1951,7 +1911,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
   }
 
   Future<void> _addTopImages() async {
-    if (_uploadingImage) {
+    if (_uploadingImage || _saving) {
       return;
     }
 
@@ -1961,7 +1921,6 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('每篇帖子最多 9 张图片')));
-
       return;
     }
 
@@ -1975,7 +1934,6 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     }
 
     final selected = picked.take(remaining).toList();
-    final mediaRepository = _mediaRepository;
 
     setState(() {
       _uploadingImage = true;
@@ -1983,7 +1941,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
 
     try {
       for (final image in selected) {
-        final url = await mediaRepository.uploadTopImage(
+        final url = await _mediaRepository.uploadTopImage(
           widget.postId,
           LocalPostImage(path: image.path, name: image.name),
         );
@@ -2011,32 +1969,29 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     }
   }
 
-  Future<void> _removeTopImage(int index) async {
-    final imageUrl = _topImages[index];
+  void _removeTopImage(int index) {
+    if (_saving) {
+      return;
+    }
 
     setState(() {
       _topImages.removeAt(index);
     });
-
-    // 如果是本次编辑刚上传的，
-    // 可以立即删除 Storage。
-    if (_newTopImageUrls.remove(imageUrl)) {
-      try {
-        await _mediaRepository.deleteImage(imageUrl);
-      } catch (_) {}
-    }
   }
 
   void _reorderTopImages(int oldIndex, int newIndex) {
+    if (_saving) {
+      return;
+    }
+
     setState(() {
       final image = _topImages.removeAt(oldIndex);
-
       _topImages.insert(newIndex, image);
     });
   }
 
   Future<void> _insertImage() async {
-    if (_uploadingImage) {
+    if (_uploadingImage || _saving) {
       return;
     }
 
@@ -2044,7 +1999,6 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('每篇帖子最多 9 张图片')));
-
       return;
     }
 
@@ -2058,28 +2012,22 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
       return;
     }
 
-    final mediaRepository = _mediaRepository;
-
     setState(() {
       _uploadingImage = true;
     });
 
     try {
-      final imageUrl = await mediaRepository.uploadInlineImage(
+      final imageUrl = await _mediaRepository.uploadInlineImage(
         widget.postId,
         LocalPostImage(path: image.path, name: image.name),
       );
       _newInlineImageUrls.add(imageUrl);
       final documentLength = _controller.document.length;
-
       final maximumPosition = documentLength > 0 ? documentLength - 1 : 0;
-
       final selection = _controller.selection;
-
       final rawPosition = selection.isValid
           ? selection.baseOffset
           : maximumPosition;
-
       final insertPosition = rawPosition.clamp(0, maximumPosition).toInt();
 
       _controller.replaceText(
@@ -2117,7 +2065,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     }
   }
 
-  void _save() {
+  Future<void> _save() async {
     if (_saving || _uploadingImage) {
       return;
     }
@@ -2128,36 +2076,87 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('标题不能为空')));
-
       return;
     }
 
     final content = _controller.document.toPlainText().trim();
-
     final bodyDelta = _controller.document.toDelta().toJson();
 
     if (content.isEmpty && !_hasImage(bodyDelta)) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('内容不能为空')));
-
       return;
     }
 
-    final removedImageUrls = _originalTopImages
-        .where((url) => !_topImages.contains(url))
-        .toList();
+    final cleanupPlan = PostEditMediaCleanupPlan.fromEdit(
+      originalTopImageUrls: _originalTopImages,
+      originalBodyDelta: widget.bodyDelta,
+      currentTopImageUrls: _topImages,
+      currentBodyDelta: bodyDelta,
+      newUploadUrls: [..._newTopImageUrls, ..._newInlineImageUrls],
+    );
 
-    Navigator.pop(
-      context,
-      _PostEditResult(
+    setState(() {
+      _saving = true;
+    });
+
+    try {
+      // 保存发生在编辑页内。失败时页面不会被关闭，因此用户可以重试，
+      // 新上传的媒体也不会被误删。
+      await _postRepository.updateLanguageVersionContent(
+        postId: widget.postId,
+        languageCode: widget.languageCode,
         title: title,
         content: content,
         bodyDelta: bodyDelta,
         imageUrls: List<String>.from(_topImages),
-        removedImageUrls: removedImageUrls,
-      ),
-    );
+      );
+
+      _didSave = true;
+
+      for (final imageUrl in cleanupPlan.cleanupAfterSaveUrls) {
+        try {
+          await _mediaRepository.deleteImage(imageUrl);
+        } catch (error) {
+          debugPrint('清理帖子编辑媒体失败: $error');
+        }
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _saving = false;
+      });
+
+      Navigator.pop(
+        context,
+        _PostEditResult(
+          title: title,
+          content: content,
+          bodyDelta: bodyDelta,
+          imageUrls: List<String>.from(_topImages),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _saving = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('更新失败: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   bool _hasImage(List<dynamic> delta) {
@@ -2176,8 +2175,24 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     return false;
   }
 
+  void _cleanupNewUploadsAfterCancel() {
+    final urls = <String>{..._newTopImageUrls, ..._newInlineImageUrls};
+
+    for (final imageUrl in urls) {
+      _mediaRepository.deleteImage(imageUrl).catchError((Object error) {
+        debugPrint('清理已取消的帖子编辑媒体失败: $error');
+      });
+    }
+  }
+
   @override
   void dispose() {
+    // 正常取消编辑时，没有任何数据库引用这些本次上传的媒体，可以安全清理。
+    // 保存进行中则不抢先删除，避免网络响应不确定时误删可能已提交的对象。
+    if (!_didSave && !_saving) {
+      _cleanupNewUploadsAfterCancel();
+    }
+
     _titleController.dispose();
     _controller.dispose();
     _focusNode.dispose();
@@ -2187,243 +2202,250 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('编辑帖子'),
-        actions: [
-          TextButton(
-            onPressed: _uploadingImage ? null : _save,
-            child: const Text('保存'),
-          ),
-        ],
-      ),
-
-      body: Column(
-        children: [
-          if (_uploadingImage) const LinearProgressIndicator(),
-
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: TextField(
-              controller: _titleController,
-              maxLength: 100,
-              decoration: const InputDecoration(
-                labelText: '标题',
-                hintText: '输入帖子标题',
-                border: OutlineInputBorder(),
-                counterText: '',
+    return PopScope(
+      canPop: !_saving,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('编辑帖子'),
+          actions: [
+            TextButton(
+              onPressed: _uploadingImage || _saving ? null : _save,
+              child: Text(_saving ? '保存中…' : '保存'),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            if (_uploadingImage || _saving) const LinearProgressIndicator(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: TextField(
+                controller: _titleController,
+                maxLength: 100,
+                enabled: !_saving,
+                decoration: const InputDecoration(
+                  labelText: '标题',
+                  hintText: '输入帖子标题',
+                  border: OutlineInputBorder(),
+                  counterText: '',
+                ),
               ),
             ),
-          ),
-
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            decoration: const BoxDecoration(
-              color: Color(0xFFF8FAFC),
-              border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Text(
-                      '顶部图片',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF8FAFC),
+                border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        '顶部图片',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
                       ),
-                    ),
-
-                    const SizedBox(width: 8),
-
-                    Text(
-                      '${_topImages.length}'
-                      '/9',
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-
-                    const Spacer(),
-
-                    TextButton.icon(
-                      onPressed: _uploadingImage || _totalImageCount >= 9
-                          ? null
-                          : _addTopImages,
-                      icon: const Icon(
-                        Icons.add_photo_alternate_outlined,
-                        size: 18,
+                      const SizedBox(width: 8),
+                      Text(
+                        '${_topImages.length}/9',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                        ),
                       ),
-                      label: const Text('添加'),
-                    ),
-                  ],
-                ),
-
-                if (_topImages.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Text('暂无顶部图片', style: TextStyle(color: Colors.grey)),
-                  )
-                else
-                  SizedBox(
-                    height: 112,
-                    child: ReorderableListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      buildDefaultDragHandles: false,
-                      itemCount: _topImages.length,
-                      onReorderItem: _reorderTopImages,
-                      itemBuilder: (context, index) {
-                        final imageUrl = _topImages[index];
-
-                        return Container(
-                          key: ValueKey(imageUrl),
-                          width: 104,
-                          margin: const EdgeInsets.only(right: 10),
-                          child: Stack(
-                            children: [
-                              Positioned.fill(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: CachedNetworkImage(
-                                    imageUrl: imageUrl,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-
-                              Positioned(
-                                top: 4,
-                                right: 4,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    _removeTopImage(index);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.black54,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.close,
-                                      size: 15,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              Positioned(
-                                left: 4,
-                                bottom: 4,
-                                child: ReorderableDragStartListener(
-                                  index: index,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.black54,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.drag_indicator,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+                      const Spacer(),
+                      TextButton.icon(
+                        onPressed:
+                            _uploadingImage || _saving || _totalImageCount >= 9
+                            ? null
+                            : _addTopImages,
+                        icon: const Icon(
+                          Icons.add_photo_alternate_outlined,
+                          size: 18,
+                        ),
+                        label: const Text('添加'),
+                      ),
+                    ],
                   ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: quill.QuillEditor(
-              controller: _controller,
-              focusNode: _focusNode,
-              scrollController: _scrollController,
-              config: quill.QuillEditorConfig(
-                padding: const EdgeInsets.all(16),
-                placeholder: '输入帖子内容……',
-                embedBuilders: FlutterQuillEmbeds.editorBuilders(),
+                  if (_topImages.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Text(
+                        '暂无顶部图片',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
+                  else
+                    SizedBox(
+                      height: 112,
+                      child: ReorderableListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        buildDefaultDragHandles: false,
+                        itemCount: _topImages.length,
+                        onReorderItem: _reorderTopImages,
+                        itemBuilder: (context, index) {
+                          final imageUrl = _topImages[index];
+
+                          return Container(
+                            key: ValueKey(imageUrl),
+                            width: 104,
+                            margin: const EdgeInsets.only(right: 10),
+                            child: Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: CachedNetworkImage(
+                                      imageUrl: imageUrl,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 4,
+                                  right: 4,
+                                  child: GestureDetector(
+                                    onTap: _saving
+                                        ? null
+                                        : () {
+                                            _removeTopImage(index);
+                                          },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.black54,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.close,
+                                        size: 15,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 4,
+                                  bottom: 4,
+                                  child: ReorderableDragStartListener(
+                                    index: index,
+                                    enabled: !_saving,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.black54,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.drag_indicator,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                ],
               ),
             ),
-          ),
-
-          const Divider(height: 1),
-
-          SafeArea(
-            top: false,
-            child: Column(
-              children: [
-                if (_uploadingImage)
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                        SizedBox(width: 8),
-                        Text('正在上传并插入图片...'),
-                      ],
-                    ),
+            Expanded(
+              child: IgnorePointer(
+                ignoring: _saving,
+                child: quill.QuillEditor(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  scrollController: _scrollController,
+                  config: quill.QuillEditorConfig(
+                    padding: const EdgeInsets.all(16),
+                    placeholder: '输入帖子内容……',
+                    embedBuilders: FlutterQuillEmbeds.editorBuilders(),
                   ),
-
-                Row(
-                  children: [
-                    IconButton(
-                      tooltip: '插入图片',
-                      onPressed: _uploadingImage ? null : _insertImage,
-                      icon: const Icon(Icons.add_photo_alternate_outlined),
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            SafeArea(
+              top: false,
+              child: Column(
+                children: [
+                  if (_uploadingImage)
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          SizedBox(width: 8),
+                          Text('正在上传并插入图片...'),
+                        ],
+                      ),
                     ),
-
-                    Expanded(
-                      child: SizedBox(
-                        height: 48,
-                        child: quill.QuillSimpleToolbar(
-                          controller: _controller,
-                          config: const quill.QuillSimpleToolbarConfig(
-                            multiRowsDisplay: false,
-                            showFontFamily: false,
-                            showFontSize: false,
-                            showBoldButton: true,
-                            showItalicButton: true,
-                            showUnderLineButton: true,
-                            showStrikeThrough: false,
-                            showColorButton: false,
-                            showBackgroundColorButton: false,
-                            showClearFormat: true,
-                            showAlignmentButtons: false,
-                            showHeaderStyle: true,
-                            showListNumbers: true,
-                            showListBullets: true,
-                            showListCheck: true,
-                            showCodeBlock: false,
-                            showQuote: true,
-                            showIndent: false,
-                            showLink: false,
-                            showUndo: true,
-                            showRedo: true,
-                            showSearchButton: false,
-                            showSubscript: false,
-                            showSuperscript: false,
+                  Row(
+                    children: [
+                      IconButton(
+                        tooltip: '插入图片',
+                        onPressed: _uploadingImage || _saving
+                            ? null
+                            : _insertImage,
+                        icon: const Icon(Icons.add_photo_alternate_outlined),
+                      ),
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: IgnorePointer(
+                            ignoring: _saving,
+                            child: quill.QuillSimpleToolbar(
+                              controller: _controller,
+                              config: const quill.QuillSimpleToolbarConfig(
+                                multiRowsDisplay: false,
+                                showFontFamily: false,
+                                showFontSize: false,
+                                showBoldButton: true,
+                                showItalicButton: true,
+                                showUnderLineButton: true,
+                                showStrikeThrough: false,
+                                showColorButton: false,
+                                showBackgroundColorButton: false,
+                                showClearFormat: true,
+                                showAlignmentButtons: false,
+                                showHeaderStyle: true,
+                                showListNumbers: true,
+                                showListBullets: true,
+                                showListCheck: true,
+                                showCodeBlock: false,
+                                showQuote: true,
+                                showIndent: false,
+                                showLink: false,
+                                showUndo: true,
+                                showRedo: true,
+                                showSearchButton: false,
+                                showSubscript: false,
+                                showSuperscript: false,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -2522,7 +2544,6 @@ class _XhsImagePreviewState extends State<_XhsImagePreview> {
               );
             },
           ),
-
           IgnorePointer(
             ignoring: !_showControls,
             child: AnimatedOpacity(
@@ -2570,7 +2591,6 @@ class _XhsImagePreviewState extends State<_XhsImagePreview> {
               ),
             ),
           ),
-
           if (widget.images.length > 1)
             IgnorePointer(
               child: AnimatedOpacity(
