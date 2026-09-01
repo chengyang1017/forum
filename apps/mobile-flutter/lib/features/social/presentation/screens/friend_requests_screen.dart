@@ -1,47 +1,23 @@
-// lib/screens/friend_requests_screen.dart
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../../data/services/friend_service.dart';
+import 'package:provider/provider.dart';
 
-class FriendRequestsScreen extends StatefulWidget {
+import '../../../auth/domain/models/user_model.dart';
+import '../../../profile/domain/repositories/profile_repository.dart';
+import '../../domain/models/friend_request.dart';
+import '../../domain/repositories/friend_repository.dart';
+
+class FriendRequestsScreen extends StatelessWidget {
   const FriendRequestsScreen({super.key});
 
   @override
-  State<FriendRequestsScreen> createState() => _FriendRequestsScreenState();
-}
-
-class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
-  final friendService = FriendService();
-  final currentUser = FirebaseAuth.instance.currentUser;
-
-  Future<Map<String, String>> _getUserInfo(String uid) async {
-    final doc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .get();
-
-    if (doc.exists) {
-      final data = doc.data()!;
-      return {
-        'username': data['username'] ?? '未知用户',
-        'avatar': data['avatar'] ?? '',
-      };
-    }
-    return {'username': '未知用户', 'avatar': ''};
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final friendRepository = context.read<FriendRepository>();
+    final profileRepository = context.read<ProfileRepository>();
+
     return Scaffold(
       appBar: AppBar(title: const Text('好友申请'), centerTitle: true),
-      body: StreamBuilder<QuerySnapshot>(
-        // ✅ 查看发给我的申请
-        stream: FirebaseFirestore.instance
-            .collection('friend_requests')
-            .where('to', isEqualTo: currentUser?.uid)
-            .where('status', isEqualTo: 'pending')
-            .snapshots(),
+      body: StreamBuilder<List<FriendRequest>>(
+        stream: friendRepository.watchIncomingRequests(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -51,7 +27,8 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
             return Center(child: Text('加载失败: ${snapshot.error}'));
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          final requests = snapshot.data ?? const <FriendRequest>[];
+          if (requests.isEmpty) {
             return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -67,26 +44,29 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
             );
           }
 
-          final requests = snapshot.data!.docs;
-
           return ListView.builder(
             itemCount: requests.length,
             itemBuilder: (context, index) {
               final request = requests[index];
-              final data = request.data() as Map<String, dynamic>;
-              final fromUid = data['from'] as String;
-
-              return FutureBuilder<Map<String, String>>(
-                future: _getUserInfo(fromUid),
+              return FutureBuilder<UserModel?>(
+                future: profileRepository.getProfile(request.fromUserId),
                 builder: (context, userSnapshot) {
-                  if (!userSnapshot.hasData) {
+                  if (userSnapshot.connectionState == ConnectionState.waiting) {
                     return const ListTile(
                       leading: CircularProgressIndicator(),
                       title: Text('加载中...'),
                     );
                   }
 
-                  final userInfo = userSnapshot.data!;
+                  final user = userSnapshot.data;
+                  final displayName =
+                      user?.profileDisplayName.isNotEmpty == true
+                      ? user!.profileDisplayName
+                      : '未知用户';
+                  final avatarUrl = user?.avatarUrl ?? '';
+                  final initial = displayName.isEmpty
+                      ? '?'
+                      : displayName.substring(0, 1).toUpperCase();
 
                   return Card(
                     margin: const EdgeInsets.symmetric(
@@ -97,16 +77,15 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                       padding: const EdgeInsets.all(12),
                       child: Row(
                         children: [
-                          // 头像
                           CircleAvatar(
                             radius: 28,
                             backgroundColor: Colors.blue.shade100,
-                            backgroundImage: userInfo['avatar']!.isNotEmpty
-                                ? NetworkImage(userInfo['avatar']!)
+                            backgroundImage: avatarUrl.isNotEmpty
+                                ? NetworkImage(avatarUrl)
                                 : null,
-                            child: userInfo['avatar']!.isEmpty
+                            child: avatarUrl.isEmpty
                                 ? Text(
-                                    userInfo['username']![0].toUpperCase(),
+                                    initial,
                                     style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
@@ -116,14 +95,12 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                                 : null,
                           ),
                           const SizedBox(width: 12),
-
-                          // 用户信息
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  userInfo['username']!,
+                                  displayName,
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -140,24 +117,30 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                               ],
                             ),
                           ),
-
-                          // 操作按钮
                           Column(
                             children: [
-                              // ✅ 接受按钮
                               ElevatedButton(
                                 onPressed: () async {
-                                  await friendService.acceptRequest(fromUid);
-                                  if (!context.mounted) return;
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        '已接受 ${userInfo['username']} 的好友申请',
+                                  try {
+                                    await friendRepository.acceptRequest(
+                                      request.fromUserId,
+                                    );
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('已接受 $displayName 的好友申请'),
+                                        backgroundColor: Colors.green,
                                       ),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
+                                    );
+                                  } catch (error) {
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('操作失败: $error'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
@@ -170,18 +153,28 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                                 child: const Text('接受'),
                               ),
                               const SizedBox(height: 6),
-                              // ❌ 拒绝按钮
                               OutlinedButton(
                                 onPressed: () async {
-                                  await friendService.rejectRequest(fromUid);
-                                  if (!context.mounted) return;
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('已拒绝好友申请'),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
+                                  try {
+                                    await friendRepository.rejectRequest(
+                                      request.fromUserId,
+                                    );
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('已拒绝好友申请'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  } catch (error) {
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('操作失败: $error'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 },
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.red,

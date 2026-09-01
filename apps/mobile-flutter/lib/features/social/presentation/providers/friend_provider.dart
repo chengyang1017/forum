@@ -1,8 +1,12 @@
 import 'package:flutter/foundation.dart';
-import '../../data/services/friend_service.dart';
+
+import '../../domain/repositories/friend_repository.dart';
 
 class FriendProvider extends ChangeNotifier {
-  final FriendService _friendService = FriendService();
+  FriendProvider({required FriendRepository repository})
+    : _repository = repository;
+
+  final FriendRepository _repository;
 
   List<String>? _friendUids;
   bool _isLoading = false;
@@ -12,14 +16,13 @@ class FriendProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // ========== 加载好友列表（一次性） ==========
   Future<void> loadFriends() async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      _friendUids = await _friendService.myFriends().first;
+      _friendUids = await _repository.getFriends();
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -28,12 +31,10 @@ class FriendProvider extends ChangeNotifier {
     }
   }
 
-  // ========== 监听实时好友列表 ==========
   Stream<List<String>> watchFriends() {
-    return _friendService.myFriends();
+    return _repository.watchFriends();
   }
 
-  // ========== 清除状态 ==========
   void clear() {
     _friendUids = null;
     _isLoading = false;

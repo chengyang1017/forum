@@ -1,333 +1,135 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
-import '../../../post/domain/models/post_model.dart';
-import '../../../auth/domain/models/user_model.dart';
-import '../../../chat/data/services/chat_service.dart';
-import '../../../social/data/services/friend_service.dart';
-import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
-import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_routes.dart';
-import '../widgets/profile_post_sliver_list.dart';
-import '../widgets/profile_language_section.dart';
-import '../../domain/repositories/profile_repository.dart';
+import '../../../auth/domain/models/user_model.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
+import '../../../chat/presentation/providers/chat_provider.dart' as chat_prov;
+import '../../../post/domain/models/post_model.dart';
 import '../../../post/domain/repositories/post_repository.dart';
+import '../../../social/domain/models/friend_relationship_status.dart';
+import '../../../social/domain/repositories/friend_repository.dart';
+import '../../domain/repositories/profile_repository.dart';
+import '../widgets/profile_language_section.dart';
+import '../widgets/profile_post_sliver_list.dart';
 
 class UserProfileScreen extends StatefulWidget {
-  final String uid;
-
   const UserProfileScreen({super.key, required this.uid});
+
+  final String uid;
 
   @override
   State<UserProfileScreen> createState() => _UserProfileScreenState();
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
-  final FriendService friendService = FriendService();
-  final ChatService chatService = ChatService();
   late final ProfileRepository _profileRepository;
   late final PostRepository _postRepository;
+  late final FriendRepository _friendRepository;
+  late final chat_prov.ChatProvider _chatProvider;
+
   String? _currentUserId;
   UserModel? _userProfile;
-
-  bool isLoading = true;
-  bool isFriend = false;
-  String requestStatus = 'none';
+  bool _isLoading = true;
+  FriendRelationshipStatus _relationshipStatus = FriendRelationshipStatus.none;
 
   @override
   void initState() {
     super.initState();
-    _postRepository = context.read<PostRepository>();
     _profileRepository = context.read<ProfileRepository>();
-    _loadCurrentUser();
+    _postRepository = context.read<PostRepository>();
+    _friendRepository = context.read<FriendRepository>();
+    _chatProvider = context.read<chat_prov.ChatProvider>();
+    _currentUserId = context.read<auth_cubit.AuthCubit>().user?.id;
     _loadPageData();
   }
 
-  void _loadCurrentUser() {
-    final authProvider = context.read<auth_cubit.AuthCubit>();
-    final user = authProvider.user;
-    if (user != null) {
-      _currentUserId = user.id;
-    }
-  }
-
   Future<void> _loadPageData() async {
-    await Future.wait([loadUserData(), checkFriendStatus()]);
+    await Future.wait([_loadProfile(), _loadRelationship()]);
   }
 
-  //只读node
-  Future<void> loadUserData() async {
+  Future<void> _loadProfile() async {
     try {
       final user = await _profileRepository.getProfile(widget.uid);
-
-      if (!mounted) {
-        return;
-      }
-
+      if (!mounted) return;
       setState(() {
         _userProfile = user;
-        isLoading = false;
+        _isLoading = false;
       });
-    } catch (e) {
-      debugPrint('加载用户失败: $e');
-
-      if (!mounted) {
-        return;
-      }
-
+    } catch (error) {
+      debugPrint('Profile load failed: $error');
+      if (!mounted) return;
       setState(() {
         _userProfile = null;
-        isLoading = false;
+        _isLoading = false;
       });
     }
   }
 
-  //   Future<void> loadUserData() async {
-  //   try {
-  //     final results = await Future.wait([
-  //       _userApi.getUser(widget.uid),
-  //       FirebaseFirestore.instance
-  //           .collection('users')
-  //           .doc(widget.uid)
-  //           .get(),
-  //     ]);
-
-  //     final backendUser = results[0] as UserModel?;
-  //     final doc =
-  //         results[1] as DocumentSnapshot<Map<String, dynamic>>;
-
-  //     if (!mounted) return;
-
-  //     if (backendUser == null) {
-  //       setState(() {
-  //         _userProfile = null;
-  //         isLoading = false;
-  //       });
-  //       return;
-  //     }
-
-  //     final legacyData = doc.data();
-
-  //     final result = backendUser.copyWith(
-  //       tags: legacyData?['tags'] is List
-  //           ? List<String>.from(legacyData!['tags'])
-  //           : const [],
-  //       languages: legacyData?['languages'] is List
-  //           ? (legacyData!['languages'] as List)
-  //               .whereType<Map>()
-  //               .map(
-  //                 (item) =>
-  //                     Map<String, dynamic>.from(item),
-  //               )
-  //               .toList()
-  //           : const [],
-  //     );
-
-  //     setState(() {
-  //       _userProfile = result;
-  //       isLoading = false;
-  //     });
-  //   } catch (e) {
-  //     debugPrint('加载用户失败: $e');
-
-  //     if (!mounted) return;
-
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
-  //firebase保底
-  //   Future<void> loadUserData() async {
-  //   try {
-  //     final doc = await FirebaseFirestore.instance
-  //         .collection('users')
-  //         .doc(widget.uid)
-  //         .get();
-
-  //     if (!mounted) return;
-
-  //     if (!doc.exists) {
-  //       setState(() {
-  //         _userProfile = null;
-  //         isLoading = false;
-  //       });
-  //       return;
-  //     }
-
-  //     final legacyUser = UserModel.fromJson({
-  //       'uid': doc.id,
-  //       ...?doc.data(),
-  //     });
-
-  //     UserModel result = legacyUser;
-
-  //     try {
-  //       final backendUser =
-  //           await _userApi.getUser(widget.uid);
-
-  //       if (backendUser != null) {
-  //         result = legacyUser.copyWith(
-  //           username: backendUser.username,
-  //           nickname: backendUser.nickname,
-  //           avatar: backendUser.avatar,
-  //           bio: backendUser.bio,
-  //           birthday: backendUser.birthday,
-  //           clearBirthday: backendUser.birthday == null,
-  //           showAge: backendUser.showAge,
-  //           createdAt: backendUser.createdAt,
-  //           lastActive: backendUser.lastActive,
-  //         );
-  //       }
-  //     } catch (e) {
-  //       debugPrint(
-  //         'Node user load failed, fallback Firestore: $e',
-  //       );
-  //     }
-
-  //     if (!mounted) return;
-
-  //     setState(() {
-  //       _userProfile = result;
-  //       isLoading = false;
-  //     });
-  //   } catch (e) {
-  //     if (!mounted) return;
-
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
-
-  //   Future<void> loadUserData() async {
-  //   try {
-  //     final backendUser =
-  //         await _userApi.getUser(widget.uid);
-
-  //     final doc =
-  //         await FirebaseFirestore.instance
-  //             .collection('users')
-  //             .doc(widget.uid)
-  //             .get();
-
-  //     if (!mounted) return;
-
-  //     UserModel? result;
-
-  //     if (backendUser != null) {
-  //       if (doc.exists) {
-  //         final legacyUser = UserModel.fromJson({
-  //           'uid': doc.id,
-  //           ...?doc.data(),
-  //         });
-
-  //         result = legacyUser.copyWith(
-  //           username: backendUser.username,
-  //           nickname: backendUser.nickname,
-  //           avatar: backendUser.avatar,
-  //           bio: backendUser.bio,
-  //           birthday: backendUser.birthday,
-  //           clearBirthday: backendUser.birthday == null,
-  //           showAge: backendUser.showAge,
-  //           createdAt: backendUser.createdAt,
-  //           lastActive: backendUser.lastActive,
-  //         );
-  //       } else {
-  //         result = backendUser;
-  //       }
-  //     }
-
-  //     setState(() {
-  //       _userProfile = result;
-  //       isLoading = false;
-  //     });
-  //   } catch (e) {
-  //     if (!mounted) return;
-
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
-
-  // Future<void> loadUserData() async {
-  //   try {
-  //     final doc = await FirebaseFirestore.instance
-  //         .collection('users')
-  //         .doc(widget.uid)
-  //         .get();
-
-  //     if (!mounted) return;
-
-  //     setState(() {
-  //       if (doc.exists) {
-  //         _userProfile = UserModel.fromJson({'uid': doc.id, ...?doc.data()});
-  //       }
-  //       isLoading = false;
-  //     });
-  //   } catch (e) {
-  //     if (mounted) {
-  //       setState(() => isLoading = false);
-  //     }
-  //   }
-  // }
-
-  Future<void> checkFriendStatus() async {
+  Future<void> _loadRelationship() async {
     if (_currentUserId == null || _currentUserId == widget.uid) return;
 
     try {
-      final friend = await friendService.isFriend(widget.uid);
-
-      final sentRequests = await FirebaseFirestore.instance
-          .collection('friend_requests')
-          .where('from', isEqualTo: _currentUserId)
-          .where('to', isEqualTo: widget.uid)
-          .where('status', isEqualTo: 'pending')
-          .get();
-
-      final receivedRequests = await FirebaseFirestore.instance
-          .collection('friend_requests')
-          .where('from', isEqualTo: widget.uid)
-          .where('to', isEqualTo: _currentUserId)
-          .where('status', isEqualTo: 'pending')
-          .get();
-
+      final status = await _friendRepository.getRelationship(widget.uid);
       if (!mounted) return;
-
-      setState(() {
-        isFriend = friend;
-        if (sentRequests.docs.isNotEmpty) {
-          requestStatus = 'sent';
-        } else if (receivedRequests.docs.isNotEmpty) {
-          requestStatus = 'received';
-        } else {
-          requestStatus = 'none';
-        }
-      });
-    } catch (_) {
-      // 好友状态失败不影响个人主页显示。
+      setState(() => _relationshipStatus = status);
+    } catch (error) {
+      debugPrint('Friend relationship load failed: $error');
     }
   }
 
-  Future<void> sendFriendRequest() async {
+  Future<void> _sendFriendRequest() async {
     try {
-      await friendService.sendRequest(widget.uid);
-
+      await _friendRepository.sendRequest(widget.uid);
       if (!mounted) return;
-      setState(() => requestStatus = 'sent');
-
+      setState(() {
+        _relationshipStatus = FriendRelationshipStatus.requestSent;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('已发送好友申请'), backgroundColor: Colors.green),
       );
-    } catch (e) {
+    } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('发送失败: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('发送失败: $error'), backgroundColor: Colors.red),
       );
+    }
+  }
+
+  Future<void> _acceptFriendRequest(String displayName) async {
+    try {
+      await _friendRepository.acceptRequest(widget.uid);
+      if (!mounted) return;
+      setState(() {
+        _relationshipStatus = FriendRelationshipStatus.friends;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('已接受 $displayName 的好友申请'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('操作失败: $error'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  Future<void> _startChat(String displayName) async {
+    try {
+      final chatId = await _chatProvider.getOrCreateChat(widget.uid);
+      if (!mounted) return;
+      context.push(AppRoutes.chatLocation(chatId: chatId), extra: displayName);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('创建聊天失败: $error')));
     }
   }
 
@@ -336,20 +138,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   int _totalLikesOf(List<PostModel> posts) {
-    return posts.fold<int>(0, (total, post) {
-      return total + post.likeCount;
-    });
+    return posts.fold<int>(0, (total, post) => total + post.likeCount);
   }
 
   int _calculateAge(DateTime birthDate) {
     final now = DateTime.now();
-    int age = now.year - birthDate.year;
-
+    var age = now.year - birthDate.year;
     if (now.month < birthDate.month ||
         (now.month == birthDate.month && now.day < birthDate.day)) {
       age--;
     }
-
     return age;
   }
 
@@ -363,15 +161,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
-    if (isLoading) {
+    if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator(strokeWidth: 3)),
       );
     }
 
-    final userProfile = _userProfile;
-
-    if (userProfile == null) {
+    final user = _userProfile;
+    if (user == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('用户不存在'), centerTitle: true),
         body: const Center(
@@ -380,19 +177,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       );
     }
 
-    final username = userProfile.username.isNotEmpty
-        ? userProfile.username
-        : '未知用户';
-    final nickname = userProfile.nicknameText;
-    final displayName = userProfile.profileDisplayName.isNotEmpty
-        ? userProfile.profileDisplayName
+    final username = user.username.isNotEmpty ? user.username : '未知用户';
+    final nickname = user.nicknameText;
+    final displayName = user.profileDisplayName.isNotEmpty
+        ? user.profileDisplayName
         : username;
-    final avatar = userProfile.avatarUrl;
-    final bio = userProfile.bioText;
-    final tags = userProfile.tagsList;
-    final languages = userProfile.languageList;
-    final birthday = userProfile.birthday;
-    final showAge = userProfile.showAge;
+    final avatarUrl = user.avatarUrl;
+    final bio = user.bioText;
+    final tags = user.tagsList;
+    final languages = user.languageList;
     final isMe = _currentUserId == widget.uid;
 
     return Scaffold(
@@ -401,35 +194,31 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
+        centerTitle: true,
         title: Text(
           nickname.isNotEmpty ? nickname : '@$username',
           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
         ),
-        centerTitle: true,
       ),
       body: RefreshIndicator(
         onRefresh: _loadPageData,
         child: StreamBuilder<List<PostModel>>(
           stream: _watchUserPosts(),
           builder: (context, postSnapshot) {
-            final posts = postSnapshot.data ?? <PostModel>[];
-            final postCount = posts.length;
-            final totalLikes = _totalLikesOf(posts);
-
+            final posts = postSnapshot.data ?? const <PostModel>[];
             return CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
                 SliverToBoxAdapter(
                   child: _buildHeader(
                     theme: theme,
-                    avatar: avatar,
+                    user: user,
                     username: username,
                     nickname: nickname,
                     displayName: displayName,
-                    birthday: birthday,
-                    showAge: showAge,
-                    postCount: postCount,
-                    totalLikes: totalLikes,
+                    avatarUrl: avatarUrl,
+                    postCount: posts.length,
+                    totalLikes: _totalLikesOf(posts),
                     isMe: isMe,
                   ),
                 ),
@@ -442,18 +231,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     child: ProfileLanguageSection(
                       languages: languages,
                       l10n: l10n,
-
-                      // 其他用户主页只能查看
                       onTap: null,
                     ),
                   ),
                 if (_currentUserId != null && !isMe)
                   SliverToBoxAdapter(
-                    child: _buildSharedNotesEntry(displayName: displayName),
+                    child: _buildSharedNotesEntry(displayName),
                   ),
                 SliverToBoxAdapter(
                   child: Container(
-                    margin: EdgeInsets.zero,
                     color: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -472,7 +258,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
                           ),
                         ),
                       ],
@@ -490,49 +275,43 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Widget _buildHeader({
     required ThemeData theme,
-    required String avatar,
+    required UserModel user,
     required String username,
     required String nickname,
     required String displayName,
-    required DateTime? birthday,
-    required bool showAge,
+    required String avatarUrl,
     required int postCount,
     required int totalLikes,
     required bool isMe,
   }) {
+    final birthday = user.birthday;
+    final showPublicAge =
+        user.showAge && birthday != null && !_isDefaultBirthday(birthday);
+
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
       child: Column(
         children: [
           const SizedBox(height: 16),
-          _buildAvatar(avatar, displayName, theme),
+          _buildAvatar(avatarUrl, displayName, theme),
           const SizedBox(height: 16),
-          if (nickname.isNotEmpty) ...[
-            Text(
-              nickname,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+          Text(
+            nickname.isNotEmpty ? nickname : '@$username',
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
+          ),
+          if (nickname.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(
               '@$username',
               style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
             ),
-          ] else ...[
-            Text(
-              '@$username',
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
           ],
-          if (birthday != null && !_isDefaultBirthday(birthday)) ...[
+          if (showPublicAge) ...[
             const SizedBox(height: 6),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -547,10 +326,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                if (!showAge) ...[
-                  const SizedBox(width: 4),
-                  Icon(Icons.lock, size: 12, color: Colors.grey[400]),
-                ],
               ],
             ),
           ],
@@ -577,35 +352,26 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildAvatar(String avatar, String displayName, ThemeData theme) {
+  Widget _buildAvatar(String avatarUrl, String displayName, ThemeData theme) {
     return GestureDetector(
       onTap: () {
-        if (avatar.isEmpty) return;
-
-        showDialog(
+        if (avatarUrl.isEmpty) return;
+        showDialog<void>(
           context: context,
           builder: (_) => Dialog(
             backgroundColor: Colors.transparent,
             child: GestureDetector(
               onTap: () => Navigator.pop(context),
               child: InteractiveViewer(
-                maxScale: 5.0,
-                child: Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: CachedNetworkImage(
-                      imageUrl: avatar,
-                      fit: BoxFit.contain,
-                      placeholder: (_, _) => const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      ),
-                      errorWidget: (_, _, _) => const Icon(
-                        Icons.person,
-                        size: 200,
-                        color: Colors.white,
-                      ),
-                    ),
+                maxScale: 5,
+                child: CachedNetworkImage(
+                  imageUrl: avatarUrl,
+                  fit: BoxFit.contain,
+                  placeholder: (_, _) => const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
                   ),
+                  errorWidget: (_, _, _) =>
+                      const Icon(Icons.person, size: 200, color: Colors.white),
                 ),
               ),
             ),
@@ -614,33 +380,24 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       },
       child: Hero(
         tag: 'avatar_${widget.uid}',
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 4),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: CircleAvatar(
-            radius: 46,
-            backgroundColor: Colors.blue.shade50,
-            backgroundImage: avatar.isNotEmpty ? NetworkImage(avatar) : null,
-            child: avatar.isEmpty
-                ? Text(
-                    displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: theme.primaryColor,
-                    ),
-                  )
-                : null,
-          ),
+        child: CircleAvatar(
+          radius: 46,
+          backgroundColor: Colors.blue.shade50,
+          backgroundImage: avatarUrl.isNotEmpty
+              ? CachedNetworkImageProvider(avatarUrl)
+              : null,
+          child: avatarUrl.isEmpty
+              ? Text(
+                  displayName.isNotEmpty
+                      ? displayName.substring(0, 1).toUpperCase()
+                      : '?',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: theme.primaryColor,
+                  ),
+                )
+              : null,
         ),
       ),
     );
@@ -651,86 +408,47 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     required List<String> tags,
   }) {
     return Container(
-      margin: EdgeInsets.zero,
       padding: const EdgeInsets.all(20),
       color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (bio.isNotEmpty) ...[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.format_quote_rounded,
-                  size: 20,
-                  color: Colors.blue.shade300,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    bio,
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                      fontSize: 14,
-                      height: 1.5,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              ],
+          if (bio.isNotEmpty)
+            Text(
+              bio,
+              style: TextStyle(
+                color: Colors.grey.shade700,
+                fontSize: 14,
+                height: 1.5,
+              ),
             ),
-          ],
           if (bio.isNotEmpty && tags.isNotEmpty) const SizedBox(height: 16),
           if (tags.isNotEmpty)
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: tags.map((tag) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '# $tag',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.blue.shade700,
-                      fontWeight: FontWeight.w600,
+              children: tags
+                  .map(
+                    (tag) => Chip(
+                      label: Text('# $tag'),
+                      visualDensity: VisualDensity.compact,
                     ),
-                  ),
-                );
-              }).toList(),
+                  )
+                  .toList(),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildSharedNotesEntry({required String displayName}) {
-    final theme = Theme.of(context);
-
+  Widget _buildSharedNotesEntry(String displayName) {
     return Container(
       margin: const EdgeInsets.only(top: 10),
       color: Colors.white,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: theme.colorScheme.primaryContainer,
-          child: Icon(
-            Icons.note_alt_outlined,
-            color: theme.colorScheme.primary,
-          ),
-        ),
-        title: const Text(
-          '共同笔记',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
+        leading: const Icon(Icons.note_alt_outlined),
+        title: const Text('共同笔记'),
         subtitle: Text('查看与 $displayName 共享的笔记'),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
@@ -748,171 +466,75 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       children: [
         Text(
           count,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            color: Colors.black87,
-          ),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade500,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
         ),
       ],
     );
   }
 
   Widget _buildActionButtons(String displayName) {
-    if (isFriend) {
-      return Row(
-        children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                final chatId = await chatService.getOrCreateChat(widget.uid);
-
-                if (!mounted) return;
-                context.push(
-                  AppRoutes.chatLocation(chatId: chatId),
-                  extra: displayName,
-                );
-              },
-              icon: const Icon(Icons.chat_bubble_rounded, size: 18),
-              label: const Text(
-                '发送消息',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            height: 46,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade200, width: 1),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.check_rounded,
-                  size: 16,
-                  color: Colors.grey.shade600,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  '已是好友',
-                  style: TextStyle(
-                    color: Colors.grey.shade700,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
-
-    if (requestStatus == 'sent') {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.orange.shade50,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+    switch (_relationshipStatus) {
+      case FriendRelationshipStatus.friends:
+        return Row(
           children: [
-            Icon(
-              Icons.access_time_filled_rounded,
-              size: 18,
-              color: Colors.orange.shade600,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '好友申请审核中...',
-              style: TextStyle(
-                color: Colors.orange.shade700,
-                fontWeight: FontWeight.w600,
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () => _startChat(displayName),
+                icon: const Icon(Icons.chat_bubble_rounded, size: 18),
+                label: const Text('发送消息'),
               ),
+            ),
+            const SizedBox(width: 12),
+            const Chip(
+              avatar: Icon(Icons.check_rounded, size: 16),
+              label: Text('已是好友'),
             ),
           ],
-        ),
-      );
-    }
-
-    if (requestStatus == 'received') {
-      return SizedBox(
-        width: double.infinity,
-        child: ElevatedButton.icon(
-          onPressed: () async {
-            await friendService.acceptRequest(widget.uid);
-
-            if (!mounted) return;
-            setState(() => isFriend = true);
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('已接受 $displayName 的好友申请'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          },
-          icon: const Icon(Icons.check_rounded, size: 18),
-          label: const Text(
-            '通过好友申请',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: sendFriendRequest,
-        icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
-        label: const Text(
-          '添加好友',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(
+        );
+      case FriendRelationshipStatus.requestSent:
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.orange.shade50,
             borderRadius: BorderRadius.circular(12),
           ),
-        ),
-      ),
-    );
+          alignment: Alignment.center,
+          child: Text(
+            '好友申请审核中...',
+            style: TextStyle(
+              color: Colors.orange.shade700,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        );
+      case FriendRelationshipStatus.requestReceived:
+        return SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () => _acceptFriendRequest(displayName),
+            icon: const Icon(Icons.check_rounded, size: 18),
+            label: const Text('通过好友申请'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        );
+      case FriendRelationshipStatus.none:
+        return SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: _sendFriendRequest,
+            icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
+            label: const Text('添加好友'),
+          ),
+        );
+    }
   }
 }

@@ -6,6 +6,8 @@ import '../../features/profile/application/ports/profile_media_repository.dart';
 import '../../features/profile/data/repositories/firebase_profile_media_repository.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
+import '../../features/social/data/repositories/firestore_friend_repository.dart';
+import '../../features/social/domain/repositories/friend_repository.dart';
 
 /// Application-level dependency container.
 ///
@@ -18,6 +20,7 @@ final class AppDependencies {
     required this.postMediaRepository,
     required this.profileRepository,
     required this.profileMediaRepository,
+    required this.friendRepository,
   });
 
   factory AppDependencies.create() {
@@ -26,6 +29,7 @@ final class AppDependencies {
       postMediaRepository: FirebasePostMediaRepository(),
       profileRepository: ProfileRepositoryImpl(),
       profileMediaRepository: FirebaseProfileMediaRepository(),
+      friendRepository: FirestoreFriendRepository(),
     );
   }
 
@@ -33,4 +37,5 @@ final class AppDependencies {
   final PostMediaRepository postMediaRepository;
   final ProfileRepository profileRepository;
   final ProfileMediaRepository profileMediaRepository;
+  final FriendRepository friendRepository;
 }
