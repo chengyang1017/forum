@@ -32,8 +32,7 @@ import 'features/post/presentation/cubit/post_cubit.dart';
 import 'features/profile/application/ports/profile_media_repository.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/social/domain/repositories/friend_repository.dart';
-import 'features/social/presentation/providers/friend_provider.dart'
-    as friend_prov;
+import 'features/social/presentation/cubit/friend_cubit.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -109,8 +108,8 @@ class MyApp extends StatelessWidget {
             mediaRepository: context.read<ChatMediaRepository>(),
           ),
         ),
-        ChangeNotifierProvider(
-          create: (context) => friend_prov.FriendProvider(
+        BlocProvider<FriendCubit>(
+          create: (context) => FriendCubit(
             repository: context.read<FriendRepository>(),
           ),
         ),
