@@ -1,5 +1,7 @@
 import '../../features/auth/data/repositories/firebase_auth_repository.dart';
+import '../../features/auth/data/repositories/shared_preferences_account_history_repository.dart';
 import '../../features/auth/data/services/user_api.dart';
+import '../../features/auth/domain/repositories/account_history_repository.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/repositories/user_backend_repository.dart';
 import '../../features/chat/application/ports/chat_media_repository.dart';
@@ -33,6 +35,7 @@ import '../../features/social/domain/repositories/friend_repository.dart';
 final class AppDependencies {
   AppDependencies({
     required this.authRepository,
+    required this.accountHistoryRepository,
     required this.userBackendRepository,
     required this.chatRepository,
     required this.chatMediaRepository,
@@ -52,6 +55,7 @@ final class AppDependencies {
 
     return AppDependencies(
       authRepository: FirebaseAuthRepository(),
+      accountHistoryRepository: SharedPreferencesAccountHistoryRepository(),
       userBackendRepository: userBackendRepository,
       chatRepository: ChatRepositoryImpl(),
       chatMediaRepository: FirebaseChatMediaRepository(),
@@ -70,6 +74,7 @@ final class AppDependencies {
   }
 
   final AuthRepository authRepository;
+  final AccountHistoryRepository accountHistoryRepository;
   final UserBackendRepository userBackendRepository;
   final ChatRepository chatRepository;
   final ChatMediaRepository chatMediaRepository;

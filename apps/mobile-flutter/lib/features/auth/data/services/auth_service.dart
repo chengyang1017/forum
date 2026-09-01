@@ -69,6 +69,12 @@ class AuthService {
     return _firestore.collection('users').doc(uid).update(data);
   }
 
+  Future<void> recordSuccessfulLogin(String uid) {
+    return _firestore.collection('users').doc(uid).set(<String, dynamic>{
+      'lastLogin': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
   User? get currentUser => _auth.currentUser;
   String? get currentUserId => _auth.currentUser?.uid;
 }
