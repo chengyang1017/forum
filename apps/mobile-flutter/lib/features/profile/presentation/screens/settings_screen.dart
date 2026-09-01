@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/cubit/app_language_cubit.dart';
 import '../../../../app/l10n/app_localizations.dart';
-import '../../../../app/providers/app_language.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 
@@ -71,14 +71,14 @@ class SettingsScreen extends StatelessWidget {
     ),
     _LanguageItem(code: 'th', flag: '🇹🇭', name: 'ภาษาไทย', native: 'ภาษาไทย'),
 
-    // 注意：显示给用户是 chunom，但真正 Locale 会在 AppLanguage 里转成 vi_Nom
+    // 注意：显示给用户是 chunom，但真正 Locale 会在 AppLanguageCubit 里转成 vi-Hani
     _LanguageItem(code: 'chunom', flag: '🇻🇳', name: '㗂越', native: '㗂越'),
   ];
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final appLanguage = context.watch<AppLanguage>();
+    final appLanguage = context.watch<AppLanguageCubit>();
     final currentLangName = _getLangName(appLanguage.currentCode);
 
     return Scaffold(
@@ -136,7 +136,7 @@ class SettingsScreen extends StatelessWidget {
 
   void _showLanguagePicker(
     BuildContext context,
-    AppLanguage appLanguage,
+    AppLanguageCubit appLanguage,
     AppLocalizations l10n,
   ) {
     showModalBottomSheet(
