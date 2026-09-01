@@ -1,0 +1,106 @@
+name: Refactor profile post repository
+
+on:
+  push:
+    branches:
+      - refactor/profile-post-repository
+
+permissions:
+  contents: write
+
+jobs:
+  refactor:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: refactor/profile-post-repository
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: stable
+          cache: true
+
+      - name: Refactor profile post reads
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          provider = Path('apps/mobile-flutter/lib/features/profile/presentation/providers/profile_provider.dart')
+          text = provider.read_text()
+          replacements = [
+              (
+                  "import '../../../post/data/services/post_node_service.dart';",
+                  "import '../../../post/domain/repositories/post_repository.dart';",
+              ),
+              (
+                  "class ProfileProvider extends ChangeNotifier {\n",
+                  "class ProfileProvider extends ChangeNotifier {\n"
+                  "  ProfileProvider({required PostRepository postRepository})\n"
+                  "    : _postRepository = postRepository;\n\n"
+                  "  final PostRepository _postRepository;\n",
+              ),
+              ("  final PostService _postService = PostService();\n", ""),
+              (
+                  "    return _postService.watchUserPosts(uid);",
+                  "    return _postRepository.watchUserPosts(uid);",
+              ),
+          ]
+          for old, new in replacements:
+              assert text.count(old) == 1, (provider, old, text.count(old))
+              text = text.replace(old, new)
+          provider.write_text(text)
+
+          mine = Path('apps/mobile-flutter/lib/features/profile/presentation/screens/my_profile_screen.dart')
+          text = mine.read_text()
+          old = "import '../../../post/domain/models/post_model.dart';\n"
+          new = old + "import '../../../post/domain/repositories/post_repository.dart';\n"
+          assert text.count(old) == 1, (mine, old, text.count(old))
+          text = text.replace(old, new)
+          old = "    _profileProvider = ProfileProvider();"
+          new = "    _profileProvider = ProfileProvider(\n      postRepository: context.read<PostRepository>(),\n    );"
+          assert text.count(old) == 1, (mine, old, text.count(old))
+          text = text.replace(old, new)
+          mine.write_text(text)
+
+          other = Path('apps/mobile-flutter/lib/features/profile/presentation/screens/user_profile_screen.dart')
+          text = other.read_text()
+          replacements = [
+              (
+                  "import '../../../post/data/services/post_node_service.dart';",
+                  "import '../../../post/domain/repositories/post_repository.dart';",
+              ),
+              (
+                  "  final PostService _postService = PostService();",
+                  "  late final PostRepository _postRepository;",
+              ),
+              (
+                  "  void initState() {\n    super.initState();\n    _loadCurrentUser();",
+                  "  void initState() {\n    super.initState();\n    _postRepository = context.read<PostRepository>();\n    _loadCurrentUser();",
+              ),
+              (
+                  "    return _postService.watchUserPosts(widget.uid);",
+                  "    return _postRepository.watchUserPosts(widget.uid);",
+              ),
+          ]
+          for old, new in replacements:
+              assert text.count(old) == 1, (other, old, text.count(old))
+              text = text.replace(old, new)
+          other.write_text(text)
+          PY
+
+      - name: Format
+        working-directory: apps/mobile-flutter
+        run: dart format lib/features/profile
+
+      - name: Commit refactor
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/mobile-flutter/lib/features/profile
+          git commit -m "refactor(flutter): route profile posts through repository"
+          git push origin HEAD:refactor/profile-post-repository
