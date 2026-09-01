@@ -10,8 +10,7 @@ import '../services/post_node_service.dart';
 /// presentation/application layers, while transport details stay in
 /// [PostService].
 class PostRepositoryImpl implements PostRepository {
-  PostRepositoryImpl({PostService? service})
-    : _service = service ?? PostService();
+  PostRepositoryImpl({PostService? service}) : _service = service ?? PostService();
 
   final PostService _service;
 

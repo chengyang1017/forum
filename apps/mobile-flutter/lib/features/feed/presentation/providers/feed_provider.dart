@@ -4,8 +4,7 @@ import '../../../post/domain/models/post_model.dart';
 import '../../../post/domain/repositories/post_repository.dart';
 
 class FeedProvider extends ChangeNotifier {
-  FeedProvider({required PostRepository repository})
-    : _repository = repository;
+  FeedProvider({required PostRepository repository}) : _repository = repository;
 
   final PostRepository _repository;
 
@@ -42,7 +41,6 @@ class FeedProvider extends ChangeNotifier {
       );
     } catch (error) {
       _error = error.toString();
-      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();

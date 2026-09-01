@@ -5,8 +5,7 @@ import '../../domain/models/post_model.dart';
 import '../../domain/repositories/post_repository.dart';
 
 class PostProvider extends ChangeNotifier {
-  PostProvider({required PostRepository repository})
-    : _repository = repository;
+  PostProvider({required PostRepository repository}) : _repository = repository;
 
   final PostRepository _repository;
 
