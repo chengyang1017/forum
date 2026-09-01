@@ -13,7 +13,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_routes.dart';
 import '../widgets/profile_post_sliver_list.dart';
 import '../widgets/profile_language_section.dart';
-import '../../../auth/data/services/user_api.dart';
+import '../../domain/repositories/profile_repository.dart';
 import '../../../post/domain/repositories/post_repository.dart';
 
 class UserProfileScreen extends StatefulWidget {
@@ -28,7 +28,7 @@ class UserProfileScreen extends StatefulWidget {
 class _UserProfileScreenState extends State<UserProfileScreen> {
   final FriendService friendService = FriendService();
   final ChatService chatService = ChatService();
-  final UserApi _userApi = UserApi();
+  late final ProfileRepository _profileRepository;
   late final PostRepository _postRepository;
   String? _currentUserId;
   UserModel? _userProfile;
@@ -41,6 +41,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   void initState() {
     super.initState();
     _postRepository = context.read<PostRepository>();
+    _profileRepository = context.read<ProfileRepository>();
     _loadCurrentUser();
     _loadPageData();
   }
@@ -60,7 +61,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   //只读node
   Future<void> loadUserData() async {
     try {
-      final user = await _userApi.getUser(widget.uid);
+      final user = await _profileRepository.getProfile(widget.uid);
 
       if (!mounted) {
         return;

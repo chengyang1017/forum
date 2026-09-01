@@ -11,6 +11,8 @@ import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../post/domain/models/post_model.dart';
 import '../../../post/domain/repositories/post_repository.dart';
+import '../../application/ports/profile_media_repository.dart';
+import '../../domain/repositories/profile_repository.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/birthday_editor_dialog.dart';
 import '../widgets/language_editor_sheet.dart';
@@ -130,6 +132,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     super.initState();
     _profileProvider = ProfileProvider(
       postRepository: context.read<PostRepository>(),
+      profileRepository: context.read<ProfileRepository>(),
+      mediaRepository: context.read<ProfileMediaRepository>(),
     );
     loadProfile();
   }

@@ -20,6 +20,8 @@ import 'features/feed/presentation/providers/feed_provider.dart' as feed_prov;
 import 'features/post/application/ports/post_media_repository.dart';
 import 'features/post/domain/repositories/post_repository.dart';
 import 'features/post/presentation/providers/post_provider.dart' as post_prov;
+import 'features/profile/application/ports/profile_media_repository.dart';
+import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/social/presentation/providers/friend_provider.dart'
     as friend_prov;
 
@@ -55,6 +57,12 @@ class MyApp extends StatelessWidget {
         Provider<PostRepository>.value(value: dependencies.postRepository),
         Provider<PostMediaRepository>.value(
           value: dependencies.postMediaRepository,
+        ),
+        Provider<ProfileRepository>.value(
+          value: dependencies.profileRepository,
+        ),
+        Provider<ProfileMediaRepository>.value(
+          value: dependencies.profileMediaRepository,
         ),
         ChangeNotifierProvider(create: (_) => AppLanguage()),
         BlocProvider<auth_cubit.AuthCubit>(
