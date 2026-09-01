@@ -1,0 +1,44 @@
+name: Format post edit branch
+
+on:
+  push:
+    branches:
+      - fix/post-edit-media-lifecycle
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile-flutter
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: fix/post-edit-media-lifecycle
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: stable
+          cache: true
+
+      - name: Format
+        run: dart format lib test
+
+      - name: Commit formatting
+        working-directory: .
+        run: |
+          if git diff --quiet -- apps/mobile-flutter/lib apps/mobile-flutter/test; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/mobile-flutter/lib apps/mobile-flutter/test
+          git commit -m "style(flutter): apply dart format"
+          git push origin HEAD:fix/post-edit-media-lifecycle
