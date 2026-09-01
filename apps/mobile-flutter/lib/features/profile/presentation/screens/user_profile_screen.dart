@@ -1,13 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
-import '../../../chat/presentation/providers/chat_provider.dart' as chat_prov;
+import '../../../chat/presentation/cubit/chat_cubit.dart';
 import '../../../post/domain/models/post_model.dart';
 import '../../../post/domain/repositories/post_repository.dart';
 import '../../../social/domain/models/friend_relationship_status.dart';
@@ -29,7 +29,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   late final ProfileRepository _profileRepository;
   late final PostRepository _postRepository;
   late final FriendRepository _friendRepository;
-  late final chat_prov.ChatProvider _chatProvider;
+  late final ChatCubit _chatCubit;
 
   String? _currentUserId;
   UserModel? _userProfile;
@@ -42,7 +42,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     _profileRepository = context.read<ProfileRepository>();
     _postRepository = context.read<PostRepository>();
     _friendRepository = context.read<FriendRepository>();
-    _chatProvider = context.read<chat_prov.ChatProvider>();
+    _chatCubit = context.read<ChatCubit>();
     _currentUserId = context.read<auth_cubit.AuthCubit>().user?.id;
     _loadPageData();
   }
@@ -122,7 +122,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Future<void> _startChat(String displayName) async {
     try {
-      final chatId = await _chatProvider.getOrCreateChat(widget.uid);
+      final chatId = await _chatCubit.getOrCreateChat(widget.uid);
       if (!mounted) return;
       context.push(AppRoutes.chatLocation(chatId: chatId), extra: displayName);
     } catch (error) {
