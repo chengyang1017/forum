@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
-import '../providers/chat_provider.dart' as chat_prov;
+import '../cubit/chat_cubit.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/emoji_picker.dart';
 import '../widgets/chat_input_bar.dart';
@@ -67,7 +67,7 @@ class _ChatRouteScreenState extends State<ChatRouteScreen> {
     }
 
     final participants = await context
-        .read<chat_prov.ChatProvider>()
+        .read<ChatCubit>()
         .getChatParticipants(widget.chatId);
     if (!participants.contains(currentUserId)) {
       throw StateError('当前用户不是聊天室成员');
@@ -343,7 +343,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     try {
-      await context.read<chat_prov.ChatProvider>().editMessage(
+      await context.read<ChatCubit>().editMessage(
         chatId: widget.chatId,
         messageId: messageId,
         currentUserId: currentUserId,
@@ -426,7 +426,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     try {
-      await context.read<chat_prov.ChatProvider>().deleteMessageForMe(
+      await context.read<ChatCubit>().deleteMessageForMe(
         chatId: widget.chatId,
         messageId: messageId,
         currentUserId: currentUserId,
@@ -479,7 +479,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     try {
-      await context.read<chat_prov.ChatProvider>().deleteMessageForEveryone(
+      await context.read<ChatCubit>().deleteMessageForEveryone(
         chatId: widget.chatId,
         messageId: messageId,
         currentUserId: currentUserId,
@@ -518,8 +518,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     });
                   }
 
-                  final chatProvider = this.context
-                      .read<chat_prov.ChatProvider>();
+                  final chatProvider = this.context.read<ChatCubit>();
 
                   // 关闭时先删除实时内容。
                   // 不要等待 Firestore 设置保存完成。
@@ -580,7 +579,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (userId == null) return;
 
     try {
-      final chatProvider = context.read<chat_prov.ChatProvider>();
+      final chatProvider = context.read<ChatCubit>();
 
       final enabled = await chatProvider.getLiveDraftEnabled(
         chatId: widget.chatId,
@@ -706,7 +705,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _loadOtherUserData() async {
-    final chatProvider = context.read<chat_prov.ChatProvider>();
+    final chatProvider = context.read<ChatCubit>();
 
     final userIds = await chatProvider.getChatParticipants(widget.chatId);
 
@@ -731,7 +730,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _loadParticipantData() async {
-    final chatProvider = context.read<chat_prov.ChatProvider>();
+    final chatProvider = context.read<ChatCubit>();
     final userIds = await chatProvider.getChatParticipants(widget.chatId);
     final currentUserId = _currentUserId;
     final allUserIds = <String>{...userIds, ?currentUserId};
@@ -766,7 +765,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _clearUnread() async {
     if (_currentUserId == null) return;
-    final chatProvider = context.read<chat_prov.ChatProvider>();
+    final chatProvider = context.read<ChatCubit>();
     await chatProvider.markAsRead(widget.chatId, _currentUserId!);
   }
 
@@ -793,7 +792,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     try {
-      await context.read<chat_prov.ChatProvider>().sendMessageWithSender(
+      await context.read<ChatCubit>().sendMessageWithSender(
         widget.chatId,
         senderId,
         text,
@@ -816,7 +815,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final senderId = authProvider.user?.id;
     if (senderId == null) return;
 
-    final chatProvider = context.read<chat_prov.ChatProvider>();
+    final chatProvider = context.read<ChatCubit>();
     chatProvider.sendMessageWithSender(widget.chatId, senderId, emoji);
   }
 
@@ -839,7 +838,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() => _isUploading = true);
     try {
       final imageBytes = await image.readAsBytes();
-      await context.read<chat_prov.ChatProvider>().sendImageMessage(
+      await context.read<ChatCubit>().sendImageMessage(
         chatId: widget.chatId,
         senderId: senderId,
         imageBytes: imageBytes,
@@ -1134,7 +1133,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // ============================================================
 
   Widget _buildMessageList() {
-    final chatProvider = context.watch<chat_prov.ChatProvider>();
+    final chatProvider = context.watch<ChatCubit>();
 
     return StreamBuilder<List<ChatMessage>>(
       stream: chatProvider.watchMessages(widget.chatId),
