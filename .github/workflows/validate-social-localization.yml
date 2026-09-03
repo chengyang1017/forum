@@ -20,6 +20,9 @@ jobs:
       - name: Apply social localization sweep
         run: python .github/scripts/localize_social_ui.py
 
+      - name: Fix analyzer issues
+        run: python .github/scripts/fix_social_localization.py
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
