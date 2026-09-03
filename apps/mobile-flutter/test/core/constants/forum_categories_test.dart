@@ -96,24 +96,70 @@ void main() {
       expect(ForumCategories.languageCodeOf(categoryId), vietnamese.code);
     });
 
-    test('builds a language-learning breadcrumb without requiring a child', () {
+    test('keeps general language-learning posts at the root', () {
       expect(
         ForumCategories.pathOf(ForumCategories.languageLearningCategoryId),
         <String>[ForumCategories.languageLearningCategoryId],
       );
+    });
+
+    test('splits Vietnamese into writing-system subcategories', () {
+      final vietnamese = LanguageConfig.findByCode('vi');
+      expect(vietnamese, isNotNull);
+      expect(vietnamese!.scriptCodes, containsAll(<String>['Latn', 'Hnom']));
 
       final vietnameseCategoryId =
           ForumCategories.languageLearningCategoryIdFor('vi');
+      final children = ForumCategories.childrenOf(vietnameseCategoryId);
+      final childIds = children.map((category) => category.id).toSet();
+      final latinId = ForumCategories.languageLearningScriptCategoryIdFor(
+        'vi',
+        'Latn',
+      );
+      final nomId = ForumCategories.languageLearningScriptCategoryIdFor(
+        'vi',
+        'Hnom',
+      );
+
+      expect(childIds, containsAll(<String>{latinId, nomId}));
+      expect(ForumCategories.hasChildren(vietnameseCategoryId), isTrue);
+      expect(ForumCategories.isLanguageLearningLanguageCategory(vietnameseCategoryId), isTrue);
+      expect(ForumCategories.isLanguageLearningScriptCategory(latinId), isTrue);
+      expect(ForumCategories.isLanguageLearningScriptCategory(nomId), isTrue);
+      expect(ForumCategories.languageCodeOf(nomId), 'vi');
+      expect(ForumCategories.scriptCodeOf(latinId), 'Latn');
+      expect(ForumCategories.scriptCodeOf(nomId), 'Hnom');
+      expect(
+        ForumCategories.nameOf(latinId, 'zh'),
+        vietnamese.scriptNameOf('Latn', 'zh'),
+      );
+      expect(
+        ForumCategories.nameOf(nomId, 'zh'),
+        vietnamese.scriptNameOf('Hnom', 'zh'),
+      );
+    });
+
+    test('builds language-learning paths through writing systems', () {
+      final vietnameseCategoryId =
+          ForumCategories.languageLearningCategoryIdFor('vi');
+      final nomId = ForumCategories.languageLearningScriptCategoryIdFor(
+        'vi',
+        'Hnom',
+      );
 
       expect(ForumCategories.pathOf(vietnameseCategoryId), <String>[
         ForumCategories.languageLearningCategoryId,
         vietnameseCategoryId,
       ]);
+      expect(ForumCategories.pathOf(nomId), <String>[
+        ForumCategories.languageLearningCategoryId,
+        vietnameseCategoryId,
+        nomId,
+      ]);
       expect(
-        ForumCategories.rootIdOf(vietnameseCategoryId),
+        ForumCategories.rootIdOf(nomId),
         ForumCategories.languageLearningCategoryId,
       );
-      expect(ForumCategories.hasChildren(vietnameseCategoryId), isFalse);
     });
   });
 }
