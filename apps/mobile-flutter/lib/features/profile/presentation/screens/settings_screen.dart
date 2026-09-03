@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/cubit/app_language_cubit.dart';
+import '../../../../app/cubit/app_theme_cubit.dart';
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
@@ -78,14 +79,17 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     final appLanguage = context.watch<AppLanguageCubit>();
+    final appTheme = context.watch<AppThemeCubit>();
     final currentLangName = _getLangName(appLanguage.currentCode);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.settings),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
       ),
       body: ListView(
@@ -97,6 +101,22 @@ class SettingsScreen extends StatelessWidget {
             title: l10n.switchLanguage,
             subtitle: '${l10n.currentLanguage}: $currentLangName',
             onTap: () => _showLanguagePicker(context, appLanguage, l10n),
+          ),
+          SwitchListTile.adaptive(
+            secondary: Icon(Icons.bedtime_rounded, color: colorScheme.primary),
+            title: Text(
+              l10n.midnightMode,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+            subtitle: Text(
+              l10n.midnightModeDesc,
+              style: TextStyle(
+                fontSize: 12,
+                color: colorScheme.onSurface.withValues(alpha: 0.62),
+              ),
+            ),
+            value: appTheme.isMidnight,
+            onChanged: appTheme.setMidnight,
           ),
           _buildItem(
             context,
@@ -139,13 +159,15 @@ class SettingsScreen extends StatelessWidget {
     AppLanguageCubit appLanguage,
     AppLocalizations l10n,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         padding: const EdgeInsets.only(bottom: 16),
         child: Column(
@@ -156,7 +178,7 @@ class SettingsScreen extends StatelessWidget {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: colorScheme.onSurface.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -192,11 +214,11 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? Colors.blue.shade50
-                            : Colors.grey.shade50,
+                            ? colorScheme.primary.withValues(alpha: 0.12)
+                            : colorScheme.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(14),
                         border: isSelected
-                            ? Border.all(color: Colors.blue, width: 1.5)
+                            ? Border.all(color: colorScheme.primary, width: 1.5)
                             : null,
                       ),
                       child: Row(
@@ -213,8 +235,8 @@ class SettingsScreen extends StatelessWidget {
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                     color: isSelected
-                                        ? Colors.blue.shade800
-                                        : Colors.black87,
+                                        ? colorScheme.primary
+                                        : colorScheme.onSurface,
                                   ),
                                 ),
                                 if (lang.name != lang.native)
@@ -222,7 +244,9 @@ class SettingsScreen extends StatelessWidget {
                                     lang.name,
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: Colors.grey.shade500,
+                                      color: colorScheme.onSurface.withValues(
+                                        alpha: 0.52,
+                                      ),
                                     ),
                                   ),
                               ],
@@ -232,13 +256,13 @@ class SettingsScreen extends StatelessWidget {
                             Container(
                               width: 28,
                               height: 28,
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
+                              decoration: BoxDecoration(
+                                color: colorScheme.primary,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.check,
-                                color: Colors.white,
+                                color: colorScheme.onPrimary,
                                 size: 18,
                               ),
                             ),
@@ -270,19 +294,29 @@ class SettingsScreen extends StatelessWidget {
     required String subtitle,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return ListTile(
-      leading: Icon(icon, color: Colors.blue),
+      leading: Icon(icon, color: colorScheme.primary),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
       subtitle: Text(
         subtitle,
-        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        style: TextStyle(
+          fontSize: 12,
+          color: colorScheme.onSurface.withValues(alpha: 0.62),
+        ),
       ),
-      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: colorScheme.onSurface.withValues(alpha: 0.45),
+      ),
       onTap: onTap,
     );
   }
 
   Widget _buildLogoutItem(BuildContext context, AppLocalizations l10n) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return ListTile(
       leading: const Icon(Icons.logout, color: Colors.red),
       title: Text(
@@ -291,7 +325,10 @@ class SettingsScreen extends StatelessWidget {
       ),
       subtitle: Text(
         l10n.logout,
-        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        style: TextStyle(
+          fontSize: 12,
+          color: colorScheme.onSurface.withValues(alpha: 0.62),
+        ),
       ),
       onTap: () => _logout(context),
     );
