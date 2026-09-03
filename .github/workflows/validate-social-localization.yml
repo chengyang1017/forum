@@ -1,0 +1,69 @@
+name: Validate social localization sweep
+
+on:
+  push:
+    branches:
+      - fix/localize-remaining-social-post-ui
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply social localization sweep
+        run: python .github/scripts/localize_social_ui.py
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.2
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        working-directory: apps/mobile-flutter
+        run: flutter pub get
+
+      - name: Format changed Dart files
+        working-directory: apps/mobile-flutter
+        run: |
+          dart format \
+            lib/features/chat/presentation/screens/chat_list_screen.dart \
+            lib/features/social/presentation/screens/friend_requests_screen.dart \
+            lib/features/social/presentation/screens/friends_list_screen.dart \
+            lib/features/profile/presentation/screens/users_screen.dart
+
+      - name: Analyze changed files
+        working-directory: apps/mobile-flutter
+        run: |
+          dart analyze \
+            lib/features/chat/presentation/screens/chat_list_screen.dart \
+            lib/features/social/presentation/screens/friend_requests_screen.dart \
+            lib/features/social/presentation/screens/friends_list_screen.dart \
+            lib/features/profile/presentation/screens/users_screen.dart
+
+      - name: Run localization tests
+        working-directory: apps/mobile-flutter
+        run: flutter test test/app/l10n/localization_assets_test.dart
+
+      - name: Check diff
+        run: git diff --check
+
+      - name: Commit validated changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/mobile-flutter
+          if git diff --cached --quiet; then
+            echo "No app changes to commit"
+            exit 0
+          fi
+          git commit -m "fix: localize chat and social interface"
+          git push origin HEAD:fix/localize-remaining-social-post-ui
