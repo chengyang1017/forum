@@ -122,9 +122,7 @@ class ForumLanguages {
           .toList(growable: false);
     }
 
-    return <ForumLanguageChannel>[
-      ForumLanguageChannel(language: language),
-    ];
+    return <ForumLanguageChannel>[ForumLanguageChannel(language: language)];
   }
 
   static List<ForumLanguageGroup> get channelGroups {
