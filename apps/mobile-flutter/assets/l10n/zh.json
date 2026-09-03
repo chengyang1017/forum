@@ -22,6 +22,8 @@
   "confirm": "确定",
   "search": "搜索",
   "settings": "设置",
+  "midnightMode": "深夜模式",
+  "midnightModeDesc": "纯黑背景与低亮度界面，适合夜间和 OLED 屏幕",
   "logout": "退出登录",
   "login": "登录",
   "register": "注册",
