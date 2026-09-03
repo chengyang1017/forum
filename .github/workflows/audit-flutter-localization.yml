@@ -1,15 +1,84 @@
-name: Audit Flutter localization
+name: Validate post and note localization sweep
 
 on:
   push:
     branches:
       - fix/localize-post-note-ui
 
+permissions:
+  contents: write
+
 jobs:
-  audit:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Scan user-visible CJK literals
+        with:
+          fetch-depth: 0
+
+      - name: Apply localization sweep
+        run: python .github/scripts/apply_post_note_localization.py
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.2
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        working-directory: apps/mobile-flutter
+        run: flutter pub get
+
+      - name: Format changed Dart files
+        working-directory: apps/mobile-flutter
+        run: |
+          dart format \
+            lib/features/post/presentation/screens/post_edit_history_screen.dart \
+            lib/features/post/presentation/screens/node_comment_screen.dart \
+            lib/features/post/presentation/widgets/post_report_dialog.dart \
+            lib/features/notes/presentation/screens/user_notes_screen.dart \
+            lib/features/profile/presentation/widgets/birthday_editor_dialog.dart \
+            lib/features/home/presentation/widgets/recommended_posts_view.dart \
+            lib/features/discover/presentation/screens/discover_screen.dart \
+            lib/features/home/presentation/screens/main_navigation_screen.dart \
+            test/features/profile/birthday_editor_dialog_test.dart
+
+      - name: Analyze changed Dart files
+        working-directory: apps/mobile-flutter
+        run: |
+          dart analyze \
+            lib/features/post/presentation/screens/post_edit_history_screen.dart \
+            lib/features/post/presentation/screens/node_comment_screen.dart \
+            lib/features/post/presentation/widgets/post_report_dialog.dart \
+            lib/features/notes/presentation/screens/user_notes_screen.dart \
+            lib/features/profile/presentation/widgets/birthday_editor_dialog.dart \
+            lib/features/home/presentation/widgets/recommended_posts_view.dart \
+            lib/features/discover/presentation/screens/discover_screen.dart \
+            lib/features/home/presentation/screens/main_navigation_screen.dart \
+            test/features/profile/birthday_editor_dialog_test.dart
+
+      - name: Run localization and birthday tests
+        working-directory: apps/mobile-flutter
+        run: |
+          flutter test test/app/l10n/localization_assets_test.dart
+          flutter test test/features/profile/birthday_editor_dialog_test.dart
+
+      - name: Scan remaining CJK UI candidates
         run: python .github/scripts/audit_flutter_cjk_ui.py
+
+      - name: Check diff
+        run: git diff --check
+
+      - name: Commit validated app changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/mobile-flutter
+          if git diff --cached --quiet; then
+            echo "No app changes to commit"
+            exit 0
+          fi
+          git commit -m "fix: localize post and note support surfaces"
+          git push origin HEAD:fix/localize-post-note-ui
