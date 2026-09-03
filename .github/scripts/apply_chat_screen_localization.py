@@ -1,0 +1,82 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+APP = ROOT / 'apps/mobile-flutter'
+PATH = ROOT / 'apps/mobile-flutter/lib/features/chat/presentation/screens/chat_screen.dart'
+text = PATH.read_text(encoding='utf-8')
+
+
+def one(old: str, new: str, label: str) -> None:
+    global text
+    if old not in text:
+        raise RuntimeError(f'missing marker: {label}')
+    text = text.replace(old, new, 1)
+
+
+one("import '../../../../app/router/app_routes.dart';\n", "import '../../../../app/l10n/app_localizations.dart';\nimport '../../../../app/router/app_routes.dart';\n", 'l10n import')
+one("  Widget build(BuildContext context) {\n    final initialOtherUserName = widget.initialOtherUserName;", "  Widget build(BuildContext context) {\n    final l10n = AppLocalizations.of(context)!;\n    final initialOtherUserName = widget.initialOtherUserName;", 'route l10n')
+text = text.replace("appBar: AppBar(title: const Text('聊天'))", "appBar: AppBar(title: Text(l10n.get('chatTitle')))")
+text = text.replace("const Text(\n                      '聊天加载失败',", "Text(\n                      l10n.get('chatLoadFailed'),")
+text = text.replace("Text('${snapshot.error}', textAlign: TextAlign.center),", "Text(l10n.get('chatLoadFailedDescription'), textAlign: TextAlign.center),")
+text = text.replace("label: const Text('重试'),", "label: Text(l10n.retry),")
+text = text.replace("otherUserName: snapshot.data ?? '未知用户',", "otherUserName: (snapshot.data?.trim().isNotEmpty ?? false)\n              ? snapshot.data!.trim()\n              : l10n.get('unknownUser'),")
+text = text.replace("return name.isNotEmpty ? name : '群聊';", "return name.isNotEmpty\n          ? name\n          : AppLocalizations.of(context)!.get('groupChat');")
+
+pairs = [
+("title: const Text('编辑消息'),", "title: Text(AppLocalizations.of(context)!.get('editMessage')),"),
+("title: const Text('删除消息', style: TextStyle(color: Colors.red)),", "title: Text(AppLocalizations.of(context)!.get('deleteMessage'), style: const TextStyle(color: Colors.red)),"),
+("hintText: '输入消息内容',", "hintText: AppLocalizations.of(context)!.get('messageInputHint'),"),
+("child: const Text('取消'),", "child: Text(AppLocalizations.of(context)!.cancel),"),
+("child: const Text('保存'),", "child: Text(AppLocalizations.of(context)!.save),"),
+("const SnackBar(content: Text('消息已编辑'))", "SnackBar(content: Text(AppLocalizations.of(context)!.get('messageEdited')))"),
+("SnackBar(content: Text('编辑失败：$error'), backgroundColor: Colors.red),", "SnackBar(content: Text(AppLocalizations.of(context)!.get('editMessageFailed')), backgroundColor: Colors.red),"),
+("title: const Text('仅删除自己'),", "title: Text(AppLocalizations.of(context)!.get('deleteForMe')),"),
+("subtitle: const Text('消息只会从你的聊天记录中消失'),", "subtitle: Text(AppLocalizations.of(context)!.get('deleteForMeDescription')),"),
+("widget.isGroupChat ? '删除所有人' : '双方删除',", "widget.isGroupChat ? AppLocalizations.of(context)!.get('deleteForEveryone') : AppLocalizations.of(context)!.get('deleteForBoth'),"),
+("widget.isGroupChat ? '消息会从所有群成员的聊天中删除' : '消息会从双方聊天中删除',", "widget.isGroupChat ? AppLocalizations.of(context)!.get('deleteForEveryoneDescription') : AppLocalizations.of(context)!.get('deleteForBothDescription'),"),
+("SnackBar(content: Text('删除失败：$error'), backgroundColor: Colors.red),", "SnackBar(content: Text(AppLocalizations.of(context)!.get('deleteMessageFailed')), backgroundColor: Colors.red),"),
+("title: Text(widget.isGroupChat ? '删除所有人的消息？' : '双方删除消息？'),", "title: Text(widget.isGroupChat ? AppLocalizations.of(context)!.get('deleteForEveryoneTitle') : AppLocalizations.of(context)!.get('deleteForBothTitle')),"),
+("widget.isGroupChat ? '这条消息会从所有群成员的聊天中删除。' : '这条消息会从双方的聊天记录中删除。',", "widget.isGroupChat ? AppLocalizations.of(context)!.get('deleteForEveryoneConfirm') : AppLocalizations.of(context)!.get('deleteForBothConfirm'),"),
+("child: const Text('删除'),", "child: Text(AppLocalizations.of(context)!.delete),"),
+("title: const Text('分享实时输入内容'),", "title: Text(AppLocalizations.of(context)!.get('shareLiveTyping')),"),
+("subtitle: const Text('开启后，聊天室里的其他成员可以实时看到你正在输入的文字'),", "subtitle: Text(AppLocalizations.of(context)!.get('shareLiveTypingDescription')),"),
+("const SnackBar(content: Text('设置保存失败，请稍后重试'))", "SnackBar(content: Text(AppLocalizations.of(context)!.get('settingsSaveFailed')))"),
+("const SnackBar(content: Text('请先登录'), backgroundColor: Colors.red)", "SnackBar(content: Text(AppLocalizations.of(context)!.get('pleaseSignIn')), backgroundColor: Colors.red)"),
+("SnackBar(content: Text('发送失败：$error'), backgroundColor: Colors.red),", "SnackBar(content: Text(AppLocalizations.of(context)!.sendFailed), backgroundColor: Colors.red),"),
+("SnackBar(content: Text('发送失败: $error'), backgroundColor: Colors.red),", "SnackBar(content: Text(AppLocalizations.of(context)!.sendFailed), backgroundColor: Colors.red),"),
+("const SnackBar(content: Text('对方用户资料尚未加载'))", "SnackBar(content: Text(AppLocalizations.of(context)!.get('peerProfileNotReady')))"),
+("final displayName = user?.profileDisplayName ?? '用户';", "final displayName = user?.profileDisplayName ?? AppLocalizations.of(context)!.get('unknownUser');"),
+("'正在输入',", "AppLocalizations.of(context)!.get('typing'),"),
+("'另外 $remainingCount 人正在输入',", "AppLocalizations.of(context)!.getWithArgs('morePeopleTyping', {'count': '$remainingCount'}),"),
+("tooltip: '共享笔记',", "tooltip: AppLocalizations.of(context)!.get('sharedNotes'),"),
+("_showLockedAction('语音通话功能开发中');", "_showLockedAction(AppLocalizations.of(context)!.get('voiceCallComingSoon'));"),
+("_showLockedAction('视频通话功能开发中');", "_showLockedAction(AppLocalizations.of(context)!.get('videoCallComingSoon'));"),
+("return Center(child: Text('加载失败: ${snapshot.error}'));", "return Center(child: Text(AppLocalizations.of(context)!.loadFailed));"),
+("return const Center(child: Text('没有消息，开始聊天吧！'));", "return Center(child: Text(AppLocalizations.of(context)!.get('noMessagesStartChat')));"),
+("'此消息已删除',", "AppLocalizations.of(context)!.get('messageDeleted'),"),
+("? '已编辑 · $messageTime'", "? AppLocalizations.of(context)!.getWithArgs('editedAt', {'time': messageTime})"),
+]
+for old, new in pairs:
+    text = text.replace(old, new)
+
+PATH.write_text(text, encoding='utf-8')
+
+translations = {
+'en': {'chatTitle':'Chat','chatLoadFailed':'Could not load chat','chatLoadFailedDescription':'This conversation could not be loaded. Please try again.','groupChat':'Group chat','editMessage':'Edit message','deleteMessage':'Delete message','messageEdited':'Message edited','editMessageFailed':'Could not edit message','deleteForMe':'Delete for me','deleteForMeDescription':'The message will disappear only from your chat history','deleteForEveryone':'Delete for everyone','deleteForBoth':'Delete for both','deleteForEveryoneDescription':'The message will be removed for every group member','deleteForBothDescription':'The message will be removed from both chat histories','deleteMessageFailed':'Could not delete message','deleteForEveryoneTitle':'Delete this message for everyone?','deleteForBothTitle':'Delete this message for both people?','deleteForEveryoneConfirm':'This message will be removed from every group member’s chat.','deleteForBothConfirm':'This message will be removed from both chat histories.','shareLiveTyping':'Share live typing','shareLiveTypingDescription':'Other members can see the text you are currently typing in real time.','settingsSaveFailed':'Could not save the setting. Please try again.','pleaseSignIn':'Please sign in first','peerProfileNotReady':'The other user’s profile is still loading','typing':'Typing','morePeopleTyping':'{count} more people are typing','voiceCallComingSoon':'Voice calls are coming soon','videoCallComingSoon':'Video calls are coming soon','noMessagesStartChat':'No messages yet. Start the conversation!','messageDeleted':'This message was deleted','editedAt':'Edited · {time}'},
+'zh': {'chatTitle':'聊天','chatLoadFailed':'聊天加载失败','chatLoadFailedDescription':'无法加载这个会话，请稍后重试。','groupChat':'群聊','editMessage':'编辑消息','deleteMessage':'删除消息','messageEdited':'消息已编辑','editMessageFailed':'编辑消息失败','deleteForMe':'仅删除自己','deleteForMeDescription':'消息只会从你的聊天记录中消失','deleteForEveryone':'删除所有人','deleteForBoth':'双方删除','deleteForEveryoneDescription':'消息会从所有群成员的聊天中删除','deleteForBothDescription':'消息会从双方聊天中删除','deleteMessageFailed':'删除消息失败','deleteForEveryoneTitle':'删除所有人的消息？','deleteForBothTitle':'双方删除消息？','deleteForEveryoneConfirm':'这条消息会从所有群成员的聊天中删除。','deleteForBothConfirm':'这条消息会从双方的聊天记录中删除。','shareLiveTyping':'分享实时输入内容','shareLiveTypingDescription':'开启后，聊天室里的其他成员可以实时看到你正在输入的文字','settingsSaveFailed':'设置保存失败，请稍后重试','pleaseSignIn':'请先登录','peerProfileNotReady':'对方用户资料尚未加载','typing':'正在输入','morePeopleTyping':'另外 {count} 人正在输入','voiceCallComingSoon':'语音通话功能开发中','videoCallComingSoon':'视频通话功能开发中','noMessagesStartChat':'没有消息，开始聊天吧！','messageDeleted':'此消息已删除','editedAt':'已编辑 · {time}'},
+'ja': {'chatTitle':'チャット','chatLoadFailed':'チャットを読み込めませんでした','chatLoadFailedDescription':'この会話を読み込めませんでした。もう一度お試しください。','groupChat':'グループチャット','editMessage':'メッセージを編集','deleteMessage':'メッセージを削除','messageEdited':'メッセージを編集しました','editMessageFailed':'メッセージを編集できませんでした','deleteForMe':'自分だけ削除','deleteForMeDescription':'あなたのチャット履歴からのみ消えます','deleteForEveryone':'全員から削除','deleteForBoth':'双方から削除','deleteForEveryoneDescription':'すべてのグループメンバーのチャットから削除されます','deleteForBothDescription':'双方のチャット履歴から削除されます','deleteMessageFailed':'メッセージを削除できませんでした','deleteForEveryoneTitle':'全員からこのメッセージを削除しますか？','deleteForBothTitle':'双方からこのメッセージを削除しますか？','deleteForEveryoneConfirm':'すべてのグループメンバーのチャットから削除されます。','deleteForBothConfirm':'双方のチャット履歴から削除されます。','shareLiveTyping':'入力内容をリアルタイム共有','shareLiveTypingDescription':'他のメンバーが入力中の文字をリアルタイムで確認できます。','settingsSaveFailed':'設定を保存できませんでした。もう一度お試しください。','pleaseSignIn':'先にログインしてください','peerProfileNotReady':'相手のプロフィールはまだ読み込み中です','typing':'入力中','morePeopleTyping':'ほか {count} 人が入力中','voiceCallComingSoon':'音声通話は開発中です','videoCallComingSoon':'ビデオ通話は開発中です','noMessagesStartChat':'まだメッセージはありません。会話を始めましょう！','messageDeleted':'このメッセージは削除されました','editedAt':'編集済み · {time}'},
+'ko': {'chatTitle':'채팅','chatLoadFailed':'채팅을 불러오지 못했습니다','chatLoadFailedDescription':'이 대화를 불러올 수 없습니다. 다시 시도해 주세요.','groupChat':'그룹 채팅','editMessage':'메시지 편집','deleteMessage':'메시지 삭제','messageEdited':'메시지가 수정되었습니다','editMessageFailed':'메시지를 수정하지 못했습니다','deleteForMe':'나에게서만 삭제','deleteForMeDescription':'내 채팅 기록에서만 사라집니다','deleteForEveryone':'모두에게서 삭제','deleteForBoth':'양쪽에서 삭제','deleteForEveryoneDescription':'모든 그룹 멤버의 채팅에서 삭제됩니다','deleteForBothDescription':'양쪽 채팅 기록에서 삭제됩니다','deleteMessageFailed':'메시지를 삭제하지 못했습니다','deleteForEveryoneTitle':'모두에게서 이 메시지를 삭제할까요?','deleteForBothTitle':'양쪽에서 이 메시지를 삭제할까요?','deleteForEveryoneConfirm':'모든 그룹 멤버의 채팅에서 삭제됩니다.','deleteForBothConfirm':'양쪽 채팅 기록에서 삭제됩니다.','shareLiveTyping':'실시간 입력 공유','shareLiveTypingDescription':'다른 멤버가 현재 입력 중인 내용을 실시간으로 볼 수 있습니다.','settingsSaveFailed':'설정을 저장하지 못했습니다. 다시 시도해 주세요.','pleaseSignIn':'먼저 로그인해 주세요','peerProfileNotReady':'상대방 프로필을 아직 불러오는 중입니다','typing':'입력 중','morePeopleTyping':'그 외 {count}명이 입력 중','voiceCallComingSoon':'음성 통화 기능은 개발 중입니다','videoCallComingSoon':'영상 통화 기능은 개발 중입니다','noMessagesStartChat':'아직 메시지가 없습니다. 대화를 시작해 보세요!','messageDeleted':'삭제된 메시지입니다','editedAt':'수정됨 · {time}'},
+'ms': {'chatTitle':'Sembang','chatLoadFailed':'Sembang gagal dimuatkan','chatLoadFailedDescription':'Perbualan ini tidak dapat dimuatkan. Sila cuba lagi.','groupChat':'Sembang kumpulan','editMessage':'Edit mesej','deleteMessage':'Padam mesej','messageEdited':'Mesej telah diedit','editMessageFailed':'Mesej gagal diedit','deleteForMe':'Padam untuk saya','deleteForMeDescription':'Mesej hanya akan hilang daripada sejarah sembang anda','deleteForEveryone':'Padam untuk semua','deleteForBoth':'Padam untuk kedua-dua pihak','deleteForEveryoneDescription':'Mesej akan dipadam daripada sembang semua ahli kumpulan','deleteForBothDescription':'Mesej akan dipadam daripada sejarah sembang kedua-dua pihak','deleteMessageFailed':'Mesej gagal dipadam','deleteForEveryoneTitle':'Padam mesej ini untuk semua?','deleteForBothTitle':'Padam mesej ini untuk kedua-dua pihak?','deleteForEveryoneConfirm':'Mesej ini akan dipadam daripada sembang semua ahli kumpulan.','deleteForBothConfirm':'Mesej ini akan dipadam daripada sejarah sembang kedua-dua pihak.','shareLiveTyping':'Kongsi taip secara langsung','shareLiveTypingDescription':'Ahli lain boleh melihat teks yang sedang anda taip secara langsung.','settingsSaveFailed':'Tetapan gagal disimpan. Sila cuba lagi.','pleaseSignIn':'Sila log masuk dahulu','peerProfileNotReady':'Profil pengguna lain masih sedang dimuatkan','typing':'Sedang menaip','morePeopleTyping':'{count} orang lagi sedang menaip','voiceCallComingSoon':'Panggilan suara sedang dibangunkan','videoCallComingSoon':'Panggilan video sedang dibangunkan','noMessagesStartChat':'Belum ada mesej. Mulakan perbualan!','messageDeleted':'Mesej ini telah dipadam','editedAt':'Diedit · {time}'},
+'vi': {'chatTitle':'Trò chuyện','chatLoadFailed':'Không thể tải cuộc trò chuyện','chatLoadFailedDescription':'Không thể tải cuộc trò chuyện này. Vui lòng thử lại.','groupChat':'Trò chuyện nhóm','editMessage':'Chỉnh sửa tin nhắn','deleteMessage':'Xóa tin nhắn','messageEdited':'Đã chỉnh sửa tin nhắn','editMessageFailed':'Không thể chỉnh sửa tin nhắn','deleteForMe':'Chỉ xóa với tôi','deleteForMeDescription':'Tin nhắn chỉ biến mất khỏi lịch sử trò chuyện của bạn','deleteForEveryone':'Xóa với mọi người','deleteForBoth':'Xóa cho cả hai','deleteForEveryoneDescription':'Tin nhắn sẽ bị xóa khỏi cuộc trò chuyện của tất cả thành viên nhóm','deleteForBothDescription':'Tin nhắn sẽ bị xóa khỏi lịch sử trò chuyện của cả hai bên','deleteMessageFailed':'Không thể xóa tin nhắn','deleteForEveryoneTitle':'Xóa tin nhắn này với mọi người?','deleteForBothTitle':'Xóa tin nhắn này cho cả hai?','deleteForEveryoneConfirm':'Tin nhắn này sẽ bị xóa khỏi cuộc trò chuyện của tất cả thành viên nhóm.','deleteForBothConfirm':'Tin nhắn này sẽ bị xóa khỏi lịch sử trò chuyện của cả hai bên.','shareLiveTyping':'Chia sẻ nội dung đang nhập','shareLiveTypingDescription':'Các thành viên khác có thể xem nội dung bạn đang nhập theo thời gian thực.','settingsSaveFailed':'Không thể lưu cài đặt. Vui lòng thử lại.','pleaseSignIn':'Vui lòng đăng nhập trước','peerProfileNotReady':'Hồ sơ của người kia vẫn đang được tải','typing':'Đang nhập','morePeopleTyping':'Có thêm {count} người đang nhập','voiceCallComingSoon':'Tính năng gọi thoại đang được phát triển','videoCallComingSoon':'Tính năng gọi video đang được phát triển','noMessagesStartChat':'Chưa có tin nhắn. Hãy bắt đầu trò chuyện!','messageDeleted':'Tin nhắn này đã bị xóa','editedAt':'Đã sửa · {time}'},
+'th': {'chatTitle':'แชต','chatLoadFailed':'โหลดแชตไม่สำเร็จ','chatLoadFailedDescription':'ไม่สามารถโหลดการสนทนานี้ได้ โปรดลองอีกครั้ง','groupChat':'แชตกลุ่ม','editMessage':'แก้ไขข้อความ','deleteMessage':'ลบข้อความ','messageEdited':'แก้ไขข้อความแล้ว','editMessageFailed':'แก้ไขข้อความไม่สำเร็จ','deleteForMe':'ลบสำหรับฉัน','deleteForMeDescription':'ข้อความจะหายไปจากประวัติแชตของคุณเท่านั้น','deleteForEveryone':'ลบสำหรับทุกคน','deleteForBoth':'ลบสำหรับทั้งสองฝ่าย','deleteForEveryoneDescription':'ข้อความจะถูกลบจากแชตของสมาชิกกลุ่มทุกคน','deleteForBothDescription':'ข้อความจะถูกลบจากประวัติแชตของทั้งสองฝ่าย','deleteMessageFailed':'ลบข้อความไม่สำเร็จ','deleteForEveryoneTitle':'ลบข้อความนี้สำหรับทุกคนหรือไม่?','deleteForBothTitle':'ลบข้อความนี้สำหรับทั้งสองฝ่ายหรือไม่?','deleteForEveryoneConfirm':'ข้อความนี้จะถูกลบจากแชตของสมาชิกกลุ่มทุกคน','deleteForBothConfirm':'ข้อความนี้จะถูกลบจากประวัติแชตของทั้งสองฝ่าย','shareLiveTyping':'แชร์ข้อความที่กำลังพิมพ์แบบสด','shareLiveTypingDescription':'สมาชิกคนอื่นจะเห็นข้อความที่คุณกำลังพิมพ์แบบเรียลไทม์','settingsSaveFailed':'บันทึกการตั้งค่าไม่สำเร็จ โปรดลองอีกครั้ง','pleaseSignIn':'กรุณาเข้าสู่ระบบก่อน','peerProfileNotReady':'โปรไฟล์ของอีกฝ่ายยังโหลดไม่เสร็จ','typing':'กำลังพิมพ์','morePeopleTyping':'มีอีก {count} คนกำลังพิมพ์','voiceCallComingSoon':'ฟีเจอร์โทรด้วยเสียงกำลังพัฒนา','videoCallComingSoon':'ฟีเจอร์วิดีโอคอลกำลังพัฒนา','noMessagesStartChat':'ยังไม่มีข้อความ เริ่มการสนทนาได้เลย!','messageDeleted':'ข้อความนี้ถูกลบแล้ว','editedAt':'แก้ไขแล้ว · {time}'}
+}
+for code, values in translations.items():
+    p = APP / 'assets' / 'l10n' / f'{code}.json'
+    data = json.loads(p.read_text(encoding='utf-8'))
+    data.update(values)
+    p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+print('Applied chat screen localization.')
