@@ -181,6 +181,8 @@ class AppLocalizations {
   String get confirm => get('confirm');
   String get search => get('search');
   String get settings => get('settings');
+  String get midnightMode => get('midnightMode');
+  String get midnightModeDesc => get('midnightModeDesc');
   String get logout => get('logout');
   String get login => get('login');
   String get register => get('register');
