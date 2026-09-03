@@ -34,12 +34,14 @@ class FeedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final authCubit = context.watch<auth_cubit.AuthCubit>();
     final currentUserId = authCubit.user?.id;
     final children = ForumCategories.childrenOf(_selectedCategoryId);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: Column(
         children: [
@@ -98,7 +100,7 @@ class FeedScreen extends StatelessWidget {
                     separatorBuilder: (context, index) => Divider(
                       height: 1,
                       thickness: 1,
-                      color: Colors.grey.shade100,
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.7),
                     ),
                     itemBuilder: (context, index) {
                       final post = posts[index];
@@ -132,6 +134,8 @@ class FeedScreen extends StatelessWidget {
   }
 
   AppBar _buildAppBar(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final uiLanguageCode = Localizations.localeOf(context).languageCode;
     final categoryName = ForumCategories.nameOf(
       _selectedCategoryId,
@@ -144,37 +148,41 @@ class FeedScreen extends StatelessWidget {
         children: [
           Text(
             categoryName,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E293B),
+              color: colorScheme.onSurface,
               fontSize: 18,
             ),
           ),
           Text(
             _getLanguageDisplay(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Color(0xFF64748B),
+              color: colorScheme.onSurface.withValues(alpha: 0.62),
               fontWeight: FontWeight.w500,
             ),
           ),
         ],
       ),
       centerTitle: true,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       elevation: 0,
       surfaceTintColor: Colors.transparent,
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
-        child: Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+        child: Divider(
+          height: 1,
+          thickness: 1,
+          color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+        ),
       ),
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 8),
           child: IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.add_rounded,
-              color: Colors.blueAccent,
+              color: colorScheme.primary,
               size: 28,
             ),
             onPressed: () {
