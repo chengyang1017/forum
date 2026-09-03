@@ -31,6 +31,7 @@ import 'features/post/domain/repositories/post_repository.dart';
 import 'features/post/presentation/cubit/post_cubit.dart';
 import 'features/profile/application/ports/profile_media_repository.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
+import 'features/social/domain/repositories/follow_repository.dart';
 import 'features/social/domain/repositories/friend_repository.dart';
 import 'features/social/presentation/cubit/friend_cubit.dart';
 
@@ -95,6 +96,7 @@ class MyApp extends StatelessWidget {
           value: dependencies.profileMediaRepository,
         ),
         Provider<FriendRepository>.value(value: dependencies.friendRepository),
+        Provider<FollowRepository>.value(value: dependencies.followRepository),
         BlocProvider<AppLanguageCubit>(
           create: (_) => AppLanguageCubit(),
         ),

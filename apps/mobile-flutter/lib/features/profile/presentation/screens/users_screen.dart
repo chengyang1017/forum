@@ -8,6 +8,7 @@ import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../chat/domain/repositories/chat_repository.dart';
 import '../../../discover/domain/models/discover_user.dart';
 import '../../../discover/domain/repositories/discover_repository.dart';
+import '../../../social/domain/repositories/follow_repository.dart';
 
 class UsersScreen extends StatelessWidget {
   const UsersScreen({super.key});
@@ -65,7 +66,7 @@ class UsersScreen extends StatelessWidget {
                   subtitle: user.username.isEmpty
                       ? null
                       : Text('@${user.username}'),
-                  trailing: const Icon(Icons.chat_bubble_outline),
+                  trailing: _FollowButton(userId: user.id),
                   onTap: () => _openChat(
                     context: context,
                     chatRepository: chatRepository,
@@ -104,6 +105,85 @@ class UsersScreen extends StatelessWidget {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('创建聊天失败：$error')));
+    }
+  }
+}
+
+class _FollowButton extends StatefulWidget {
+  const _FollowButton({required this.userId});
+
+  final String userId;
+
+  @override
+  State<_FollowButton> createState() => _FollowButtonState();
+}
+
+class _FollowButtonState extends State<_FollowButton> {
+  bool _isBusy = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final repository = context.read<FollowRepository>();
+
+    return StreamBuilder<bool>(
+      stream: repository.watchIsFollowing(widget.userId),
+      initialData: false,
+      builder: (context, snapshot) {
+        final isFollowing = snapshot.data ?? false;
+
+        return FilledButton.tonalIcon(
+          onPressed: _isBusy
+              ? null
+              : () => _toggleFollow(
+                  repository: repository,
+                  isFollowing: isFollowing,
+                ),
+          icon: _isBusy
+              ? const SizedBox(
+                  width: 15,
+                  height: 15,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Icon(
+                  isFollowing
+                      ? Icons.person_rounded
+                      : Icons.person_add_alt_1_rounded,
+                  size: 17,
+                ),
+          label: Text(isFollowing ? '已关注' : '关注'),
+          style: FilledButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _toggleFollow({
+    required FollowRepository repository,
+    required bool isFollowing,
+  }) async {
+    setState(() => _isBusy = true);
+
+    try {
+      if (isFollowing) {
+        await repository.unfollow(widget.userId);
+      } else {
+        await repository.follow(widget.userId);
+      }
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('关注操作失败：$error')));
+    } finally {
+      if (mounted) {
+        setState(() => _isBusy = false);
+      }
     }
   }
 }
