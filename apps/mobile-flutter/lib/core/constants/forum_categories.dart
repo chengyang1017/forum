@@ -209,10 +209,7 @@ class ForumCategories {
       if (language.scriptCodes.length > 1)
         for (final scriptCode in language.scriptCodes)
           ForumCategory(
-            id: languageLearningScriptCategoryIdFor(
-              language.code,
-              scriptCode,
-            ),
+            id: languageLearningScriptCategoryIdFor(language.code, scriptCode),
             parentId: languageLearningCategoryIdFor(language.code),
             languageCode: language.code,
             scriptCode: scriptCode,

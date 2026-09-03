@@ -123,7 +123,12 @@ void main() {
 
       expect(childIds, containsAll(<String>{latinId, nomId}));
       expect(ForumCategories.hasChildren(vietnameseCategoryId), isTrue);
-      expect(ForumCategories.isLanguageLearningLanguageCategory(vietnameseCategoryId), isTrue);
+      expect(
+        ForumCategories.isLanguageLearningLanguageCategory(
+          vietnameseCategoryId,
+        ),
+        isTrue,
+      );
       expect(ForumCategories.isLanguageLearningScriptCategory(latinId), isTrue);
       expect(ForumCategories.isLanguageLearningScriptCategory(nomId), isTrue);
       expect(ForumCategories.languageCodeOf(nomId), 'vi');
