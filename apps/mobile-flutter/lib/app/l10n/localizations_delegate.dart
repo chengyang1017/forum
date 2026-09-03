@@ -7,19 +7,11 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
 
   @override
   bool isSupported(Locale locale) {
-    if (locale.languageCode == 'vi' && locale.scriptCode == 'Hani') {
-      return true;
-    }
-
-    return const [
-      'zh',
-      'en',
-      'ja',
-      'ko',
-      'ms',
-      'vi',
-      'th',
-    ].contains(locale.languageCode);
+    return AppLocalizations.supportedLocales.any(
+      (supported) =>
+          supported.languageCode == locale.languageCode &&
+          supported.scriptCode == locale.scriptCode,
+    );
   }
 
   @override
@@ -30,7 +22,5 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   }
 
   @override
-  bool shouldReload(covariant AppLocalizationsDelegate old) {
-    return false;
-  }
+  bool shouldReload(covariant AppLocalizationsDelegate old) => false;
 }

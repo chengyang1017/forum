@@ -18,41 +18,36 @@ void main() {
 
     final cubit = AppLanguageCubit();
     addTearDown(cubit.close);
-
     await Future<void>.delayed(Duration.zero);
 
     expect(cubit.locale, const Locale('en'));
     expect(cubit.currentCode, 'en');
   });
 
-  test('changeLanguageByCode updates state and persists language code', () async {
-    final cubit = AppLanguageCubit();
-    addTearDown(cubit.close);
+  test(
+    'changeLanguageByCode updates state and persists language code',
+    () async {
+      final cubit = AppLanguageCubit();
+      addTearDown(cubit.close);
+      await Future<void>.delayed(Duration.zero);
+      await cubit.changeLanguageByCode('ms');
 
-    await Future<void>.delayed(Duration.zero);
-    await cubit.changeLanguageByCode('ms');
-
-    final prefs = await SharedPreferences.getInstance();
-
-    expect(cubit.locale, const Locale('ms'));
-    expect(cubit.currentCode, 'ms');
-    expect(prefs.getString('languageCode'), 'ms');
-  });
+      final prefs = await SharedPreferences.getInstance();
+      expect(cubit.locale, const Locale('ms'));
+      expect(cubit.currentCode, 'ms');
+      expect(prefs.getString('languageCode'), 'ms');
+    },
+  );
 
   test('normalizes Nom locale variants to vi-Hani and stores chunom', () async {
     final cubit = AppLanguageCubit();
     addTearDown(cubit.close);
-
     await Future<void>.delayed(Duration.zero);
     await cubit.changeLanguage(
-      const Locale.fromSubtags(
-        languageCode: 'vi',
-        scriptCode: 'Nom',
-      ),
+      const Locale.fromSubtags(languageCode: 'vi', scriptCode: 'Nom'),
     );
 
     final prefs = await SharedPreferences.getInstance();
-
     expect(cubit.locale, AppLanguageCubit.chunomLocale);
     expect(cubit.currentCode, 'chunom');
     expect(prefs.getString('languageCode'), 'chunom');
@@ -65,10 +60,45 @@ void main() {
 
     final cubit = AppLanguageCubit();
     addTearDown(cubit.close);
-
     await Future<void>.delayed(Duration.zero);
 
+    final prefs = await SharedPreferences.getInstance();
     expect(cubit.locale, AppLanguageCubit.chunomLocale);
     expect(cubit.currentCode, 'chunom');
+    expect(prefs.getString('languageCode'), 'chunom');
   });
+
+  test(
+    'accepts hyphenated Hani and Hnom aliases and persists canonical code',
+    () async {
+      final cubit = AppLanguageCubit();
+      addTearDown(cubit.close);
+      await Future<void>.delayed(Duration.zero);
+
+      await cubit.changeLanguageByCode('vi-Hani');
+      expect(cubit.locale, AppLanguageCubit.chunomLocale);
+
+      await cubit.changeLanguageByCode('vi-Hnom');
+      final prefs = await SharedPreferences.getInstance();
+      expect(cubit.currentCode, 'chunom');
+      expect(prefs.getString('languageCode'), 'chunom');
+    },
+  );
+
+  test(
+    'an explicit language change wins over the asynchronous saved load',
+    () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        'languageCode': 'en',
+      });
+
+      final cubit = AppLanguageCubit();
+      addTearDown(cubit.close);
+      await cubit.changeLanguageByCode('vi');
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.locale, const Locale('vi'));
+      expect(cubit.currentCode, 'vi');
+    },
+  );
 }

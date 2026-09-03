@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/forum_categories.dart';
 import '../../../../core/widgets/empty_state.dart';
@@ -84,7 +85,7 @@ class FeedScreen extends StatelessWidget {
                 }
 
                 if (snapshot.hasError) {
-                  return _buildErrorState(snapshot.error);
+                  return _buildErrorState(context, snapshot.error);
                 }
 
                 final allPosts = snapshot.data ?? const <PostModel>[];
@@ -146,9 +147,10 @@ class FeedScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final uiLanguageCode = Localizations.localeOf(context).languageCode;
-    final categoryName = ForumCategories.nameOf(
+    final l10n = AppLocalizations.of(context)!;
+    final categoryName = l10n.categoryName(
       _selectedCategoryId,
-      uiLanguageCode,
+      fallback: ForumCategories.nameOf(_selectedCategoryId, uiLanguageCode),
     );
 
     return AppBar(
@@ -164,7 +166,7 @@ class FeedScreen extends StatelessWidget {
             ),
           ),
           Text(
-            _getLanguageDisplay(),
+            _getLanguageDisplay(context),
             style: TextStyle(
               fontSize: 12,
               color: colorScheme.onSurface.withValues(alpha: 0.62),
@@ -189,7 +191,9 @@ class FeedScreen extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(right: 8),
           child: IconButton(
-            tooltip: _isLanguageLearningRoot ? '发布综合语言学习话题' : '发布帖子',
+            tooltip: _isLanguageLearningRoot
+                ? l10n.get('publishGeneralLanguageLearning')
+                : l10n.get('publishPost'),
             icon: Icon(Icons.add_rounded, color: colorScheme.primary, size: 28),
             onPressed: () {
               context.push(
@@ -205,15 +209,16 @@ class FeedScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorState(Object? error) {
+  Widget _buildErrorState(BuildContext context, Object? error) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
           const SizedBox(height: 12),
-          const Text(
-            '加载失败',
+          Text(
+            l10n.loadFailed,
             style: TextStyle(
               fontSize: 16,
               color: Colors.redAccent,
@@ -233,17 +238,23 @@ class FeedScreen extends StatelessWidget {
 
   Widget _buildEmptyState(BuildContext context) {
     final uiLanguageCode = Localizations.localeOf(context).languageCode;
-    final categoryName = ForumCategories.nameOf(
+    final l10n = AppLocalizations.of(context)!;
+    final categoryName = l10n.categoryName(
       _selectedCategoryId,
-      uiLanguageCode,
+      fallback: ForumCategories.nameOf(_selectedCategoryId, uiLanguageCode),
     );
 
     return EmptyState(
       icon: Icons.article_outlined,
-      title: '暂无$languageName帖子',
+      title: l10n.getWithArgs('noLanguagePosts', <String, String>{
+        'language': languageName,
+      }),
       subtitle: _isLanguageLearningRoot
-          ? '可以直接发布语言学习综合话题，\n也可以先选择一门具体语言'
-          : '成为第一个在「$categoryName」下\n发布$languageName帖子的人吧',
+          ? l10n.get('languageLearningRootEmpty')
+          : l10n.getWithArgs('firstPostInCategory', <String, String>{
+              'category': categoryName,
+              'language': languageName,
+            }),
       onAction: () {
         context.push(
           AppRoutes.createPostLocation(
@@ -252,13 +263,21 @@ class FeedScreen extends StatelessWidget {
           ),
         );
       },
-      actionLabel: _isLanguageLearningRoot ? '发布综合语言学习话题' : '发布$languageName帖子',
+      actionLabel: _isLanguageLearningRoot
+          ? l10n.get('publishGeneralLanguageLearning')
+          : l10n.getWithArgs('publishLanguagePost', <String, String>{
+              'language': languageName,
+            }),
     );
   }
 
-  String _getLanguageDisplay() {
+  String _getLanguageDisplay(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final flag = _getFlag(languageCode);
-    return '$flag $languageName频道';
+    return l10n.getWithArgs('channelDisplay', <String, String>{
+      'flag': flag,
+      'language': languageName,
+    });
   }
 
   String _getFlag(String code) {
@@ -317,6 +336,7 @@ class _CategoryBreadcrumbBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final uiLanguageCode = Localizations.localeOf(context).languageCode;
+    final l10n = AppLocalizations.of(context)!;
     final path = ForumCategories.pathOf(categoryId);
 
     if (path.length <= 1) {
@@ -355,7 +375,13 @@ class _CategoryBreadcrumbBar extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
                 child: Text(
-                  ForumCategories.nameOf(path[index], uiLanguageCode),
+                  l10n.categoryName(
+                    path[index],
+                    fallback: ForumCategories.nameOf(
+                      path[index],
+                      uiLanguageCode,
+                    ),
+                  ),
                   style: TextStyle(
                     color: index == path.length - 1
                         ? colorScheme.primary
@@ -401,6 +427,7 @@ class _LanguageLearningChildrenPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       width: double.infinity,
@@ -431,7 +458,7 @@ class _LanguageLearningChildrenPanel extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '选择学习语言（可选）',
+                      l10n.get('selectLearningLanguageOptional'),
                       style: TextStyle(
                         color: colorScheme.onSurface,
                         fontSize: 14,
@@ -440,7 +467,7 @@ class _LanguageLearningChildrenPanel extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '不选择具体语言也可以发帖，适合讨论学习方法、语言学或多语言话题。',
+                      l10n.get('learningLanguageOptionalDesc'),
                       style: TextStyle(
                         color: colorScheme.onSurface.withValues(alpha: 0.58),
                         fontSize: 12,
@@ -458,7 +485,11 @@ class _LanguageLearningChildrenPanel extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => _openPicker(context),
               icon: const Icon(Icons.search_rounded, size: 19),
-              label: Text('从语言库选择 · ${children.length} 种语言'),
+              label: Text(
+                l10n.getWithArgs('chooseFromLanguageLibrary', <String, String>{
+                  'count': '${children.length}',
+                }),
+              ),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(42),
                 alignment: Alignment.centerLeft,
@@ -497,6 +528,7 @@ class _LanguageLearningPickerSheetState
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final uiLanguageCode = Localizations.localeOf(context).languageCode;
+    final l10n = AppLocalizations.of(context)!;
     final normalizedQuery = _query.trim().toLowerCase();
     final languages = List<ForumCategory>.from(widget.children)
       ..sort((first, second) {
@@ -538,7 +570,7 @@ class _LanguageLearningPickerSheetState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '选择学习语言',
+                  l10n.get('selectLearningLanguage'),
                   style: TextStyle(
                     color: colorScheme.onSurface,
                     fontSize: 20,
@@ -547,7 +579,7 @@ class _LanguageLearningPickerSheetState
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '语言来自 Glyphora Language Core。返回上一层即可继续使用“综合语言学习”，不要求指定语言。',
+                  l10n.get('languageLibraryDesc'),
                   style: TextStyle(
                     color: colorScheme.onSurface.withValues(alpha: 0.58),
                     fontSize: 12,
@@ -559,9 +591,9 @@ class _LanguageLearningPickerSheetState
                   controller: _searchController,
                   autofocus: false,
                   onChanged: (value) => setState(() => _query = value),
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.search_rounded),
-                    hintText: '搜索语言名称或代码',
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    hintText: l10n.get('searchLanguageNameOrCode'),
                   ),
                 ),
               ],
@@ -572,7 +604,7 @@ class _LanguageLearningPickerSheetState
             child: visibleLanguages.isEmpty
                 ? Center(
                     child: Text(
-                      '没有找到语言',
+                      l10n.get('noLanguagesFound'),
                       style: TextStyle(
                         color: colorScheme.onSurface.withValues(alpha: 0.55),
                       ),
@@ -604,7 +636,9 @@ class _LanguageLearningPickerSheetState
                           ),
                         ),
                         title: Text(
-                          category.nameOf(uiLanguageCode),
+                          l10n.translateLanguage(code) == code
+                              ? category.nameOf(uiLanguageCode)
+                              : l10n.translateLanguage(code),
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         subtitle: Text(code.toUpperCase()),
@@ -635,6 +669,7 @@ class _CategoryChildrenBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final uiLanguageCode = Localizations.localeOf(context).languageCode;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       width: double.infinity,
@@ -644,7 +679,7 @@ class _CategoryChildrenBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '继续选择分类',
+            l10n.get('continueSelectCategory'),
             style: TextStyle(
               color: colorScheme.onSurface.withValues(alpha: 0.55),
               fontSize: 12,
@@ -660,7 +695,10 @@ class _CategoryChildrenBar extends StatelessWidget {
               separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final child = children[index];
-                final childName = child.nameOf(uiLanguageCode);
+                final childName = l10n.categoryName(
+                  child.id,
+                  fallback: child.nameOf(uiLanguageCode),
+                );
 
                 return ActionChip(
                   label: Text(childName),

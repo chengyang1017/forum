@@ -122,12 +122,14 @@ class _HomeTabState extends State<HomeTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              isRecommended ? '为你推荐' : l10n.forumCategories,
+              isRecommended
+                  ? l10n.get('recommendedForYou')
+                  : l10n.forumCategories,
               style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
             ),
             Text(
               isRecommended
-                  ? '仅显示你主动设为感兴趣的内容'
+                  ? l10n.get('recommendedOnlyInterests')
                   : '$currentLanguageName · ${l10n.currentChannel}',
               style: TextStyle(
                 color: colorScheme.onSurface.withValues(alpha: 0.58),
@@ -164,7 +166,6 @@ class _HomeTabState extends State<HomeTab> {
             channelKey: currentChannel.key,
             languageName: currentLanguageName,
             categories: _categories,
-            categoryNames: l10n.categoryNames,
             onChangeLanguage: () {
               _openLanguageSelect(uiLanguageCode);
             },
@@ -184,6 +185,7 @@ class _RecommendedSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       children: [
@@ -223,8 +225,8 @@ class _RecommendedSection extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        '你的兴趣主页',
+                      Text(
+                        l10n.get('interestHomeTitle'),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -232,7 +234,7 @@ class _RecommendedSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        '先到分类频道，把语言频道中的分类设为感兴趣',
+                        l10n.get('interestHomeDesc'),
                         style: TextStyle(
                           color: colorScheme.onSurface.withValues(alpha: 0.62),
                           fontSize: 12,
@@ -268,6 +270,7 @@ class _HomeDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Drawer(
       backgroundColor: colorScheme.surface,
@@ -307,8 +310,8 @@ class _HomeDrawer extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 18),
-                    const Text(
-                      '语言社区',
+                    Text(
+                      l10n.get('languageCommunity'),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 23,
@@ -317,7 +320,7 @@ class _HomeDrawer extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '连接语言、兴趣与世界',
+                      l10n.get('languageCommunityTagline'),
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.78),
                         fontSize: 12,
@@ -335,8 +338,8 @@ class _HomeDrawer extends StatelessWidget {
                     selected: currentSection == _HomeSection.recommended,
                     icon: Icons.home_rounded,
                     outlineIcon: Icons.home_outlined,
-                    title: '推荐主页',
-                    subtitle: '只显示已选择的兴趣',
+                    title: l10n.get('recommendedHome'),
+                    subtitle: l10n.get('recommendedHomeDesc'),
                     onTap: () {
                       _select(context, _HomeSection.recommended);
                     },
@@ -346,8 +349,8 @@ class _HomeDrawer extends StatelessWidget {
                     selected: currentSection == _HomeSection.categories,
                     icon: Icons.grid_view_rounded,
                     outlineIcon: Icons.grid_view_outlined,
-                    title: '分类频道',
-                    subtitle: '选择语言、浏览和设置兴趣',
+                    title: l10n.get('categoryChannels'),
+                    subtitle: l10n.get('categoryChannelsDesc'),
                     onTap: () {
                       _select(context, _HomeSection.categories);
                     },
@@ -367,7 +370,7 @@ class _HomeDrawer extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '探索不同语言的内容',
+                    l10n.get('exploreLanguageContent'),
                     style: TextStyle(
                       color: colorScheme.onSurface.withValues(alpha: 0.45),
                       fontSize: 12,
@@ -474,7 +477,6 @@ class _CategorySection extends StatelessWidget {
   final String channelKey;
   final String languageName;
   final List<CategoryConfig> categories;
-  final List<String> categoryNames;
   final VoidCallback onChangeLanguage;
   final ValueChanged<CategoryConfig> onCategorySelected;
 
@@ -483,7 +485,6 @@ class _CategorySection extends StatelessWidget {
     required this.channelKey,
     required this.languageName,
     required this.categories,
-    required this.categoryNames,
     required this.onChangeLanguage,
     required this.onCategorySelected,
   });
@@ -589,7 +590,6 @@ class _CategorySection extends StatelessWidget {
               child: _CategoryGrid(
                 channelKey: channelKey,
                 categories: categories,
-                categoryNames: categoryNames,
                 interests: interests,
                 onCategorySelected: onCategorySelected,
                 onInterestPressed: (category, _) {
@@ -913,7 +913,6 @@ class _CategorySectionHeading extends StatelessWidget {
 class _CategoryGrid extends StatelessWidget {
   final String channelKey;
   final List<CategoryConfig> categories;
-  final List<String> categoryNames;
   final Set<String> interests;
   final ValueChanged<CategoryConfig> onCategorySelected;
   final void Function(CategoryConfig category, bool isInterested)
@@ -922,7 +921,6 @@ class _CategoryGrid extends StatelessWidget {
   const _CategoryGrid({
     required this.channelKey,
     required this.categories,
-    required this.categoryNames,
     required this.interests,
     required this.onCategorySelected,
     required this.onInterestPressed,
@@ -930,6 +928,8 @@ class _CategoryGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isTablet = constraints.maxWidth >= 600;
@@ -961,12 +961,13 @@ class _CategoryGrid extends StatelessWidget {
               ),
               itemBuilder: (context, index) {
                 final category = categories[index];
-                final categoryName = index < categoryNames.length
-                    ? categoryNames[index]
-                    : ForumCategories.nameOf(
-                        category.id,
-                        Localizations.localeOf(context).languageCode,
-                      );
+                final categoryName = l10n.categoryName(
+                  category.id,
+                  fallback: ForumCategories.nameOf(
+                    category.id,
+                    Localizations.localeOf(context).languageCode,
+                  ),
+                );
                 final key = '$channelKey::${category.id}';
                 final isInterested = interests.contains(key);
 
@@ -1223,127 +1224,21 @@ class _CategoryCopy {
   });
 
   static _CategoryCopy of(BuildContext context) {
-    final code = Localizations.localeOf(context).languageCode.toLowerCase();
+    final l10n = AppLocalizations.of(context)!;
 
-    switch (code) {
-      case 'en':
-        return _CategoryCopy(
-          selectTopics: 'Explore topics',
-          interestsLoading: 'Loading interests…',
-          signInFirst: 'Sign in to manage your interests.',
-          updateFailed: 'Could not update interest',
-          interestCardLabel: 'topics shaping your recommendations',
-          following: 'Following',
-          addInterest: 'Add to interests',
-          removeInterest: 'Remove from interests',
-          interestSummary: (selected, total) =>
-              '$selected of $total topics shape your recommendations',
-        );
-      case 'vi':
-        return _CategoryCopy(
-          selectTopics: 'Khám phá chủ đề',
-          interestsLoading: 'Đang tải sở thích…',
-          signInFirst: 'Hãy đăng nhập để quản lý sở thích.',
-          updateFailed: 'Không thể cập nhật sở thích',
-          interestCardLabel: 'chủ đề đang định hình phần đề xuất',
-          following: 'Đang quan tâm',
-          addInterest: 'Thêm vào sở thích',
-          removeInterest: 'Bỏ khỏi sở thích',
-          interestSummary: (selected, total) =>
-              '$selected/$total chủ đề đang ảnh hưởng đến đề xuất',
-        );
-      case 'ms':
-        return _CategoryCopy(
-          selectTopics: 'Teroka topik',
-          interestsLoading: 'Memuatkan minat…',
-          signInFirst: 'Log masuk untuk mengurus minat anda.',
-          updateFailed: 'Minat tidak dapat dikemas kini',
-          interestCardLabel: 'topik yang membentuk cadangan anda',
-          following: 'Diminati',
-          addInterest: 'Tambah sebagai minat',
-          removeInterest: 'Buang daripada minat',
-          interestSummary: (selected, total) =>
-              '$selected daripada $total topik membentuk cadangan anda',
-        );
-      case 'id':
-        return _CategoryCopy(
-          selectTopics: 'Jelajahi topik',
-          interestsLoading: 'Memuat minat…',
-          signInFirst: 'Masuk untuk mengelola minat Anda.',
-          updateFailed: 'Minat tidak dapat diperbarui',
-          interestCardLabel: 'topik yang membentuk rekomendasi Anda',
-          following: 'Diminati',
-          addInterest: 'Tambahkan ke minat',
-          removeInterest: 'Hapus dari minat',
-          interestSummary: (selected, total) =>
-              '$selected dari $total topik membentuk rekomendasi Anda',
-        );
-      case 'ru':
-        return _CategoryCopy(
-          selectTopics: 'Темы',
-          interestsLoading: 'Загрузка интересов…',
-          signInFirst: 'Войдите, чтобы управлять интересами.',
-          updateFailed: 'Не удалось обновить интерес',
-          interestCardLabel: 'тем, влияющих на рекомендации',
-          following: 'В интересах',
-          addInterest: 'Добавить в интересы',
-          removeInterest: 'Убрать из интересов',
-          interestSummary: (selected, total) =>
-              '$selected из $total тем влияют на рекомендации',
-        );
-      case 'ja':
-        return _CategoryCopy(
-          selectTopics: 'トピックを探す',
-          interestsLoading: '興味を読み込み中…',
-          signInFirst: '興味を管理するにはログインしてください。',
-          updateFailed: '興味を更新できませんでした',
-          interestCardLabel: 'おすすめに反映されるトピック',
-          following: '興味あり',
-          addInterest: '興味に追加',
-          removeInterest: '興味から削除',
-          interestSummary: (selected, total) =>
-              '$total 件中 $selected 件がおすすめに反映されます',
-        );
-      case 'ko':
-        return _CategoryCopy(
-          selectTopics: '주제 탐색',
-          interestsLoading: '관심사를 불러오는 중…',
-          signInFirst: '관심사를 관리하려면 로그인하세요.',
-          updateFailed: '관심사를 업데이트하지 못했습니다',
-          interestCardLabel: '추천에 반영되는 주제',
-          following: '관심 있음',
-          addInterest: '관심사에 추가',
-          removeInterest: '관심사에서 제거',
-          interestSummary: (selected, total) =>
-              '$total개 중 $selected개 주제가 추천에 반영됩니다',
-        );
-      case 'th':
-        return _CategoryCopy(
-          selectTopics: 'สำรวจหัวข้อ',
-          interestsLoading: 'กำลังโหลดความสนใจ…',
-          signInFirst: 'เข้าสู่ระบบเพื่อจัดการความสนใจของคุณ',
-          updateFailed: 'อัปเดตความสนใจไม่สำเร็จ',
-          interestCardLabel: 'หัวข้อที่ใช้ปรับคำแนะนำของคุณ',
-          following: 'สนใจอยู่',
-          addInterest: 'เพิ่มเป็นความสนใจ',
-          removeInterest: 'นำออกจากความสนใจ',
-          interestSummary: (selected, total) =>
-              '$selected จาก $total หัวข้อใช้ปรับคำแนะนำของคุณ',
-        );
-      case 'zh':
-      default:
-        return _CategoryCopy(
-          selectTopics: '探索主题',
-          interestsLoading: '正在加载兴趣设置…',
-          signInFirst: '请先登录后再管理兴趣。',
-          updateFailed: '更新兴趣失败',
-          interestCardLabel: '个主题正在参与塑造你的推荐',
-          following: '已设为感兴趣',
-          addInterest: '设为感兴趣',
-          removeInterest: '取消感兴趣',
-          interestSummary: (selected, total) =>
-              '已选择 $selected / $total · 点击心形调整推荐',
-        );
-    }
+    return _CategoryCopy(
+      selectTopics: l10n.get('selectTopics'),
+      interestsLoading: l10n.get('interestsLoading'),
+      signInFirst: l10n.get('signInFirst'),
+      updateFailed: l10n.get('interestUpdateFailed'),
+      interestCardLabel: l10n.get('interestCardLabel'),
+      following: l10n.get('following'),
+      addInterest: l10n.get('addInterest'),
+      removeInterest: l10n.get('removeInterest'),
+      interestSummary: (selected, total) => l10n.getWithArgs(
+        'interestSummary',
+        <String, String>{'selected': '$selected', 'total': '$total'},
+      ),
+    );
   }
 }
