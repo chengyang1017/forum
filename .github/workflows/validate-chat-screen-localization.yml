@@ -18,6 +18,19 @@ jobs:
           fetch-depth: 0
       - name: Apply chat localization migration
         run: python .github/scripts/apply_chat_screen_localization.py
+      - name: Repair generated const/localization lookups
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('apps/mobile-flutter/lib/features/chat/presentation/screens/chat_screen.dart')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace('label: Text(l10n.retry),', "label: Text(l10n.get('retry')),")
+          text = text.replace('AppLocalizations.of(context)!.sendFailed', "AppLocalizations.of(context)!.get('sendFailed')")
+          text = text.replace("decoration: const InputDecoration(\n              hintText: AppLocalizations.of(context)!.get('messageInputHint'),", "decoration: InputDecoration(\n              hintText: AppLocalizations.of(context)!.get('messageInputHint'),")
+          text = text.replace("child: const Text(\n                                        AppLocalizations.of(context)!.get('typing'),", "child: Text(\n                                        AppLocalizations.of(context)!.get('typing'),")
+          text = text.replace("child: const Row(\n                                      mainAxisSize: MainAxisSize.min,", "child: Row(\n                                      mainAxisSize: MainAxisSize.min,")
+          path.write_text(text, encoding='utf-8')
+          PY
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
