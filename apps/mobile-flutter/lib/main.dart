@@ -7,10 +7,12 @@ import 'package:provider/provider.dart';
 
 import 'app/cubit/app_language_cubit.dart';
 import 'app/cubit/app_language_state.dart';
+import 'app/cubit/app_theme_cubit.dart';
 import 'app/di/app_dependencies.dart';
 import 'app/l10n/localizations_delegate.dart';
 import 'app/router/app_router.dart';
 import 'app/router/app_routes.dart';
+import 'app/theme/app_theme.dart';
 import 'core/services/deep_link_service.dart';
 import 'features/auth/domain/repositories/account_history_repository.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
@@ -98,6 +100,7 @@ class MyApp extends StatelessWidget {
         Provider<FriendRepository>.value(value: dependencies.friendRepository),
         Provider<FollowRepository>.value(value: dependencies.followRepository),
         BlocProvider<AppLanguageCubit>(create: (_) => AppLanguageCubit()),
+        BlocProvider<AppThemeCubit>(create: (_) => AppThemeCubit()),
         BlocProvider<auth_cubit.AuthCubit>(
           create: (context) => auth_cubit.AuthCubit(
             authRepository: context.read<AuthRepository>(),
@@ -132,65 +135,72 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ],
-      child: BlocBuilder<AppLanguageCubit, AppLanguageState>(
-        builder: (context, languageState) {
-          return BlocListener<auth_cubit.AuthCubit, AuthState>(
-            listenWhen: (previous, current) {
-              return previous.isInitialized != current.isInitialized ||
-                  previous.user?.id != current.user?.id;
+      child: BlocBuilder<AppThemeCubit, AppThemeMode>(
+        builder: (context, appThemeMode) {
+          return BlocBuilder<AppLanguageCubit, AppLanguageState>(
+            builder: (context, languageState) {
+              return BlocListener<auth_cubit.AuthCubit, AuthState>(
+                listenWhen: (previous, current) {
+                  return previous.isInitialized != current.isInitialized ||
+                      previous.user?.id != current.user?.id;
+                },
+                listener: (context, state) {
+                  appRouter.refresh();
+                },
+                child: MaterialApp.router(
+                  debugShowCheckedModeBanner: false,
+                  title: '论坛App',
+                  locale: languageState.locale,
+                  supportedLocales: const [
+                    Locale('zh'),
+                    Locale('en'),
+                    Locale('ja'),
+                    Locale('ko'),
+                    Locale('ms'),
+                    Locale('vi'),
+                    Locale('th'),
+                    Locale.fromSubtags(
+                      languageCode: 'vi',
+                      scriptCode: 'Hani',
+                    ),
+                  ],
+                  localizationsDelegates: const [
+                    AppLocalizationsDelegate(),
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                    FlutterQuillLocalizations.delegate,
+                  ],
+                  localeResolutionCallback: (locale, supportedLocales) {
+                    if (locale == null) {
+                      return const Locale('zh');
+                    }
+
+                    for (final supportedLocale in supportedLocales) {
+                      if (supportedLocale.languageCode == locale.languageCode &&
+                          supportedLocale.scriptCode == locale.scriptCode) {
+                        return supportedLocale;
+                      }
+                    }
+
+                    for (final supportedLocale in supportedLocales) {
+                      if (supportedLocale.languageCode == locale.languageCode &&
+                          supportedLocale.scriptCode == null) {
+                        return supportedLocale;
+                      }
+                    }
+
+                    return const Locale('zh');
+                  },
+                  theme: AppTheme.light,
+                  darkTheme: AppTheme.midnight,
+                  themeMode: appThemeMode == AppThemeMode.midnight
+                      ? ThemeMode.dark
+                      : ThemeMode.light,
+                  routerConfig: appRouter,
+                ),
+              );
             },
-            listener: (context, state) {
-              appRouter.refresh();
-            },
-            child: MaterialApp.router(
-              debugShowCheckedModeBanner: false,
-              title: '论坛App',
-              locale: languageState.locale,
-              supportedLocales: const [
-                Locale('zh'),
-                Locale('en'),
-                Locale('ja'),
-                Locale('ko'),
-                Locale('ms'),
-                Locale('vi'),
-                Locale('th'),
-                Locale.fromSubtags(languageCode: 'vi', scriptCode: 'Hani'),
-              ],
-              localizationsDelegates: const [
-                AppLocalizationsDelegate(),
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-                FlutterQuillLocalizations.delegate,
-              ],
-              localeResolutionCallback: (locale, supportedLocales) {
-                if (locale == null) {
-                  return const Locale('zh');
-                }
-
-                for (final supportedLocale in supportedLocales) {
-                  if (supportedLocale.languageCode == locale.languageCode &&
-                      supportedLocale.scriptCode == locale.scriptCode) {
-                    return supportedLocale;
-                  }
-                }
-
-                for (final supportedLocale in supportedLocales) {
-                  if (supportedLocale.languageCode == locale.languageCode &&
-                      supportedLocale.scriptCode == null) {
-                    return supportedLocale;
-                  }
-                }
-
-                return const Locale('zh');
-              },
-              theme: ThemeData(
-                useMaterial3: true,
-                colorSchemeSeed: Colors.blue,
-                fontFamily: 'NomNaTong',
-              ),
-              routerConfig: appRouter,
-            ),
           );
         },
       ),
