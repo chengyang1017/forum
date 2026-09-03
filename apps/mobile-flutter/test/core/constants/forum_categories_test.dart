@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:glyphora_language_core/glyphora_language_core.dart';
 import 'package:glyphora_mobile/core/constants/forum_categories.dart';
 
 void main() {
@@ -80,6 +81,39 @@ void main() {
         '内科',
         '心血管内科',
       ]);
+    });
+
+    test('sources language-learning children from the language core', () {
+      final vietnamese = LanguageConfig.findByCode('vi');
+      expect(vietnamese, isNotNull);
+
+      final categoryId = ForumCategories.languageLearningCategoryIdFor('vi');
+      final category = ForumCategories.findById(categoryId);
+
+      expect(category, isNotNull);
+      expect(category!.parentId, ForumCategories.languageLearningCategoryId);
+      expect(category.nameOf('zh'), vietnamese!.nameOf('zh'));
+      expect(ForumCategories.languageCodeOf(categoryId), vietnamese.code);
+    });
+
+    test('builds a language-learning breadcrumb without requiring a child', () {
+      expect(
+        ForumCategories.pathOf(ForumCategories.languageLearningCategoryId),
+        <String>[ForumCategories.languageLearningCategoryId],
+      );
+
+      final vietnameseCategoryId =
+          ForumCategories.languageLearningCategoryIdFor('vi');
+
+      expect(ForumCategories.pathOf(vietnameseCategoryId), <String>[
+        ForumCategories.languageLearningCategoryId,
+        vietnameseCategoryId,
+      ]);
+      expect(
+        ForumCategories.rootIdOf(vietnameseCategoryId),
+        ForumCategories.languageLearningCategoryId,
+      );
+      expect(ForumCategories.hasChildren(vietnameseCategoryId), isFalse);
     });
   });
 }
