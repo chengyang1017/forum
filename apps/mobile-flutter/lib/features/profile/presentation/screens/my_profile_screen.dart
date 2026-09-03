@@ -379,11 +379,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         centerTitle: true,
         title: Text(
           profile.displayName,
@@ -391,7 +391,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.black87),
+            icon: Icon(
+              Icons.settings_outlined,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             onPressed: () => context.push(AppRoutes.settings),
           ),
         ],
@@ -440,7 +443,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 SliverToBoxAdapter(
                   child: Container(
                     margin: const EdgeInsets.only(top: 10),
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,
@@ -471,7 +474,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 SliverToBoxAdapter(
                   child: Container(
                     margin: const EdgeInsets.only(top: 10),
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,
@@ -501,7 +504,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 ),
                 SliverToBoxAdapter(
                   child: Container(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 16,
@@ -516,10 +519,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         const SizedBox(width: 8),
                         Text(
                           l10n.myPosts,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -527,9 +530,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   ),
                 ),
                 if (postSnapshot.connectionState == ConnectionState.waiting)
-                  const SliverToBoxAdapter(
+                  SliverToBoxAdapter(
                     child: ColoredBox(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 40),
                         child: Center(
@@ -541,7 +544,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 else if (postSnapshot.hasError)
                   SliverToBoxAdapter(
                     child: ColoredBox(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
@@ -578,9 +581,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     ),
                   )
                 else if (posts.isEmpty)
-                  const SliverToBoxAdapter(
+                  SliverToBoxAdapter(
                     child: ColoredBox(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 50),
                         child: Column(
@@ -605,28 +608,25 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   )
                 else
                   SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        if (index.isOdd) {
-                          return Divider(
-                            height: 1,
-                            thickness: 1,
-                            color: Colors.grey.shade100,
-                          );
-                        }
-
-                        final post = posts[index ~/ 2];
-                        return ColoredBox(
-                          color: Colors.white,
-                          child: PostItemCard(
-                            post: post,
-                            showUserInfo: false,
-                            showLanguageBadge: true,
-                          ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      if (index.isOdd) {
+                        return Divider(
+                          height: 1,
+                          thickness: 1,
+                          color: Colors.grey.shade100,
                         );
-                      },
-                      childCount: posts.length * 2 - 1,
-                    ),
+                      }
+
+                      final post = posts[index ~/ 2];
+                      return ColoredBox(
+                        color: Theme.of(context).colorScheme.surface,
+                        child: PostItemCard(
+                          post: post,
+                          showUserInfo: false,
+                          showLanguageBadge: true,
+                        ),
+                      );
+                    }, childCount: posts.length * 2 - 1),
                   ),
               ],
             );

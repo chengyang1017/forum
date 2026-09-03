@@ -36,7 +36,7 @@ class ProfileHeader extends StatelessWidget {
     final birthday = profile.birthday;
 
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       padding: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
       child: Column(
         children: [
@@ -55,7 +55,7 @@ class ProfileHeader extends StatelessWidget {
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: nickname.isNotEmpty
-                          ? Colors.black87
+                          ? Theme.of(context).colorScheme.onSurface
                           : Colors.grey.shade400,
                     ),
                     textAlign: TextAlign.center,
@@ -156,7 +156,7 @@ class ProfileHeader extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4),
+              border: Border.all(color: theme.colorScheme.surface, width: 4),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.08),
@@ -197,7 +197,10 @@ class ProfileHeader extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.blueAccent,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(
+                    color: theme.colorScheme.surface,
+                    width: 2,
+                  ),
                 ),
                 child: const Icon(
                   Icons.camera_alt_rounded,

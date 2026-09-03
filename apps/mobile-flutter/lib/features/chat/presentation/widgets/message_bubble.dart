@@ -23,7 +23,9 @@ class MessageBubble extends StatelessWidget {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: isMe ? Colors.blue.shade100 : Colors.white,
+        color: isMe
+            ? Theme.of(context).colorScheme.primaryContainer
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(16),
           topRight: const Radius.circular(16),
@@ -38,7 +40,10 @@ class MessageBubble extends StatelessWidget {
       child: content != null && content!.isNotEmpty
           ? Text(
               content!,
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             )
           : _buildImage(),
     );

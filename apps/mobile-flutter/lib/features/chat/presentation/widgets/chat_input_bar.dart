@@ -19,7 +19,7 @@ class ChatInputBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -27,12 +27,12 @@ class ChatInputBar extends StatelessWidget {
             children: [
               IconButton(
                 icon: const Icon(Icons.emoji_emotions_outlined, size: 26),
-                color: Colors.grey[600],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 onPressed: onEmoji,
               ),
               IconButton(
                 icon: const Icon(Icons.image_outlined, size: 26),
-                color: Colors.grey[600],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 onPressed: isLoading ? null : onImage,
               ),
               Expanded(
@@ -40,9 +40,13 @@ class ChatInputBar extends StatelessWidget {
                   controller: controller,
                   decoration: InputDecoration(
                     hintText: '输入消息...',
-                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    hintStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                     filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
+                    fillColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(24),
                       borderSide: BorderSide.none,

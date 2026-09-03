@@ -500,7 +500,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       appBar: AppBar(
         title: const Text('发帖'),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         bottom: PreferredSize(

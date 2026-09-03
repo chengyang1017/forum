@@ -312,7 +312,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
     final canEdit = note.canEdit(currentUserId);
 
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),

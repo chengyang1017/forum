@@ -476,7 +476,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   void _showShareOptions() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -933,7 +933,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   void _showImageOptions(int index) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -998,9 +998,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Column(
           children: [
@@ -1083,7 +1083,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     final isOwner = _currentUserId == _post.userId;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: _buildAppBar(isOwner),
       body: Column(
         children: [
@@ -1116,8 +1116,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
       centerTitle: true,
       elevation: 0,
-      backgroundColor: Colors.white,
-      foregroundColor: const Color(0xFF1E293B),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      foregroundColor: Theme.of(context).colorScheme.onSurface,
       actions: [
         if (isOwner && _images.length > 1)
           IconButton(
@@ -1424,7 +1424,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 key: ValueKey(_images[index]),
                 margin: const EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
@@ -1627,13 +1627,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   // 底部操作栏
   // ============================================================
   Widget _buildBottomBar() {
-    final globalBookmarked = context
-        .watch<PostCubit>()
-        .bookmarkState(widget.postId, fallback: _isBookmarked);
+    final globalBookmarked = context.watch<PostCubit>().bookmarkState(
+      widget.postId,
+      fallback: _isBookmarked,
+    );
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),

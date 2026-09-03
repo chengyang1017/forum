@@ -91,18 +91,22 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
           l10n.discover,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+          child: Divider(
+            height: 1,
+            thickness: 1,
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
         ),
       ),
       body: _buildUserList(),
@@ -145,7 +149,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           separatorBuilder: (context, index) => Divider(
             height: 1,
             thickness: 1,
-            color: Colors.grey.shade100,
+            color: Theme.of(context).colorScheme.outlineVariant,
             indent: 72,
           ),
           itemBuilder: (context, index) {
@@ -172,10 +176,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                         children: [
                           Text(
                             user.displayName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 15,
-                              color: Color(0xFF121212),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           if (user.nickname.isNotEmpty)

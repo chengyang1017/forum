@@ -227,7 +227,7 @@ class _CommentScreenState extends State<CommentScreen> {
   void _showEmojiPicker() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (context) => Container(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -469,9 +469,9 @@ class _CommentScreenState extends State<CommentScreen> {
                           else
                             Text(
                               comment.text,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
-                                color: Colors.black87,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 height: 1.3,
                               ),
                             ),
