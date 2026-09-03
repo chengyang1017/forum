@@ -20,7 +20,27 @@ jobs:
           ref: main
 
       - name: Apply redesign
-        run: python3 .github/scripts/redesign_category_page.py
+        run: |
+          python3 .github/scripts/redesign_category_page.py
+          python3 .github/scripts/fix_category_redesign.py
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        working-directory: apps/mobile-flutter
+        run: flutter pub get
+
+      - name: Format redesigned page
+        working-directory: apps/mobile-flutter
+        run: dart format lib/features/home/presentation/screens/home_tab.dart
+
+      - name: Analyze redesigned page
+        working-directory: apps/mobile-flutter
+        run: flutter analyze lib/features/home/presentation/screens/home_tab.dart
 
       - name: Validate diff
         run: git diff --check
@@ -35,5 +55,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add apps/mobile-flutter/lib/features/home/presentation/screens/home_tab.dart
-          git commit -m "refactor: redesign adaptive forum categories page"
+          git commit -m "refactor: polish adaptive forum categories page"
           git push origin main
