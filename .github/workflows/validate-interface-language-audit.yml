@@ -1,0 +1,88 @@
+name: Validate interface language localization audit
+
+on:
+  push:
+    branches:
+      - fix/interface-language-localization-audit
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply localization audit
+        run: python .github/scripts/apply_interface_language_audit.py
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.2
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        working-directory: apps/mobile-flutter
+        run: flutter pub get
+
+      - name: Format changed Dart files
+        working-directory: apps/mobile-flutter
+        run: |
+          dart format \
+            lib/app/cubit/app_language_cubit.dart \
+            lib/app/l10n/app_localizations.dart \
+            lib/app/l10n/localizations_delegate.dart \
+            lib/main.dart \
+            lib/features/profile/presentation/screens/settings_screen.dart \
+            lib/features/home/presentation/screens/home_tab.dart \
+            lib/features/feed/presentation/screens/feed_screen.dart \
+            lib/features/post/presentation/widgets/post_item_card.dart \
+            lib/features/notes/presentation/screens/all_notes_screen.dart \
+            lib/features/notes/presentation/screens/note_editor_screen.dart \
+            test/app/cubit/app_language_cubit_test.dart \
+            test/app/l10n/localization_assets_test.dart
+
+      - name: Analyze changed feature files
+        working-directory: apps/mobile-flutter
+        run: |
+          dart analyze \
+            lib/app/cubit/app_language_cubit.dart \
+            lib/app/l10n/app_localizations.dart \
+            lib/app/l10n/localizations_delegate.dart \
+            lib/main.dart \
+            lib/features/profile/presentation/screens/settings_screen.dart \
+            lib/features/home/presentation/screens/home_tab.dart \
+            lib/features/feed/presentation/screens/feed_screen.dart \
+            lib/features/post/presentation/widgets/post_item_card.dart \
+            lib/features/notes/presentation/screens/all_notes_screen.dart \
+            lib/features/notes/presentation/screens/note_editor_screen.dart
+
+      - name: Run localization and category tests
+        working-directory: apps/mobile-flutter
+        run: |
+          flutter test test/app/cubit/app_language_cubit_test.dart
+          flutter test test/app/l10n/localization_assets_test.dart
+          flutter test test/core/constants/forum_categories_test.dart
+
+      - name: Check diff
+        run: git diff --check
+
+      - name: Commit validated changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/mobile-flutter
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+          else
+            git commit -m "fix: unify interface language scripts and localization"
+            git push origin HEAD:fix/interface-language-localization-audit
+          fi
