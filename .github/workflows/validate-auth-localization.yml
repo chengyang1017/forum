@@ -20,6 +20,19 @@ jobs:
       - name: Apply auth localization migration
         run: python .github/scripts/apply_auth_localization.py
 
+      - name: Repair security settings migration output
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('apps/mobile-flutter/lib/features/profile/presentation/screens/security_settings_screen.dart')
+          text = path.read_text(encoding='utf-8')
+          broken = "          const SizedBox(height: 24),          ),\n          const SizedBox(height: 24),"
+          fixed = "          const SizedBox(height: 24),"
+          if broken not in text:
+              raise SystemExit('Expected security settings migration marker was not found')
+          path.write_text(text.replace(broken, fixed, 1), encoding='utf-8')
+          PY
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
