@@ -638,27 +638,29 @@ class _CategoryOverview extends StatelessWidget {
       );
     }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 5,
-          child: _LanguageChannelCard(
-            language: language,
-            languageName: languageName,
-            onChangeLanguage: onChangeLanguage,
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 5,
+            child: _LanguageChannelCard(
+              language: language,
+              languageName: languageName,
+              onChangeLanguage: onChangeLanguage,
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          flex: 3,
-          child: _InterestOverviewCard(
-            interestedCount: interestedCount,
-            totalCount: totalCount,
-            interestsLoaded: interestsLoaded,
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 3,
+            child: _InterestOverviewCard(
+              interestedCount: interestedCount,
+              totalCount: totalCount,
+              interestsLoaded: interestsLoaded,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
