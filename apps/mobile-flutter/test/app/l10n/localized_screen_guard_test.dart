@@ -7,6 +7,8 @@ void main() {
     const paths = <String>[
       'lib/features/translation/presentation/screens/post_translation_screen.dart',
       'lib/features/profile/presentation/screens/user_profile_screen.dart',
+      'lib/features/notes/presentation/screens/all_notes_screen.dart',
+      'lib/features/notes/presentation/screens/note_editor_screen.dart',
     ];
     final chineseLiteral = RegExp(
       r'''['"][^'"\n]*[\u3400-\u9fff][^'"\n]*['"]''',

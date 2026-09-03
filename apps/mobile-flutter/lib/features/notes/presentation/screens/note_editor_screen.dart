@@ -236,7 +236,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('加载笔记失败：$error'), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.get('notesLoadFailed')),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 
@@ -317,7 +320,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('保存失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('saveFailed')),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       _isSaving = false;
@@ -359,7 +365,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('权限设置失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('permissionUpdateFailed'),
+          ),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -419,7 +430,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('更新共享成员失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('sharedMembersUpdateFailed'),
+          ),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       if (mounted) {
@@ -432,9 +448,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   void _onImageButtonPressed() {
     if (!_canEdit) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('创建者没有开放编辑权限')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('editingNotAllowed')),
+        ),
+      );
       return;
     }
 
@@ -449,9 +467,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     }
 
     if (_countInlineImages() >= 9) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('每条笔记最多插入 9 张图片')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(
+              context,
+            )!.getWithArgs('noteImageLimit', {'count': '9'}),
+          ),
+        ),
+      );
       return;
     }
 
@@ -488,7 +512,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('插入图片失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('insertImageFailed')),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       if (mounted) {
@@ -552,12 +579,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             height: MediaQuery.sizeOf(context).height * 0.72,
             child: Column(
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      '选择帖子分类',
+                      AppLocalizations.of(context)!.get('selectPostCategory'),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -600,7 +627,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   String _categoryName(String? category) {
     if (category == null || category.trim().isEmpty) {
-      return '未选择';
+      return AppLocalizations.of(context)!.get('notSelected');
     }
 
     final categoryId = category.trim();
@@ -649,7 +676,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('修改分类失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('categoryUpdateFailed'),
+          ),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -668,12 +700,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             height: MediaQuery.sizeOf(context).height * 0.72,
             child: Column(
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      '选择主语言',
+                      AppLocalizations.of(
+                        context,
+                      )!.get('selectPrimaryLanguage'),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -817,8 +851,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
     if (published == true && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('笔记已发布为帖子'),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('notePublishedAsPost'),
+          ),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
         ),
@@ -835,21 +871,25 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('删除共享笔记？'),
-          content: const Text('删除后，这条笔记会从双方的笔记列表中消失。'),
+          title: Text(
+            AppLocalizations.of(context)!.get('deleteSharedNoteTitle'),
+          ),
+          content: Text(
+            AppLocalizations.of(context)!.get('deleteSharedNoteDescription'),
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogContext, false);
               },
-              child: const Text('取消'),
+              child: Text(AppLocalizations.of(context)!.get('cancel')),
             ),
             FilledButton(
               style: FilledButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () {
                 Navigator.pop(dialogContext, true);
               },
-              child: const Text('删除'),
+              child: Text(AppLocalizations.of(context)!.get('delete')),
             ),
           ],
         );
@@ -874,7 +914,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('删除失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('deleteNoteFailed')),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -893,8 +936,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                   if (_isOwner)
                     ListTile(
                       leading: const Icon(Icons.publish_outlined),
-                      title: const Text('发布为帖子'),
-                      subtitle: const Text('使用笔记分类，选择主语言后进入发帖页'),
+                      title: Text(
+                        AppLocalizations.of(context)!.get('publishAsPost'),
+                      ),
+                      subtitle: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.get('publishAsPostDescription'),
+                      ),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         Navigator.pop(sheetContext);
@@ -904,7 +953,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                   if (_isOwner)
                     ListTile(
                       leading: const Icon(Icons.topic_outlined),
-                      title: const Text('帖子分类'),
+                      title: Text(
+                        AppLocalizations.of(context)!.get('postCategory'),
+                      ),
                       subtitle: Text(_categoryName(_category)),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
@@ -915,11 +966,16 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                   if (_isOwner)
                     ListTile(
                       leading: const Icon(Icons.group_outlined),
-                      title: const Text('共享成员'),
+                      title: Text(
+                        AppLocalizations.of(context)!.get('sharedMembers'),
+                      ),
                       subtitle: Text(
                         _sharedUserIds.isEmpty
-                            ? '当前仅自己可见'
-                            : '已共享给 ${_sharedUserIds.length} 人',
+                            ? AppLocalizations.of(context)!.get('onlyMeVisible')
+                            : AppLocalizations.of(context)!.getWithArgs(
+                                'sharedToPeople',
+                                {'count': '${_sharedUserIds.length}'},
+                              ),
                       ),
                       trailing: _isUpdatingMembers
                           ? const SizedBox(
@@ -938,14 +994,29 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                   else
                     ListTile(
                       leading: const Icon(Icons.group_outlined),
-                      title: const Text('共享成员'),
-                      subtitle: Text('共 ${_sharedUserIds.length + 1} 人'),
+                      title: Text(
+                        AppLocalizations.of(context)!.get('sharedMembers'),
+                      ),
+                      subtitle: Text(
+                        AppLocalizations.of(context)!.getWithArgs(
+                          'peopleTotal',
+                          {'count': '${_sharedUserIds.length + 1}'},
+                        ),
+                      ),
                     ),
                   if (_isOwner)
                     SwitchListTile(
-                      title: const Text('允许共享成员编辑'),
+                      title: Text(
+                        AppLocalizations.of(context)!.get('allowSharedEditing'),
+                      ),
                       subtitle: Text(
-                        _allowOthersEdit ? '共享成员可以修改文字和图片' : '共享成员只能查看这条笔记',
+                        _allowOthersEdit
+                            ? AppLocalizations.of(
+                                context,
+                              )!.get('sharedMembersCanEdit')
+                            : AppLocalizations.of(
+                                context,
+                              )!.get('sharedMembersViewOnly'),
                       ),
                       value: _allowOthersEdit,
                       onChanged: (value) async {
@@ -961,7 +1032,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                       leading: Icon(
                         _canEdit ? Icons.edit_outlined : Icons.lock_outline,
                       ),
-                      title: Text(_canEdit ? '你可以编辑这条笔记' : '这条笔记只能查看'),
+                      title: Text(
+                        _canEdit
+                            ? AppLocalizations.of(
+                                context,
+                              )!.get('youCanEditNote')
+                            : AppLocalizations.of(context)!.get('noteViewOnly'),
+                      ),
                     ),
                   if (_isOwner)
                     ListTile(
@@ -969,8 +1046,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                         Icons.delete_outline,
                         color: Colors.red,
                       ),
-                      title: const Text(
-                        '删除笔记',
+                      title: Text(
+                        AppLocalizations.of(context)!.get('deleteNote'),
                         style: TextStyle(color: Colors.red),
                       ),
                       onTap: () {
@@ -1010,15 +1087,23 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
     if (_currentUserId == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('共享笔记')),
-        body: const Center(child: Text('请先登录')),
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.get('sharedNotes')),
+        ),
+        body: Center(
+          child: Text(AppLocalizations.of(context)!.get('pleaseSignIn')),
+        ),
       );
     }
 
     if (_isDeleted) {
       return Scaffold(
-        appBar: AppBar(title: const Text('共享笔记')),
-        body: const Center(child: Text('这条笔记已被删除')),
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.get('sharedNotes')),
+        ),
+        body: Center(
+          child: Text(AppLocalizations.of(context)!.get('noteDeleted')),
+        ),
       );
     }
 
@@ -1041,10 +1126,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: const Text('共享笔记'),
+      title: Text(AppLocalizations.of(context)!.get('sharedNotes')),
       actions: [
         IconButton(
-          tooltip: '插入图片',
+          tooltip: AppLocalizations.of(context)!.get('insertImage'),
           onPressed: _isUploadingImage ? null : _onImageButtonPressed,
           icon: _isUploadingImage
               ? const SizedBox(
@@ -1058,7 +1143,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 ),
         ),
         IconButton(
-          tooltip: '笔记设置',
+          tooltip: AppLocalizations.of(context)!.get('noteSettings'),
           onPressed: _showNoteSettings,
           icon: const Icon(Icons.more_vert),
         ),
@@ -1077,8 +1162,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             onChanged: _onTitleChanged,
             maxLines: 1,
             style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w600),
-            decoration: const InputDecoration(
-              hintText: '笔记标题',
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context)!.get('noteTitleHint'),
               border: InputBorder.none,
             ),
           ),
@@ -1090,7 +1175,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             focusNode: _editorFocusNode,
             scrollController: _editorScrollController,
             config: quill.QuillEditorConfig(
-              placeholder: '输入笔记内容……',
+              placeholder: AppLocalizations.of(context)!.get('noteContentHint'),
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 120),
               embedBuilders: FlutterQuillEmbeds.editorBuilders(),
             ),
@@ -1192,9 +1277,9 @@ class _SharedMembersPickerState extends State<_SharedMembersPicker> {
               padding: const EdgeInsets.fromLTRB(20, 0, 12, 12),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      '共享成员',
+                      AppLocalizations.of(context)!.get('sharedMembers'),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -1205,7 +1290,7 @@ class _SharedMembersPickerState extends State<_SharedMembersPicker> {
                     onPressed: () {
                       Navigator.pop(context, _selectedUserIds);
                     },
-                    child: const Text('完成'),
+                    child: Text(AppLocalizations.of(context)!.get('done')),
                   ),
                 ],
               ),
@@ -1220,7 +1305,9 @@ class _SharedMembersPickerState extends State<_SharedMembersPicker> {
                   });
                 },
                 decoration: InputDecoration(
-                  hintText: '搜索昵称或用户名',
+                  hintText: AppLocalizations.of(
+                    context,
+                  )!.get('searchNicknameOrUsername'),
                   prefixIcon: const Icon(Icons.search),
                   filled: true,
                   border: OutlineInputBorder(
@@ -1233,7 +1320,11 @@ class _SharedMembersPickerState extends State<_SharedMembersPicker> {
             const SizedBox(height: 8),
             Expanded(
               child: users.isEmpty
-                  ? const Center(child: Text('没有找到用户'))
+                  ? Center(
+                      child: Text(
+                        AppLocalizations.of(context)!.get('noUsersFound'),
+                      ),
+                    )
                   : ListView.builder(
                       itemCount: users.length,
                       itemBuilder: (context, index) {
@@ -1297,7 +1388,9 @@ class _NoteSharedUser {
 
     return _NoteSharedUser(
       id: user.id,
-      name: name.isEmpty ? '用户' : name,
+      name: name.isEmpty
+          ? (user.username.trim().isEmpty ? '?' : user.username.trim())
+          : name,
       username: user.username.trim(),
       avatarUrl: avatarUrl.isEmpty ? null : avatarUrl,
     );
