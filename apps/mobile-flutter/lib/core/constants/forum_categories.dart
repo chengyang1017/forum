@@ -4,13 +4,36 @@ class ForumCategory {
   final String id;
   final String? parentId;
   final Map<String, String> names;
+  final String? languageCode;
+  final String? scriptCode;
 
-  const ForumCategory({required this.id, this.parentId, this.names = const {}});
+  const ForumCategory({
+    required this.id,
+    this.parentId,
+    this.names = const {},
+    this.languageCode,
+    this.scriptCode,
+  });
 
   bool get isRoot => parentId == null;
 
   String nameOf(String uiLanguageCode) {
     final normalizedCode = uiLanguageCode.trim().toLowerCase();
+    final resolvedLanguageCode = languageCode;
+    final resolvedScriptCode = scriptCode;
+
+    if (resolvedLanguageCode != null && resolvedScriptCode != null) {
+      final language = LanguageConfig.findByCode(resolvedLanguageCode);
+
+      if (language != null) {
+        return language.scriptNameOf(resolvedScriptCode, normalizedCode);
+      }
+
+      return ScriptConfig.findByCode(
+            resolvedScriptCode,
+          )?.nameOf(normalizedCode) ??
+          resolvedScriptCode;
+    }
 
     return names[normalizedCode] ??
         names['en'] ??
@@ -24,6 +47,7 @@ class ForumCategories {
 
   static const String languageLearningCategoryId = 'language_learning';
   static const String _languageLearningPrefix = 'language_learning__';
+  static const String _languageLearningScriptMarker = '__script__';
 
   static const List<ForumCategory> all = [
     // ============================================================
@@ -168,19 +192,38 @@ class ForumCategories {
     ),
   ];
 
-  static final List<ForumCategory> _languageLearningChildren = LanguageConfig
+  static final List<ForumCategory> _languageLearningLanguages = LanguageConfig
       .allLanguages
       .map(
         (language) => ForumCategory(
           id: languageLearningCategoryIdFor(language.code),
           parentId: languageLearningCategoryId,
           names: Map<String, String>.from(language.names),
+          languageCode: language.code,
         ),
       )
       .toList(growable: false);
 
+  static final List<ForumCategory> _languageLearningScripts = [
+    for (final language in LanguageConfig.allLanguages)
+      if (language.scriptCodes.length > 1)
+        for (final scriptCode in language.scriptCodes)
+          ForumCategory(
+            id: languageLearningScriptCategoryIdFor(language.code, scriptCode),
+            parentId: languageLearningCategoryIdFor(language.code),
+            languageCode: language.code,
+            scriptCode: scriptCode,
+          ),
+  ];
+
+  static final List<ForumCategory> _languageLearningDynamicCategories = [
+    ..._languageLearningLanguages,
+    ..._languageLearningScripts,
+  ];
+
   static final Map<String, ForumCategory> _languageLearningById = {
-    for (final category in _languageLearningChildren) category.id: category,
+    for (final category in _languageLearningDynamicCategories)
+      category.id: category,
   };
 
   static List<ForumCategory> get roots {
@@ -192,18 +235,78 @@ class ForumCategories {
     return '$_languageLearningPrefix$normalizedCode';
   }
 
+  static String languageLearningScriptCategoryIdFor(
+    String languageCode,
+    String scriptCode,
+  ) {
+    final normalizedLanguageCode = languageCode.trim().toLowerCase();
+    final normalizedScriptCode = scriptCode.trim().toLowerCase();
+
+    return '$_languageLearningPrefix$normalizedLanguageCode'
+        '$_languageLearningScriptMarker$normalizedScriptCode';
+  }
+
   static bool isLanguageLearningLanguageCategory(String categoryId) {
-    return categoryId.startsWith(_languageLearningPrefix) &&
-        categoryId.length > _languageLearningPrefix.length;
+    if (!categoryId.startsWith(_languageLearningPrefix) ||
+        categoryId.contains(_languageLearningScriptMarker)) {
+      return false;
+    }
+
+    return categoryId.length > _languageLearningPrefix.length;
+  }
+
+  static bool isLanguageLearningScriptCategory(String categoryId) {
+    if (!categoryId.startsWith(_languageLearningPrefix)) {
+      return false;
+    }
+
+    final markerIndex = categoryId.indexOf(_languageLearningScriptMarker);
+    return markerIndex > _languageLearningPrefix.length &&
+        markerIndex + _languageLearningScriptMarker.length < categoryId.length;
   }
 
   static String? languageCodeOf(String categoryId) {
-    if (!isLanguageLearningLanguageCategory(categoryId)) {
+    if (!categoryId.startsWith(_languageLearningPrefix)) {
       return null;
     }
 
-    final code = categoryId.substring(_languageLearningPrefix.length);
-    return LanguageConfig.findByCode(code)?.code;
+    final remainder = categoryId.substring(_languageLearningPrefix.length);
+    final markerIndex = remainder.indexOf(_languageLearningScriptMarker);
+    final rawCode = markerIndex == -1
+        ? remainder
+        : remainder.substring(0, markerIndex);
+
+    if (rawCode.isEmpty) {
+      return null;
+    }
+
+    return LanguageConfig.findByCode(rawCode)?.code;
+  }
+
+  static String? scriptCodeOf(String categoryId) {
+    if (!isLanguageLearningScriptCategory(categoryId)) {
+      return null;
+    }
+
+    final languageCode = languageCodeOf(categoryId);
+    if (languageCode == null) {
+      return null;
+    }
+
+    final markerIndex = categoryId.indexOf(_languageLearningScriptMarker);
+    final rawScriptCode = categoryId
+        .substring(markerIndex + _languageLearningScriptMarker.length)
+        .trim()
+        .toLowerCase();
+    final language = LanguageConfig.findByCode(languageCode);
+
+    for (final scriptCode in language?.scriptCodes ?? const <String>[]) {
+      if (scriptCode.toLowerCase() == rawScriptCode) {
+        return scriptCode;
+      }
+    }
+
+    return null;
   }
 
   static ForumCategory? findById(String id) {
@@ -222,8 +325,12 @@ class ForumCategories {
   }
 
   static List<ForumCategory> childrenOf(String parentId) {
-    if (parentId == languageLearningCategoryId) {
-      return _languageLearningChildren;
+    final dynamicChildren = _languageLearningDynamicCategories
+        .where((category) => category.parentId == parentId)
+        .toList(growable: false);
+
+    if (dynamicChildren.isNotEmpty) {
+      return dynamicChildren;
     }
 
     return all
@@ -232,11 +339,7 @@ class ForumCategories {
   }
 
   static bool hasChildren(String categoryId) {
-    if (categoryId == languageLearningCategoryId) {
-      return _languageLearningChildren.isNotEmpty;
-    }
-
-    return all.any((category) => category.parentId == categoryId);
+    return childrenOf(categoryId).isNotEmpty;
   }
 
   static List<ForumCategory> descendantsOf(String categoryId) {
