@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../domain/repositories/follow_repository.dart';
 
 class FollowStats extends StatelessWidget {
@@ -9,28 +10,36 @@ class FollowStats extends StatelessWidget {
     required this.userId,
     required this.postCount,
     required this.totalLikes,
-    this.postsLabel = '动态',
-    this.followingLabel = '关注',
-    this.followersLabel = '粉丝',
-    this.likesLabel = '获赞',
+    this.postsLabel,
+    this.followingLabel,
+    this.followersLabel,
+    this.likesLabel,
   });
 
   final String userId;
   final int postCount;
   final int totalLikes;
-  final String postsLabel;
-  final String followingLabel;
-  final String followersLabel;
-  final String likesLabel;
+  final String? postsLabel;
+  final String? followingLabel;
+  final String? followersLabel;
+  final String? likesLabel;
 
   @override
   Widget build(BuildContext context) {
     final repository = context.read<FollowRepository>();
+    final l10n = AppLocalizations.of(context)!;
+    final resolvedPostsLabel = postsLabel ?? l10n.posts;
+    final resolvedFollowingLabel = followingLabel ?? l10n.get('following');
+    final resolvedFollowersLabel = followersLabel ?? l10n.get('followers');
+    final resolvedLikesLabel = likesLabel ?? l10n.likesCount;
 
     return Row(
       children: [
         Expanded(
-          child: _StatItem(label: postsLabel, value: postCount.toString()),
+          child: _StatItem(
+            label: resolvedPostsLabel,
+            value: postCount.toString(),
+          ),
         ),
         Expanded(
           child: StreamBuilder<int>(
@@ -38,7 +47,7 @@ class FollowStats extends StatelessWidget {
             initialData: 0,
             builder: (context, snapshot) {
               return _StatItem(
-                label: followingLabel,
+                label: resolvedFollowingLabel,
                 value: snapshot.hasError ? '—' : '${snapshot.data ?? 0}',
               );
             },
@@ -50,14 +59,17 @@ class FollowStats extends StatelessWidget {
             initialData: 0,
             builder: (context, snapshot) {
               return _StatItem(
-                label: followersLabel,
+                label: resolvedFollowersLabel,
                 value: snapshot.hasError ? '—' : '${snapshot.data ?? 0}',
               );
             },
           ),
         ),
         Expanded(
-          child: _StatItem(label: likesLabel, value: totalLikes.toString()),
+          child: _StatItem(
+            label: resolvedLikesLabel,
+            value: totalLikes.toString(),
+          ),
         ),
       ],
     );

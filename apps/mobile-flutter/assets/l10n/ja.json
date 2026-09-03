@@ -366,5 +366,9 @@
   "authRegisterFailed": "登録に失敗しました。後でもう一度お試しください。",
   "authChangePasswordFailed": "パスワード変更に失敗しました。後でもう一度お試しください。",
   "authResetEmailFailed": "パスワード再設定メールを送信できませんでした。後でもう一度お試しください。",
-  "authUnexpectedError": "エラーが発生しました。もう一度お試しください。"
+  "authUnexpectedError": "エラーが発生しました。もう一度お試しください。",
+  "messageInputHint": "メッセージを入力...",
+  "followAction": "フォロー",
+  "followActionFailed": "フォロー状態を更新できませんでした",
+  "followers": "フォロワー"
 }

@@ -366,5 +366,9 @@
   "authRegisterFailed": "Registration failed. Please try again later.",
   "authChangePasswordFailed": "Password change failed. Please try again later.",
   "authResetEmailFailed": "Could not send the password reset email. Please try again later.",
-  "authUnexpectedError": "Something went wrong. Please try again."
+  "authUnexpectedError": "Something went wrong. Please try again.",
+  "messageInputHint": "Type a message...",
+  "followAction": "Follow",
+  "followActionFailed": "Could not update follow status",
+  "followers": "Followers"
 }
