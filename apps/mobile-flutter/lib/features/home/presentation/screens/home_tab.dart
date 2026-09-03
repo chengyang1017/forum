@@ -107,7 +107,7 @@ class _HomeTabState extends State<HomeTab> {
 
     final currentLanguage = currentChannel.language;
 
-    final currentLanguageName = currentChannel.nameOf(uiLanguageCode);
+    final currentLanguageName = currentChannel.displayNameOf(uiLanguageCode);
 
     final isRecommended = _currentSection == _HomeSection.recommended;
 
@@ -223,19 +223,21 @@ class _RecommendedSection extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        '你的兴趣主页',
+                      Text(
+                        '推荐只来自你的主动选择',
                         style: TextStyle(
-                          fontSize: 16,
+                          color: colorScheme.onSurface,
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 5),
                       Text(
-                        '先到分类频道，把语言频道中的分类设为感兴趣',
+                        '点赞、收藏、关注标签与加入兴趣都会影响推荐；单纯浏览不会改变你的推荐。',
                         style: TextStyle(
-                          color: colorScheme.onSurface.withValues(alpha: 0.62),
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                           fontSize: 12,
+                          height: 1.45,
                         ),
                       ),
                     ],
@@ -260,120 +262,95 @@ class _HomeDrawer extends StatelessWidget {
     required this.onSectionSelected,
   });
 
-  void _select(BuildContext context, _HomeSection section) {
-    Navigator.of(context).pop();
-    onSectionSelected(section);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
+    final user = context.watch<auth_cubit.AuthCubit>().state.user;
 
     return Drawer(
       backgroundColor: colorScheme.surface,
       child: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      colorScheme.primary,
-                      colorScheme.primary.withValues(alpha: 0.72),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 46,
-                      height: 46,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Icon(
-                        Icons.public_rounded,
-                        color: Colors.white,
-                        size: 27,
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    const Text(
-                      '语言社区',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 23,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '连接语言、兴趣与世界',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.78),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Column(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+              child: Row(
                 children: [
-                  _DrawerNavigationItem(
-                    selected: currentSection == _HomeSection.recommended,
-                    icon: Icons.home_rounded,
-                    outlineIcon: Icons.home_outlined,
-                    title: '推荐主页',
-                    subtitle: '只显示已选择的兴趣',
-                    onTap: () {
-                      _select(context, _HomeSection.recommended);
-                    },
+                  CircleAvatar(
+                    radius: 23,
+                    backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
+                    child: Text(
+                      _displayInitial(user?.displayName, user?.email),
+                      style: TextStyle(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 6),
-                  _DrawerNavigationItem(
-                    selected: currentSection == _HomeSection.categories,
-                    icon: Icons.grid_view_rounded,
-                    outlineIcon: Icons.grid_view_outlined,
-                    title: '分类频道',
-                    subtitle: '选择语言、浏览和设置兴趣',
-                    onTap: () {
-                      _select(context, _HomeSection.categories);
-                    },
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user?.displayName?.trim().isNotEmpty == true
+                              ? user!.displayName!.trim()
+                              : 'Glyphora',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          user?.email ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: colorScheme.onSurface.withValues(alpha: 0.55),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
+            ),
+            Divider(height: 1, color: colorScheme.outlineVariant),
+            const SizedBox(height: 10),
+            _DrawerDestination(
+              icon: Icons.auto_awesome_rounded,
+              label: '为你推荐',
+              selected: currentSection == _HomeSection.recommended,
+              onTap: () {
+                onSectionSelected(_HomeSection.recommended);
+                Navigator.pop(context);
+              },
+            ),
+            _DrawerDestination(
+              icon: Icons.grid_view_rounded,
+              label: l10n.forumCategories,
+              selected: currentSection == _HomeSection.categories,
+              onTap: () {
+                onSectionSelected(_HomeSection.categories);
+                Navigator.pop(context);
+              },
             ),
             const Spacer(),
             Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.language_rounded,
-                    size: 18,
-                    color: colorScheme.onSurface.withValues(alpha: 0.45),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '探索不同语言的内容',
-                    style: TextStyle(
-                      color: colorScheme.onSurface.withValues(alpha: 0.45),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Text(
+                '万文社 · Glyphora',
+                style: TextStyle(
+                  color: colorScheme.onSurface.withValues(alpha: 0.4),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -381,22 +358,32 @@ class _HomeDrawer extends StatelessWidget {
       ),
     );
   }
+
+  static String _displayInitial(String? displayName, String? email) {
+    final name = displayName?.trim();
+    if (name != null && name.isNotEmpty) {
+      return name.characters.first.toUpperCase();
+    }
+
+    final value = email?.trim();
+    if (value != null && value.isNotEmpty) {
+      return value.characters.first.toUpperCase();
+    }
+
+    return 'G';
+  }
 }
 
-class _DrawerNavigationItem extends StatelessWidget {
-  final bool selected;
+class _DrawerDestination extends StatelessWidget {
   final IconData icon;
-  final IconData outlineIcon;
-  final String title;
-  final String subtitle;
+  final String label;
+  final bool selected;
   final VoidCallback onTap;
 
-  const _DrawerNavigationItem({
-    required this.selected,
+  const _DrawerDestination({
     required this.icon,
-    required this.outlineIcon,
-    required this.title,
-    required this.subtitle,
+    required this.label,
+    required this.selected,
     required this.onTap,
   });
 
@@ -404,330 +391,22 @@ class _DrawerNavigationItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Material(
-      color: selected
-          ? colorScheme.primary.withValues(alpha: 0.10)
-          : Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: selected
-                      ? colorScheme.primary
-                      : colorScheme.onSurface.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(13),
-                ),
-                child: Icon(
-                  selected ? icon : outlineIcon,
-                  color: selected
-                      ? colorScheme.onPrimary
-                      : colorScheme.onSurface.withValues(alpha: 0.65),
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 13),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: selected
-                            ? colorScheme.primary
-                            : colorScheme.onSurface,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: colorScheme.onSurface.withValues(alpha: 0.48),
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (selected)
-                Icon(Icons.chevron_right_rounded, color: colorScheme.primary),
-            ],
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+      child: ListTile(
+        leading: Icon(icon, size: 22),
+        title: Text(
+          label,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
+        selected: selected,
+        selectedColor: colorScheme.primary,
+        selectedTileColor: colorScheme.primary.withValues(alpha: 0.1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        onTap: onTap,
       ),
     );
   }
-}
-
-class _CategorySection extends StatelessWidget {
-  final LanguageConfig language;
-  final String channelKey;
-  final String languageName;
-  final List<CategoryConfig> categories;
-  final List<String> categoryNames;
-  final VoidCallback onChangeLanguage;
-  final ValueChanged<CategoryConfig> onCategorySelected;
-
-  const _CategorySection({
-    required this.language,
-    required this.channelKey,
-    required this.languageName,
-    required this.categories,
-    required this.categoryNames,
-    required this.onChangeLanguage,
-    required this.onCategorySelected,
-  });
-
-  String _interestKey(String categoryId) {
-    return '$channelKey::$categoryId';
-  }
-
-  Future<void> _toggleInterest({
-    required BuildContext context,
-    required auth_cubit.AuthCubit authProvider,
-    required CategoryConfig category,
-  }) async {
-    if (authProvider.user == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('请先登录后再设置兴趣')));
-
-      return;
-    }
-
-    if (!authProvider.interestsLoaded) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('兴趣设置正在加载，请稍后再试')));
-
-      return;
-    }
-
-    final key = _interestKey(category.id);
-
-    try {
-      await authProvider.toggleInterest(key);
-    } catch (error) {
-      if (!context.mounted) {
-        return;
-      }
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('更新兴趣失败：$error')));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final authProvider = context.watch<auth_cubit.AuthCubit>();
-
-    final interests = authProvider.interests;
-
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-          child: Material(
-            color: colorScheme.primary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(20),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: onChangeLanguage,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 52,
-                      height: 52,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: colorScheme.surface,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        language.flag,
-                        style: const TextStyle(fontSize: 27),
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            languageName,
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            '当前频道 · 点击切换语言',
-                            style: TextStyle(
-                              color: colorScheme.onSurface.withValues(
-                                alpha: 0.56,
-                              ),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: colorScheme.surface,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.swap_horiz_rounded,
-                        color: colorScheme.primary,
-                        size: 20,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-          child: Row(
-            children: [
-              const Text(
-                '选择主题',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
-              ),
-              const Spacer(),
-              Text(
-                authProvider.interestsLoaded ? '点击心形设为感兴趣' : '正在加载兴趣设置…',
-                style: TextStyle(
-                  color: colorScheme.onSurface.withValues(alpha: 0.48),
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: _CategoryGrid(
-            language: language,
-            channelKey: channelKey,
-            categories: categories,
-            categoryNames: categoryNames,
-            interests: interests,
-            onCategorySelected: onCategorySelected,
-            onInterestPressed: (category, _) {
-              _toggleInterest(
-                context: context,
-                authProvider: authProvider,
-                category: category,
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CategoryGrid extends StatelessWidget {
-  final LanguageConfig language;
-  final String channelKey;
-  final List<CategoryConfig> categories;
-  final List<String> categoryNames;
-  final Set<String> interests;
-  final ValueChanged<CategoryConfig> onCategorySelected;
-  final void Function(CategoryConfig category, bool isInterested)
-  onInterestPressed;
-
-  const _CategoryGrid({
-    required this.language,
-    required this.channelKey,
-    required this.categories,
-    required this.categoryNames,
-    required this.interests,
-    required this.onCategorySelected,
-    required this.onInterestPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth >= 720 ? 4 : 2;
-
-        return GridView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-          itemCount: categories.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.35,
-          ),
-          itemBuilder: (context, index) {
-            final category = categories[index];
-
-            final categoryName = index < categoryNames.length
-                ? categoryNames[index]
-                : ForumCategories.nameOf(
-                    category.id,
-                    Localizations.localeOf(context).languageCode,
-                  );
-
-            final key = '$channelKey::${category.id}';
-
-            final isInterested = interests.contains(key);
-
-            return _CategoryCard(
-              index: index,
-              icon: category.icon,
-              name: categoryName,
-              isInterested: isInterested,
-              onTap: () {
-                onCategorySelected(category);
-              },
-              onInterestPressed: () {
-                onInterestPressed(category, isInterested);
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-class CategoryConfig {
-  final String id;
-  final IconData icon;
-
-  const CategoryConfig({required this.id, required this.icon});
 }
 
 class _ChannelSelectorButton extends StatelessWidget {
@@ -752,14 +431,14 @@ class _ChannelSelectorButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         onTap: onPressed,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(flag, style: const TextStyle(fontSize: 18)),
               const SizedBox(width: 7),
               ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 90),
+                constraints: const BoxConstraints(maxWidth: 118),
                 child: Text(
                   languageName,
                   maxLines: 1,
@@ -771,11 +450,11 @@ class _ChannelSelectorButton extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 3),
+              const SizedBox(width: 4),
               Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: colorScheme.primary,
                 size: 18,
+                color: colorScheme.primary,
               ),
             ],
           ),
@@ -785,106 +464,209 @@ class _ChannelSelectorButton extends StatelessWidget {
   }
 }
 
-class _CategoryCard extends StatelessWidget {
-  final int index;
-  final IconData icon;
-  final String name;
-  final bool isInterested;
-  final VoidCallback onTap;
-  final VoidCallback onInterestPressed;
+class _CategorySection extends StatelessWidget {
+  final LanguageConfig language;
+  final String channelKey;
+  final String languageName;
+  final List<CategoryConfig> categories;
+  final Map<String, String> categoryNames;
+  final VoidCallback onChangeLanguage;
+  final ValueChanged<CategoryConfig> onCategorySelected;
 
-  const _CategoryCard({
-    required this.index,
-    required this.icon,
-    required this.name,
-    required this.isInterested,
-    required this.onTap,
-    required this.onInterestPressed,
+  const _CategorySection({
+    required this.language,
+    required this.channelKey,
+    required this.languageName,
+    required this.categories,
+    required this.categoryNames,
+    required this.onChangeLanguage,
+    required this.onCategorySelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
+            child: _LanguageHeroCard(
+              flag: language.flag,
+              title: languageName,
+              subtitle: l10n.chooseCategorySubtitle,
+              actionLabel: l10n.changeLanguage,
+              onPressed: onChangeLanguage,
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 26),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.1,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final category = categories[index];
+
+                return _CategoryCard(
+                  category: category,
+                  title: categoryNames[category.id] ?? category.id,
+                  colorScheme: colorScheme,
+                  onTap: () {
+                    onCategorySelected(category);
+                  },
+                );
+              },
+              childCount: categories.length,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LanguageHeroCard extends StatelessWidget {
+  final String flag;
+  final String title;
+  final String subtitle;
+  final String actionLabel;
+  final VoidCallback onPressed;
+
+  const _LanguageHeroCard({
+    required this.flag,
+    required this.title,
+    required this.subtitle,
+    required this.actionLabel,
+    required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final accentColor = _accentColor(colorScheme, index);
 
-    return Material(
-      color: colorScheme.surface,
-      borderRadius: BorderRadius.circular(20),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isInterested
-                  ? colorScheme.primary
-                  : accentColor.withValues(alpha: 0.16),
-              width: isInterested ? 1.5 : 1,
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: colorScheme.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: colorScheme.primary.withValues(alpha: 0.12),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 54,
+            height: 54,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.035),
-                blurRadius: 12,
-                offset: const Offset(0, 5),
-              ),
-            ],
+            child: Text(flag, style: const TextStyle(fontSize: 28)),
           ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
-            child: Row(
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 45,
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: accentColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(icon, color: accentColor, size: 24),
-                ),
-                const SizedBox(width: 11),
-                Expanded(
-                  child: Text(
-                    name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                IconButton(
-                  tooltip: isInterested ? '取消感兴趣' : '设为感兴趣',
-                  onPressed: onInterestPressed,
-                  icon: Icon(
-                    isInterested
-                        ? Icons.favorite_rounded
-                        : Icons.favorite_border_rounded,
-                    color: isInterested
-                        ? colorScheme.primary
-                        : colorScheme.onSurface.withValues(alpha: 0.34),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withValues(alpha: 0.56),
+                    fontSize: 12,
+                    height: 1.4,
                   ),
                 ),
               ],
             ),
           ),
-        ),
+          const SizedBox(width: 10),
+          TextButton(onPressed: onPressed, child: Text(actionLabel)),
+        ],
       ),
     );
   }
+}
 
-  Color _accentColor(ColorScheme colorScheme, int index) {
-    final colors = <Color>[
-      colorScheme.primary,
-      colorScheme.secondary,
-      Colors.deepPurple,
-      Colors.teal,
-      Colors.orange,
-      Colors.pink,
-    ];
+class _CategoryCard extends StatelessWidget {
+  final CategoryConfig category;
+  final String title;
+  final ColorScheme colorScheme;
+  final VoidCallback onTap;
 
-    return colors[index % colors.length];
+  const _CategoryCard({
+    required this.category,
+    required this.title,
+    required this.colorScheme,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.42),
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(17),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(
+                  category.icon,
+                  color: colorScheme.primary,
+                  size: 22,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                channelKey,
+                style: TextStyle(
+                  color: colorScheme.onSurface.withValues(alpha: 0.38),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
