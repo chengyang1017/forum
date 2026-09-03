@@ -52,7 +52,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       body: IndexedStack(index: _currentIndex, children: _pages),
       floatingActionButton: FloatingActionButton(
         onPressed: _openDiscoverPage,
-        tooltip: '发现用户',
+        tooltip: l10n.discover,
         child: const Icon(Icons.person_search),
       ),
       bottomNavigationBar: _MainBottomNavigationBar(
