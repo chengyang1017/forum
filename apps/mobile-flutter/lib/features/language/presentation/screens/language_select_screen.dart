@@ -20,10 +20,9 @@ class LanguageSelectScreen extends StatefulWidget {
 
 class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
   final Map<String, int> _alphaIndex = {};
-
   final ScrollController _scrollController = ScrollController();
 
-  late List<ForumLanguageChannel> _sortedChannels;
+  late List<ForumLanguageGroup> _sortedGroups;
   late List<_GroupedSection> _sections;
 
   String _currentLetter = '';
@@ -39,38 +38,29 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
 
     final uiCode = widget.currentUiLanguageCode;
 
-    _sortedChannels = List<ForumLanguageChannel>.from(ForumLanguages.channels);
+    _sortedGroups = List<ForumLanguageGroup>.from(ForumLanguages.channelGroups);
+    _sortedGroups.sort((a, b) => a.nameOf(uiCode).compareTo(b.nameOf(uiCode)));
 
-    _sortedChannels.sort(
-      (a, b) => a.nameOf(uiCode).compareTo(b.nameOf(uiCode)),
-    );
+    final Map<String, List<ForumLanguageGroup>> grouped = {};
 
-    final Map<String, List<ForumLanguageChannel>> grouped = {};
-
-    for (final channel in _sortedChannels) {
-      final firstLetter = channel.language.firstLetterOf(uiCode);
-
+    for (final group in _sortedGroups) {
+      final firstLetter = group.language.firstLetterOf(uiCode);
       grouped.putIfAbsent(firstLetter, () => []);
-
-      grouped[firstLetter]!.add(channel);
+      grouped[firstLetter]!.add(group);
     }
 
     final keys = grouped.keys.toList()..sort();
-
     _sections = [];
 
-    int itemIndex = 0;
+    var itemIndex = 0;
 
     for (final key in keys) {
       _alphaIndex[key] = itemIndex;
-
       _sections.add(_GroupedSection(letter: key, isTitle: true));
-
       itemIndex++;
 
-      for (final channel in grouped[key]!) {
-        _sections.add(_GroupedSection(channel: channel, isTitle: false));
-
+      for (final group in grouped[key]!) {
+        _sections.add(_GroupedSection(group: group, isTitle: false));
         itemIndex++;
       }
     }
@@ -78,38 +68,181 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
 
   List<String> get _alphaKeys {
     final keys = _alphaIndex.keys.toList()..sort();
-
     return keys;
   }
 
   void _scrollToLetter(String letter) {
     if (_alphaIndex.containsKey(letter)) {
       final index = _alphaIndex[letter]!;
-
       _scrollController.jumpTo(index * 60.0);
     }
   }
 
   int _getTouchedIndex(Offset globalPosition) {
     final renderBox = context.findRenderObject() as RenderBox;
-
     final localPosition = renderBox.globalToLocal(globalPosition);
-
     final totalHeight = _alphaKeys.length * 20.0;
-
     final startY = (renderBox.size.height - totalHeight) / 2;
-
     final relativeY = localPosition.dy - startY;
 
-    final index = (relativeY / 20).floor();
+    return (relativeY / 20).floor();
+  }
 
-    return index;
+  String _scriptMark(ForumLanguageChannel channel) {
+    switch (channel.scriptCode) {
+      case 'Hnom':
+        return '𡨸';
+      case 'Latn':
+        return 'Aa';
+      case 'Hans':
+        return '简';
+      case 'Hant':
+        return '繁';
+      default:
+        final code = channel.scriptCode;
+        if (code == null || code.isEmpty) {
+          return 'Aa';
+        }
+        return code.length <= 3 ? code : code.substring(0, 3);
+    }
+  }
+
+  Future<void> _openWritingSystemPicker(ForumLanguageGroup group) async {
+    final uiCode = widget.currentUiLanguageCode;
+
+    final selected = await showModalBottomSheet<ForumLanguageChannel>(
+      context: context,
+      backgroundColor: Colors.white,
+      showDragHandle: true,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  group.nameOf(uiCode),
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  ForumLanguages.scriptSelectTitleOf(uiCode),
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                ),
+                const SizedBox(height: 18),
+                ...group.channels.map((channel) {
+                  final isSelected = channel.key == widget.currentChannel.key;
+                  final scriptName = channel.scriptNameOf(uiCode);
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Colors.blue.withValues(alpha: 0.07)
+                          : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected
+                            ? Colors.blue.withValues(alpha: 0.35)
+                            : const Color(0xFFE2E8F0),
+                      ),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 5,
+                      ),
+                      leading: Container(
+                        width: 42,
+                        height: 42,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? Colors.blue.withValues(alpha: 0.12)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          _scriptMark(channel),
+                          style: TextStyle(
+                            fontSize: channel.scriptCode == 'Hnom' ? 22 : 15,
+                            fontWeight: FontWeight.w700,
+                            color: isSelected
+                                ? Colors.blue.shade700
+                                : const Color(0xFF334155),
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        scriptName.isEmpty ? group.nameOf(uiCode) : scriptName,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w600,
+                          color: const Color(0xFF1E293B),
+                        ),
+                      ),
+                      subtitle: Text(
+                        channel.nameOf(uiCode),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      trailing: isSelected
+                          ? const Icon(
+                              Icons.check_circle,
+                              color: Colors.blue,
+                              size: 22,
+                            )
+                          : const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 15,
+                              color: Color(0xFF94A3B8),
+                            ),
+                      onTap: () {
+                        Navigator.pop(sheetContext, channel);
+                      },
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (!mounted || selected == null) {
+      return;
+    }
+
+    Navigator.pop(context, selected);
+  }
+
+  void _selectGroup(ForumLanguageGroup group) {
+    if (group.hasScriptChoices) {
+      _openWritingSystemPicker(group);
+      return;
+    }
+
+    Navigator.pop(context, group.channels.first);
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
-
     super.dispose();
   }
 
@@ -164,11 +297,14 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                   );
                 }
 
-                final channel = section.channel!;
-
-                final language = channel.language;
-
-                final isSelected = channel.key == widget.currentChannel.key;
+                final group = section.group!;
+                final language = group.language;
+                final selectedChannel = group.selectedChannelForKey(
+                  widget.currentChannel.key,
+                );
+                final isSelected = selectedChannel != null;
+                final selectedScriptName =
+                    selectedChannel?.scriptNameOf(uiCode) ?? '';
 
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(
@@ -180,7 +316,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                     style: const TextStyle(fontSize: 28),
                   ),
                   title: Text(
-                    channel.nameOf(widget.currentUiLanguageCode),
+                    group.nameOf(uiCode),
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: isSelected
@@ -189,7 +325,25 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                       color: isSelected ? Colors.blue : const Color(0xFF1E293B),
                     ),
                   ),
-                  trailing: isSelected
+                  subtitle: group.hasScriptChoices
+                      ? Text(
+                          selectedScriptName.isNotEmpty && isSelected
+                              ? selectedScriptName
+                              : ForumLanguages.scriptSelectTitleOf(uiCode),
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: isSelected
+                                ? Colors.blue.shade600
+                                : Colors.grey.shade500,
+                          ),
+                        )
+                      : null,
+                  trailing: group.hasScriptChoices
+                      ? const Icon(
+                          Icons.chevron_right_rounded,
+                          color: Color(0xFF94A3B8),
+                        )
+                      : isSelected
                       ? const Icon(
                           Icons.check_circle,
                           color: Colors.blue,
@@ -197,12 +351,11 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                         )
                       : null,
                   onTap: () {
-                    Navigator.pop(context, channel);
+                    _selectGroup(group);
                   },
                 );
               },
             ),
-
             if (_currentLetter.isNotEmpty)
               Center(
                 child: Container(
@@ -224,7 +377,6 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                   ),
                 ),
               ),
-
             Positioned(
               right: 0,
               top: 0,
@@ -237,7 +389,6 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                     setState(() {
                       _currentLetter = _alphaKeys[idx];
                     });
-
                     _scrollToLetter(_alphaKeys[idx]);
                   }
                 },
@@ -248,7 +399,6 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                     setState(() {
                       _currentLetter = _alphaKeys[idx];
                     });
-
                     _scrollToLetter(_alphaKeys[idx]);
                   }
                 },
@@ -292,8 +442,8 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
 
 class _GroupedSection {
   final String? letter;
-  final ForumLanguageChannel? channel;
+  final ForumLanguageGroup? group;
   final bool isTitle;
 
-  _GroupedSection({this.letter, this.channel, required this.isTitle});
+  _GroupedSection({this.letter, this.group, required this.isTitle});
 }

@@ -34,18 +34,55 @@ class ForumLanguageChannel {
     return language.code;
   }
 
-  String nameOf(String uiLanguageCode) {
-    final languageName = language.nameOf(uiLanguageCode);
-
+  String scriptNameOf(String uiLanguageCode) {
     final script = scriptCode;
 
     if (script == null || script.isEmpty) {
+      return '';
+    }
+
+    return language.scriptNameOf(script, uiLanguageCode);
+  }
+
+  String nameOf(String uiLanguageCode) {
+    final languageName = language.nameOf(uiLanguageCode);
+    final scriptName = scriptNameOf(uiLanguageCode);
+
+    if (scriptName.isEmpty) {
       return languageName;
     }
 
-    final scriptName = language.scriptNameOf(script, uiLanguageCode);
+    return '$languageName · $scriptName';
+  }
+}
 
-    return '$languageName-$scriptName';
+class ForumLanguageGroup {
+  final LanguageConfig language;
+  final List<ForumLanguageChannel> channels;
+
+  ForumLanguageGroup({
+    required this.language,
+    required List<ForumLanguageChannel> channels,
+  }) : channels = List<ForumLanguageChannel>.unmodifiable(channels);
+
+  String get languageCode => language.code;
+
+  String nameOf(String uiLanguageCode) => language.nameOf(uiLanguageCode);
+
+  bool get hasScriptChoices => channels.length > 1;
+
+  bool containsChannelKey(String key) {
+    return channels.any((channel) => channel.key == key);
+  }
+
+  ForumLanguageChannel? selectedChannelForKey(String key) {
+    for (final channel in channels) {
+      if (channel.key == key) {
+        return channel;
+      }
+    }
+
+    return null;
   }
 }
 
@@ -71,26 +108,38 @@ class ForumLanguages {
         .toList(growable: false);
   }
 
-  static List<ForumLanguageChannel> get channels {
-    final result = <ForumLanguageChannel>[];
-
-    for (final language in channelLanguages) {
-      // 有多个文字系统：
-      // 每个文字系统独立成为一个频道。
-      if (language.scriptCodes.length > 1) {
-        for (final scriptCode in language.scriptCodes) {
-          result.add(
-            ForumLanguageChannel(language: language, scriptCode: scriptCode),
-          );
-        }
-
-        continue;
-      }
-
-      result.add(ForumLanguageChannel(language: language));
+  static List<ForumLanguageChannel> channelsForLanguage(
+    LanguageConfig language,
+  ) {
+    if (language.scriptCodes.length > 1) {
+      return language.scriptCodes
+          .map(
+            (scriptCode) => ForumLanguageChannel(
+              language: language,
+              scriptCode: scriptCode,
+            ),
+          )
+          .toList(growable: false);
     }
 
-    return result;
+    return <ForumLanguageChannel>[ForumLanguageChannel(language: language)];
+  }
+
+  static List<ForumLanguageGroup> get channelGroups {
+    return channelLanguages
+        .map(
+          (language) => ForumLanguageGroup(
+            language: language,
+            channels: channelsForLanguage(language),
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  static List<ForumLanguageChannel> get channels {
+    return <ForumLanguageChannel>[
+      for (final group in channelGroups) ...group.channels,
+    ];
   }
 
   static ForumLanguageChannel? findChannelByKey(String key) {
@@ -142,6 +191,32 @@ class ForumLanguages {
       case 'zh':
       default:
         return '选择语言频道';
+    }
+  }
+
+  static String scriptSelectTitleOf(String uiLangCode) {
+    final code = uiLangCode.toLowerCase().split(RegExp(r'[-_]')).first;
+
+    switch (code) {
+      case 'en':
+        return 'Select Writing System';
+      case 'ms':
+        return 'Pilih Sistem Tulisan';
+      case 'vi':
+        return 'Chọn hệ chữ';
+      case 'ru':
+        return 'Выберите письменность';
+      case 'ja':
+        return '文字体系を選択';
+      case 'ko':
+        return '문자 체계 선택';
+      case 'th':
+        return 'เลือกระบบอักษร';
+      case 'id':
+        return 'Pilih Sistem Tulisan';
+      case 'zh':
+      default:
+        return '选择文字系统';
     }
   }
 }
