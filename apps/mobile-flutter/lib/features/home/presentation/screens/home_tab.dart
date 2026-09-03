@@ -518,9 +518,9 @@ class _CategorySection extends StatelessWidget {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${copy.updateFailed}: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('${copy.updateFailed}: $error')));
     }
   }
 
@@ -576,7 +576,10 @@ class _CategorySection extends StatelessWidget {
                   child: _CategorySectionHeading(
                     title: copy.selectTopics,
                     subtitle: authProvider.interestsLoaded
-                        ? copy.interestSummary(interestedCount, categories.length)
+                        ? copy.interestSummary(
+                            interestedCount,
+                            categories.length,
+                          )
                         : copy.interestsLoading,
                   ),
                 ),
@@ -636,7 +639,7 @@ class _CategoryOverview extends StatelessWidget {
     }
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           flex: 5,
@@ -843,7 +846,9 @@ class _InterestOverviewCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  interestsLoaded ? copy.interestCardLabel : copy.interestsLoading,
+                  interestsLoaded
+                      ? copy.interestCardLabel
+                      : copy.interestsLoading,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -865,10 +870,7 @@ class _CategorySectionHeading extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const _CategorySectionHeading({
-    required this.title,
-    required this.subtitle,
-  });
+  const _CategorySectionHeading({required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -1132,7 +1134,7 @@ class _CategoryCard extends StatelessWidget {
                         style: TextStyle(
                           color: colorScheme.onSurface,
                           fontSize: isTablet ? 13 : 14,
-                          fontWeight: FontWeight.w750,
+                          fontWeight: FontWeight.w700,
                           height: 1.2,
                         ),
                       ),
@@ -1153,7 +1155,9 @@ class _CategoryCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  tooltip: isInterested ? copy.removeInterest : copy.addInterest,
+                  tooltip: isInterested
+                      ? copy.removeInterest
+                      : copy.addInterest,
                   onPressed: onInterestPressed,
                   visualDensity: VisualDensity.compact,
                   constraints: BoxConstraints.tightFor(
