@@ -22,6 +22,8 @@
   "confirm": "OK",
   "search": "検索",
   "settings": "設定",
+  "midnightMode": "深夜モード",
+  "midnightModeDesc": "夜間や OLED 画面向けの純黒・低輝度表示",
   "logout": "ログアウト",
   "login": "ログイン",
   "register": "登録",
