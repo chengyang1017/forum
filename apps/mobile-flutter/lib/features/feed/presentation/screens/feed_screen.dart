@@ -277,6 +277,27 @@ class _CategoryBreadcrumbBar extends StatelessWidget {
     required this.channelKey,
   });
 
+  void _navigateToAncestor(
+    BuildContext context, {
+    required List<String> path,
+    required int targetIndex,
+  }) {
+    final router = GoRouter.of(context);
+    final targetLocation = AppRoutes.feedLocation(
+      channelKey: channelKey,
+      categoryId: path[targetIndex],
+    );
+    final popCount = path.length - 1 - targetIndex;
+
+    for (var index = 0; index < popCount; index++) {
+      if (!router.canPop()) {
+        router.go(targetLocation);
+        return;
+      }
+      router.pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final uiLanguageCode = Localizations.localeOf(context).languageCode;
@@ -309,11 +330,10 @@ class _CategoryBreadcrumbBar extends StatelessWidget {
               onTap: index == path.length - 1
                   ? null
                   : () {
-                      context.push(
-                        AppRoutes.feedLocation(
-                          channelKey: channelKey,
-                          categoryId: path[index],
-                        ),
+                      _navigateToAncestor(
+                        context,
+                        path: path,
+                        targetIndex: index,
                       );
                     },
               child: Padding(
