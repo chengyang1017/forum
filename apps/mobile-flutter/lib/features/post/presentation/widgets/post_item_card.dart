@@ -69,13 +69,21 @@ class PostItemCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildTitleRow(title: title, postLanguageCode: postLanguageCode),
+            _buildTitleRow(
+              context,
+              title: title,
+              postLanguageCode: postLanguageCode,
+            ),
             if (content.isNotEmpty || images.isNotEmpty) ...[
               const SizedBox(height: 8),
-              _buildContentAndImages(content: content, images: images),
+              _buildContentAndImages(
+                context,
+                content: content,
+                images: images,
+              ),
             ],
             const SizedBox(height: 14),
-            _buildPostMetadata(),
+            _buildPostMetadata(context),
             const SizedBox(height: 4),
           ],
         ),
@@ -83,10 +91,13 @@ class PostItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleRow({
+  Widget _buildTitleRow(
+    BuildContext context, {
     required String title,
     required String postLanguageCode,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -95,10 +106,10 @@ class PostItemCard extends StatelessWidget {
             title.isNotEmpty ? title : '无标题',
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF121212),
+              color: colorScheme.onSurface,
               height: 1.35,
             ),
           ),
@@ -108,15 +119,18 @@ class PostItemCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
+              color: colorScheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: Colors.blue.shade200, width: 0.5),
+              border: Border.all(
+                color: colorScheme.primary.withValues(alpha: 0.32),
+                width: 0.5,
+              ),
             ),
             child: Text(
               _getLanguageName(postLanguageCode),
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.blue.shade700,
+                color: colorScheme.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -126,46 +140,58 @@ class PostItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildContentAndImages({
+  Widget _buildContentAndImages(
+    BuildContext context, {
     required String content,
     required List<String> images,
   }) {
     if (images.isEmpty) {
-      return _buildContentText(content, maxLines: 4);
+      return _buildContentText(context, content, maxLines: 4);
     }
 
     if (images.length == 1) {
-      return _buildSingleImageLayout(content: content, imageUrl: images.first);
+      return _buildSingleImageLayout(
+        context,
+        content: content,
+        imageUrl: images.first,
+      );
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (content.isNotEmpty) ...[
-          _buildContentText(content, maxLines: 3),
+          _buildContentText(context, content, maxLines: 3),
           const SizedBox(height: 10),
         ],
-        _buildMultipleImages(images),
+        _buildMultipleImages(context, images),
       ],
     );
   }
 
-  Widget _buildContentText(String content, {required int maxLines}) {
+  Widget _buildContentText(
+    BuildContext context,
+    String content, {
+    required int maxLines,
+  }) {
     if (content.isEmpty) return const SizedBox.shrink();
+
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Text(
       content,
       maxLines: maxLines,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 15,
-        color: Color(0xFF555555),
+        color: colorScheme.onSurface.withValues(alpha: 0.72),
         height: 1.55,
       ),
     );
   }
 
-  Widget _buildSingleImageLayout({
+  Widget _buildSingleImageLayout(
+    BuildContext context, {
     required String content,
     required String imageUrl,
   }) {
@@ -173,13 +199,14 @@ class PostItemCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (content.isNotEmpty) ...[
-          _buildContentText(content, maxLines: 3),
+          _buildContentText(context, content, maxLines: 3),
           const SizedBox(height: 10),
         ],
         LayoutBuilder(
           builder: (context, constraints) {
             final imageWidth = (constraints.maxWidth - imageSpacing * 2) / 3;
             return _buildNetworkImage(
+              context,
               imageUrl: imageUrl,
               width: imageWidth,
               height: imageHeight,
@@ -191,8 +218,11 @@ class PostItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMultipleImages(List<String> images) {
+  Widget _buildMultipleImages(BuildContext context, List<String> images) {
     final visibleImages = images.take(3).toList();
+    final placeholderColor = Theme.of(
+      context,
+    ).colorScheme.surfaceContainerHighest;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -221,12 +251,12 @@ class PostItemCard extends StatelessWidget {
                         fit: BoxFit.cover,
                         fadeInDuration: const Duration(milliseconds: 180),
                         placeholder: (_, _) {
-                          return const ColoredBox(color: Color(0xFFF2F3F5));
+                          return ColoredBox(color: placeholderColor);
                         },
                         errorWidget: (_, _, _) {
-                          return const ColoredBox(
-                            color: Color(0xFFF2F3F5),
-                            child: Center(
+                          return ColoredBox(
+                            color: placeholderColor,
+                            child: const Center(
                               child: Icon(
                                 Icons.broken_image_rounded,
                                 color: Colors.grey,
@@ -260,12 +290,17 @@ class PostItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildNetworkImage({
+  Widget _buildNetworkImage(
+    BuildContext context, {
     required String imageUrl,
     required double width,
     required double height,
     required double borderRadius,
   }) {
+    final placeholderColor = Theme.of(
+      context,
+    ).colorScheme.surfaceContainerHighest;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: CachedNetworkImage(
@@ -278,14 +313,14 @@ class PostItemCard extends StatelessWidget {
           return Container(
             width: width,
             height: height,
-            color: const Color(0xFFF2F3F5),
+            color: placeholderColor,
           );
         },
         errorWidget: (_, _, _) {
           return Container(
             width: width,
             height: height,
-            color: const Color(0xFFF2F3F5),
+            color: placeholderColor,
             alignment: Alignment.center,
             child: const Icon(
               Icons.broken_image_outlined,
@@ -298,7 +333,9 @@ class PostItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPostMetadata() {
+  Widget _buildPostMetadata(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       children: [
         if (showUserInfo) ...[
@@ -308,7 +345,10 @@ class PostItemCard extends StatelessWidget {
           const Spacer(),
         Text(
           _formatTimestamp(post.createdAt),
-          style: const TextStyle(fontSize: 14, color: Color(0xFF999999)),
+          style: TextStyle(
+            fontSize: 14,
+            color: colorScheme.onSurface.withValues(alpha: 0.5),
+          ),
         ),
       ],
     );
