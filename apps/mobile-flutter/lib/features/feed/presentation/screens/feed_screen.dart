@@ -32,6 +32,10 @@ class FeedScreen extends StatelessWidget {
     return ForumCategories.rootIdOf(_selectedCategoryId);
   }
 
+  bool get _isLanguageLearningRoot {
+    return _selectedCategoryId == ForumCategories.languageLearningCategoryId;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -39,6 +43,12 @@ class FeedScreen extends StatelessWidget {
     final authCubit = context.watch<auth_cubit.AuthCubit>();
     final currentUserId = authCubit.user?.id;
     final children = ForumCategories.childrenOf(_selectedCategoryId);
+
+    void openChild(ForumCategory child) {
+      context.push(
+        AppRoutes.feedLocation(channelKey: channelKey, categoryId: child.id),
+      );
+    }
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -50,18 +60,17 @@ class FeedScreen extends StatelessWidget {
             channelKey: channelKey,
           ),
           if (children.isNotEmpty)
-            _CategoryChildrenBar(
-              parentCategoryId: _selectedCategoryId,
-              children: children,
-              onSelected: (child) {
-                context.push(
-                  AppRoutes.feedLocation(
-                    channelKey: channelKey,
-                    categoryId: child.id,
-                  ),
-                );
-              },
-            ),
+            if (_isLanguageLearningRoot)
+              _LanguageLearningChildrenPanel(
+                children: children,
+                onSelected: openChild,
+              )
+            else
+              _CategoryChildrenBar(
+                parentCategoryId: _selectedCategoryId,
+                children: children,
+                onSelected: openChild,
+              ),
           Expanded(
             child: StreamBuilder<List<PostModel>>(
               stream: context.read<FeedCubit>().watchPosts(
@@ -180,11 +189,8 @@ class FeedScreen extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(right: 8),
           child: IconButton(
-            icon: Icon(
-              Icons.add_rounded,
-              color: colorScheme.primary,
-              size: 28,
-            ),
+            tooltip: _isLanguageLearningRoot ? '发布综合语言学习话题' : '发布帖子',
+            icon: Icon(Icons.add_rounded, color: colorScheme.primary, size: 28),
             onPressed: () {
               context.push(
                 AppRoutes.createPostLocation(
@@ -235,7 +241,9 @@ class FeedScreen extends StatelessWidget {
     return EmptyState(
       icon: Icons.article_outlined,
       title: '暂无$languageName帖子',
-      subtitle: '成为第一个在「$categoryName」下\n发布$languageName帖子的人吧',
+      subtitle: _isLanguageLearningRoot
+          ? '可以直接发布语言学习综合话题，\n也可以先选择一门具体语言'
+          : '成为第一个在「$categoryName」下\n发布$languageName帖子的人吧',
       onAction: () {
         context.push(
           AppRoutes.createPostLocation(
@@ -244,7 +252,7 @@ class FeedScreen extends StatelessWidget {
           ),
         );
       },
-      actionLabel: '发布$languageName帖子',
+      actionLabel: _isLanguageLearningRoot ? '发布综合语言学习话题' : '发布$languageName帖子',
     );
   }
 
@@ -361,6 +369,251 @@ class _CategoryBreadcrumbBar extends StatelessWidget {
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _LanguageLearningChildrenPanel extends StatelessWidget {
+  const _LanguageLearningChildrenPanel({
+    required this.children,
+    required this.onSelected,
+  });
+
+  final List<ForumCategory> children;
+  final ValueChanged<ForumCategory> onSelected;
+
+  Future<void> _openPicker(BuildContext context) async {
+    final selected = await showModalBottomSheet<ForumCategory>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (context) => _LanguageLearningPickerSheet(children: children),
+    );
+
+    if (selected != null) {
+      onSelected(selected);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      color: colorScheme.surface,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.translate_rounded,
+                  color: colorScheme.onPrimaryContainer,
+                  size: 21,
+                ),
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '选择学习语言（可选）',
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '不选择具体语言也可以发帖，适合讨论学习方法、语言学或多语言话题。',
+                      style: TextStyle(
+                        color: colorScheme.onSurface.withValues(alpha: 0.58),
+                        fontSize: 12,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _openPicker(context),
+              icon: const Icon(Icons.search_rounded, size: 19),
+              label: Text('从语言库选择 · ${children.length} 种语言'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(42),
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LanguageLearningPickerSheet extends StatefulWidget {
+  const _LanguageLearningPickerSheet({required this.children});
+
+  final List<ForumCategory> children;
+
+  @override
+  State<_LanguageLearningPickerSheet> createState() =>
+      _LanguageLearningPickerSheetState();
+}
+
+class _LanguageLearningPickerSheetState
+    extends State<_LanguageLearningPickerSheet> {
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
+    final normalizedQuery = _query.trim().toLowerCase();
+    final languages = List<ForumCategory>.from(widget.children)
+      ..sort((first, second) {
+        final firstCode = ForumCategories.languageCodeOf(first.id) ?? '';
+        final secondCode = ForumCategories.languageCodeOf(second.id) ?? '';
+        final firstLanguage = LanguageConfig.findByCode(firstCode);
+        final secondLanguage = LanguageConfig.findByCode(secondCode);
+        final firstKey =
+            firstLanguage?.sortKeyOf(uiLanguageCode) ??
+            first.nameOf(uiLanguageCode);
+        final secondKey =
+            secondLanguage?.sortKeyOf(uiLanguageCode) ??
+            second.nameOf(uiLanguageCode);
+        return firstKey.compareTo(secondKey);
+      });
+
+    final visibleLanguages = normalizedQuery.isEmpty
+        ? languages
+        : languages
+              .where((category) {
+                final code = ForumCategories.languageCodeOf(category.id) ?? '';
+                if (code.toLowerCase().contains(normalizedQuery)) {
+                  return true;
+                }
+
+                return category.names.values.any(
+                  (name) => name.toLowerCase().contains(normalizedQuery),
+                );
+              })
+              .toList(growable: false);
+
+    return FractionallySizedBox(
+      heightFactor: 0.86,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '选择学习语言',
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '语言来自 Glyphora Language Core。返回上一层即可继续使用“综合语言学习”，不要求指定语言。',
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withValues(alpha: 0.58),
+                    fontSize: 12,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: _searchController,
+                  autofocus: false,
+                  onChanged: (value) => setState(() => _query = value),
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.search_rounded),
+                    hintText: '搜索语言名称或代码',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(height: 1, color: colorScheme.outlineVariant),
+          Expanded(
+            child: visibleLanguages.isEmpty
+                ? Center(
+                    child: Text(
+                      '没有找到语言',
+                      style: TextStyle(
+                        color: colorScheme.onSurface.withValues(alpha: 0.55),
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    itemCount: visibleLanguages.length,
+                    separatorBuilder: (_, _) => Divider(
+                      height: 1,
+                      indent: 64,
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.55),
+                    ),
+                    itemBuilder: (context, index) {
+                      final category = visibleLanguages[index];
+                      final code =
+                          ForumCategories.languageCodeOf(category.id) ?? '';
+                      final language = LanguageConfig.findByCode(code);
+                      final flag = language?.flag ?? '🌐';
+
+                      return ListTile(
+                        leading: SizedBox(
+                          width: 36,
+                          child: Center(
+                            child: Text(
+                              flag,
+                              style: const TextStyle(fontSize: 24),
+                            ),
+                          ),
+                        ),
+                        title: Text(
+                          category.nameOf(uiLanguageCode),
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(code.toUpperCase()),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                        onTap: () => Navigator.pop(context, category),
+                      );
+                    },
+                  ),
+          ),
         ],
       ),
     );
