@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../notes/domain/repositories/note_repository.dart';
 import '../../../post/domain/models/post_model.dart';
@@ -115,9 +116,13 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
         _isTranslating = false;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('AI 翻译调用失败: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('aiTranslationFailed'),
+          ),
+        ),
+      );
     }
   }
 
@@ -145,9 +150,11 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
     final userId = BlocProvider.of<AuthCubit>(context).user?.id;
 
     if (userId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('请先登录')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('pleaseSignIn')),
+        ),
+      );
 
       return;
     }
@@ -157,9 +164,13 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
     final finalContent = _contentController.text.trim();
 
     if (finalTitle.isEmpty || finalContent.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('请完成翻译')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('completeTranslationFirst'),
+          ),
+        ),
+      );
 
       return;
     }
@@ -194,9 +205,13 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('翻译已保存到笔记')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('translationSavedToNotes'),
+          ),
+        ),
+      );
 
       Navigator.pop(context, true);
     } catch (e) {
@@ -204,9 +219,11 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('保存到笔记失败：$e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('saveToNotesFailed')),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -219,9 +236,13 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
   Future<void> _publishTranslation() async {
     if (_titleController.text.trim().isEmpty ||
         _contentController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('请完成翻译')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('completeTranslationFirst'),
+          ),
+        ),
+      );
 
       return;
     }
@@ -265,7 +286,14 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${widget.targetLanguageName}版本发布成功')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.getWithArgs(
+              'languageVersionPublished',
+              {'language': widget.targetLanguageName},
+            ),
+          ),
+        ),
       );
 
       Navigator.pop(context, true);
@@ -274,9 +302,13 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('发布失败：$e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('publishTranslationFailed'),
+          ),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -287,6 +319,8 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
   }
 
   Widget _buildAiActions() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Row(
       children: [
         Expanded(
@@ -301,7 +335,9 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
                   )
                 : const Icon(Icons.note_add_outlined),
 
-            label: Text(_savingToNote ? '保存中...' : '保存到笔记'),
+            label: Text(
+              _savingToNote ? l10n.get('saving') : l10n.get('saveToNotes'),
+            ),
           ),
         ),
 
@@ -319,7 +355,9 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
                   )
                 : const Icon(Icons.publish),
 
-            label: Text(_saving ? '发布中...' : '发布翻译'),
+            label: Text(
+              _saving ? l10n.get('publishing') : l10n.get('publishTranslation'),
+            ),
           ),
         ),
       ],
@@ -337,6 +375,7 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isAi = widget.mode == TranslationMode.ai;
 
     final showAiPreview =
@@ -348,21 +387,27 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
     final showEditor = !isAi || _isEditingAiTranslation;
 
     return Scaffold(
-      appBar: AppBar(title: Text(isAi ? 'AI 翻译' : '自己翻译')),
+      appBar: AppBar(
+        title: Text(
+          isAi ? l10n.get('aiTranslation') : l10n.get('manualTranslation'),
+        ),
+      ),
 
       body: ListView(
         padding: const EdgeInsets.all(16),
 
         children: [
           Text(
-            '翻译成 ${widget.targetLanguageName}',
+            l10n.getWithArgs('translateToLanguage', {
+              'language': widget.targetLanguageName,
+            }),
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
 
           const SizedBox(height: 20),
 
           if (_isTranslating) ...[
-            const Center(
+            Center(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 40),
                 child: Column(
@@ -371,7 +416,7 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
 
                     SizedBox(height: 16),
 
-                    Text('AI 正在生成译文...'),
+                    Text(l10n.get('aiGeneratingTranslation')),
                   ],
                 ),
               ),
@@ -379,16 +424,16 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
           ],
 
           if (showAiPreview) ...[
-            const Text(
-              'AI 翻译预览',
+            Text(
+              l10n.get('aiTranslationPreview'),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
 
             if (_aiPreviewTitle.isNotEmpty) ...[
-              const Text(
-                '标题',
+              Text(
+                l10n.title,
                 style: TextStyle(fontSize: 13, color: Colors.grey),
               ),
 
@@ -406,8 +451,8 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
               const SizedBox(height: 24),
             ],
 
-            const Text(
-              '正文',
+            Text(
+              l10n.get('bodyLabel'),
               style: TextStyle(fontSize: 13, color: Colors.grey),
             ),
 
@@ -425,7 +470,7 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
 
               icon: const Icon(Icons.edit_outlined),
 
-              label: const Text('编辑译文'),
+              label: Text(l10n.get('editTranslation')),
             ),
 
             const SizedBox(height: 12),
@@ -434,7 +479,10 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
           ],
 
           if (showEditor) ...[
-            const Text('原文标题', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              l10n.get('originalTitle'),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
 
             const SizedBox(height: 8),
 
@@ -448,7 +496,9 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
               maxLength: 100,
 
               decoration: InputDecoration(
-                labelText: isAi ? '编辑翻译标题' : '翻译标题',
+                labelText: isAi
+                    ? l10n.get('editTranslationTitle')
+                    : l10n.get('translationTitle'),
 
                 border: const OutlineInputBorder(),
               ),
@@ -456,7 +506,10 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
 
             const SizedBox(height: 20),
 
-            const Text('原文', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              l10n.get('originalText'),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
 
             const SizedBox(height: 8),
 
@@ -474,7 +527,9 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
               maxLength: 5000,
 
               decoration: InputDecoration(
-                labelText: isAi ? '编辑翻译内容' : '翻译内容',
+                labelText: isAi
+                    ? l10n.get('editTranslationContent')
+                    : l10n.get('translationContent'),
 
                 alignLabelWithHint: true,
 
@@ -488,7 +543,7 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
               OutlinedButton(
                 onPressed: _cancelAiEditing,
 
-                child: const Text('取消修改'),
+                child: Text(l10n.get('discardChanges')),
               ),
 
               const SizedBox(height: 12),
@@ -508,7 +563,11 @@ class _PostTranslationScreenState extends State<PostTranslationScreen> {
                       )
                     : const Icon(Icons.publish),
 
-                label: Text(_saving ? '发布中...' : '发布语言版本'),
+                label: Text(
+                  _saving
+                      ? l10n.get('publishing')
+                      : l10n.get('publishLanguageVersion'),
+                ),
               ),
           ],
         ],
