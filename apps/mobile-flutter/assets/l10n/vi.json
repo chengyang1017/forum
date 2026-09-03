@@ -22,6 +22,8 @@
   "confirm": "Xác nhận",
   "search": "Tìm kiếm",
   "settings": "Cài đặt",
+  "midnightMode": "Chế độ đêm sâu",
+  "midnightModeDesc": "Giao diện đen thuần, độ sáng thấp cho ban đêm và màn hình OLED",
   "logout": "Đăng xuất",
   "login": "Đăng nhập",
   "register": "Đăng ký",
