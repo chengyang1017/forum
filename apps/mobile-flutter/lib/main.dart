@@ -97,9 +97,7 @@ class MyApp extends StatelessWidget {
         ),
         Provider<FriendRepository>.value(value: dependencies.friendRepository),
         Provider<FollowRepository>.value(value: dependencies.followRepository),
-        BlocProvider<AppLanguageCubit>(
-          create: (_) => AppLanguageCubit(),
-        ),
+        BlocProvider<AppLanguageCubit>(create: (_) => AppLanguageCubit()),
         BlocProvider<auth_cubit.AuthCubit>(
           create: (context) => auth_cubit.AuthCubit(
             authRepository: context.read<AuthRepository>(),
@@ -113,9 +111,8 @@ class MyApp extends StatelessWidget {
           ),
         ),
         BlocProvider<FriendCubit>(
-          create: (context) => FriendCubit(
-            repository: context.read<FriendRepository>(),
-          ),
+          create: (context) =>
+              FriendCubit(repository: context.read<FriendRepository>()),
         ),
         BlocProvider<DiscoverCubit>(
           create: (context) => DiscoverCubit(
@@ -125,9 +122,8 @@ class MyApp extends StatelessWidget {
           ),
         ),
         BlocProvider<FeedCubit>(
-          create: (context) => FeedCubit(
-            repository: context.read<PostRepository>(),
-          ),
+          create: (context) =>
+              FeedCubit(repository: context.read<PostRepository>()),
         ),
         BlocProvider<PostCubit>(
           create: (context) => PostCubit(

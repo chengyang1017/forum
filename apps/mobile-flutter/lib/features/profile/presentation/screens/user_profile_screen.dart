@@ -12,6 +12,8 @@ import '../../../post/domain/models/post_model.dart';
 import '../../../post/domain/repositories/post_repository.dart';
 import '../../../social/domain/models/friend_relationship_status.dart';
 import '../../../social/domain/repositories/friend_repository.dart';
+import '../../../social/presentation/widgets/follow_button.dart';
+import '../../../social/presentation/widgets/follow_stats.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../widgets/profile_language_section.dart';
 import '../widgets/profile_post_sliver_list.dart';
@@ -330,18 +332,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             ),
           ],
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildStatItem('动态', postCount.toString()),
-              Container(
-                width: 1,
-                height: 20,
-                color: Colors.grey.shade200,
-                margin: const EdgeInsets.symmetric(horizontal: 40),
-              ),
-              _buildStatItem('获赞', totalLikes.toString()),
-            ],
+          FollowStats(
+            userId: widget.uid,
+            postCount: postCount,
+            totalLikes: totalLikes,
           ),
           if (!isMe) ...[
             const SizedBox(height: 20),
@@ -461,78 +455,80 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildStatItem(String label, String count) {
-    return Column(
-      children: [
-        Text(
-          count,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-        ),
-      ],
+  Widget _buildActionButtons(String displayName) {
+    final friendAction = _buildFriendAction(displayName);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= 520) {
+          return Row(
+            children: [
+              Expanded(child: FollowButton(userId: widget.uid, expanded: true)),
+              const SizedBox(width: 12),
+              Expanded(child: friendAction),
+            ],
+          );
+        }
+
+        return Column(
+          children: [
+            FollowButton(userId: widget.uid, expanded: true),
+            const SizedBox(height: 10),
+            friendAction,
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildActionButtons(String displayName) {
+  Widget _buildFriendAction(String displayName) {
     switch (_relationshipStatus) {
       case FriendRelationshipStatus.friends:
-        return Row(
-          children: [
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () => _startChat(displayName),
-                icon: const Icon(Icons.chat_bubble_rounded, size: 18),
-                label: const Text('发送消息'),
-              ),
+        return SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => _startChat(displayName),
+            icon: const Icon(Icons.chat_bubble_rounded, size: 18),
+            label: const Text('好友 · 发消息'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 44),
             ),
-            const SizedBox(width: 12),
-            const Chip(
-              avatar: Icon(Icons.check_rounded, size: 16),
-              label: Text('已是好友'),
-            ),
-          ],
+          ),
         );
       case FriendRelationshipStatus.requestSent:
-        return Container(
+        return SizedBox(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: Colors.orange.shade50,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            '好友申请审核中...',
-            style: TextStyle(
-              color: Colors.orange.shade700,
-              fontWeight: FontWeight.w600,
+          child: OutlinedButton.icon(
+            onPressed: null,
+            icon: const Icon(Icons.schedule_rounded, size: 18),
+            label: const Text('好友申请已发送'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 44),
             ),
           ),
         );
       case FriendRelationshipStatus.requestReceived:
         return SizedBox(
           width: double.infinity,
-          child: ElevatedButton.icon(
+          child: FilledButton.icon(
             onPressed: () => _acceptFriendRequest(displayName),
             icon: const Icon(Icons.check_rounded, size: 18),
-            label: const Text('通过好友申请'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
+            label: const Text('接受好友申请'),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(0, 44),
             ),
           ),
         );
       case FriendRelationshipStatus.none:
         return SizedBox(
           width: double.infinity,
-          child: ElevatedButton.icon(
+          child: OutlinedButton.icon(
             onPressed: _sendFriendRequest,
-            icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
+            icon: const Icon(Icons.group_add_rounded, size: 18),
             label: const Text('添加好友'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 44),
+            ),
           ),
         );
     }

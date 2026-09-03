@@ -65,34 +65,32 @@ final class FirestoreFollowRepository implements FollowRepository {
 
   @override
   Stream<List<String>> watchFollowerIds(String userId) {
-    return _follows
-        .where('followingId', isEqualTo: userId)
-        .snapshots()
-        .map((snapshot) {
-          final ids = snapshot.docs
-              .map((doc) => doc.data()['followerId'])
-              .whereType<String>()
-              .where((id) => id.isNotEmpty)
-              .toList(growable: false);
-          ids.sort();
-          return ids;
-        });
+    return _follows.where('followingId', isEqualTo: userId).snapshots().map((
+      snapshot,
+    ) {
+      final ids = snapshot.docs
+          .map((doc) => doc.data()['followerId'])
+          .whereType<String>()
+          .where((id) => id.isNotEmpty)
+          .toList(growable: false);
+      ids.sort();
+      return ids;
+    });
   }
 
   @override
   Stream<List<String>> watchFollowingIds(String userId) {
-    return _follows
-        .where('followerId', isEqualTo: userId)
-        .snapshots()
-        .map((snapshot) {
-          final ids = snapshot.docs
-              .map((doc) => doc.data()['followingId'])
-              .whereType<String>()
-              .where((id) => id.isNotEmpty)
-              .toList(growable: false);
-          ids.sort();
-          return ids;
-        });
+    return _follows.where('followerId', isEqualTo: userId).snapshots().map((
+      snapshot,
+    ) {
+      final ids = snapshot.docs
+          .map((doc) => doc.data()['followingId'])
+          .whereType<String>()
+          .where((id) => id.isNotEmpty)
+          .toList(growable: false);
+      ids.sort();
+      return ids;
+    });
   }
 
   @override

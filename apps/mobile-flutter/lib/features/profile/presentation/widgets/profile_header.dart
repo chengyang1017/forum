@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
+import '../../../social/presentation/widgets/follow_stats.dart';
 import '../cubit/profile_state.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -131,18 +132,12 @@ class ProfileHeader extends StatelessWidget {
                   ),
           ),
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildStatItem(l10n.posts, postCount.toString()),
-              Container(
-                width: 1,
-                height: 20,
-                color: Colors.grey.shade200,
-                margin: const EdgeInsets.symmetric(horizontal: 40),
-              ),
-              _buildStatItem(l10n.likesCount, totalLikes.toString()),
-            ],
+          FollowStats(
+            userId: profile.userProfile.id,
+            postCount: postCount,
+            totalLikes: totalLikes,
+            postsLabel: l10n.posts,
+            likesLabel: l10n.likesCount,
           ),
         ],
       ),
@@ -173,21 +168,23 @@ class ProfileHeader extends StatelessWidget {
             child: CircleAvatar(
               radius: 46,
               backgroundColor: Colors.blue.shade50,
-              backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+              backgroundImage: avatarUrl.isNotEmpty
+                  ? NetworkImage(avatarUrl)
+                  : null,
               child: profile.uploadingAvatar
                   ? const CircularProgressIndicator(strokeWidth: 2)
                   : avatarUrl.isEmpty
-                      ? Text(
-                          displayName.isNotEmpty
-                              ? displayName[0].toUpperCase()
-                              : '?',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: theme.primaryColor,
-                          ),
-                        )
-                      : null,
+                  ? Text(
+                      displayName.isNotEmpty
+                          ? displayName[0].toUpperCase()
+                          : '?',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: theme.primaryColor,
+                      ),
+                    )
+                  : null,
             ),
           ),
           Positioned(
@@ -215,33 +212,9 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(String label, String count) {
-    return Column(
-      children: [
-        Text(
-          count,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade500,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-
   int _calculateAge(DateTime birthDate) {
     final now = DateTime.now();
-    int age = now.year - birthDate.year;
+    var age = now.year - birthDate.year;
     if (now.month < birthDate.month ||
         (now.month == birthDate.month && now.day < birthDate.day)) {
       age--;
