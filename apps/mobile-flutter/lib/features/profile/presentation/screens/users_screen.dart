@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../chat/domain/repositories/chat_repository.dart';
@@ -15,14 +16,15 @@ class UsersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final currentUserId = context.select<AuthCubit, String?>(
       (cubit) => cubit.user?.id,
     );
 
     if (currentUserId == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('用户列表')),
-        body: const Center(child: Text('请先登录')),
+        appBar: AppBar(title: Text(l10n.get('userList'))),
+        body: Center(child: Text(l10n.notLoggedIn)),
       );
     }
 
@@ -30,7 +32,7 @@ class UsersScreen extends StatelessWidget {
     final chatRepository = context.read<ChatRepository>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('用户列表')),
+      appBar: AppBar(title: Text(l10n.get('userList'))),
       body: StreamBuilder<List<DiscoverUser>>(
         stream: discoverRepository.watchAllUsers(currentUserId),
         builder: (context, snapshot) {
@@ -60,7 +62,9 @@ class UsersScreen extends StatelessWidget {
                 child: ListTile(
                   leading: _UserAvatar(user: user),
                   title: Text(
-                    user.displayName.isEmpty ? '未知用户' : user.displayName,
+                    user.displayName.isEmpty
+                        ? l10n.get('unknownUser')
+                        : user.displayName,
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   subtitle: user.username.isEmpty
@@ -102,9 +106,13 @@ class UsersScreen extends StatelessWidget {
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('创建聊天失败：$error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${AppLocalizations.of(context)!.createChatFailed}: $error',
+          ),
+        ),
+      );
     }
   }
 }
@@ -137,13 +145,14 @@ class _UsersEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.people_outline, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text('暂无其他用户', style: TextStyle(color: Colors.grey)),
+          const Icon(Icons.people_outline, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text(l10n.noOtherUsers, style: const TextStyle(color: Colors.grey)),
         ],
       ),
     );
@@ -157,13 +166,14 @@ class _UsersErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.error_outline, size: 48, color: Colors.red),
           const SizedBox(height: 16),
-          Text('加载失败：$error'),
+          Text('${l10n.loadFailed}: $error'),
         ],
       ),
     );

@@ -236,5 +236,26 @@
     "dermatology": "皮膚科",
     "psychiatry": "精神医学",
     "cardiology": "循環器内科"
-  }
+  },
+  "unknownUser": "不明なユーザー",
+  "sendMessage": "メッセージを送信",
+  "viewProfile": "プロフィールを見る",
+  "friendRequests": "友達申請",
+  "chats": "チャット",
+  "friends": "友達",
+  "noChats": "チャットはまだありません",
+  "startConversation": "誰かと会話を始めましょう。",
+  "noMessagesYet": "メッセージはまだありません",
+  "noFriends": "友達はまだいません",
+  "findFriendsPrompt": "ユーザーを見つけて新しい友達を追加しましょう。",
+  "noFriendRequests": "友達申請はありません",
+  "loading": "読み込み中...",
+  "friendRequestDescription": "友達追加を希望しています",
+  "friendRequestAccepted": "{name} さんの友達申請を承認しました",
+  "operationFailed": "操作に失敗しました",
+  "accept": "承認",
+  "reject": "拒否",
+  "friendRequestRejected": "友達申請を拒否しました",
+  "myFriends": "友達",
+  "userList": "ユーザー一覧"
 }

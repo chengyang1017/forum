@@ -236,5 +236,26 @@
     "dermatology": "Da liễu",
     "psychiatry": "Tâm thần học",
     "cardiology": "Tim mạch"
-  }
+  },
+  "unknownUser": "Người dùng không xác định",
+  "sendMessage": "Gửi tin nhắn",
+  "viewProfile": "Xem hồ sơ",
+  "friendRequests": "Lời mời kết bạn",
+  "chats": "Trò chuyện",
+  "friends": "Bạn bè",
+  "noChats": "Chưa có cuộc trò chuyện",
+  "startConversation": "Hãy bắt đầu trò chuyện với ai đó.",
+  "noMessagesYet": "Chưa có tin nhắn",
+  "noFriends": "Chưa có bạn bè",
+  "findFriendsPrompt": "Khám phá người dùng và thêm bạn mới.",
+  "noFriendRequests": "Không có lời mời kết bạn",
+  "loading": "Đang tải...",
+  "friendRequestDescription": "Muốn kết bạn với bạn",
+  "friendRequestAccepted": "Đã chấp nhận lời mời kết bạn của {name}",
+  "operationFailed": "Thao tác thất bại",
+  "accept": "Chấp nhận",
+  "reject": "Từ chối",
+  "friendRequestRejected": "Đã từ chối lời mời kết bạn",
+  "myFriends": "Bạn bè của tôi",
+  "userList": "Danh sách người dùng"
 }

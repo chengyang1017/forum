@@ -236,5 +236,26 @@
     "dermatology": "Dermatology",
     "psychiatry": "Psychiatry",
     "cardiology": "Cardiology"
-  }
+  },
+  "unknownUser": "Unknown user",
+  "sendMessage": "Send message",
+  "viewProfile": "View profile",
+  "friendRequests": "Friend requests",
+  "chats": "Chats",
+  "friends": "Friends",
+  "noChats": "No chats yet",
+  "startConversation": "Start a conversation with someone.",
+  "noMessagesYet": "No messages yet",
+  "noFriends": "No friends yet",
+  "findFriendsPrompt": "Discover users and add some new friends.",
+  "noFriendRequests": "No friend requests",
+  "loading": "Loading...",
+  "friendRequestDescription": "Wants to add you as a friend",
+  "friendRequestAccepted": "Accepted {name}’s friend request",
+  "operationFailed": "Operation failed",
+  "accept": "Accept",
+  "reject": "Reject",
+  "friendRequestRejected": "Friend request rejected",
+  "myFriends": "My Friends",
+  "userList": "Users"
 }
