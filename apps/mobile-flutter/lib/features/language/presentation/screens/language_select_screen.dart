@@ -109,10 +109,11 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
 
   Future<void> _openWritingSystemPicker(ForumLanguageGroup group) async {
     final uiCode = widget.currentUiLanguageCode;
+    final colorScheme = Theme.of(context).colorScheme;
 
     final selected = await showModalBottomSheet<ForumLanguageChannel>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       showDragHandle: true,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -128,16 +129,19 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
               children: [
                 Text(
                   group.nameOf(uiCode),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1E293B),
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   ForumLanguages.scriptSelectTitleOf(uiCode),
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: colorScheme.onSurface.withValues(alpha: 0.62),
+                  ),
                 ),
                 const SizedBox(height: 18),
                 ...group.channels.map((channel) {
@@ -148,13 +152,13 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                     margin: const EdgeInsets.only(bottom: 10),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? Colors.blue.withValues(alpha: 0.07)
-                          : const Color(0xFFF8FAFC),
+                          ? colorScheme.primary.withValues(alpha: 0.10)
+                          : colorScheme.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isSelected
-                            ? Colors.blue.withValues(alpha: 0.35)
-                            : const Color(0xFFE2E8F0),
+                            ? colorScheme.primary.withValues(alpha: 0.35)
+                            : colorScheme.outlineVariant,
                       ),
                     ),
                     child: ListTile(
@@ -168,8 +172,8 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? Colors.blue.withValues(alpha: 0.12)
-                              : Colors.white,
+                              ? colorScheme.primary.withValues(alpha: 0.14)
+                              : colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -178,8 +182,8 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                             fontSize: channel.scriptCode == 'Hnom' ? 22 : 15,
                             fontWeight: FontWeight.w700,
                             color: isSelected
-                                ? Colors.blue.shade700
-                                : const Color(0xFF334155),
+                                ? colorScheme.primary
+                                : colorScheme.onSurface.withValues(alpha: 0.78),
                           ),
                         ),
                       ),
@@ -190,26 +194,28 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                           fontWeight: isSelected
                               ? FontWeight.w700
                               : FontWeight.w600,
-                          color: const Color(0xFF1E293B),
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       subtitle: Text(
                         channel.nameOf(uiCode),
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600,
+                          color: colorScheme.onSurface.withValues(alpha: 0.62),
                         ),
                       ),
                       trailing: isSelected
-                          ? const Icon(
+                          ? Icon(
                               Icons.check_circle,
-                              color: Colors.blue,
+                              color: colorScheme.primary,
                               size: 22,
                             )
-                          : const Icon(
+                          : Icon(
                               Icons.arrow_forward_ios_rounded,
                               size: 15,
-                              color: Color(0xFF94A3B8),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.42,
+                              ),
                             ),
                       onTap: () {
                         Navigator.pop(sheetContext, channel);
@@ -249,24 +255,30 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
   @override
   Widget build(BuildContext context) {
     final uiCode = widget.currentUiLanguageCode;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           ForumLanguages.languageSelectTitleOf(uiCode),
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
+            color: colorScheme.onSurface,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+          child: Divider(
+            height: 1,
+            thickness: 1,
+            color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+          ),
         ),
       ),
       body: SafeArea(
@@ -285,13 +297,13 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                       horizontal: 20,
                       vertical: 8,
                     ),
-                    color: Colors.white,
+                    color: theme.scaffoldBackgroundColor,
                     child: Text(
                       section.letter!,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade600,
+                        color: colorScheme.onSurface.withValues(alpha: 0.62),
                       ),
                     ),
                   );
@@ -322,7 +334,9 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                       fontWeight: isSelected
                           ? FontWeight.bold
                           : FontWeight.w500,
-                      color: isSelected ? Colors.blue : const Color(0xFF1E293B),
+                      color: isSelected
+                          ? colorScheme.primary
+                          : colorScheme.onSurface,
                     ),
                   ),
                   subtitle: group.hasScriptChoices
@@ -333,20 +347,20 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                           style: TextStyle(
                             fontSize: 11.5,
                             color: isSelected
-                                ? Colors.blue.shade600
-                                : Colors.grey.shade500,
+                                ? colorScheme.primary
+                                : colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                         )
                       : null,
                   trailing: group.hasScriptChoices
-                      ? const Icon(
+                      ? Icon(
                           Icons.chevron_right_rounded,
-                          color: Color(0xFF94A3B8),
+                          color: colorScheme.onSurface.withValues(alpha: 0.42),
                         )
                       : isSelected
-                      ? const Icon(
+                      ? Icon(
                           Icons.check_circle,
-                          color: Colors.blue,
+                          color: colorScheme.primary,
                           size: 22,
                         )
                       : null,
@@ -362,16 +376,16 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.8),
+                    color: colorScheme.primary.withValues(alpha: 0.86),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
                     child: Text(
                       _currentLetter,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: colorScheme.onPrimary,
                       ),
                     ),
                   ),
@@ -422,8 +436,8 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
                               color: _currentLetter == char
-                                  ? Colors.blue
-                                  : Colors.blue.shade700,
+                                  ? colorScheme.primary
+                                  : colorScheme.primary.withValues(alpha: 0.78),
                             ),
                           ),
                         ),
