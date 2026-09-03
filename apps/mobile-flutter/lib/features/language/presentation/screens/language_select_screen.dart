@@ -39,9 +39,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
     final uiCode = widget.currentUiLanguageCode;
 
     _sortedGroups = List<ForumLanguageGroup>.from(ForumLanguages.channelGroups);
-    _sortedGroups.sort(
-      (a, b) => a.nameOf(uiCode).compareTo(b.nameOf(uiCode)),
-    );
+    _sortedGroups.sort((a, b) => a.nameOf(uiCode).compareTo(b.nameOf(uiCode)));
 
     final Map<String, List<ForumLanguageGroup>> grouped = {};
 
@@ -139,10 +137,7 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                 const SizedBox(height: 4),
                 Text(
                   ForumLanguages.scriptSelectTitleOf(uiCode),
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 18),
                 ...group.channels.map((channel) {
@@ -308,7 +303,8 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                   widget.currentChannel.key,
                 );
                 final isSelected = selectedChannel != null;
-                final selectedScriptName = selectedChannel?.scriptNameOf(uiCode) ?? '';
+                final selectedScriptName =
+                    selectedChannel?.scriptNameOf(uiCode) ?? '';
 
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(
@@ -348,12 +344,12 @@ class _LanguageSelectScreenState extends State<LanguageSelectScreen> {
                           color: Color(0xFF94A3B8),
                         )
                       : isSelected
-                          ? const Icon(
-                              Icons.check_circle,
-                              color: Colors.blue,
-                              size: 22,
-                            )
-                          : null,
+                      ? const Icon(
+                          Icons.check_circle,
+                          color: Colors.blue,
+                          size: 22,
+                        )
+                      : null,
                   onTap: () {
                     _selectGroup(group);
                   },
