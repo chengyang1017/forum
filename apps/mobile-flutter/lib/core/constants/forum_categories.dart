@@ -1,3 +1,5 @@
+import 'package:glyphora_language_core/glyphora_language_core.dart';
+
 class ForumCategory {
   final String id;
   final String? parentId;
@@ -20,12 +22,15 @@ class ForumCategory {
 class ForumCategories {
   const ForumCategories._();
 
+  static const String languageLearningCategoryId = 'language_learning';
+  static const String _languageLearningPrefix = 'language_learning__';
+
   static const List<ForumCategory> all = [
     // ============================================================
     // 一级分类
     // ============================================================
     ForumCategory(
-      id: 'language_learning',
+      id: languageLearningCategoryId,
       names: {'zh': '语言学习', 'en': 'Language Learning'},
     ),
     ForumCategory(
@@ -163,8 +168,42 @@ class ForumCategories {
     ),
   ];
 
+  static final List<ForumCategory> _languageLearningChildren =
+      LanguageConfig.allLanguages
+          .map(
+            (language) => ForumCategory(
+              id: languageLearningCategoryIdFor(language.code),
+              parentId: languageLearningCategoryId,
+              names: Map<String, String>.from(language.names),
+            ),
+          )
+          .toList(growable: false);
+
+  static final Map<String, ForumCategory> _languageLearningById = {
+    for (final category in _languageLearningChildren) category.id: category,
+  };
+
   static List<ForumCategory> get roots {
     return all.where((category) => category.isRoot).toList(growable: false);
+  }
+
+  static String languageLearningCategoryIdFor(String languageCode) {
+    final normalizedCode = languageCode.trim().toLowerCase();
+    return '$_languageLearningPrefix$normalizedCode';
+  }
+
+  static bool isLanguageLearningLanguageCategory(String categoryId) {
+    return categoryId.startsWith(_languageLearningPrefix) &&
+        categoryId.length > _languageLearningPrefix.length;
+  }
+
+  static String? languageCodeOf(String categoryId) {
+    if (!isLanguageLearningLanguageCategory(categoryId)) {
+      return null;
+    }
+
+    final code = categoryId.substring(_languageLearningPrefix.length);
+    return LanguageConfig.findByCode(code)?.code;
   }
 
   static ForumCategory? findById(String id) {
@@ -174,7 +213,7 @@ class ForumCategories {
       }
     }
 
-    return null;
+    return _languageLearningById[id];
   }
 
   static String nameOf(String categoryId, String uiLanguageCode) {
@@ -183,12 +222,20 @@ class ForumCategories {
   }
 
   static List<ForumCategory> childrenOf(String parentId) {
+    if (parentId == languageLearningCategoryId) {
+      return _languageLearningChildren;
+    }
+
     return all
         .where((category) => category.parentId == parentId)
         .toList(growable: false);
   }
 
   static bool hasChildren(String categoryId) {
+    if (categoryId == languageLearningCategoryId) {
+      return _languageLearningChildren.isNotEmpty;
+    }
+
     return all.any((category) => category.parentId == categoryId);
   }
 
