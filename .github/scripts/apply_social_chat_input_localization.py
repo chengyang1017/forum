@@ -48,7 +48,7 @@ text = once(
 text = once(
     text,
     "label: Text(isFollowing ? '已关注' : '关注'),",
-    "label: Text(\n            isFollowing\n                ? AppLocalizations.of(context)!.following\n                : AppLocalizations.of(context)!.get('followAction'),\n          ),",
+    "label: Text(\n            isFollowing\n                ? AppLocalizations.of(context)!.get('following')\n                : AppLocalizations.of(context)!.get('followAction'),\n          ),",
     'follow label',
 )
 text = once(
@@ -82,7 +82,7 @@ text = once(
 text = once(
     text,
     "  Widget build(BuildContext context) {\n    final repository = context.read<FollowRepository>();",
-    "  Widget build(BuildContext context) {\n    final repository = context.read<FollowRepository>();\n    final l10n = AppLocalizations.of(context)!;\n    final resolvedPostsLabel = postsLabel ?? l10n.posts;\n    final resolvedFollowingLabel = followingLabel ?? l10n.following;\n    final resolvedFollowersLabel = followersLabel ?? l10n.get('followers');\n    final resolvedLikesLabel = likesLabel ?? l10n.likesCount;",
+    "  Widget build(BuildContext context) {\n    final repository = context.read<FollowRepository>();\n    final l10n = AppLocalizations.of(context)!;\n    final resolvedPostsLabel = postsLabel ?? l10n.posts;\n    final resolvedFollowingLabel = followingLabel ?? l10n.get('following');\n    final resolvedFollowersLabel = followersLabel ?? l10n.get('followers');\n    final resolvedLikesLabel = likesLabel ?? l10n.likesCount;",
     'follow stats build',
 )
 text = text.replace(
