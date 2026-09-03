@@ -20,6 +20,21 @@ jobs:
       - name: Apply notes localization migration
         run: python .github/scripts/apply_notes_localization.py
 
+      - name: Repair localized const contexts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          paths = [
+              Path('apps/mobile-flutter/lib/features/notes/presentation/screens/all_notes_screen.dart'),
+              Path('apps/mobile-flutter/lib/features/notes/presentation/screens/note_editor_screen.dart'),
+          ]
+          for path in paths:
+              text = path.read_text(encoding='utf-8')
+              for widget in ('Padding', 'Align', 'Expanded', 'Center', 'SnackBar', 'InputDecoration'):
+                  text = text.replace(f'const {widget}(', f'{widget}(')
+              path.write_text(text, encoding='utf-8')
+          PY
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
