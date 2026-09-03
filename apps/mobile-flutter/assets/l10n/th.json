@@ -236,5 +236,26 @@
     "dermatology": "ผิวหนัง",
     "psychiatry": "จิตเวชศาสตร์",
     "cardiology": "โรคหัวใจ"
-  }
+  },
+  "unknownUser": "ผู้ใช้ไม่ทราบชื่อ",
+  "sendMessage": "ส่งข้อความ",
+  "viewProfile": "ดูโปรไฟล์",
+  "friendRequests": "คำขอเป็นเพื่อน",
+  "chats": "แชต",
+  "friends": "เพื่อน",
+  "noChats": "ยังไม่มีแชต",
+  "startConversation": "เริ่มการสนทนากับใครสักคน",
+  "noMessagesYet": "ยังไม่มีข้อความ",
+  "noFriends": "ยังไม่มีเพื่อน",
+  "findFriendsPrompt": "ค้นหาผู้ใช้และเพิ่มเพื่อนใหม่",
+  "noFriendRequests": "ไม่มีคำขอเป็นเพื่อน",
+  "loading": "กำลังโหลด...",
+  "friendRequestDescription": "ต้องการเพิ่มคุณเป็นเพื่อน",
+  "friendRequestAccepted": "ยอมรับคำขอเป็นเพื่อนของ {name} แล้ว",
+  "operationFailed": "ดำเนินการไม่สำเร็จ",
+  "accept": "ยอมรับ",
+  "reject": "ปฏิเสธ",
+  "friendRequestRejected": "ปฏิเสธคำขอเป็นเพื่อนแล้ว",
+  "myFriends": "เพื่อนของฉัน",
+  "userList": "รายชื่อผู้ใช้"
 }

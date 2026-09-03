@@ -236,5 +236,26 @@
     "dermatology": "피부과",
     "psychiatry": "정신의학",
     "cardiology": "심장내과"
-  }
+  },
+  "unknownUser": "알 수 없는 사용자",
+  "sendMessage": "메시지 보내기",
+  "viewProfile": "프로필 보기",
+  "friendRequests": "친구 요청",
+  "chats": "채팅",
+  "friends": "친구",
+  "noChats": "아직 채팅이 없습니다",
+  "startConversation": "누군가와 대화를 시작해 보세요.",
+  "noMessagesYet": "아직 메시지가 없습니다",
+  "noFriends": "아직 친구가 없습니다",
+  "findFriendsPrompt": "사용자를 찾아 새 친구를 추가해 보세요.",
+  "noFriendRequests": "친구 요청이 없습니다",
+  "loading": "불러오는 중...",
+  "friendRequestDescription": "친구로 추가하려고 합니다",
+  "friendRequestAccepted": "{name}님의 친구 요청을 수락했습니다",
+  "operationFailed": "작업에 실패했습니다",
+  "accept": "수락",
+  "reject": "거절",
+  "friendRequestRejected": "친구 요청을 거절했습니다",
+  "myFriends": "내 친구",
+  "userList": "사용자 목록"
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../chat/presentation/cubit/chat_cubit.dart';
@@ -41,6 +42,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -48,9 +50,9 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
         elevation: 0,
         backgroundColor: Theme.of(context).colorScheme.surface,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
-        title: const Text(
-          '我的好友',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+        title: Text(
+          l10n.get('myFriends'),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
         ),
         centerTitle: true,
         actions: [
@@ -65,7 +67,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                     size: 26,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  tooltip: '好友申请',
+                  tooltip: l10n.get('friendRequests'),
                   onPressed: () => context.push(AppRoutes.friendRequests),
                 ),
                 StreamBuilder<int>(
@@ -123,7 +125,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('加载失败: ${snapshot.error}'));
+            return Center(child: Text('${l10n.loadFailed}: ${snapshot.error}'));
           }
 
           final friendIds = snapshot.data ?? const <String>[];
@@ -150,7 +152,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      '暂无好友',
+                      l10n.get('noFriends'),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -159,7 +161,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '去发现用户页面添加一些新朋友吧',
+                      l10n.get('findFriendsPrompt'),
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.grey.shade500,
@@ -192,7 +194,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                   final user = userSnapshot.data;
                   final username = user?.username.isNotEmpty == true
                       ? user!.username
-                      : '未知用户';
+                      : l10n.get('unknownUser');
                   final displayName =
                       user?.profileDisplayName.isNotEmpty == true
                       ? user!.profileDisplayName
@@ -281,15 +283,19 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                                 final chatId = await _chatCubit.getOrCreateChat(
                                   friendId,
                                 );
-                                if (!mounted) return;
+                                if (!context.mounted) return;
                                 context.push(
                                   AppRoutes.chatLocation(chatId: chatId),
                                   extra: displayName,
                                 );
                               } catch (error) {
-                                if (!mounted) return;
+                                if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('创建聊天失败: $error')),
+                                  SnackBar(
+                                    content: Text(
+                                      '${l10n.createChatFailed}: $error',
+                                    ),
+                                  ),
                                 );
                               }
                             },

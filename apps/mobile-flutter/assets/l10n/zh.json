@@ -236,5 +236,26 @@
     "dermatology": "皮肤科",
     "psychiatry": "精神医学",
     "cardiology": "心血管内科"
-  }
+  },
+  "unknownUser": "未知用户",
+  "sendMessage": "发送消息",
+  "viewProfile": "查看主页",
+  "friendRequests": "好友申请",
+  "chats": "聊天",
+  "friends": "好友",
+  "noChats": "暂无聊天",
+  "startConversation": "还没有聊天，开始一段对话吧",
+  "noMessagesYet": "暂无消息",
+  "noFriends": "暂无好友",
+  "findFriendsPrompt": "去发现用户页面添加一些新朋友吧",
+  "noFriendRequests": "暂无好友申请",
+  "loading": "加载中...",
+  "friendRequestDescription": "请求添加你为好友",
+  "friendRequestAccepted": "已接受 {name} 的好友申请",
+  "operationFailed": "操作失败",
+  "accept": "接受",
+  "reject": "拒绝",
+  "friendRequestRejected": "已拒绝好友申请",
+  "myFriends": "我的好友",
+  "userList": "用户列表"
 }

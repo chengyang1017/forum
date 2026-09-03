@@ -236,5 +236,26 @@
     "dermatology": "Dermatologi",
     "psychiatry": "Psikiatri",
     "cardiology": "Kardiologi"
-  }
+  },
+  "unknownUser": "Pengguna tidak dikenali",
+  "sendMessage": "Hantar mesej",
+  "viewProfile": "Lihat profil",
+  "friendRequests": "Permintaan rakan",
+  "chats": "Sembang",
+  "friends": "Rakan",
+  "noChats": "Belum ada sembang",
+  "startConversation": "Mulakan perbualan dengan seseorang.",
+  "noMessagesYet": "Belum ada mesej",
+  "noFriends": "Belum ada rakan",
+  "findFriendsPrompt": "Temui pengguna dan tambah rakan baharu.",
+  "noFriendRequests": "Tiada permintaan rakan",
+  "loading": "Memuatkan...",
+  "friendRequestDescription": "Ingin menambah anda sebagai rakan",
+  "friendRequestAccepted": "Permintaan rakan {name} diterima",
+  "operationFailed": "Operasi gagal",
+  "accept": "Terima",
+  "reject": "Tolak",
+  "friendRequestRejected": "Permintaan rakan ditolak",
+  "myFriends": "Rakan Saya",
+  "userList": "Senarai Pengguna"
 }

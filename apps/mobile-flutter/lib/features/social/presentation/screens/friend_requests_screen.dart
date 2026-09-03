@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../profile/domain/repositories/profile_repository.dart';
 import '../../domain/models/friend_request.dart';
@@ -11,11 +12,15 @@ class FriendRequestsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final friendRepository = context.read<FriendRepository>();
     final profileRepository = context.read<ProfileRepository>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('好友申请'), centerTitle: true),
+      appBar: AppBar(
+        title: Text(l10n.get('friendRequests')),
+        centerTitle: true,
+      ),
       body: StreamBuilder<List<FriendRequest>>(
         stream: friendRepository.watchIncomingRequests(),
         builder: (context, snapshot) {
@@ -24,20 +29,24 @@ class FriendRequestsScreen extends StatelessWidget {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('加载失败: ${snapshot.error}'));
+            return Center(child: Text('${l10n.loadFailed}: ${snapshot.error}'));
           }
 
           final requests = snapshot.data ?? const <FriendRequest>[];
           if (requests.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.person_add_disabled, size: 80, color: Colors.grey),
-                  SizedBox(height: 16),
+                  const Icon(
+                    Icons.person_add_disabled,
+                    size: 80,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(height: 16),
                   Text(
-                    '暂无好友申请',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                    l10n.get('noFriendRequests'),
+                    style: const TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                 ],
               ),
@@ -52,9 +61,9 @@ class FriendRequestsScreen extends StatelessWidget {
                 future: profileRepository.getProfile(request.fromUserId),
                 builder: (context, userSnapshot) {
                   if (userSnapshot.connectionState == ConnectionState.waiting) {
-                    return const ListTile(
-                      leading: CircularProgressIndicator(),
-                      title: Text('加载中...'),
+                    return ListTile(
+                      leading: const CircularProgressIndicator(),
+                      title: Text(l10n.get('loading')),
                     );
                   }
 
@@ -62,7 +71,7 @@ class FriendRequestsScreen extends StatelessWidget {
                   final displayName =
                       user?.profileDisplayName.isNotEmpty == true
                       ? user!.profileDisplayName
-                      : '未知用户';
+                      : l10n.get('unknownUser');
                   final avatarUrl = user?.avatarUrl ?? '';
                   final initial = displayName.isEmpty
                       ? '?'
@@ -107,9 +116,9 @@ class FriendRequestsScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                const Text(
-                                  '请求添加你为好友',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.get('friendRequestDescription'),
+                                  style: const TextStyle(
                                     color: Colors.grey,
                                     fontSize: 14,
                                   ),
@@ -128,7 +137,12 @@ class FriendRequestsScreen extends StatelessWidget {
                                     if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('已接受 $displayName 的好友申请'),
+                                        content: Text(
+                                          l10n.getWithArgs(
+                                            'friendRequestAccepted',
+                                            {'name': displayName},
+                                          ),
+                                        ),
                                         backgroundColor: Colors.green,
                                       ),
                                     );
@@ -136,7 +150,9 @@ class FriendRequestsScreen extends StatelessWidget {
                                     if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('操作失败: $error'),
+                                        content: Text(
+                                          '${l10n.get('operationFailed')}: $error',
+                                        ),
                                         backgroundColor: Colors.red,
                                       ),
                                     );
@@ -150,7 +166,7 @@ class FriendRequestsScreen extends StatelessWidget {
                                     vertical: 8,
                                   ),
                                 ),
-                                child: const Text('接受'),
+                                child: Text(l10n.get('accept')),
                               ),
                               const SizedBox(height: 6),
                               OutlinedButton(
@@ -161,8 +177,10 @@ class FriendRequestsScreen extends StatelessWidget {
                                     );
                                     if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('已拒绝好友申请'),
+                                      SnackBar(
+                                        content: Text(
+                                          l10n.get('friendRequestRejected'),
+                                        ),
                                         backgroundColor: Colors.red,
                                       ),
                                     );
@@ -170,7 +188,9 @@ class FriendRequestsScreen extends StatelessWidget {
                                     if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('操作失败: $error'),
+                                        content: Text(
+                                          '${l10n.get('operationFailed')}: $error',
+                                        ),
                                         backgroundColor: Colors.red,
                                       ),
                                     );
@@ -184,7 +204,7 @@ class FriendRequestsScreen extends StatelessWidget {
                                     vertical: 8,
                                   ),
                                 ),
-                                child: const Text('拒绝'),
+                                child: Text(l10n.get('reject')),
                               ),
                             ],
                           ),
