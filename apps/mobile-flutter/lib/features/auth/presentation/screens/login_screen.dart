@@ -123,11 +123,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     if (savedAccounts.isNotEmpty && !showForm) {
       return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: const Text("登录"),
           centerTitle: true,
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           elevation: 0,
         ),
         body: Center(

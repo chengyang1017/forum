@@ -43,11 +43,11 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         title: const Text(
           '我的好友',
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
@@ -60,10 +60,10 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
               alignment: Alignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.person_add_rounded,
                     size: 26,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   tooltip: '好友申请',
                   onPressed: () => context.push(AppRoutes.friendRequests),
@@ -88,7 +88,10 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                         decoration: BoxDecoration(
                           color: Colors.redAccent,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 1.5),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.surface,
+                            width: 1.5,
+                          ),
                         ),
                         child: Center(
                           child: Text(
@@ -134,7 +137,9 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -144,12 +149,12 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Text(
+                    Text(
                       '暂无好友',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -173,7 +178,7 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
               height: 1,
               thickness: 0.5,
               indent: 76,
-              color: Colors.grey.shade100,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
             itemBuilder: (context, index) {
               final friendId = friendIds[index];
@@ -239,10 +244,12 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                               children: [
                                 Text(
                                   displayName,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -271,8 +278,9 @@ class _FriendsListScreenState extends State<FriendsListScreen> {
                             splashRadius: 24,
                             onPressed: () async {
                               try {
-                                final chatId = await _chatCubit
-                                    .getOrCreateChat(friendId);
+                                final chatId = await _chatCubit.getOrCreateChat(
+                                  friendId,
+                                );
                                 if (!mounted) return;
                                 context.push(
                                   AppRoutes.chatLocation(chatId: chatId),

@@ -1036,7 +1036,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: _buildAppBar(),
       body: SafeArea(child: _buildEditor()),
       bottomNavigationBar: _canEdit

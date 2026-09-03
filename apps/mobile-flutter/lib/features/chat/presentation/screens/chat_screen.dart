@@ -66,9 +66,9 @@ class _ChatRouteScreenState extends State<ChatRouteScreen> {
       throw StateError('未登录');
     }
 
-    final participants = await context
-        .read<ChatCubit>()
-        .getChatParticipants(widget.chatId);
+    final participants = await context.read<ChatCubit>().getChatParticipants(
+      widget.chatId,
+    );
     if (!participants.contains(currentUserId)) {
       throw StateError('当前用户不是聊天室成员');
     }
@@ -861,7 +861,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _showEmojiPicker() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) => EmojiPicker(onEmojiSelected: _sendEmoji),
     );
   }
@@ -947,9 +947,11 @@ class _ChatScreenState extends State<ChatScreen> {
             margin: const EdgeInsets.fromLTRB(12, 6, 12, 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFFE8E8E8)),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
               boxShadow: const [
                 BoxShadow(
                   color: Color(0x12000000),
@@ -1082,7 +1084,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 0.5,
 
       title: GestureDetector(
@@ -1091,19 +1093,25 @@ class _ChatScreenState extends State<ChatScreen> {
           _chatTitle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: Colors.black87),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
       ),
 
       actions: [
         IconButton(
           tooltip: '共享笔记',
-          icon: const Icon(Icons.note_alt_outlined, color: Colors.black87),
+          icon: Icon(
+            Icons.note_alt_outlined,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: _openChatNotes,
         ),
 
         IconButton(
-          icon: const Icon(Icons.call_outlined, color: Colors.black87),
+          icon: Icon(
+            Icons.call_outlined,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: _isActionLocked
               ? null
               : () {
@@ -1112,7 +1120,10 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
 
         IconButton(
-          icon: const Icon(Icons.videocam_outlined, color: Colors.black87),
+          icon: Icon(
+            Icons.videocam_outlined,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: _isActionLocked
               ? null
               : () {
@@ -1121,7 +1132,10 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
 
         IconButton(
-          icon: const Icon(Icons.more_vert, color: Colors.black87),
+          icon: Icon(
+            Icons.more_vert,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: _showChatSettings,
         ),
       ],

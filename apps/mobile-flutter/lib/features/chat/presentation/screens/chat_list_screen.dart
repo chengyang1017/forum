@@ -99,8 +99,8 @@ class _ChatListScreenState extends State<ChatListScreen>
 
             return SingleChildScrollView(
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
                 child: Column(
@@ -240,10 +240,14 @@ class _ChatListScreenState extends State<ChatListScreen>
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 22, color: Colors.black87),
+            child: Icon(
+              icon,
+              size: 22,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
@@ -284,11 +288,11 @@ class _ChatListScreenState extends State<ChatListScreen>
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         title: Text(
           l10n.messages,
           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
@@ -301,10 +305,10 @@ class _ChatListScreenState extends State<ChatListScreen>
               alignment: Alignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.person_add_rounded,
                     size: 26,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   tooltip: l10n.reply,
                   onPressed: () => context.push(AppRoutes.friendRequests),
@@ -329,7 +333,10 @@ class _ChatListScreenState extends State<ChatListScreen>
                         decoration: BoxDecoration(
                           color: Colors.redAccent,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 1.5),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.surface,
+                            width: 1.5,
+                          ),
                         ),
                         child: Text(
                           count > 99 ? '99+' : '$count',
@@ -398,15 +405,15 @@ class _ChatListScreenState extends State<ChatListScreen>
         return ListView.separated(
           padding: const EdgeInsets.symmetric(vertical: 4),
           itemCount: chats.length,
-          separatorBuilder: (_, _) =>
-              Divider(height: 1, indent: 76, color: Colors.grey.shade100),
+          separatorBuilder: (_, _) => Divider(
+            height: 1,
+            indent: 76,
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
           itemBuilder: (context, index) {
             final chat = chats[index];
             final otherUserId = chat.otherParticipantId(currentUserId);
-            final unreadCount = chatCubit.getUnreadCount(
-              chat,
-              currentUserId,
-            );
+            final unreadCount = chatCubit.getUnreadCount(chat, currentUserId);
 
             return FutureBuilder<UserModel?>(
               future: _getUser(otherUserId),
@@ -532,8 +539,11 @@ class _ChatListScreenState extends State<ChatListScreen>
         return ListView.separated(
           padding: const EdgeInsets.symmetric(vertical: 8),
           itemCount: friendIds.length,
-          separatorBuilder: (_, _) =>
-              Divider(height: 1, indent: 76, color: Colors.grey.shade100),
+          separatorBuilder: (_, _) => Divider(
+            height: 1,
+            indent: 76,
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
           itemBuilder: (context, index) {
             final friendId = friendIds[index];
 
@@ -622,9 +632,17 @@ class _ChatListScreenState extends State<ChatListScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(width: 100, height: 14, color: Colors.grey.shade100),
+                Container(
+                  width: 100,
+                  height: 14,
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
                 const SizedBox(height: 6),
-                Container(width: 150, height: 11, color: Colors.grey.shade100),
+                Container(
+                  width: 150,
+                  height: 11,
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
               ],
             ),
           ),

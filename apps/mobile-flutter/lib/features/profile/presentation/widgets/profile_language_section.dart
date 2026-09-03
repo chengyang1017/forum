@@ -39,7 +39,7 @@ class _ProfileLanguageSectionState extends State<ProfileLanguageSection> {
       child: Container(
         margin: EdgeInsets.zero,
         padding: const EdgeInsets.all(20),
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -59,7 +59,7 @@ class _ProfileLanguageSectionState extends State<ProfileLanguageSection> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade800,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const Spacer(),
@@ -142,10 +142,12 @@ class _ProfileLanguageSectionState extends State<ProfileLanguageSection> {
                                 displayName,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Colors.black87,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                             ),
@@ -187,7 +189,9 @@ class _ProfileLanguageSectionState extends State<ProfileLanguageSection> {
                                 child: LinearProgressIndicator(
                                   value: _levelValue(lang) / 100,
                                   minHeight: 6,
-                                  backgroundColor: Colors.grey.shade100,
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                                   color: Colors.green.shade400,
                                 ),
                               ),

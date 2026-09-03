@@ -191,11 +191,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final isMe = _currentUserId == widget.uid;
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         centerTitle: true,
         title: Text(
           nickname.isNotEmpty ? nickname : '@$username',
@@ -242,7 +242,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ),
                 SliverToBoxAdapter(
                   child: Container(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 16,
@@ -291,7 +291,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         user.showAge && birthday != null && !_isDefaultBirthday(birthday);
 
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       padding: const EdgeInsets.only(bottom: 24, left: 24, right: 24),
       child: Column(
         children: [
@@ -300,10 +300,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           const SizedBox(height: 16),
           Text(
             nickname.isNotEmpty ? nickname : '@$username',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           if (nickname.isNotEmpty) ...[
@@ -403,7 +403,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }) {
     return Container(
       padding: const EdgeInsets.all(20),
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -438,7 +438,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Widget _buildSharedNotesEntry(String displayName) {
     return Container(
       margin: const EdgeInsets.only(top: 10),
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         leading: const Icon(Icons.note_alt_outlined),
@@ -490,9 +490,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             onPressed: () => _startChat(displayName),
             icon: const Icon(Icons.chat_bubble_rounded, size: 18),
             label: const Text('好友 · 发消息'),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(0, 44),
-            ),
+            style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
           ),
         );
       case FriendRelationshipStatus.requestSent:
@@ -502,9 +500,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             onPressed: null,
             icon: const Icon(Icons.schedule_rounded, size: 18),
             label: const Text('好友申请已发送'),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(0, 44),
-            ),
+            style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
           ),
         );
       case FriendRelationshipStatus.requestReceived:
@@ -514,9 +510,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             onPressed: () => _acceptFriendRequest(displayName),
             icon: const Icon(Icons.check_rounded, size: 18),
             label: const Text('接受好友申请'),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(0, 44),
-            ),
+            style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
           ),
         );
       case FriendRelationshipStatus.none:
@@ -526,9 +520,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             onPressed: _sendFriendRequest,
             icon: const Icon(Icons.group_add_rounded, size: 18),
             label: const Text('添加好友'),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(0, 44),
-            ),
+            style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
           ),
         );
     }
