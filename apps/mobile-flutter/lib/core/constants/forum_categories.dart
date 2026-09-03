@@ -168,16 +168,16 @@ class ForumCategories {
     ),
   ];
 
-  static final List<ForumCategory> _languageLearningChildren =
-      LanguageConfig.allLanguages
-          .map(
-            (language) => ForumCategory(
-              id: languageLearningCategoryIdFor(language.code),
-              parentId: languageLearningCategoryId,
-              names: Map<String, String>.from(language.names),
-            ),
-          )
-          .toList(growable: false);
+  static final List<ForumCategory> _languageLearningChildren = LanguageConfig
+      .allLanguages
+      .map(
+        (language) => ForumCategory(
+          id: languageLearningCategoryIdFor(language.code),
+          parentId: languageLearningCategoryId,
+          names: Map<String, String>.from(language.names),
+        ),
+      )
+      .toList(growable: false);
 
   static final Map<String, ForumCategory> _languageLearningById = {
     for (final category in _languageLearningChildren) category.id: category,

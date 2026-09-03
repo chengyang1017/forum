@@ -46,10 +46,7 @@ class FeedScreen extends StatelessWidget {
 
     void openChild(ForumCategory child) {
       context.push(
-        AppRoutes.feedLocation(
-          channelKey: channelKey,
-          categoryId: child.id,
-        ),
+        AppRoutes.feedLocation(channelKey: channelKey, categoryId: child.id),
       );
     }
 
@@ -193,11 +190,7 @@ class FeedScreen extends StatelessWidget {
           padding: const EdgeInsets.only(right: 8),
           child: IconButton(
             tooltip: _isLanguageLearningRoot ? '发布综合语言学习话题' : '发布帖子',
-            icon: Icon(
-              Icons.add_rounded,
-              color: colorScheme.primary,
-              size: 28,
-            ),
+            icon: Icon(Icons.add_rounded, color: colorScheme.primary, size: 28),
             onPressed: () {
               context.push(
                 AppRoutes.createPostLocation(
@@ -522,16 +515,18 @@ class _LanguageLearningPickerSheetState
 
     final visibleLanguages = normalizedQuery.isEmpty
         ? languages
-        : languages.where((category) {
-            final code = ForumCategories.languageCodeOf(category.id) ?? '';
-            if (code.toLowerCase().contains(normalizedQuery)) {
-              return true;
-            }
+        : languages
+              .where((category) {
+                final code = ForumCategories.languageCodeOf(category.id) ?? '';
+                if (code.toLowerCase().contains(normalizedQuery)) {
+                  return true;
+                }
 
-            return category.names.values.any(
-              (name) => name.toLowerCase().contains(normalizedQuery),
-            );
-          }).toList(growable: false);
+                return category.names.values.any(
+                  (name) => name.toLowerCase().contains(normalizedQuery),
+                );
+              })
+              .toList(growable: false);
 
     return FractionallySizedBox(
       heightFactor: 0.86,
