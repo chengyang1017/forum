@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../auth/presentation/utils/auth_failure_message.dart';
 
 class SecuritySettingsScreen extends StatefulWidget {
   const SecuritySettingsScreen({super.key});
@@ -18,8 +20,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
 
     if (email == null || email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('当前账号没有可用邮箱'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('noUsableEmail')),
           backgroundColor: Colors.red,
         ),
       );
@@ -38,8 +40,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('密码重置邮件已发送，请检查邮箱'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('resetEmailSent')),
           backgroundColor: Colors.green,
         ),
       );
@@ -49,7 +51,16 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(
+            authFailureMessage(
+              error,
+              AppLocalizations.of(context)!,
+              fallbackKey: 'authResetEmailFailed',
+            ),
+          ),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       if (mounted) {
@@ -62,44 +73,49 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     final email = context.select<AuthCubit, String?>(
       (cubit) => cubit.user?.email,
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('账户安全'), centerTitle: true),
+      appBar: AppBar(
+        title: Text(l10n.get('accountSecurity')),
+        centerTitle: true,
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              color: colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Row(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.verified_user_outlined),
-                SizedBox(width: 12),
+                const Icon(Icons.verified_user_outlined),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    '密码找回统一通过注册邮箱完成。应用不会保存或验证明文密保答案。',
-                    style: TextStyle(height: 1.5),
+                    l10n.get('passwordRecoveryPrivacyDescription'),
+                    style: const TextStyle(height: 1.5),
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            '密码恢复',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          Text(
+            l10n.get('passwordRecovery'),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
-            email == null || email.isEmpty ? '当前账号没有可用邮箱' : email,
-            style: TextStyle(color: Colors.grey.shade700),
+            email == null || email.isEmpty ? l10n.get('noUsableEmail') : email,
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
           FilledButton.icon(
@@ -111,15 +127,19 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.mark_email_unread_outlined),
-            label: Text(_isSendingResetEmail ? '发送中...' : '发送密码重置邮件'),
+            label: Text(
+              _isSendingResetEmail
+                  ? l10n.get('sending')
+                  : l10n.get('sendResetEmail'),
+            ),
           ),
           const SizedBox(height: 12),
           Text(
-            '重置链接由 Firebase Authentication 生成，密码不会经过 Firestore。',
+            l10n.get('passwordResetTechnicalNote'),
             style: TextStyle(
               fontSize: 13,
               height: 1.4,
-              color: Colors.grey.shade600,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],

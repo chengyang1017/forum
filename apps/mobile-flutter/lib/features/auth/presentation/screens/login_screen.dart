@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../domain/models/saved_account.dart';
 import '../../domain/models/user_model.dart';
 import '../../domain/repositories/account_history_repository.dart';
 import '../cubit/auth_cubit.dart' as auth_cubit;
+import '../utils/auth_failure_message.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -59,10 +61,11 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("请输入邮箱和密码")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.get('enterEmailAndPassword'))),
+      );
       return;
     }
 
@@ -83,17 +86,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
       context.go(AppRoutes.home);
-    } catch (e) {
-      String msg = e.toString();
-      if (msg.contains('Exception:')) {
-        msg = msg.replaceFirst('Exception:', '').trim();
-      } else {
-        msg = '登录失败，请稍后重试';
-      }
+    } catch (error) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg), backgroundColor: Colors.red.shade400),
+          SnackBar(
+            content: Text(
+              authFailureMessage(error, l10n, fallbackKey: 'authLoginFailed'),
+            ),
+            backgroundColor: Colors.red.shade400,
+          ),
         );
       }
     } finally {
@@ -121,11 +124,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (savedAccounts.isNotEmpty && !showForm) {
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
-          title: const Text("登录"),
+          title: Text(l10n.login),
           centerTitle: true,
           backgroundColor: Theme.of(context).colorScheme.surface,
           elevation: 0,
@@ -138,8 +143,8 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const Icon(Icons.forum, size: 60, color: Colors.blue),
                 const SizedBox(height: 16),
-                const Text(
-                  "选择账号登录",
+                Text(
+                  l10n.get('chooseAccountToSignIn'),
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 24),
@@ -195,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: _switchToOtherAccount,
-                  child: const Text("使用其他账号登录"),
+                  child: Text(l10n.get('useAnotherAccount')),
                 ),
               ],
             ),
@@ -205,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("登录"), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.login), centerTitle: true),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -213,8 +218,8 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const Icon(Icons.forum, size: 90, color: Colors.blue),
               const SizedBox(height: 20),
-              const Text(
-                "论坛社区",
+              Text(
+                l10n.appTitle,
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 30),
@@ -222,7 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
-                  labelText: "邮箱",
+                  labelText: l10n.email,
                   prefixIcon: const Icon(Icons.email_outlined),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -234,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  labelText: "密码",
+                  labelText: l10n.password,
                   prefixIcon: const Icon(Icons.lock_outlined),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -249,9 +254,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () {
                     context.push(AppRoutes.forgotPassword);
                   },
-                  child: const Text(
-                    '忘记密码？',
-                    style: TextStyle(fontSize: 13, color: Colors.grey),
+                  child: Text(
+                    l10n.get('forgotPasswordQuestion'),
+                    style: const TextStyle(fontSize: 13, color: Colors.grey),
                   ),
                 ),
               ),
@@ -277,7 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text("登录", style: TextStyle(fontSize: 16)),
+                      : Text(l10n.login, style: const TextStyle(fontSize: 16)),
                 ),
               ),
               const SizedBox(height: 12),
@@ -285,7 +290,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () {
                   context.push(AppRoutes.register);
                 },
-                child: const Text("没有账号？立即注册"),
+                child: Text(l10n.get('noAccountRegisterNow')),
               ),
             ],
           ),

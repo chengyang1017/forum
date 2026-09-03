@@ -17,12 +17,14 @@ String authFailureMessage(
       AuthFailureCode.accountBanned => l10n.get('authAccountBanned'),
       AuthFailureCode.accountDisabled => l10n.get('authAccountDisabled'),
       AuthFailureCode.tooManyRequests => l10n.get('authTooManyRequests'),
-      AuthFailureCode.wrongCurrentPassword =>
-        l10n.get('authWrongCurrentPassword'),
+      AuthFailureCode.wrongCurrentPassword => l10n.get(
+        'authWrongCurrentPassword',
+      ),
       AuthFailureCode.loginFailed => l10n.get('authLoginFailed'),
       AuthFailureCode.registerFailed => l10n.get('authRegisterFailed'),
-      AuthFailureCode.changePasswordFailed =>
-        l10n.get('authChangePasswordFailed'),
+      AuthFailureCode.changePasswordFailed => l10n.get(
+        'authChangePasswordFailed',
+      ),
       AuthFailureCode.resetEmailFailed => l10n.get('authResetEmailFailed'),
     };
   }

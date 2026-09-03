@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
 // ✅ 别名导入
 import '../cubit/auth_cubit.dart' as auth_cubit;
+import '../utils/auth_failure_message.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -50,20 +52,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('注册成功！'), backgroundColor: Colors.green),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('registrationSuccess'),
+          ),
+          backgroundColor: Colors.green,
+        ),
       );
 
       context.go(AppRoutes.home);
-    } catch (e) {
-      String msg = e.toString();
-      if (msg.contains('Exception:')) {
-        msg = msg.replaceFirst('Exception:', '').trim();
-      } else {
-        msg = '注册失败，请稍后重试';
-      }
+    } catch (error) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(
+              authFailureMessage(
+                error,
+                l10n,
+                fallbackKey: 'authRegisterFailed',
+              ),
+            ),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -75,8 +86,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('注册'), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.register), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -87,8 +100,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 20),
               const Icon(Icons.person_add, size: 80, color: Colors.blue),
               const SizedBox(height: 20),
-              const Text(
-                '创建新账号',
+              Text(
+                l10n.get('createNewAccount'),
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -96,26 +109,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               TextFormField(
                 controller: _usernameController,
-                decoration: const InputDecoration(
-                  labelText: '用户名（唯一ID）',
-                  prefixIcon: Icon(Icons.person),
-                  border: OutlineInputBorder(),
-                  hintText: '设置你的唯一用户名',
+                decoration: InputDecoration(
+                  labelText: l10n.get('usernameUniqueId'),
+                  prefixIcon: const Icon(Icons.person),
+                  border: const OutlineInputBorder(),
+                  hintText: l10n.get('usernameSetupHint'),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return '请输入用户名';
+                    return l10n.get('enterUsername');
                   }
                   if (value.trim().length < 2) {
-                    return '用户名至少2个字符';
+                    return l10n.get('usernameMinLength');
                   }
                   if (value.trim().length > 20) {
-                    return '用户名最多20个字符';
+                    return l10n.get('usernameMaxLength');
                   }
                   if (!RegExp(
                     r'^[a-zA-Z0-9_\u4e00-\u9fa5]+$',
                   ).hasMatch(value.trim())) {
-                    return '用户名只能包含中英文、数字和下划线';
+                    return l10n.get('usernameAllowedCharacters');
                   }
                   return null;
                 },
@@ -125,17 +138,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: '邮箱',
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.email,
+                  prefixIcon: const Icon(Icons.email),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return '请输入邮箱';
+                    return l10n.get('enterEmail');
                   }
                   if (!value.contains('@')) {
-                    return '邮箱格式不正确';
+                    return l10n.get('authInvalidEmail');
                   }
                   return null;
                 },
@@ -145,17 +158,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: '密码',
-                  prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.password,
+                  prefixIcon: const Icon(Icons.lock),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return '请输入密码';
+                    return l10n.get('enterPassword');
                   }
                   if (value.length < 6) {
-                    return '密码至少6位';
+                    return l10n.get('passwordMinLength');
                   }
                   return null;
                 },
@@ -165,17 +178,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
               TextFormField(
                 controller: _confirmPasswordController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: '确认密码',
-                  prefixIcon: Icon(Icons.lock_outline),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.get('confirmPassword'),
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return '请再次输入密码';
+                    return l10n.get('enterPasswordAgain');
                   }
                   if (value != _passwordController.text) {
-                    return '两次密码不一致';
+                    return l10n.get('passwordsDoNotMatch');
                   }
                   return null;
                 },
@@ -196,14 +209,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('注册', style: TextStyle(fontSize: 18)),
+                    : Text(l10n.register, style: const TextStyle(fontSize: 18)),
               ),
 
               const SizedBox(height: 16),
 
               TextButton(
                 onPressed: () => context.go(AppRoutes.login),
-                child: const Text('已有账号？立即登录'),
+                child: Text(l10n.get('alreadyHaveAccountSignIn')),
               ),
             ],
           ),
