@@ -22,6 +22,8 @@
   "confirm": "OK",
   "search": "Search",
   "settings": "Settings",
+  "midnightMode": "Midnight mode",
+  "midnightModeDesc": "Pure-black, low-brightness UI for night use and OLED screens",
   "logout": "Logout",
   "login": "Login",
   "register": "Register",
