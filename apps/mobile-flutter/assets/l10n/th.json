@@ -366,5 +366,9 @@
   "authRegisterFailed": "สมัครสมาชิกไม่สำเร็จ โปรดลองอีกครั้งภายหลัง",
   "authChangePasswordFailed": "เปลี่ยนรหัสผ่านไม่สำเร็จ โปรดลองอีกครั้งภายหลัง",
   "authResetEmailFailed": "ส่งอีเมลรีเซ็ตรหัสผ่านไม่สำเร็จ โปรดลองอีกครั้งภายหลัง",
-  "authUnexpectedError": "เกิดข้อผิดพลาด โปรดลองอีกครั้ง"
+  "authUnexpectedError": "เกิดข้อผิดพลาด โปรดลองอีกครั้ง",
+  "messageInputHint": "พิมพ์ข้อความ...",
+  "followAction": "ติดตาม",
+  "followActionFailed": "อัปเดตสถานะการติดตามไม่สำเร็จ",
+  "followers": "ผู้ติดตาม"
 }

@@ -366,5 +366,9 @@
   "authRegisterFailed": "Pendaftaran gagal. Cuba lagi kemudian.",
   "authChangePasswordFailed": "Penukaran kata laluan gagal. Cuba lagi kemudian.",
   "authResetEmailFailed": "E-mel tetapan semula kata laluan gagal dihantar. Cuba lagi kemudian.",
-  "authUnexpectedError": "Sesuatu berlaku. Cuba lagi."
+  "authUnexpectedError": "Sesuatu berlaku. Cuba lagi.",
+  "messageInputHint": "Taip mesej...",
+  "followAction": "Ikuti",
+  "followActionFailed": "Status mengikuti gagal dikemas kini",
+  "followers": "Pengikut"
 }

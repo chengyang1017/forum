@@ -366,5 +366,9 @@
   "authRegisterFailed": "Đăng ký thất bại. Hãy thử lại sau.",
   "authChangePasswordFailed": "Đổi mật khẩu thất bại. Hãy thử lại sau.",
   "authResetEmailFailed": "Không thể gửi email đặt lại mật khẩu. Hãy thử lại sau.",
-  "authUnexpectedError": "Đã xảy ra lỗi. Hãy thử lại."
+  "authUnexpectedError": "Đã xảy ra lỗi. Hãy thử lại.",
+  "messageInputHint": "Nhập tin nhắn...",
+  "followAction": "Theo dõi",
+  "followActionFailed": "Không thể cập nhật trạng thái theo dõi",
+  "followers": "Người theo dõi"
 }

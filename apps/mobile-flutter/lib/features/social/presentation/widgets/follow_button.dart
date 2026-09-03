@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../domain/repositories/follow_repository.dart';
 
 /// Reusable one-way follow control.
@@ -8,11 +9,7 @@ import '../../domain/repositories/follow_repository.dart';
 /// This deliberately represents content following only. Friendship remains a
 /// separate mutual relationship and can be shown beside this control.
 class FollowButton extends StatefulWidget {
-  const FollowButton({
-    super.key,
-    required this.userId,
-    this.expanded = false,
-  });
+  const FollowButton({super.key, required this.userId, this.expanded = false});
 
   final String userId;
   final bool expanded;
@@ -52,7 +49,11 @@ class _FollowButtonState extends State<FollowButton> {
                       : Icons.person_add_alt_1_rounded,
                   size: 18,
                 ),
-          label: Text(isFollowing ? '已关注' : '关注'),
+          label: Text(
+            isFollowing
+                ? AppLocalizations.of(context)!.get('following')
+                : AppLocalizations.of(context)!.get('followAction'),
+          ),
           style: FilledButton.styleFrom(
             minimumSize: widget.expanded ? const Size(0, 44) : null,
             visualDensity: widget.expanded
@@ -91,9 +92,13 @@ class _FollowButtonState extends State<FollowButton> {
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('关注操作失败：$error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('followActionFailed'),
+          ),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() => _isBusy = false);

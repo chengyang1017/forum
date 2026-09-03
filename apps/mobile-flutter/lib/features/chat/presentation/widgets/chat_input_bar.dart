@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
+
 class ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
@@ -39,7 +41,9 @@ class ChatInputBar extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   decoration: InputDecoration(
-                    hintText: '输入消息...',
+                    hintText: AppLocalizations.of(
+                      context,
+                    )!.get('messageInputHint'),
                     hintStyle: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
