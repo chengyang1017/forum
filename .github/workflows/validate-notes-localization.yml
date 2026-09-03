@@ -30,7 +30,7 @@ jobs:
           ]
           for path in paths:
               text = path.read_text(encoding='utf-8')
-              for widget in ('Padding', 'Align', 'Expanded', 'Center', 'SnackBar', 'InputDecoration'):
+              for widget in ('Padding', 'Align', 'Expanded', 'Center', 'SnackBar', 'InputDecoration', 'Text'):
                   text = text.replace(f'const {widget}(', f'{widget}(')
               path.write_text(text, encoding='utf-8')
           PY
