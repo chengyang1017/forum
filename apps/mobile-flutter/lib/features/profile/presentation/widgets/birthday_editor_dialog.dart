@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
+
 class BirthdayEditorResult {
   final DateTime? birthday;
   final bool showAge;
@@ -12,66 +14,77 @@ Future<BirthdayEditorResult?> showBirthdayEditorDialog({
   required DateTime? birthday,
   required bool showAge,
 }) async {
+  final l10n = AppLocalizations.of(context)!;
   bool tempShowAge = showAge;
+  bool hasDate = birthday != null;
   int tempYear = birthday?.year ?? 2000;
   int tempMonth = birthday?.month ?? 1;
   int tempDay = birthday?.day ?? 1;
+
+  void normalizeDay() {
+    final maxDay = DateUtils.getDaysInMonth(tempYear, tempMonth);
+    if (tempDay > maxDay) {
+      tempDay = maxDay;
+    }
+  }
 
   return showDialog<BirthdayEditorResult>(
     context: context,
     builder: (context) => StatefulBuilder(
       builder: (context, setDialogState) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          '设置生日',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+        title: Text(
+          l10n.setBirthday,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              '选择你的出生日期',
-              style: TextStyle(color: Colors.grey, fontSize: 13),
+            Text(
+              l10n.selectBirthDate,
+              style: const TextStyle(color: Colors.grey, fontSize: 13),
             ),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildPicker(
-                  tempYear == 2000 ? 'Y' : '$tempYear',
+                  hasDate ? '$tempYear' : 'Y',
                   80,
                   (i) => DateTime.now().year - i,
-                  (v) => setDialogState(() => tempYear = v),
+                  (v) => setDialogState(() {
+                    tempYear = v;
+                    hasDate = true;
+                    normalizeDay();
+                  }),
                 ),
                 const SizedBox(width: 2),
-                const Text(
-                  '年',
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
-                ),
+                Text(l10n.year, style: const TextStyle(fontSize: 14)),
                 const SizedBox(width: 4),
                 _buildPicker(
-                  tempMonth == 1 ? 'M' : '$tempMonth',
+                  hasDate ? '$tempMonth' : 'M',
                   12,
                   (i) => i + 1,
-                  (v) => setDialogState(() => tempMonth = v),
+                  (v) => setDialogState(() {
+                    tempMonth = v;
+                    hasDate = true;
+                    normalizeDay();
+                  }),
                 ),
                 const SizedBox(width: 2),
-                const Text(
-                  '月',
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
-                ),
+                Text(l10n.month, style: const TextStyle(fontSize: 14)),
                 const SizedBox(width: 4),
                 _buildPicker(
-                  tempDay == 1 ? 'D' : '$tempDay',
-                  31,
+                  hasDate ? '$tempDay' : 'D',
+                  DateUtils.getDaysInMonth(tempYear, tempMonth),
                   (i) => i + 1,
-                  (v) => setDialogState(() => tempDay = v),
+                  (v) => setDialogState(() {
+                    tempDay = v;
+                    hasDate = true;
+                  }),
                 ),
                 const SizedBox(width: 2),
-                const Text(
-                  '日',
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
-                ),
+                Text(l10n.day, style: const TextStyle(fontSize: 14)),
               ],
             ),
             if (birthday != null)
@@ -79,13 +92,11 @@ Future<BirthdayEditorResult?> showBirthdayEditorDialog({
                 padding: const EdgeInsets.only(top: 12),
                 child: TextButton(
                   onPressed: () => setDialogState(() {
-                    tempYear = 2000;
-                    tempMonth = 1;
-                    tempDay = 1;
+                    hasDate = false;
                   }),
-                  child: const Text(
-                    '清除生日',
-                    style: TextStyle(color: Colors.red),
+                  child: Text(
+                    l10n.clearBirthday,
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ),
               ),
@@ -93,8 +104,11 @@ Future<BirthdayEditorResult?> showBirthdayEditorDialog({
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               activeThumbColor: Colors.blue,
-              title: const Text('公开年龄', style: TextStyle(fontSize: 14)),
-              subtitle: const Text('关闭后仅自己可见', style: TextStyle(fontSize: 12)),
+              title: Text(l10n.showAge, style: const TextStyle(fontSize: 14)),
+              subtitle: Text(
+                l10n.showAgeDesc,
+                style: const TextStyle(fontSize: 12),
+              ),
               value: tempShowAge,
               onChanged: (v) => setDialogState(() => tempShowAge = v),
             ),
@@ -103,22 +117,23 @@ Future<BirthdayEditorResult?> showBirthdayEditorDialog({
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消', style: TextStyle(color: Colors.black87)),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
+              normalizeDay();
               final date = DateTime(tempYear, tempMonth, tempDay);
               Navigator.pop(
                 context,
                 BirthdayEditorResult(
-                  birthday: _isDefaultBirthday(date) ? null : date,
+                  birthday: hasDate ? date : null,
                   showAge: tempShowAge,
                 ),
               );
             },
-            child: const Text(
-              '保存',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            child: Text(
+              l10n.save,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -152,19 +167,11 @@ Widget _buildPicker(
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            currentValue,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
-          ),
+          Text(currentValue, style: const TextStyle(fontSize: 14)),
           const SizedBox(width: 2),
           const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey),
         ],
       ),
     ),
   );
-}
-
-bool _isDefaultBirthday(DateTime? date) {
-  return date == null ||
-      (date.year == 2000 && date.month == 1 && date.day == 1);
 }

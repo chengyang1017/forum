@@ -49,7 +49,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${l10n.startChat}失败：$error'),
+          content: Text('${l10n.createChatFailed}: $error'),
           backgroundColor: Colors.red,
         ),
       );
@@ -61,16 +61,23 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       final discoverCubit = context.read<DiscoverCubit>();
       await discoverCubit.sendFriendRequest(user.id);
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('已向 ${user.displayName} 发送好友请求'),
+          content: Text(
+            l10n.getWithArgs('friendRequestSentTo', {'name': user.displayName}),
+          ),
           backgroundColor: Colors.green,
         ),
       );
     } catch (error) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('发送好友请求失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('${l10n.get('friendRequestSendFailed')}: $error'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -86,7 +93,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     if (_currentUserId == null) {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.discover), centerTitle: true),
-        body: const Center(child: Text('请先登录')),
+        body: Center(child: Text(l10n.notLoggedIn)),
       );
     }
 
@@ -138,7 +145,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           return EmptyState(
             icon: Icons.people_outline,
             title: l10n.noOtherUsers,
-            subtitle: '还没有其他用户，邀请朋友加入吧',
+            subtitle: l10n.get('inviteFriendsPrompt'),
           );
         }
 

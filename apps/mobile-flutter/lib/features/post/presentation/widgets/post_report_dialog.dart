@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
+
 class PostReportDraft {
   final String reason;
   final String? details;
@@ -9,12 +11,12 @@ class PostReportDraft {
 
 class _ReportReasonOption {
   final String value;
-  final String label;
+  final String localizationKey;
   final IconData icon;
 
   const _ReportReasonOption({
     required this.value,
-    required this.label,
+    required this.localizationKey,
     required this.icon,
   });
 }
@@ -22,42 +24,42 @@ class _ReportReasonOption {
 const _reportReasons = <_ReportReasonOption>[
   _ReportReasonOption(
     value: 'spam',
-    label: '垃圾信息或广告',
+    localizationKey: 'reportReasonSpam',
     icon: Icons.mark_email_unread_outlined,
   ),
   _ReportReasonOption(
     value: 'harassment',
-    label: '骚扰或欺凌',
+    localizationKey: 'reportReasonHarassment',
     icon: Icons.person_off_outlined,
   ),
   _ReportReasonOption(
     value: 'hate',
-    label: '仇恨言论',
+    localizationKey: 'reportReasonHate',
     icon: Icons.warning_amber_rounded,
   ),
   _ReportReasonOption(
     value: 'sexual',
-    label: '色情或性内容',
+    localizationKey: 'reportReasonSexual',
     icon: Icons.visibility_off_outlined,
   ),
   _ReportReasonOption(
     value: 'violence',
-    label: '暴力或危险内容',
+    localizationKey: 'reportReasonViolence',
     icon: Icons.dangerous_outlined,
   ),
   _ReportReasonOption(
     value: 'misinformation',
-    label: '虚假或误导信息',
+    localizationKey: 'reportReasonMisinformation',
     icon: Icons.fact_check_outlined,
   ),
   _ReportReasonOption(
     value: 'copyright',
-    label: '侵犯版权',
+    localizationKey: 'reportReasonCopyright',
     icon: Icons.copyright_rounded,
   ),
   _ReportReasonOption(
     value: 'other',
-    label: '其他',
+    localizationKey: 'reportReasonOther',
     icon: Icons.more_horiz_rounded,
   ),
 ];
@@ -108,13 +110,14 @@ class _PostReportDialogState extends State<_PostReportDialog> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return AlertDialog(
-      title: const Row(
+      title: Row(
         children: [
-          Icon(Icons.flag_outlined, size: 22),
-          SizedBox(width: 10),
-          Text('举报帖子'),
+          const Icon(Icons.flag_outlined, size: 22),
+          const SizedBox(width: 10),
+          Text(l10n.get('reportPost')),
         ],
       ),
       contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
@@ -126,7 +129,7 @@ class _PostReportDialogState extends State<_PostReportDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '请选择举报原因',
+                l10n.get('chooseReportReason'),
                 style: TextStyle(color: colors.onSurfaceVariant, fontSize: 13),
               ),
               const SizedBox(height: 10),
@@ -170,7 +173,7 @@ class _PostReportDialogState extends State<_PostReportDialog> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              option.label,
+                              l10n.get(option.localizationKey),
                               style: TextStyle(
                                 fontWeight: selected
                                     ? FontWeight.w600
@@ -195,15 +198,15 @@ class _PostReportDialogState extends State<_PostReportDialog> {
                 controller: _detailsController,
                 maxLines: 4,
                 maxLength: 2000,
-                decoration: const InputDecoration(
-                  labelText: '补充说明（可选）',
-                  hintText: '可以补充说明具体情况',
+                decoration: InputDecoration(
+                  labelText: l10n.get('reportDetailsLabel'),
+                  hintText: l10n.get('reportDetailsHint'),
                   alignLabelWithHint: true,
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               Text(
-                '举报提交后会进入管理员审核队列。',
+                l10n.get('reportReviewNotice'),
                 style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
               ),
             ],
@@ -215,11 +218,11 @@ class _PostReportDialogState extends State<_PostReportDialog> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('取消'),
+          child: Text(l10n.cancel),
         ),
         FilledButton(
           onPressed: _reason == null ? null : _submit,
-          child: const Text('提交举报'),
+          child: Text(l10n.get('submitReport')),
         ),
       ],
     );

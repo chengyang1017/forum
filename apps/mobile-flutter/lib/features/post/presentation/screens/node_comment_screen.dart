@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../data/services/comment_api.dart';
 import '../../domain/models/post_comment_model.dart';
 
@@ -109,7 +110,12 @@ class _CommentScreenState extends State<CommentScreen> {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('发送失败: $error'), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(
+          '${AppLocalizations.of(context)!.get('sendFailed')}: $error',
+        ),
+        backgroundColor: Colors.red,
+      ),
     );
   }
 
@@ -293,6 +299,8 @@ class _CommentScreenState extends State<CommentScreen> {
 
   Widget buildReplies(PostCommentModel comment) {
     final replies = comment.replies;
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     if (replies.isEmpty) return const SizedBox();
 
@@ -300,7 +308,7 @@ class _CommentScreenState extends State<CommentScreen> {
       padding: const EdgeInsets.only(left: 46, top: 4, bottom: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey.shade50,
+          color: colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(12),
         ),
         padding: const EdgeInsets.all(10),
@@ -344,7 +352,7 @@ class _CommentScreenState extends State<CommentScreen> {
                               if (reply.replyTo != null &&
                                   reply.replyTo!.isNotEmpty) ...[
                                 TextSpan(
-                                  text: '回复 ',
+                                  text: '${l10n.reply} ',
                                   style: TextStyle(
                                     color: Colors.grey.shade500,
                                     fontSize: 12,
@@ -372,6 +380,8 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   Widget _buildCommentList() {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -383,9 +393,15 @@ class _CommentScreenState extends State<CommentScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('评论加载失败\n$_errorMessage', textAlign: TextAlign.center),
+              Text(
+                '${l10n.get('commentLoadFailed')}\n$_errorMessage',
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 12),
-              FilledButton(onPressed: _loadComments, child: const Text('重试')),
+              FilledButton(
+                onPressed: _loadComments,
+                child: Text(l10n.get('retry')),
+              ),
             ],
           ),
         ),
@@ -411,7 +427,7 @@ class _CommentScreenState extends State<CommentScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      '暂无评论，快来抢沙发吧~',
+                      l10n.get('noCommentsYet'),
                       style: TextStyle(color: Colors.grey.shade400),
                     ),
                   ],
@@ -495,7 +511,7 @@ class _CommentScreenState extends State<CommentScreen> {
                         focusNode.requestFocus();
                       },
                       child: Text(
-                        '回复',
+                        l10n.reply,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
@@ -516,6 +532,8 @@ class _CommentScreenState extends State<CommentScreen> {
   @override
   Widget build(BuildContext context) {
     final busy = _isUploading || _isSending;
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return GestureDetector(
       onTap: () => focusNode.unfocus(),
@@ -527,7 +545,7 @@ class _CommentScreenState extends State<CommentScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: colorScheme.surface,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -554,7 +572,7 @@ class _CommentScreenState extends State<CommentScreen> {
                               style: const TextStyle(fontSize: 13),
                               children: [
                                 TextSpan(
-                                  text: '回复 ',
+                                  text: '${l10n.reply} ',
                                   style: TextStyle(color: Colors.grey.shade600),
                                 ),
                                 TextSpan(
@@ -602,8 +620,8 @@ class _CommentScreenState extends State<CommentScreen> {
                           style: const TextStyle(fontSize: 15),
                           decoration: InputDecoration(
                             hintText: replyingToUser != null
-                                ? '回复内容...'
-                                : '说点什么吧...',
+                                ? l10n.get('replyHint')
+                                : l10n.get('commentHint'),
                             hintStyle: TextStyle(
                               color: Colors.grey.shade400,
                               fontSize: 14,
@@ -613,7 +631,7 @@ class _CommentScreenState extends State<CommentScreen> {
                               vertical: 10,
                             ),
                             filled: true,
-                            fillColor: Colors.grey.shade100,
+                            fillColor: colorScheme.surfaceContainerHighest,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(24),
                               borderSide: BorderSide.none,
