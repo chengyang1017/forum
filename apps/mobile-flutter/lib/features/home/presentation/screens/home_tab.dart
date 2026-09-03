@@ -679,44 +679,66 @@ class _CategoryGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth >= 720 ? 4 : 2;
+        final width = constraints.maxWidth;
+        final isTablet = width >= 600;
+        final crossAxisCount = width >= 1100
+            ? 6
+            : width >= 760
+            ? 5
+            : width >= 600
+            ? 4
+            : 2;
+        final horizontalPadding = isTablet ? 24.0 : 16.0;
+        final spacing = isTablet ? 10.0 : 12.0;
+        final childAspectRatio = isTablet ? 1.6 : 1.35;
 
-        return GridView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-          itemCount: categories.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.35,
+        return Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 980),
+            child: GridView.builder(
+              padding: EdgeInsets.fromLTRB(
+                horizontalPadding,
+                0,
+                horizontalPadding,
+                20,
+              ),
+              itemCount: categories.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: spacing,
+                mainAxisSpacing: spacing,
+                childAspectRatio: childAspectRatio,
+              ),
+              itemBuilder: (context, index) {
+                final category = categories[index];
+
+                final categoryName = index < categoryNames.length
+                    ? categoryNames[index]
+                    : ForumCategories.nameOf(
+                        category.id,
+                        Localizations.localeOf(context).languageCode,
+                      );
+
+                final key = '$channelKey::${category.id}';
+
+                final isInterested = interests.contains(key);
+
+                return _CategoryCard(
+                  index: index,
+                  icon: category.icon,
+                  name: categoryName,
+                  isInterested: isInterested,
+                  onTap: () {
+                    onCategorySelected(category);
+                  },
+                  onInterestPressed: () {
+                    onInterestPressed(category, isInterested);
+                  },
+                );
+              },
+            ),
           ),
-          itemBuilder: (context, index) {
-            final category = categories[index];
-
-            final categoryName = index < categoryNames.length
-                ? categoryNames[index]
-                : ForumCategories.nameOf(
-                    category.id,
-                    Localizations.localeOf(context).languageCode,
-                  );
-
-            final key = '$channelKey::${category.id}';
-
-            final isInterested = interests.contains(key);
-
-            return _CategoryCard(
-              index: index,
-              icon: category.icon,
-              name: categoryName,
-              isInterested: isInterested,
-              onTap: () {
-                onCategorySelected(category);
-              },
-              onInterestPressed: () {
-                onInterestPressed(category, isInterested);
-              },
-            );
-          },
         );
       },
     );
@@ -806,16 +828,18 @@ class _CategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final accentColor = _accentColor(colorScheme, index);
+    final isTablet = MediaQuery.sizeOf(context).width >= 600;
+    final radius = isTablet ? 16.0 : 20.0;
 
     return Material(
       color: colorScheme.surface,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(radius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Ink(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(radius),
             border: Border.all(
               color: isInterested
                   ? colorScheme.primary
@@ -831,26 +855,32 @@ class _CategoryCard extends StatelessWidget {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+            padding: isTablet
+                ? const EdgeInsets.fromLTRB(10, 8, 5, 8)
+                : const EdgeInsets.fromLTRB(14, 12, 8, 12),
             child: Row(
               children: [
                 Container(
-                  width: 45,
-                  height: 45,
+                  width: isTablet ? 38 : 45,
+                  height: isTablet ? 38 : 45,
                   decoration: BoxDecoration(
                     color: accentColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(isTablet ? 12 : 14),
                   ),
-                  child: Icon(icon, color: accentColor, size: 24),
+                  child: Icon(
+                    icon,
+                    color: accentColor,
+                    size: isTablet ? 21 : 24,
+                  ),
                 ),
-                const SizedBox(width: 11),
+                SizedBox(width: isTablet ? 8 : 11),
                 Expanded(
                   child: Text(
                     name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: isTablet ? 13 : 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -858,6 +888,13 @@ class _CategoryCard extends StatelessWidget {
                 IconButton(
                   tooltip: isInterested ? '取消感兴趣' : '设为感兴趣',
                   onPressed: onInterestPressed,
+                  visualDensity: isTablet
+                      ? VisualDensity.compact
+                      : VisualDensity.standard,
+                  constraints: isTablet
+                      ? const BoxConstraints.tightFor(width: 36, height: 36)
+                      : null,
+                  iconSize: isTablet ? 20 : 24,
                   icon: Icon(
                     isInterested
                         ? Icons.favorite_rounded
