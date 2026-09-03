@@ -1,0 +1,59 @@
+name: Validate translation and profile localization
+
+on:
+  push:
+    branches:
+      - fix/localize-translation-notes-ui
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply localization migration
+        run: python .github/scripts/apply_translation_profile_localization.py
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.2
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        working-directory: apps/mobile-flutter
+        run: flutter pub get
+
+      - name: Format changed Dart files
+        working-directory: apps/mobile-flutter
+        run: dart format lib/features/translation/presentation/screens/post_translation_screen.dart lib/features/profile/presentation/screens/user_profile_screen.dart test/app/l10n/localized_screen_guard_test.dart
+
+      - name: Analyze changed Dart files
+        working-directory: apps/mobile-flutter
+        run: dart analyze lib/features/translation/presentation/screens/post_translation_screen.dart lib/features/profile/presentation/screens/user_profile_screen.dart test/app/l10n/localized_screen_guard_test.dart
+
+      - name: Run localization tests
+        working-directory: apps/mobile-flutter
+        run: flutter test test/app/l10n/localization_assets_test.dart test/app/l10n/localized_screen_guard_test.dart
+
+      - name: Check diff
+        run: git diff --check
+
+      - name: Commit validated app changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/mobile-flutter
+          if git diff --cached --quiet; then
+            echo "No app changes to commit"
+            exit 0
+          fi
+          git commit -m "fix: localize translation and public profile UI"
+          git push origin HEAD:fix/localize-translation-notes-ui
