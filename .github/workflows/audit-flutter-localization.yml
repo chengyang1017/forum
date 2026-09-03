@@ -1,0 +1,15 @@
+name: Audit Flutter localization
+
+on:
+  push:
+    branches:
+      - fix/localize-post-note-ui
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Scan user-visible CJK literals
+        run: python .github/scripts/audit_flutter_cjk_ui.py
