@@ -156,6 +156,23 @@
     "ms": "㗂馬來",
     "id": "㗂印尼",
     "hi": "㗂Hindi",
-    "tr": "㗂土耳其"
+    "tr": "㗂土耳其",
+    "chunom": "𡨸喃"
+  },
+  "categoryTranslations": {
+    "language_learning": "學言語",
+    "programming": "立程",
+    "ai": "AI",
+    "technology": "工藝",
+    "gaming": "𡂌制",
+    "music": "音樂",
+    "movies": "𡃰影",
+    "campus": "匡園",
+    "startup": "起業",
+    "friends": "伴排",
+    "travel": "遊歷",
+    "chat": "𡂌傳",
+    "love": "情𢞅",
+    "food": "飲食"
   }
 }

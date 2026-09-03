@@ -9,45 +9,74 @@ class AppLanguageCubit extends Cubit<AppLanguageState> {
     _loadSavedLanguage();
   }
 
-  Locale get locale => state.locale;
+  static const String _preferenceKey = 'languageCode';
+  static const String chunomCode = 'chunom';
 
-  // 喃字：用标准脚本码 Hani，不要用 Nom / nom / chunom
   static const Locale chunomLocale = Locale.fromSubtags(
     languageCode: 'vi',
     scriptCode: 'Hani',
   );
 
+  bool _hasExplicitChange = false;
+
+  Locale get locale => state.locale;
+
   Future<void> _loadSavedLanguage() async {
     final prefs = await SharedPreferences.getInstance();
-    final code = prefs.getString('languageCode') ?? 'zh';
+    final savedCode = prefs.getString(_preferenceKey) ?? 'zh';
+    final canonicalCode = _canonicalCode(savedCode);
 
-    emit(state.copyWith(locale: _localeFromCode(code)));
+    if (_hasExplicitChange || isClosed) {
+      return;
+    }
+
+    emit(state.copyWith(locale: _localeFromCanonicalCode(canonicalCode)));
+
+    if (savedCode != canonicalCode) {
+      await prefs.setString(_preferenceKey, canonicalCode);
+    }
   }
 
   Future<void> changeLanguageByCode(String code) async {
-    final locale = _localeFromCode(code);
-    emit(state.copyWith(locale: locale));
+    final canonicalCode = _canonicalCode(code);
+    _hasExplicitChange = true;
+    emit(state.copyWith(locale: _localeFromCanonicalCode(canonicalCode)));
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('languageCode', code);
+    await prefs.setString(_preferenceKey, canonicalCode);
 
-    debugPrint('切换语言: code=$code, locale=$locale');
+    debugPrint(
+      '切换语言: code=$canonicalCode, locale=${_localeFromCanonicalCode(canonicalCode)}',
+    );
   }
 
   Future<void> changeLanguage(Locale newLocale) async {
-    final code = _codeFromLocale(newLocale);
-    await changeLanguageByCode(code);
+    await changeLanguageByCode(_codeFromLocale(newLocale));
   }
 
   Future<void> setLocale(Locale newLocale) async {
     await changeLanguage(newLocale);
   }
 
-  Locale _localeFromCode(String code) {
-    if (code == 'chunom' ||
-        code == 'vi_Hani' ||
-        code == 'vi_Nom' ||
-        code == 'vi_nom') {
+  String _canonicalCode(String code) {
+    final normalized = code.trim().replaceAll('_', '-').toLowerCase();
+
+    if (normalized == chunomCode ||
+        normalized == 'vi-hani' ||
+        normalized == 'vi-hnom' ||
+        normalized == 'vi-nom') {
+      return chunomCode;
+    }
+
+    if (normalized.isEmpty) {
+      return 'zh';
+    }
+
+    return normalized.split('-').first;
+  }
+
+  Locale _localeFromCanonicalCode(String code) {
+    if (code == chunomCode) {
       return chunomLocale;
     }
 
@@ -55,28 +84,25 @@ class AppLanguageCubit extends Cubit<AppLanguageState> {
   }
 
   String _codeFromLocale(Locale locale) {
-    if (locale.languageCode == 'vi' &&
-        (locale.scriptCode == 'Hani' ||
-            locale.scriptCode == 'Nom' ||
-            locale.countryCode == 'NOM' ||
-            locale.countryCode == 'nom')) {
-      return 'chunom';
+    final scriptCode = locale.scriptCode?.toLowerCase();
+    final countryCode = locale.countryCode?.toLowerCase();
+
+    if (locale.languageCode.toLowerCase() == 'vi' &&
+        (scriptCode == 'hani' ||
+            scriptCode == 'hnom' ||
+            scriptCode == 'nom' ||
+            countryCode == 'nom')) {
+      return chunomCode;
     }
 
-    if (locale.languageCode == 'chunom') {
-      return 'chunom';
+    if (locale.languageCode.toLowerCase() == chunomCode) {
+      return chunomCode;
     }
 
-    return locale.languageCode;
+    return _canonicalCode(locale.languageCode);
   }
 
   String get currentCode {
-    final locale = state.locale;
-
-    if (locale.languageCode == 'vi' && locale.scriptCode == 'Hani') {
-      return 'chunom';
-    }
-
-    return locale.languageCode;
+    return _codeFromLocale(state.locale);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:glyphora_language_core/glyphora_language_core.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/cubit/app_language_cubit.dart';
@@ -11,9 +12,23 @@ import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
+  static const List<_LanguageItem> _languages = <_LanguageItem>[
+    _LanguageItem(code: 'zh', flag: '🇨🇳', native: '中文'),
+    _LanguageItem(code: 'en', flag: '🇺🇸', native: 'English'),
+    _LanguageItem(code: 'ja', flag: '🇯🇵', native: '日本語'),
+    _LanguageItem(code: 'ko', flag: '🇰🇷', native: '한국어'),
+    _LanguageItem(code: 'ms', flag: '🇲🇾', native: 'Bahasa Melayu'),
+    _LanguageItem(
+      code: 'vi',
+      flag: '🇻🇳',
+      native: 'Tiếng Việt',
+      hasWritingSystems: true,
+    ),
+    _LanguageItem(code: 'th', flag: '🇹🇭', native: 'ภาษาไทย'),
+  ];
+
   Future<void> _logout(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
-
     final shouldLogout = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -36,15 +51,14 @@ class SettingsScreen extends StatelessWidget {
     if (shouldLogout == true && context.mounted) {
       try {
         await context.read<auth_cubit.AuthCubit>().logout();
-
         if (context.mounted) {
           context.go(AppRoutes.login);
         }
-      } catch (e) {
+      } catch (error) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${l10n.updateFailed}: $e'),
+              content: Text('${l10n.updateFailed}: $error'),
               backgroundColor: Colors.red,
             ),
           );
@@ -53,36 +67,16 @@ class SettingsScreen extends StatelessWidget {
     }
   }
 
-  static const List<_LanguageItem> _languages = [
-    _LanguageItem(code: 'zh', flag: '🇨🇳', name: '中文', native: '中文'),
-    _LanguageItem(code: 'en', flag: '🇺🇸', name: 'English', native: 'English'),
-    _LanguageItem(code: 'ja', flag: '🇯🇵', name: '日本語', native: '日本語'),
-    _LanguageItem(code: 'ko', flag: '🇰🇷', name: '한국어', native: '한국어'),
-    _LanguageItem(
-      code: 'ms',
-      flag: '🇲🇾',
-      name: 'Bahasa Melayu',
-      native: 'Bahasa Melayu',
-    ),
-    _LanguageItem(
-      code: 'vi',
-      flag: '🇻🇳',
-      name: 'Tiếng Việt',
-      native: 'Tiếng Việt',
-    ),
-    _LanguageItem(code: 'th', flag: '🇹🇭', name: 'ภาษาไทย', native: 'ภาษาไทย'),
-
-    // 注意：显示给用户是 chunom，但真正 Locale 会在 AppLanguageCubit 里转成 vi-Hani
-    _LanguageItem(code: 'chunom', flag: '🇻🇳', name: '㗂越', native: '㗂越'),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final appLanguage = context.watch<AppLanguageCubit>();
     final appTheme = context.watch<AppThemeCubit>();
-    final currentLangName = _getLangName(appLanguage.currentCode);
+    final currentLangName = _currentLanguageName(
+      context,
+      appLanguage.currentCode,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -123,18 +117,14 @@ class SettingsScreen extends StatelessWidget {
             icon: Icons.shield,
             title: l10n.securitySettings,
             subtitle: l10n.securitySettingsDesc,
-            onTap: () {
-              context.push(AppRoutes.securitySettings);
-            },
+            onTap: () => context.push(AppRoutes.securitySettings),
           ),
           _buildItem(
             context,
             icon: Icons.lock,
             title: l10n.changePassword,
             subtitle: l10n.changePasswordDesc,
-            onTap: () {
-              context.push(AppRoutes.changePassword);
-            },
+            onTap: () => context.push(AppRoutes.changePassword),
           ),
           _buildItem(
             context,
@@ -154,17 +144,21 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showLanguagePicker(
+  Future<void> _showLanguagePicker(
     BuildContext context,
     AppLanguageCubit appLanguage,
     AppLocalizations l10n,
-  ) {
+  ) async {
     final colorScheme = Theme.of(context).colorScheme;
 
-    showModalBottomSheet(
+    await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
+      isScrollControlled: true,
+      builder: (sheetContext) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.78,
+        ),
         decoration: BoxDecoration(
           color: colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -192,85 +186,106 @@ class SettingsScreen extends StatelessWidget {
               child: ListView(
                 shrinkWrap: true,
                 padding: EdgeInsets.zero,
-                children: _languages.map((lang) {
-                  final isSelected = appLanguage.currentCode == lang.code;
+                children: _languages
+                    .map((language) {
+                      final isSelected = language.hasWritingSystems
+                          ? appLanguage.currentCode == 'vi' ||
+                                appLanguage.currentCode ==
+                                    AppLanguageCubit.chunomCode
+                          : appLanguage.currentCode == language.code;
 
-                  return InkWell(
-                    onTap: () async {
-                      await appLanguage.changeLanguageByCode(lang.code);
+                      return InkWell(
+                        onTap: () async {
+                          if (language.hasWritingSystems) {
+                            Navigator.pop(sheetContext);
+                            if (context.mounted) {
+                              await _showVietnameseWritingSystemPicker(
+                                context,
+                                appLanguage,
+                                l10n,
+                              );
+                            }
+                            return;
+                          }
 
-                      if (ctx.mounted) {
-                        Navigator.pop(ctx);
-                      }
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 4,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? colorScheme.primary.withValues(alpha: 0.12)
-                            : colorScheme.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(14),
-                        border: isSelected
-                            ? Border.all(color: colorScheme.primary, width: 1.5)
-                            : null,
-                      ),
-                      child: Row(
-                        children: [
-                          Text(lang.flag, style: const TextStyle(fontSize: 28)),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  lang.native,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: isSelected
-                                        ? colorScheme.primary
-                                        : colorScheme.onSurface,
-                                  ),
-                                ),
-                                if (lang.name != lang.native)
-                                  Text(
-                                    lang.name,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: colorScheme.onSurface.withValues(
-                                        alpha: 0.52,
+                          await appLanguage.changeLanguageByCode(language.code);
+                          if (sheetContext.mounted) {
+                            Navigator.pop(sheetContext);
+                          }
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 13,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? colorScheme.primary.withValues(alpha: 0.12)
+                                : colorScheme.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(14),
+                            border: isSelected
+                                ? Border.all(
+                                    color: colorScheme.primary,
+                                    width: 1.5,
+                                  )
+                                : null,
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                language.flag,
+                                style: const TextStyle(fontSize: 28),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      language.native,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: isSelected
+                                            ? colorScheme.primary
+                                            : colorScheme.onSurface,
                                       ),
                                     ),
-                                  ),
-                              ],
-                            ),
+                                    if (language.hasWritingSystems) ...[
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        _vietnameseWritingSystemsLabel(),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: colorScheme.onSurface
+                                              .withValues(alpha: 0.52),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                              if (language.hasWritingSystems)
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: isSelected
+                                      ? colorScheme.primary
+                                      : colorScheme.onSurface.withValues(
+                                          alpha: 0.45,
+                                        ),
+                                )
+                              else if (isSelected)
+                                _selectedIcon(colorScheme),
+                            ],
                           ),
-                          if (isSelected)
-                            Container(
-                              width: 28,
-                              height: 28,
-                              decoration: BoxDecoration(
-                                color: colorScheme.primary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.check,
-                                color: colorScheme.onPrimary,
-                                size: 18,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
+                        ),
+                      );
+                    })
+                    .toList(growable: false),
               ),
             ),
           ],
@@ -279,12 +294,165 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  String _getLangName(String code) {
-    for (final lang in _languages) {
-      if (lang.code == code) return lang.native;
+  Future<void> _showVietnameseWritingSystemPicker(
+    BuildContext context,
+    AppLanguageCubit appLanguage,
+    AppLocalizations l10n,
+  ) async {
+    final colorScheme = Theme.of(context).colorScheme;
+    final vietnamese = LanguageConfig.findByCode('vi');
+    final options = <_WritingSystemItem>[
+      _WritingSystemItem(
+        code: 'vi',
+        mark: 'Aa',
+        name: vietnamese?.scriptNameOf('Latn', 'vi') ?? 'Chữ Quốc ngữ',
+      ),
+      _WritingSystemItem(
+        code: AppLanguageCubit.chunomCode,
+        mark: '𡨸',
+        name: vietnamese?.scriptNameOf('Hnom', 'vi') ?? 'Chữ Nôm',
+      ),
+    ];
+
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurface.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              l10n.get('selectWritingSystem'),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Tiếng Việt',
+              style: TextStyle(
+                fontSize: 13,
+                color: colorScheme.onSurface.withValues(alpha: 0.55),
+              ),
+            ),
+            const SizedBox(height: 14),
+            for (final option in options) ...[
+              Material(
+                color: appLanguage.currentCode == option.code
+                    ? colorScheme.primary.withValues(alpha: 0.12)
+                    : colorScheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(14),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: () async {
+                    await appLanguage.changeLanguageByCode(option.code);
+                    if (sheetContext.mounted) {
+                      Navigator.pop(sheetContext);
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 13,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 42,
+                          height: 42,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: colorScheme.surface,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: colorScheme.outlineVariant,
+                            ),
+                          ),
+                          child: Text(
+                            option.mark,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            option.name,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        if (appLanguage.currentCode == option.code)
+                          _selectedIcon(colorScheme),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _selectedIcon(ColorScheme colorScheme) {
+    return Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        color: colorScheme.primary,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(Icons.check, color: colorScheme.onPrimary, size: 18),
+    );
+  }
+
+  String _vietnameseWritingSystemsLabel() {
+    final vietnamese = LanguageConfig.findByCode('vi');
+    final latin = vietnamese?.scriptNameOf('Latn', 'vi') ?? 'Chữ Quốc ngữ';
+    final nom = vietnamese?.scriptNameOf('Hnom', 'vi') ?? 'Chữ Nôm';
+    return '$latin · $nom';
+  }
+
+  String _currentLanguageName(BuildContext context, String code) {
+    if (code == 'vi' || code == AppLanguageCubit.chunomCode) {
+      final vietnamese = LanguageConfig.findByCode('vi');
+      final scriptCode = code == AppLanguageCubit.chunomCode ? 'Hnom' : 'Latn';
+      final languageName = vietnamese?.nameOf('vi') ?? 'Tiếng Việt';
+      final scriptName =
+          vietnamese?.scriptNameOf(scriptCode, 'vi') ??
+          (scriptCode == 'Hnom' ? 'Chữ Nôm' : 'Chữ Quốc ngữ');
+      return '$languageName · $scriptName';
     }
 
-    return code;
+    for (final language in _languages) {
+      if (language.code == code) {
+        return language.native;
+      }
+    }
+
+    return AppLocalizations.of(context)?.getLanguageName(code) ?? code;
   }
 
   Widget _buildItem(
@@ -295,7 +463,6 @@ class SettingsScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-
     return ListTile(
       leading: Icon(icon, color: colorScheme.primary),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
@@ -316,7 +483,6 @@ class SettingsScreen extends StatelessWidget {
 
   Widget _buildLogoutItem(BuildContext context, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
-
     return ListTile(
       leading: const Icon(Icons.logout, color: Colors.red),
       title: Text(
@@ -336,15 +502,27 @@ class SettingsScreen extends StatelessWidget {
 }
 
 class _LanguageItem {
-  final String code;
-  final String flag;
-  final String name;
-  final String native;
-
   const _LanguageItem({
     required this.code,
     required this.flag,
-    required this.name,
     required this.native,
+    this.hasWritingSystems = false,
   });
+
+  final String code;
+  final String flag;
+  final String native;
+  final bool hasWritingSystems;
+}
+
+class _WritingSystemItem {
+  const _WritingSystemItem({
+    required this.code,
+    required this.mark,
+    required this.name,
+  });
+
+  final String code;
+  final String mark;
+  final String name;
 }
