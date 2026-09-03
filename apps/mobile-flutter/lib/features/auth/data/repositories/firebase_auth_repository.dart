@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../domain/errors/auth_failure.dart';
 import '../../domain/models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../mappers/user_model_mapper.dart';
@@ -16,20 +17,30 @@ final class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<UserModel> login(String email, String password) async {
-    final credential = await _authService.loginWithEmailPassword(
-      email,
-      password,
-    );
-    final uid = credential.user!.uid;
+    UserCredential credential;
+    try {
+      credential = await _authService.loginWithEmailPassword(email, password);
+    } on FirebaseAuthException catch (error) {
+      throw _loginFailure(error);
+    } catch (error) {
+      throw AuthFailure(AuthFailureCode.loginFailed, cause: error);
+    }
+
+    final uid = credential.user?.uid;
+    if (uid == null || uid.isEmpty) {
+      await _authService.logout();
+      throw const AuthFailure(AuthFailureCode.loginFailed);
+    }
 
     final userMap = await _authService.getUserData(uid);
     if (userMap == null) {
-      throw Exception('用户数据不存在，请重新注册');
+      await _authService.logout();
+      throw const AuthFailure(AuthFailureCode.userDataMissing);
     }
 
     if (userMap['banned'] == true) {
       await _authService.logout();
-      throw Exception('账号已被封禁');
+      throw const AuthFailure(AuthFailureCode.accountBanned);
     }
 
     try {
@@ -47,11 +58,22 @@ final class FirebaseAuthRepository implements AuthRepository {
     String password,
     String username,
   ) async {
-    final credential = await _authService.registerWithEmailPassword(
-      email,
-      password,
-    );
-    final uid = credential.user!.uid;
+    UserCredential credential;
+    try {
+      credential = await _authService.registerWithEmailPassword(
+        email,
+        password,
+      );
+    } on FirebaseAuthException catch (error) {
+      throw _registerFailure(error);
+    } catch (error) {
+      throw AuthFailure(AuthFailureCode.registerFailed, cause: error);
+    }
+
+    final uid = credential.user?.uid;
+    if (uid == null || uid.isEmpty) {
+      throw const AuthFailure(AuthFailureCode.registerFailed);
+    }
 
     final newUserMap = <String, dynamic>{
       'uid': uid,
@@ -68,7 +90,20 @@ final class FirebaseAuthRepository implements AuthRepository {
       'role': 'user',
     };
 
-    await _authService.saveUserData(uid, newUserMap);
+    try {
+      await _authService.saveUserData(uid, newUserMap);
+    } catch (error) {
+      // Avoid leaving an unusable Firebase Auth account behind when the
+      // profile write fails. Otherwise retrying registration reports that the
+      // email is already in use even though the account was never completed.
+      try {
+        await credential.user?.delete();
+      } catch (cleanupError) {
+        debugPrint('Failed to roll back incomplete auth user: $cleanupError');
+      }
+      throw AuthFailure(AuthFailureCode.registerFailed, cause: error);
+    }
+
     return UserModelMapper.fromMap(newUserMap);
   }
 
@@ -116,18 +151,24 @@ final class FirebaseAuthRepository implements AuthRepository {
       await _authService.reauthenticate(currentPassword);
       await _authService.updatePassword(newPassword);
     } on FirebaseAuthException catch (error) {
-      var message = '修改失败';
-      if (error.code == 'wrong-password' ||
-          error.code == 'invalid-credential') {
-        message = '当前密码错误';
-      } else if (error.code == 'weak-password') {
-        message = '新密码太弱，至少6位';
-      } else {
-        message = error.message ?? '修改失败';
+      switch (error.code) {
+        case 'wrong-password':
+        case 'invalid-credential':
+          throw const AuthFailure(AuthFailureCode.wrongCurrentPassword);
+        case 'weak-password':
+          throw const AuthFailure(AuthFailureCode.weakPassword);
+        case 'too-many-requests':
+          throw const AuthFailure(AuthFailureCode.tooManyRequests);
+        case 'user-disabled':
+          throw const AuthFailure(AuthFailureCode.accountDisabled);
+        default:
+          throw AuthFailure(AuthFailureCode.changePasswordFailed, cause: error);
       }
-      throw Exception(message);
     } catch (error) {
-      throw Exception('修改失败: $error');
+      if (error is AuthFailure) {
+        rethrow;
+      }
+      throw AuthFailure(AuthFailureCode.changePasswordFailed, cause: error);
     }
   }
 
@@ -136,13 +177,21 @@ final class FirebaseAuthRepository implements AuthRepository {
     try {
       await _authService.sendPasswordResetEmail(email.trim());
     } on FirebaseAuthException catch (error) {
-      if (error.code == 'invalid-email') {
-        throw Exception('邮箱格式不正确');
+      switch (error.code) {
+        case 'invalid-email':
+          throw const AuthFailure(AuthFailureCode.invalidEmail);
+        case 'too-many-requests':
+          throw const AuthFailure(AuthFailureCode.tooManyRequests);
+        case 'user-disabled':
+          throw const AuthFailure(AuthFailureCode.accountDisabled);
+        default:
+          throw AuthFailure(AuthFailureCode.resetEmailFailed, cause: error);
       }
-      if (error.code == 'too-many-requests') {
-        throw Exception('请求过于频繁，请稍后再试');
+    } catch (error) {
+      if (error is AuthFailure) {
+        rethrow;
       }
-      throw Exception(error.message ?? '发送重置邮件失败');
+      throw AuthFailure(AuthFailureCode.resetEmailFailed, cause: error);
     }
   }
 
@@ -164,5 +213,30 @@ final class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<void> logout() {
     return _authService.logout();
+  }
+
+  AuthFailure _loginFailure(FirebaseAuthException error) {
+    return switch (error.code) {
+      'invalid-email' => const AuthFailure(AuthFailureCode.invalidEmail),
+      'wrong-password' ||
+      'invalid-credential' ||
+      'user-not-found' => const AuthFailure(AuthFailureCode.invalidCredentials),
+      'user-disabled' => const AuthFailure(AuthFailureCode.accountDisabled),
+      'too-many-requests' => const AuthFailure(AuthFailureCode.tooManyRequests),
+      _ => AuthFailure(AuthFailureCode.loginFailed, cause: error),
+    };
+  }
+
+  AuthFailure _registerFailure(FirebaseAuthException error) {
+    return switch (error.code) {
+      'invalid-email' => const AuthFailure(AuthFailureCode.invalidEmail),
+      'email-already-in-use' => const AuthFailure(
+        AuthFailureCode.emailAlreadyInUse,
+      ),
+      'weak-password' => const AuthFailure(AuthFailureCode.weakPassword),
+      'user-disabled' => const AuthFailure(AuthFailureCode.accountDisabled),
+      'too-many-requests' => const AuthFailure(AuthFailureCode.tooManyRequests),
+      _ => AuthFailure(AuthFailureCode.registerFailed, cause: error),
+    };
   }
 }

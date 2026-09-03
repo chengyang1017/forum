@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/errors/auth_failure.dart';
 import '../../domain/models/user_model.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/repositories/user_backend_repository.dart';
@@ -161,7 +162,7 @@ class AuthCubit extends Cubit<AuthState> {
       );
 
       if (!isAvailable) {
-        throw Exception('该用户名已被使用，请换一个');
+        throw const AuthFailure(AuthFailureCode.usernameTaken);
       }
 
       final user = await _authRepository.register(
