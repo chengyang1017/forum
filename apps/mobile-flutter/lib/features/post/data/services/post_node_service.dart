@@ -114,7 +114,7 @@ class PostService {
   Future<PostModel> getPost(String postId) async {
     final post = await _postApi.getPost(postId);
     final blocked = await _blockedUserIds();
-    if (post.uid != null && blocked.contains(post.uid)) {
+    if (post.userId != null && blocked.contains(post.userId)) {
       throw StateError('BLOCKED_USER_CONTENT');
     }
     return post;
@@ -287,7 +287,9 @@ class PostService {
     }
 
     return posts
-        .where((post) => post.uid == null || !blocked.contains(post.uid))
+        .where(
+          (post) => post.userId == null || !blocked.contains(post.userId),
+        )
         .toList(growable: false);
   }
 }
