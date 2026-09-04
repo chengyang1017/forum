@@ -1,0 +1,140 @@
+name: One-time moderation read barrier
+
+on:
+  push:
+    branches:
+      - feat/production-readiness
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/production-readiness
+
+      - name: Patch direct post and comment reads
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          post_path = Path('apps/api/src/routes/post_route.ts')
+          post_text = post_path.read_text(encoding='utf-8')
+          old = '''      const validDatabaseId =
+                z.string()
+                  .uuid()
+                  .safeParse(id);
+
+              const post =
+                await prisma.post.findFirst({
+                  where:
+                    validDatabaseId.success
+                      ? {
+                          OR: [
+                            {
+                              firestoreId: id,
+                            },
+                            {
+                              id,
+                            },
+                          ],
+                        }
+                      : {
+                          firestoreId: id,
+                        },
+          '''
+          new = '''      const post =
+                await prisma.post.findFirst({
+                  where:
+                    postWhereById(id),
+          '''
+          if old in post_text:
+              post_path.write_text(post_text.replace(old, new, 1), encoding='utf-8')
+          elif 'const validDatabaseId' in post_text:
+              raise SystemExit('single-post moderation patch did not match expected source')
+
+          comment_path = Path('apps/api/src/routes/comment_route.ts')
+          comment_text = comment_path.read_text(encoding='utf-8')
+          old = '''async function findPost(
+            id: string,
+          ) {
+            const byFirestoreId =
+              await prisma.post.findUnique({
+                where: {
+                  firestoreId: id,
+                },
+                select: {
+                  id: true,
+                },
+              });
+
+            if (byFirestoreId != null) {
+              return byFirestoreId;
+            }
+
+            const isDatabaseId =
+              z.string().uuid().safeParse(id).success;
+
+            if (!isDatabaseId) {
+              return null;
+            }
+
+            return prisma.post.findUnique({
+              where: {
+                id,
+              },
+              select: {
+                id: true,
+              },
+            });
+          }
+          '''
+          new = '''async function findPost(
+            id: string,
+          ) {
+            const isDatabaseId =
+              z.string().uuid().safeParse(id).success;
+
+            return prisma.post.findFirst({
+              where: {
+                ...(isDatabaseId
+                  ? {
+                      OR: [
+                        { firestoreId: id },
+                        { id },
+                      ],
+                    }
+                  : { firestoreId: id }),
+                reports: {
+                  none: {
+                    status: 'actioned',
+                  },
+                },
+              },
+              select: {
+                id: true,
+              },
+            });
+          }
+          '''
+          if old in comment_text:
+              comment_path.write_text(comment_text.replace(old, new, 1), encoding='utf-8')
+          elif "reports: {\n          none: {\n            status: 'actioned'" not in comment_text:
+              raise SystemExit('comment moderation patch did not match expected source')
+          PY
+
+      - name: Commit barriers
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/api/src/routes/post_route.ts apps/api/src/routes/comment_route.ts
+          if git diff --cached --quiet; then
+            echo "No moderation barrier changes needed."
+            exit 0
+          fi
+          git commit -m "fix(moderation): block direct reads of hidden posts"
+          git push origin HEAD:feat/production-readiness
