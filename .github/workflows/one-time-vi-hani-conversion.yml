@@ -34,3 +34,5 @@ jobs:
           fi
           git commit -m "fix(l10n): convert vi_Hani UI fallbacks"
           git push origin HEAD:fix/complete-vi-hani-ui
+
+# rerun after restoring the complete phrase lexicon
