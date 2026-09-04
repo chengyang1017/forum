@@ -27,6 +27,7 @@ import {
 import { translationRouter } from './routes/translation_route.js';
 
 import { adminRouter } from './routes/admin_route.js';
+import { moderationRouter } from './routes/moderation_route.js';
 
 export const app = express();
 
@@ -39,6 +40,7 @@ app.use('/api/v1/auth', authRouter);
 
 app.use('/api/v1/translations', translationRouter);
 
+app.use('/api/v1/admin/moderation', moderationRouter);
 app.use('/api/v1/admin', adminRouter);
 
 app.use('/api/v1/users/me/interests', interestRouter);
