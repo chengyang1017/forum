@@ -1,7316 +1,313 @@
 {
-  "method": "phrase-first; mappings are source-backed; unresolved text is retained for review",
-  "changed_count": 343,
-  "remaining_count": 310,
-  "changed": {
-    "selectWritingSystem": {
-      "before": "Chọn hệ chữ",
-      "after": "譔 hệ chữ",
-      "provenance": [
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "recommendedForYou": {
-      "before": "Dành cho bạn",
-      "after": "𧶄朱伴",
-      "provenance": [
-        [
-          "source-word",
-          "dành",
-          "𧶄",
-          1
-        ],
-        [
-          "source-word",
-          "cho",
-          "朱",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "recommendedOnlyInterests": {
-      "before": "Chỉ hiển thị nội dung bạn đã chủ động đánh dấu quan tâm",
-      "after": "只顯示內容伴㐌 chủ động đánh dấu quan tâm",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-phrase",
-          "hiển thị",
-          "顯示",
-          1
-        ],
-        [
-          "source-word",
-          "chỉ",
-          "只",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ]
-      ]
-    },
-    "interestHomeTitle": {
-      "before": "Bảng tin sở thích",
-      "after": "Bảng tin 所適",
-      "provenance": [
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ]
-      ]
-    },
-    "interestHomeDesc": {
-      "before": "Chọn chủ đề quan tâm trong các kênh danh mục để định hình bảng tin này",
-      "after": "譔 chủ đề quan tâm 𥪝 các 涇 danh mục 抵 định hình bảng tin này",
-      "provenance": [
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "trong",
-          "𥪝",
-          1
-        ],
-        [
-          "source-word",
-          "kênh",
-          "涇",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ]
-      ]
-    },
-    "languageCommunity": {
-      "before": "Cộng đồng ngôn ngữ",
-      "after": "Cộng đồng 言語",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ]
-      ]
-    },
-    "languageCommunityTagline": {
-      "before": "Kết nối ngôn ngữ, sở thích và mọi người",
-      "after": "結綏言語, 所適 và 𤗆𠊛",
-      "provenance": [
-        [
-          "source-phrase",
-          "mọi người",
-          "𤗆𠊛",
-          1
-        ],
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ],
-        [
-          "source-phrase",
-          "kết nối",
-          "結綏",
-          1
-        ]
-      ]
-    },
-    "recommendedHome": {
-      "before": "Đề xuất",
-      "after": "提出",
-      "provenance": [
-        [
-          "source-phrase",
-          "đề xuất",
-          "提出",
-          1
-        ]
-      ]
-    },
-    "recommendedHomeDesc": {
-      "before": "Chỉ hiển thị sở thích đã chọn",
-      "after": "只顯示所適㐌譔",
-      "provenance": [
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ],
-        [
-          "source-phrase",
-          "hiển thị",
-          "顯示",
-          1
-        ],
-        [
-          "source-word",
-          "chỉ",
-          "只",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "categoryChannels": {
-      "before": "Kênh danh mục",
-      "after": "涇 danh mục",
-      "provenance": [
-        [
-          "source-word",
-          "kênh",
-          "涇",
-          1
-        ]
-      ]
-    },
-    "categoryChannelsDesc": {
-      "before": "Chọn ngôn ngữ, duyệt chủ đề và đặt sở thích",
-      "after": "譔言語, duyệt chủ đề và 撻所適",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ]
-      ]
-    },
-    "exploreLanguageContent": {
-      "before": "Khám phá nội dung bằng nhiều ngôn ngữ",
-      "after": "Khám phá 內容 bằng nhiều 言語",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ]
-      ]
-    },
-    "interestsLoading": {
-      "before": "Đang tải sở thích…",
-      "after": "當載所適…",
-      "provenance": [
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ],
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "signInFirst": {
-      "before": "Hãy đăng nhập để quản lý sở thích.",
-      "after": "唉 đăng 入抵 quản lý 所適.",
-      "provenance": [
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ]
-      ]
-    },
-    "interestUpdateFailed": {
-      "before": "Không thể cập nhật sở thích",
-      "after": "空体及日所適",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ],
-        [
-          "source-phrase",
-          "cập nhật",
-          "及日",
-          1
-        ]
-      ]
-    },
-    "interestCardLabel": {
-      "before": "chủ đề đang định hình phần đề xuất",
-      "after": "chủ đề 當 định hình 份提出",
-      "provenance": [
-        [
-          "source-phrase",
-          "đề xuất",
-          "提出",
-          1
-        ],
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "phần",
-          "份",
-          1
-        ]
-      ]
-    },
-    "following": {
-      "before": "Đang quan tâm",
-      "after": "當 quan tâm",
-      "provenance": [
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ]
-      ]
-    },
-    "addInterest": {
-      "before": "Thêm vào sở thích",
-      "after": "添 vào 所適",
-      "provenance": [
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ],
-        [
-          "source-word",
-          "thêm",
-          "添",
-          1
-        ]
-      ]
-    },
-    "removeInterest": {
-      "before": "Bỏ khỏi sở thích",
-      "after": "𠬃 khỏi 所適",
-      "provenance": [
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ],
-        [
-          "source-word",
-          "bỏ",
-          "𠬃",
-          1
-        ]
-      ]
-    },
-    "interestSummary": {
-      "before": "{selected}/{total} chủ đề đang ảnh hưởng đến đề xuất",
-      "after": "{selected}/{total} chủ đề 當影響 đến 提出",
-      "provenance": [
-        [
-          "source-phrase",
-          "ảnh hưởng",
-          "影響",
-          1
-        ],
-        [
-          "source-phrase",
-          "đề xuất",
-          "提出",
-          1
-        ],
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ]
-      ]
-    },
-    "publishGeneralLanguageLearning": {
-      "before": "Đăng chủ đề học ngôn ngữ chung",
-      "after": "Đăng chủ đề 學言語終",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "học",
-          "學",
-          1
-        ],
-        [
-          "source-word",
-          "chung",
-          "終",
-          1
-        ]
-      ]
-    },
-    "noLanguagePosts": {
-      "before": "Chưa có bài viết {language}",
-      "after": "𣗓固 bài 𢪏 {language}",
-      "provenance": [
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "languageLearningRootEmpty": {
-      "before": "Bạn có thể đăng chủ đề học ngôn ngữ chung,\nhoặc chọn một ngôn ngữ cụ thể trước.",
-      "after": "伴固体 đăng chủ đề 學言語終,\n或譔𠬠言語具體𠓀.",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          2
-        ],
-        [
-          "source-phrase",
-          "cụ thể",
-          "具體",
-          1
-        ],
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ],
-        [
-          "source-word",
-          "học",
-          "學",
-          1
-        ],
-        [
-          "source-word",
-          "chung",
-          "終",
-          1
-        ],
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "một",
-          "𠬠",
-          1
-        ],
-        [
-          "source-word",
-          "trước",
-          "𠓀",
-          1
-        ]
-      ]
-    },
-    "firstPostInCategory": {
-      "before": "Hãy là người đầu tiên đăng bài {language}\ntrong “{category}”.",
-      "after": "唉 là người 頭先 đăng bài {language}\n𥪝 “{category}”.",
-      "provenance": [
-        [
-          "source-phrase",
-          "đầu tiên",
-          "頭先",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ],
-        [
-          "source-word",
-          "trong",
-          "𥪝",
-          1
-        ]
-      ]
-    },
-    "channelDisplay": {
-      "before": "{flag} Kênh {language}",
-      "after": "{flag} 涇 {language}",
-      "provenance": [
-        [
-          "source-word",
-          "kênh",
-          "涇",
-          1
-        ]
-      ]
-    },
-    "selectLearningLanguageOptional": {
-      "before": "Chọn ngôn ngữ đang học (không bắt buộc)",
-      "after": "譔言語當學 (không bắt buộc)",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "học",
-          "學",
-          1
-        ]
-      ]
-    },
-    "learningLanguageOptionalDesc": {
-      "before": "Bạn có thể đăng mà không chọn ngôn ngữ cụ thể nếu chủ đề là phương pháp học, ngôn ngữ học hoặc đa ngôn ngữ.",
-      "after": "伴固体 đăng mà không 譔言語具體 nếu chủ đề là 方法學, 言語學或 đa 言語.",
-      "provenance": [
-        [
-          "source-phrase",
-          "phương pháp",
-          "方法",
-          1
-        ],
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          3
-        ],
-        [
-          "source-phrase",
-          "cụ thể",
-          "具體",
-          1
-        ],
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "học",
-          "學",
-          1
-        ],
-        [
-          "source-word",
-          "học",
-          "學",
-          1
-        ],
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ]
-      ]
-    },
-    "chooseFromLanguageLibrary": {
-      "before": "Chọn từ thư viện · {count} ngôn ngữ",
-      "after": "譔 từ thư viện · {count} 言語",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "selectLearningLanguage": {
-      "before": "Chọn ngôn ngữ đang học",
-      "after": "譔言語當學",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "học",
-          "學",
-          1
-        ]
-      ]
-    },
-    "languageLibraryDesc": {
-      "before": "Ngôn ngữ lấy từ Glyphora Language Core. Quay lại để tiếp tục dưới dạng chủ đề học ngôn ngữ chung.",
-      "after": "言語 lấy từ Glyphora Language Core. Quay lại 抵接續 dưới dạng chủ đề 學言語終.",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          2
-        ],
-        [
-          "source-phrase",
-          "tiếp tục",
-          "接續",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ],
-        [
-          "source-word",
-          "học",
-          "學",
-          1
-        ],
-        [
-          "source-word",
-          "chung",
-          "終",
-          1
-        ]
-      ]
-    },
-    "searchLanguageNameOrCode": {
-      "before": "Tìm tên hoặc mã ngôn ngữ",
-      "after": "尋𠸜或碼言語",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "tìm",
-          "尋",
-          1
-        ],
-        [
-          "source-word",
-          "tên",
-          "𠸜",
-          1
-        ],
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ],
-        [
-          "source-word",
-          "mã",
-          "碼",
-          1
-        ]
-      ]
-    },
-    "noLanguagesFound": {
-      "before": "Không tìm thấy ngôn ngữ",
-      "after": "Không 尋 thấy 言語",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "tìm",
-          "尋",
-          1
-        ]
-      ]
-    },
-    "continueSelectCategory": {
-      "before": "Tiếp tục chọn danh mục",
-      "after": "接續譔 danh mục",
-      "provenance": [
-        [
-          "source-phrase",
-          "tiếp tục",
-          "接續",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "untitled": {
-      "before": "Không có tiêu đề",
-      "after": "空固標題",
-      "provenance": [
-        [
-          "source-phrase",
-          "không có",
-          "空固",
-          1
-        ],
-        [
-          "source-phrase",
-          "tiêu đề",
-          "標題",
-          1
-        ]
-      ]
-    },
-    "otherLanguage": {
-      "before": "Ngôn ngữ khác",
-      "after": "言語恪",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "khác",
-          "恪",
-          1
-        ]
-      ]
-    },
-    "channelBadge": {
-      "before": "Kênh {language}",
-      "after": "涇 {language}",
-      "provenance": [
-        [
-          "source-word",
-          "kênh",
-          "涇",
-          1
-        ]
-      ]
-    },
-    "sendMessage": {
-      "before": "Gửi tin nhắn",
-      "after": "寄信𠴍",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ]
-      ]
-    },
-    "viewProfile": {
-      "before": "Xem hồ sơ",
-      "after": "䀡糊疏",
-      "provenance": [
-        [
-          "source-phrase",
-          "hồ sơ",
-          "糊疏",
-          1
-        ],
-        [
-          "source-word",
-          "xem",
-          "䀡",
-          1
-        ]
-      ]
-    },
-    "friendRequests": {
-      "before": "Lời mời kết bạn",
-      "after": "Lời mời kết 伴",
-      "provenance": [
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "friends": {
-      "before": "Bạn bè",
-      "after": "伴佊",
-      "provenance": [
-        [
-          "source-phrase",
-          "bạn bè",
-          "伴佊",
-          1
-        ]
-      ]
-    },
-    "noChats": {
-      "before": "Chưa có cuộc trò chuyện",
-      "after": "𣗓固 cuộc trò chuyện",
-      "provenance": [
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ]
-      ]
-    },
-    "startConversation": {
-      "before": "Hãy bắt đầu trò chuyện với ai đó.",
-      "after": "唉 bắt đầu trò chuyện 貝埃妬.",
-      "provenance": [
-        [
-          "source-phrase",
-          "ai đó",
-          "埃妬",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ],
-        [
-          "source-word",
-          "với",
-          "貝",
-          1
-        ]
-      ]
-    },
-    "noMessagesYet": {
-      "before": "Chưa có tin nhắn",
-      "after": "𣗓固信𠴍",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ]
-      ]
-    },
-    "noFriends": {
-      "before": "Chưa có bạn bè",
-      "after": "𣗓固伴佊",
-      "provenance": [
-        [
-          "source-phrase",
-          "bạn bè",
-          "伴佊",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ]
-      ]
-    },
-    "findFriendsPrompt": {
-      "before": "Khám phá người dùng và thêm bạn mới.",
-      "after": "Khám phá người dùng và 添伴㵋.",
-      "provenance": [
-        [
-          "source-word",
-          "thêm",
-          "添",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ],
-        [
-          "source-word",
-          "mới",
-          "㵋",
-          1
-        ]
-      ]
-    },
-    "noFriendRequests": {
-      "before": "Không có lời mời kết bạn",
-      "after": "空固 lời mời kết 伴",
-      "provenance": [
-        [
-          "source-phrase",
-          "không có",
-          "空固",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "loading": {
-      "before": "Đang tải...",
-      "after": "當載...",
-      "provenance": [
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "friendRequestDescription": {
-      "before": "Muốn kết bạn với bạn",
-      "after": "Muốn kết 伴貝伴",
-      "provenance": [
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ],
-        [
-          "source-word",
-          "với",
-          "貝",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "friendRequestAccepted": {
-      "before": "Đã chấp nhận lời mời kết bạn của {name}",
-      "after": "㐌 chấp nhận lời mời kết 伴 của {name}",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "operationFailed": {
-      "before": "Thao tác thất bại",
-      "after": "操作失敗",
-      "provenance": [
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-phrase",
-          "thao tác",
-          "操作",
-          1
-        ]
-      ]
-    },
-    "friendRequestRejected": {
-      "before": "Đã từ chối lời mời kết bạn",
-      "after": "㐌 từ chối lời mời kết 伴",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "myFriends": {
-      "before": "Bạn bè của tôi",
-      "after": "伴佊 của tôi",
-      "provenance": [
-        [
-          "source-phrase",
-          "bạn bè",
-          "伴佊",
-          1
-        ]
-      ]
-    },
-    "unknownTime": {
-      "before": "Không rõ thời gian",
-      "after": "Không rõ 時間",
-      "provenance": [
-        [
-          "source-phrase",
-          "thời gian",
-          "時間",
-          1
-        ]
-      ]
-    },
-    "postEditHistory": {
-      "before": "Lịch sử chỉnh sửa",
-      "after": "歷史 chỉnh sửa",
-      "provenance": [
-        [
-          "source-phrase",
-          "lịch sử",
-          "歷史",
-          1
-        ]
-      ]
-    },
-    "noEditHistory": {
-      "before": "Chưa có lịch sử chỉnh sửa",
-      "after": "𣗓固歷史 chỉnh sửa",
-      "provenance": [
-        [
-          "source-phrase",
-          "lịch sử",
-          "歷史",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ]
-      ]
-    },
-    "unknownLanguage": {
-      "before": "Không rõ ngôn ngữ",
-      "after": "Không rõ 言語",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ]
-      ]
-    },
-    "languageValue": {
-      "before": "Ngôn ngữ: {language}",
-      "after": "言語: {language}",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ]
-      ]
-    },
-    "historyVersion": {
-      "before": "Phiên bản trước",
-      "after": "翻版𠓀",
-      "provenance": [
-        [
-          "source-phrase",
-          "phiên bản",
-          "翻版",
-          1
-        ],
-        [
-          "source-word",
-          "trước",
-          "𠓀",
-          1
-        ]
-      ]
-    },
-    "sendFailed": {
-      "before": "Gửi thất bại",
-      "after": "寄失敗",
-      "provenance": [
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ]
-      ]
-    },
-    "commentLoadFailed": {
-      "before": "Tải bình luận thất bại",
-      "after": "載評論失敗",
-      "provenance": [
-        [
-          "source-phrase",
-          "bình luận",
-          "評論",
-          1
-        ],
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "noCommentsYet": {
-      "before": "Chưa có bình luận. Hãy để lại bình luận đầu tiên.",
-      "after": "𣗓固評論. 唉抵 lại 評論頭先.",
-      "provenance": [
-        [
-          "source-phrase",
-          "bình luận",
-          "評論",
-          2
-        ],
-        [
-          "source-phrase",
-          "đầu tiên",
-          "頭先",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ]
-      ]
-    },
-    "replyHint": {
-      "before": "Viết trả lời...",
-      "after": "𢪏 trả lời...",
-      "provenance": [
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "commentHint": {
-      "before": "Viết bình luận...",
-      "after": "𢪏評論...",
-      "provenance": [
-        [
-          "source-phrase",
-          "bình luận",
-          "評論",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "reportPost": {
-      "before": "Báo cáo bài viết",
-      "after": "Báo cáo bài 𢪏",
-      "provenance": [
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "chooseReportReason": {
-      "before": "Chọn lý do báo cáo",
-      "after": "譔 lý 由 báo cáo",
-      "provenance": [
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "do",
-          "由",
-          1
-        ]
-      ]
-    },
-    "reportReasonSpam": {
-      "before": "Spam hoặc quảng cáo",
-      "after": "Spam 或廣告",
-      "provenance": [
-        [
-          "source-phrase",
-          "quảng cáo",
-          "廣告",
-          1
-        ],
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ]
-      ]
-    },
-    "reportReasonHarassment": {
-      "before": "Quấy rối hoặc bắt nạt",
-      "after": "撌𦇒或扒㖏",
-      "provenance": [
-        [
-          "source-phrase",
-          "quấy rối",
-          "撌𦇒",
-          1
-        ],
-        [
-          "source-phrase",
-          "bắt nạt",
-          "扒㖏",
-          1
-        ],
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ]
-      ]
-    },
-    "reportReasonHate": {
-      "before": "Ngôn từ thù ghét",
-      "after": "Ngôn từ 讎恄",
-      "provenance": [
-        [
-          "source-phrase",
-          "thù ghét",
-          "讎恄",
-          1
-        ]
-      ]
-    },
-    "reportReasonSexual": {
-      "before": "Nội dung tình dục",
-      "after": "內容情欲",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-phrase",
-          "tình dục",
-          "情欲",
-          1
-        ]
-      ]
-    },
-    "reportReasonViolence": {
-      "before": "Bạo lực hoặc nội dung nguy hiểm",
-      "after": "暴力或內容 nguy hiểm",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-phrase",
-          "bạo lực",
-          "暴力",
-          1
-        ],
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ]
-      ]
-    },
-    "reportReasonMisinformation": {
-      "before": "Thông tin sai hoặc gây hiểu lầm",
-      "after": "Thông tin 差或 gây hiểu lầm",
-      "provenance": [
-        [
-          "source-word",
-          "sai",
-          "差",
-          1
-        ],
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ]
-      ]
-    },
-    "reportReasonOther": {
-      "before": "Khác",
-      "after": "恪",
-      "provenance": [
-        [
-          "source-word",
-          "khác",
-          "恪",
-          1
-        ]
-      ]
-    },
-    "reportDetailsLabel": {
-      "before": "Thông tin bổ sung (không bắt buộc)",
-      "after": "Thông tin 補充 (không bắt buộc)",
-      "provenance": [
-        [
-          "source-phrase",
-          "bổ sung",
-          "補充",
-          1
-        ]
-      ]
-    },
-    "reportDetailsHint": {
-      "before": "Thêm chi tiết nếu cần",
-      "after": "添枝節 nếu cần",
-      "provenance": [
-        [
-          "source-phrase",
-          "chi tiết",
-          "枝節",
-          1
-        ],
-        [
-          "source-word",
-          "thêm",
-          "添",
-          1
-        ]
-      ]
-    },
-    "reportReviewNotice": {
-      "before": "Báo cáo đã gửi sẽ được đưa vào hàng đợi kiểm duyệt.",
-      "after": "Báo cáo 㐌寄 sẽ 得 đưa vào hàng đợi 檢閱.",
-      "provenance": [
-        [
-          "source-phrase",
-          "kiểm duyệt",
-          "檢閱",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ]
-      ]
-    },
-    "submitReport": {
-      "before": "Gửi báo cáo",
-      "after": "寄 báo cáo",
-      "provenance": [
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ]
-      ]
-    },
-    "sharedNotes": {
-      "before": "Ghi chú chia sẻ",
-      "after": "𥱬註𢺹𢩿",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ]
-      ]
-    },
-    "profileLoadFailed": {
-      "before": "Không thể tải hồ sơ người dùng",
-      "after": "空体載糊疏 người dùng",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-phrase",
-          "hồ sơ",
-          "糊疏",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "notesWithUserTitle": {
-      "before": "{name} · Ghi chú",
-      "after": "{name} · 𥱬註",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ]
-      ]
-    },
-    "createNoteFailed": {
-      "before": "Tạo ghi chú thất bại",
-      "after": "造𥱬註失敗",
-      "provenance": [
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "tạo",
-          "造",
-          1
-        ]
-      ]
-    },
-    "notesLoadFailed": {
-      "before": "Tải ghi chú thất bại",
-      "after": "載𥱬註失敗",
-      "provenance": [
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "noSharedNotesWithUser": {
-      "before": "Chưa có ghi chú nào được chia sẻ với {name}",
-      "after": "𣗓固𥱬註 nào 得𢺹𢩿貝 {name}",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ],
-        [
-          "source-word",
-          "với",
-          "貝",
-          1
-        ]
-      ]
-    },
-    "tapFabToCreate": {
-      "before": "Dùng nút tạo để bắt đầu ghi chú mới.",
-      "after": "Dùng 𨨷造抵 bắt đầu 𥱬註㵋.",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "nút",
-          "𨨷",
-          1
-        ],
-        [
-          "source-word",
-          "tạo",
-          "造",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ],
-        [
-          "source-word",
-          "mới",
-          "㵋",
-          1
-        ]
-      ]
-    },
-    "creating": {
-      "before": "Đang tạo...",
-      "after": "當造...",
-      "provenance": [
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "tạo",
-          "造",
-          1
-        ]
-      ]
-    },
-    "newNote": {
-      "before": "Ghi chú mới",
-      "after": "𥱬註㵋",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "mới",
-          "㵋",
-          1
-        ]
-      ]
-    },
-    "untitledNote": {
-      "before": "Ghi chú không tiêu đề",
-      "after": "𥱬註 không 標題",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-phrase",
-          "tiêu đề",
-          "標題",
-          1
-        ]
-      ]
-    },
-    "noContent": {
-      "before": "Chưa có nội dung",
-      "after": "𣗓固內容",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ]
-      ]
-    },
-    "createdByYou": {
-      "before": "Do bạn tạo",
-      "after": "由伴造",
-      "provenance": [
-        [
-          "source-word",
-          "do",
-          "由",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ],
-        [
-          "source-word",
-          "tạo",
-          "造",
-          1
-        ]
-      ]
-    },
-    "createdByUser": {
-      "before": "Do {name} tạo",
-      "after": "由 {name} 造",
-      "provenance": [
-        [
-          "source-word",
-          "do",
-          "由",
-          1
-        ],
-        [
-          "source-word",
-          "tạo",
-          "造",
-          1
-        ]
-      ]
-    },
-    "recommendedLoginTitle": {
-      "before": "Đăng nhập để dùng mục đề xuất",
-      "after": "Đăng 入抵 dùng mục 提出",
-      "provenance": [
-        [
-          "source-phrase",
-          "đề xuất",
-          "提出",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ]
-      ]
-    },
-    "recommendedLoginDescription": {
-      "before": "Sau khi đăng nhập, bạn có thể chọn kênh ngôn ngữ và chủ đề mình quan tâm.",
-      "after": "𢖖󠄁 khi đăng 入, 伴固体譔涇言語 và chủ đề mình quan tâm.",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-word",
-          "sau",
-          "𢖖󠄁",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "kênh",
-          "涇",
-          1
-        ]
-      ]
-    },
-    "interestsLoadFailed": {
-      "before": "Tải sở thích thất bại",
-      "after": "載所適失敗",
-      "provenance": [
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ],
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "interestsLoadFailedDescription": {
-      "before": "Không thể tải cài đặt sở thích. Hãy kiểm tra kết nối và thử lại.",
-      "after": "空体載掑撻所適. 唉檢查結綏 và thử lại.",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ],
-        [
-          "source-phrase",
-          "kiểm tra",
-          "檢查",
-          1
-        ],
-        [
-          "source-phrase",
-          "kết nối",
-          "結綏",
-          1
-        ],
-        [
-          "source-phrase",
-          "cài đặt",
-          "掑撻",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ]
-      ]
-    },
-    "noInterestsTitle": {
-      "before": "Chưa chọn sở thích",
-      "after": "𣗓譔所適",
-      "provenance": [
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "noInterestsDescription": {
-      "before": "Mở Danh mục, chọn một ngôn ngữ rồi nhấn biểu tượng trái tim bên cạnh chủ đề.",
-      "after": "𢲫 Danh mục, 譔𠬠言語 rồi 扨 biểu tượng trái tim 邊𧣲 chủ đề.",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-phrase",
-          "bên cạnh",
-          "邊𧣲",
-          1
-        ],
-        [
-          "source-word",
-          "mở",
-          "𢲫",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "một",
-          "𠬠",
-          1
-        ],
-        [
-          "source-word",
-          "nhấn",
-          "扨",
-          1
-        ]
-      ]
-    },
-    "postsLoadFailed": {
-      "before": "Tải bài viết thất bại",
-      "after": "載 bài 𢪏失敗",
-      "provenance": [
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "noRecommendedPostsTitle": {
-      "before": "Chưa có bài viết cho các sở thích này",
-      "after": "𣗓固 bài 𢪏朱 các 所適 này",
-      "provenance": [
-        [
-          "source-phrase",
-          "sở thích",
-          "所適",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ],
-        [
-          "source-word",
-          "cho",
-          "朱",
-          1
-        ]
-      ]
-    },
-    "noRecommendedPostsDescription": {
-      "before": "Hiện chưa có nội dung trong các kênh ngôn ngữ và chủ đề đã chọn. Kéo xuống để tải lại.",
-      "after": "Hiện 𣗓固內容𥪝 các 涇言語 và chủ đề 㐌譔. Kéo xuống 抵載 lại.",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "trong",
-          "𥪝",
-          1
-        ],
-        [
-          "source-word",
-          "kênh",
-          "涇",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "friendRequestSentTo": {
-      "before": "Đã gửi lời mời kết bạn tới {name}",
-      "after": "㐌寄 lời mời kết 伴 tới {name}",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "friendRequestSendFailed": {
-      "before": "Gửi lời mời kết bạn thất bại",
-      "after": "寄 lời mời kết 伴失敗",
-      "provenance": [
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "inviteFriendsPrompt": {
-      "before": "Chưa có người dùng khác. Hãy mời bạn bè tham gia.",
-      "after": "𣗓固 người dùng 恪. 唉 mời 伴佊 tham gia.",
-      "provenance": [
-        [
-          "source-phrase",
-          "bạn bè",
-          "伴佊",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "khác",
-          "恪",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ]
-      ]
-    },
-    "enterEmailAndPassword": {
-      "before": "Nhập email và mật khẩu",
-      "after": "入 email và mật khẩu",
-      "provenance": [
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "chooseAccountToSignIn": {
-      "before": "Chọn tài khoản để đăng nhập",
-      "after": "譔財款抵 đăng 入",
-      "provenance": [
-        [
-          "source-phrase",
-          "tài khoản",
-          "財款",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "useAnotherAccount": {
-      "before": "Dùng tài khoản khác",
-      "after": "Dùng 財款恪",
-      "provenance": [
-        [
-          "source-phrase",
-          "tài khoản",
-          "財款",
-          1
-        ],
-        [
-          "source-word",
-          "khác",
-          "恪",
-          1
-        ]
-      ]
-    },
-    "noAccountRegisterNow": {
-      "before": "Chưa có tài khoản? Đăng ký ngay",
-      "after": "𣗓固財款? Đăng ký ngay",
-      "provenance": [
-        [
-          "source-phrase",
-          "tài khoản",
-          "財款",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ]
-      ]
-    },
-    "createNewAccount": {
-      "before": "Tạo tài khoản mới",
-      "after": "造財款㵋",
-      "provenance": [
-        [
-          "source-phrase",
-          "tài khoản",
-          "財款",
-          1
-        ],
-        [
-          "source-word",
-          "tạo",
-          "造",
-          1
-        ],
-        [
-          "source-word",
-          "mới",
-          "㵋",
-          1
-        ]
-      ]
-    },
-    "usernameUniqueId": {
-      "before": "Tên người dùng (ID duy nhất)",
-      "after": "𠸜 người dùng (ID duy nhất)",
-      "provenance": [
-        [
-          "source-word",
-          "tên",
-          "𠸜",
-          1
-        ]
-      ]
-    },
-    "usernameSetupHint": {
-      "before": "Đặt tên người dùng duy nhất của bạn",
-      "after": "撻𠸜 người dùng duy nhất của 伴",
-      "provenance": [
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ],
-        [
-          "source-word",
-          "tên",
-          "𠸜",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "enterUsername": {
-      "before": "Nhập tên người dùng",
-      "after": "入𠸜 người dùng",
-      "provenance": [
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ],
-        [
-          "source-word",
-          "tên",
-          "𠸜",
-          1
-        ]
-      ]
-    },
-    "usernameMinLength": {
-      "before": "Tên người dùng phải có ít nhất 2 ký tự",
-      "after": "𠸜 người dùng phải 固 ít nhất 2 ký tự",
-      "provenance": [
-        [
-          "source-word",
-          "tên",
-          "𠸜",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ]
-      ]
-    },
-    "usernameMaxLength": {
-      "before": "Tên người dùng tối đa 20 ký tự",
-      "after": "𠸜 người dùng 最多 20 ký tự",
-      "provenance": [
-        [
-          "source-phrase",
-          "tối đa",
-          "最多",
-          1
-        ],
-        [
-          "source-word",
-          "tên",
-          "𠸜",
-          1
-        ]
-      ]
-    },
-    "usernameAllowedCharacters": {
-      "before": "Tên người dùng có thể chứa chữ cái, chữ Hán, số và dấu gạch dưới",
-      "after": "𠸜 người dùng 固体貯𡨸𡣨, chữ Hán, 數 và dấu gạch dưới",
-      "provenance": [
-        [
-          "source-phrase",
-          "chữ cái",
-          "𡨸𡣨",
-          1
-        ],
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-word",
-          "tên",
-          "𠸜",
-          1
-        ],
-        [
-          "source-word",
-          "chứa",
-          "貯",
-          1
-        ],
-        [
-          "source-word",
-          "số",
-          "數",
-          1
-        ]
-      ]
-    },
-    "enterEmail": {
-      "before": "Nhập email",
-      "after": "入 email",
-      "provenance": [
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "enterPassword": {
-      "before": "Nhập mật khẩu",
-      "after": "入 mật khẩu",
-      "provenance": [
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "passwordMinLength": {
-      "before": "Mật khẩu phải có ít nhất 6 ký tự",
-      "after": "Mật khẩu phải 固 ít nhất 6 ký tự",
-      "provenance": [
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ]
-      ]
-    },
-    "enterPasswordAgain": {
-      "before": "Nhập lại mật khẩu",
-      "after": "入 lại mật khẩu",
-      "provenance": [
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "passwordsDoNotMatch": {
-      "before": "Mật khẩu không khớp",
-      "after": "Mật khẩu không 𨨤",
-      "provenance": [
-        [
-          "source-word",
-          "khớp",
-          "𨨤",
-          1
-        ]
-      ]
-    },
-    "alreadyHaveAccountSignIn": {
-      "before": "Đã có tài khoản? Đăng nhập",
-      "after": "㐌固財款? Đăng 入",
-      "provenance": [
-        [
-          "source-phrase",
-          "tài khoản",
-          "財款",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "recoverPassword": {
-      "before": "Khôi phục mật khẩu",
-      "after": "恢復 mật khẩu",
-      "provenance": [
-        [
-          "source-phrase",
-          "khôi phục",
-          "恢復",
-          1
-        ]
-      ]
-    },
-    "checkYourEmail": {
-      "before": "Kiểm tra email của bạn",
-      "after": "檢查 email của 伴",
-      "provenance": [
-        [
-          "source-phrase",
-          "kiểm tra",
-          "檢查",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "resetPasswordByEmail": {
-      "before": "Đặt lại mật khẩu qua email",
-      "after": "撻 lại mật khẩu qua email",
-      "provenance": [
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ]
-      ]
-    },
-    "resetEmailSentDescription": {
-      "before": "Nếu email này đã đăng ký, liên kết đặt lại mật khẩu sẽ được gửi. Hãy mở email và làm theo hướng dẫn để đặt mật khẩu mới.",
-      "after": "Nếu email này 㐌 đăng ký, 連結撻 lại mật khẩu sẽ 得寄. 唉𢲫 email và 𫜵 theo 向引抵撻 mật khẩu 㵋.",
-      "provenance": [
-        [
-          "source-phrase",
-          "hướng dẫn",
-          "向引",
-          1
-        ],
-        [
-          "source-phrase",
-          "liên kết",
-          "連結",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ],
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ],
-        [
-          "source-word",
-          "mở",
-          "𢲫",
-          1
-        ],
-        [
-          "source-word",
-          "làm",
-          "𫜵",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ],
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ],
-        [
-          "source-word",
-          "mới",
-          "㵋",
-          1
-        ]
-      ]
-    },
-    "resetEmailDescription": {
-      "before": "Nhập email đã đăng ký để nhận liên kết đặt lại mật khẩu an toàn.",
-      "after": "入 email 㐌 đăng ký 抵 nhận 連結撻 lại mật khẩu 安全.",
-      "provenance": [
-        [
-          "source-phrase",
-          "liên kết",
-          "連結",
-          1
-        ],
-        [
-          "source-phrase",
-          "an toàn",
-          "安全",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ],
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ]
-      ]
-    },
-    "resendResetEmail": {
-      "before": "Gửi lại email đặt lại",
-      "after": "寄 lại email 撻 lại",
-      "provenance": [
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ],
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ]
-      ]
-    },
-    "sendResetEmail": {
-      "before": "Gửi email đặt lại mật khẩu",
-      "after": "寄 email 撻 lại mật khẩu",
-      "provenance": [
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ],
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ]
-      ]
-    },
-    "backToSignIn": {
-      "before": "Quay lại đăng nhập",
-      "after": "Quay lại đăng 入",
-      "provenance": [
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "newPassword": {
-      "before": "Mật khẩu mới",
-      "after": "Mật khẩu 㵋",
-      "provenance": [
-        [
-          "source-word",
-          "mới",
-          "㵋",
-          1
-        ]
-      ]
-    },
-    "confirmNewPassword": {
-      "before": "Xác nhận mật khẩu mới",
-      "after": "Xác nhận mật khẩu 㵋",
-      "provenance": [
-        [
-          "source-word",
-          "mới",
-          "㵋",
-          1
-        ]
-      ]
-    },
-    "enterCurrentPassword": {
-      "before": "Nhập mật khẩu hiện tại",
-      "after": "入 mật khẩu hiện tại",
-      "provenance": [
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "enterNewPassword": {
-      "before": "Nhập mật khẩu mới",
-      "after": "入 mật khẩu 㵋",
-      "provenance": [
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ],
-        [
-          "source-word",
-          "mới",
-          "㵋",
-          1
-        ]
-      ]
-    },
-    "enterNewPasswordAgain": {
-      "before": "Nhập lại mật khẩu mới",
-      "after": "入 lại mật khẩu 㵋",
-      "provenance": [
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ],
-        [
-          "source-word",
-          "mới",
-          "㵋",
-          1
-        ]
-      ]
-    },
-    "confirmChange": {
-      "before": "Xác nhận thay đổi",
-      "after": "Xác nhận 𠊝𢷮",
-      "provenance": [
-        [
-          "source-phrase",
-          "thay đổi",
-          "𠊝𢷮",
-          1
-        ]
-      ]
-    },
-    "passwordChangedSuccess": {
-      "before": "Đã đổi mật khẩu",
-      "after": "㐌𢷮 mật khẩu",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "đổi",
-          "𢷮",
-          1
-        ]
-      ]
-    },
-    "accountSecurity": {
-      "before": "Bảo mật tài khoản",
-      "after": "保密財款",
-      "provenance": [
-        [
-          "source-phrase",
-          "tài khoản",
-          "財款",
-          1
-        ],
-        [
-          "source-phrase",
-          "bảo mật",
-          "保密",
-          1
-        ]
-      ]
-    },
-    "noUsableEmail": {
-      "before": "Tài khoản này không có email có thể sử dụng",
-      "after": "財款 này 空固 email 固体使用",
-      "provenance": [
-        [
-          "source-phrase",
-          "tài khoản",
-          "財款",
-          1
-        ],
-        [
-          "source-phrase",
-          "không có",
-          "空固",
-          1
-        ],
-        [
-          "source-phrase",
-          "sử dụng",
-          "使用",
-          1
-        ],
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ]
-      ]
-    },
-    "resetEmailSent": {
-      "before": "Đã gửi email đặt lại mật khẩu. Hãy kiểm tra hộp thư.",
-      "after": "㐌寄 email 撻 lại mật khẩu. 唉檢查 hộp thư.",
-      "provenance": [
-        [
-          "source-phrase",
-          "kiểm tra",
-          "檢查",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ],
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ]
-      ]
-    },
-    "passwordRecoveryPrivacyDescription": {
-      "before": "Khôi phục mật khẩu được thực hiện qua email đã đăng ký. Ứng dụng không lưu hoặc xác minh câu trả lời bảo mật ở dạng văn bản thuần.",
-      "after": "恢復 mật khẩu 得 thực hiện qua email 㐌 đăng ký. Ứng dụng không lưu 或 xác minh câu trả lời 保密 ở dạng văn bản 純.",
-      "provenance": [
-        [
-          "source-phrase",
-          "khôi phục",
-          "恢復",
-          1
-        ],
-        [
-          "source-phrase",
-          "bảo mật",
-          "保密",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ],
-        [
-          "source-word",
-          "thuần",
-          "純",
-          1
-        ]
-      ]
-    },
-    "passwordRecovery": {
-      "before": "Khôi phục mật khẩu",
-      "after": "恢復 mật khẩu",
-      "provenance": [
-        [
-          "source-phrase",
-          "khôi phục",
-          "恢復",
-          1
-        ]
-      ]
-    },
-    "sending": {
-      "before": "Đang gửi...",
-      "after": "當寄...",
-      "provenance": [
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ]
-      ]
-    },
-    "passwordResetTechnicalNote": {
-      "before": "Liên kết đặt lại được tạo bởi Firebase Authentication; mật khẩu không được lưu trong Firestore.",
-      "after": "連結撻 lại 得造 bởi Firebase Authentication; mật khẩu 空得 lưu 𥪝 Firestore.",
-      "provenance": [
-        [
-          "source-phrase",
-          "không được",
-          "空得",
-          1
-        ],
-        [
-          "source-phrase",
-          "liên kết",
-          "連結",
-          1
-        ],
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ],
-        [
-          "source-word",
-          "tạo",
-          "造",
-          1
-        ],
-        [
-          "source-word",
-          "trong",
-          "𥪝",
-          1
-        ]
-      ]
-    },
-    "authInvalidCredentials": {
-      "before": "Email hoặc mật khẩu không đúng",
-      "after": "Email 或 mật khẩu không 倲",
-      "provenance": [
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ],
-        [
-          "source-word",
-          "đúng",
-          "倲",
-          1
-        ]
-      ]
-    },
-    "authInvalidEmail": {
-      "before": "Địa chỉ email không hợp lệ",
-      "after": "地址 email không hợp lệ",
-      "provenance": [
-        [
-          "source-phrase",
-          "địa chỉ",
-          "地址",
-          1
-        ]
-      ]
-    },
-    "authEmailAlreadyInUse": {
-      "before": "Email này đã được đăng ký",
-      "after": "Email này 㐌得 đăng ký",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ]
-      ]
-    },
-    "authWeakPassword": {
-      "before": "Mật khẩu quá yếu; hãy dùng ít nhất 6 ký tự",
-      "after": "Mật khẩu quá 𪽳; 唉 dùng ít nhất 6 ký tự",
-      "provenance": [
-        [
-          "source-word",
-          "yếu",
-          "𪽳",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ]
-      ]
-    },
-    "authUsernameTaken": {
-      "before": "Tên người dùng này đã được sử dụng",
-      "after": "𠸜 người dùng này 㐌得使用",
-      "provenance": [
-        [
-          "source-phrase",
-          "sử dụng",
-          "使用",
-          1
-        ],
-        [
-          "source-word",
-          "tên",
-          "𠸜",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ]
-      ]
-    },
-    "authUserDataMissing": {
-      "before": "Thiếu dữ liệu hồ sơ tài khoản. Hãy liên hệ hỗ trợ hoặc đăng ký lại.",
-      "after": "Thiếu 與料糊疏財款. 唉聯繫互助或 đăng ký lại.",
-      "provenance": [
-        [
-          "source-phrase",
-          "tài khoản",
-          "財款",
-          1
-        ],
-        [
-          "source-phrase",
-          "liên hệ",
-          "聯繫",
-          1
-        ],
-        [
-          "source-phrase",
-          "dữ liệu",
-          "與料",
-          1
-        ],
-        [
-          "source-phrase",
-          "hỗ trợ",
-          "互助",
-          1
-        ],
-        [
-          "source-phrase",
-          "hồ sơ",
-          "糊疏",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ],
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ]
-      ]
-    },
-    "authAccountBanned": {
-      "before": "Tài khoản này đã bị cấm",
-      "after": "財款 này 㐌 bị cấm",
-      "provenance": [
-        [
-          "source-phrase",
-          "tài khoản",
-          "財款",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ]
-      ]
-    },
-    "authAccountDisabled": {
-      "before": "Tài khoản này đã bị vô hiệu hóa",
-      "after": "財款 này 㐌 bị vô hiệu hóa",
-      "provenance": [
-        [
-          "source-phrase",
-          "tài khoản",
-          "財款",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ]
-      ]
-    },
-    "authTooManyRequests": {
-      "before": "Có quá nhiều yêu cầu. Hãy thử lại sau.",
-      "after": "固 quá nhiều 要求. 唉 thử lại 𢖖󠄁.",
-      "provenance": [
-        [
-          "source-phrase",
-          "yêu cầu",
-          "要求",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ],
-        [
-          "source-word",
-          "sau",
-          "𢖖󠄁",
-          1
-        ]
-      ]
-    },
-    "authWrongCurrentPassword": {
-      "before": "Mật khẩu hiện tại không đúng",
-      "after": "Mật khẩu hiện tại không 倲",
-      "provenance": [
-        [
-          "source-word",
-          "đúng",
-          "倲",
-          1
-        ]
-      ]
-    },
-    "authLoginFailed": {
-      "before": "Đăng nhập thất bại. Hãy thử lại sau.",
-      "after": "Đăng 入失敗. 唉 thử lại 𢖖󠄁.",
-      "provenance": [
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ],
-        [
-          "source-word",
-          "sau",
-          "𢖖󠄁",
-          1
-        ]
-      ]
-    },
-    "authRegisterFailed": {
-      "before": "Đăng ký thất bại. Hãy thử lại sau.",
-      "after": "Đăng ký 失敗. 唉 thử lại 𢖖󠄁.",
-      "provenance": [
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ],
-        [
-          "source-word",
-          "sau",
-          "𢖖󠄁",
-          1
-        ]
-      ]
-    },
-    "authChangePasswordFailed": {
-      "before": "Đổi mật khẩu thất bại. Hãy thử lại sau.",
-      "after": "𢷮 mật khẩu 失敗. 唉 thử lại 𢖖󠄁.",
-      "provenance": [
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-word",
-          "đổi",
-          "𢷮",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ],
-        [
-          "source-word",
-          "sau",
-          "𢖖󠄁",
-          1
-        ]
-      ]
-    },
-    "authResetEmailFailed": {
-      "before": "Không thể gửi email đặt lại mật khẩu. Hãy thử lại sau.",
-      "after": "空体寄 email 撻 lại mật khẩu. 唉 thử lại 𢖖󠄁.",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ],
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ],
-        [
-          "source-word",
-          "sau",
-          "𢖖󠄁",
-          1
-        ]
-      ]
-    },
-    "authUnexpectedError": {
-      "before": "Đã xảy ra lỗi. Hãy thử lại.",
-      "after": "㐌 xảy ra lỗi. 唉 thử lại.",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ]
-      ]
-    },
-    "messageInputHint": {
-      "before": "Nhập tin nhắn...",
-      "after": "入信𠴍...",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "followAction": {
-      "before": "Theo dõi",
-      "after": "蹺𠼲",
-      "provenance": [
-        [
-          "source-phrase",
-          "theo dõi",
-          "蹺𠼲",
-          1
-        ]
-      ]
-    },
-    "followActionFailed": {
-      "before": "Không thể cập nhật trạng thái theo dõi",
-      "after": "空体及日 trạng thái 蹺𠼲",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-phrase",
-          "theo dõi",
-          "蹺𠼲",
-          1
-        ],
-        [
-          "source-phrase",
-          "cập nhật",
-          "及日",
-          1
-        ]
-      ]
-    },
-    "followers": {
-      "before": "Người theo dõi",
-      "after": "Người 蹺𠼲",
-      "provenance": [
-        [
-          "source-phrase",
-          "theo dõi",
-          "蹺𠼲",
-          1
-        ]
-      ]
-    },
-    "chatLoadFailed": {
-      "before": "Không thể tải cuộc trò chuyện",
-      "after": "空体載 cuộc trò chuyện",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "chatLoadFailedDescription": {
-      "before": "Không thể tải cuộc trò chuyện này. Vui lòng thử lại.",
-      "after": "空体載 cuộc trò chuyện này. 𢝙𢚸 thử lại.",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-phrase",
-          "vui lòng",
-          "𢝙𢚸",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "groupChat": {
-      "before": "Trò chuyện nhóm",
-      "after": "Trò chuyện 𡖡",
-      "provenance": [
-        [
-          "source-word",
-          "nhóm",
-          "𡖡",
-          1
-        ]
-      ]
-    },
-    "editMessage": {
-      "before": "Chỉnh sửa tin nhắn",
-      "after": "Chỉnh sửa 信𠴍",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ]
-      ]
-    },
-    "deleteMessage": {
-      "before": "Xóa tin nhắn",
-      "after": "Xóa 信𠴍",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ]
-      ]
-    },
-    "messageEdited": {
-      "before": "Đã chỉnh sửa tin nhắn",
-      "after": "㐌 chỉnh sửa 信𠴍",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ]
-      ]
-    },
-    "editMessageFailed": {
-      "before": "Không thể chỉnh sửa tin nhắn",
-      "after": "空体 chỉnh sửa 信𠴍",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ]
-      ]
-    },
-    "deleteForMe": {
-      "before": "Chỉ xóa với tôi",
-      "after": "只 xóa 貝 tôi",
-      "provenance": [
-        [
-          "source-word",
-          "chỉ",
-          "只",
-          1
-        ],
-        [
-          "source-word",
-          "với",
-          "貝",
-          1
-        ]
-      ]
-    },
-    "deleteForMeDescription": {
-      "before": "Tin nhắn chỉ biến mất khỏi lịch sử trò chuyện của bạn",
-      "after": "信𠴍只變𠅒 khỏi 歷史 trò chuyện của 伴",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-phrase",
-          "biến mất",
-          "變𠅒",
-          1
-        ],
-        [
-          "source-phrase",
-          "lịch sử",
-          "歷史",
-          1
-        ],
-        [
-          "source-word",
-          "chỉ",
-          "只",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "deleteForEveryone": {
-      "before": "Xóa với mọi người",
-      "after": "Xóa 貝𤗆𠊛",
-      "provenance": [
-        [
-          "source-phrase",
-          "mọi người",
-          "𤗆𠊛",
-          1
-        ],
-        [
-          "source-word",
-          "với",
-          "貝",
-          1
-        ]
-      ]
-    },
-    "deleteForBoth": {
-      "before": "Xóa cho cả hai",
-      "after": "Xóa 朱 cả hai",
-      "provenance": [
-        [
-          "source-word",
-          "cho",
-          "朱",
-          1
-        ]
-      ]
-    },
-    "deleteForEveryoneDescription": {
-      "before": "Tin nhắn sẽ bị xóa khỏi cuộc trò chuyện của tất cả thành viên nhóm",
-      "after": "信𠴍 sẽ bị xóa khỏi cuộc trò chuyện của 悉𪥘󠄁 thành viên 𡖡",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-phrase",
-          "tất cả",
-          "悉𪥘󠄁",
-          1
-        ],
-        [
-          "source-word",
-          "nhóm",
-          "𡖡",
-          1
-        ]
-      ]
-    },
-    "deleteForBothDescription": {
-      "before": "Tin nhắn sẽ bị xóa khỏi lịch sử trò chuyện của cả hai bên",
-      "after": "信𠴍 sẽ bị xóa khỏi 歷史 trò chuyện của cả hai bên",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-phrase",
-          "lịch sử",
-          "歷史",
-          1
-        ]
-      ]
-    },
-    "deleteMessageFailed": {
-      "before": "Không thể xóa tin nhắn",
-      "after": "空体 xóa 信𠴍",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ]
-      ]
-    },
-    "deleteForEveryoneTitle": {
-      "before": "Xóa tin nhắn này với mọi người?",
-      "after": "Xóa 信𠴍 này 貝𤗆𠊛?",
-      "provenance": [
-        [
-          "source-phrase",
-          "mọi người",
-          "𤗆𠊛",
-          1
-        ],
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-word",
-          "với",
-          "貝",
-          1
-        ]
-      ]
-    },
-    "deleteForBothTitle": {
-      "before": "Xóa tin nhắn này cho cả hai?",
-      "after": "Xóa 信𠴍 này 朱 cả hai?",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-word",
-          "cho",
-          "朱",
-          1
-        ]
-      ]
-    },
-    "deleteForEveryoneConfirm": {
-      "before": "Tin nhắn này sẽ bị xóa khỏi cuộc trò chuyện của tất cả thành viên nhóm.",
-      "after": "信𠴍 này sẽ bị xóa khỏi cuộc trò chuyện của 悉𪥘󠄁 thành viên 𡖡.",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-phrase",
-          "tất cả",
-          "悉𪥘󠄁",
-          1
-        ],
-        [
-          "source-word",
-          "nhóm",
-          "𡖡",
-          1
-        ]
-      ]
-    },
-    "deleteForBothConfirm": {
-      "before": "Tin nhắn này sẽ bị xóa khỏi lịch sử trò chuyện của cả hai bên.",
-      "after": "信𠴍 này sẽ bị xóa khỏi 歷史 trò chuyện của cả hai bên.",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-phrase",
-          "lịch sử",
-          "歷史",
-          1
-        ]
-      ]
-    },
-    "shareLiveTyping": {
-      "before": "Chia sẻ nội dung đang nhập",
-      "after": "𢺹𢩿內容當入",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "shareLiveTypingDescription": {
-      "before": "Các thành viên khác có thể xem nội dung bạn đang nhập theo thời gian thực.",
-      "after": "Các thành viên 恪固体䀡內容伴當入 theo 時間 thực.",
-      "provenance": [
-        [
-          "source-phrase",
-          "thời gian",
-          "時間",
-          1
-        ],
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-word",
-          "khác",
-          "恪",
-          1
-        ],
-        [
-          "source-word",
-          "xem",
-          "䀡",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ],
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "settingsSaveFailed": {
-      "before": "Không thể lưu cài đặt. Vui lòng thử lại.",
-      "after": "空体 lưu 掑撻. 𢝙𢚸 thử lại.",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-phrase",
-          "vui lòng",
-          "𢝙𢚸",
-          1
-        ],
-        [
-          "source-phrase",
-          "cài đặt",
-          "掑撻",
-          1
-        ]
-      ]
-    },
-    "pleaseSignIn": {
-      "before": "Vui lòng đăng nhập trước",
-      "after": "𢝙𢚸 đăng 入𠓀",
-      "provenance": [
-        [
-          "source-phrase",
-          "vui lòng",
-          "𢝙𢚸",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ],
-        [
-          "source-word",
-          "trước",
-          "𠓀",
-          1
-        ]
-      ]
-    },
-    "peerProfileNotReady": {
-      "before": "Hồ sơ của người kia vẫn đang được tải",
-      "after": "糊疏 của người kia vẫn 當得載",
-      "provenance": [
-        [
-          "source-phrase",
-          "hồ sơ",
-          "糊疏",
-          1
-        ],
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "typing": {
-      "before": "Đang nhập",
-      "after": "當入",
-      "provenance": [
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "morePeopleTyping": {
-      "before": "Có thêm {count} người đang nhập",
-      "after": "固添 {count} người 當入",
-      "provenance": [
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "thêm",
-          "添",
-          1
-        ],
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "voiceCallComingSoon": {
-      "before": "Tính năng gọi thoại đang được phát triển",
-      "after": "Tính năng gọi thoại 當得發展",
-      "provenance": [
-        [
-          "source-phrase",
-          "phát triển",
-          "發展",
-          1
-        ],
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ]
-      ]
-    },
-    "videoCallComingSoon": {
-      "before": "Tính năng gọi video đang được phát triển",
-      "after": "Tính năng gọi video 當得發展",
-      "provenance": [
-        [
-          "source-phrase",
-          "phát triển",
-          "發展",
-          1
-        ],
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ]
-      ]
-    },
-    "noMessagesStartChat": {
-      "before": "Chưa có tin nhắn. Hãy bắt đầu trò chuyện!",
-      "after": "𣗓固信𠴍. 唉 bắt đầu trò chuyện!",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ]
-      ]
-    },
-    "messageDeleted": {
-      "before": "Tin nhắn này đã bị xóa",
-      "after": "信𠴍 này 㐌 bị xóa",
-      "provenance": [
-        [
-          "source-phrase",
-          "tin nhắn",
-          "信𠴍",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ]
-      ]
-    },
-    "editedAt": {
-      "before": "Đã sửa · {time}",
-      "after": "㐌 sửa · {time}",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ]
-      ]
-    },
-    "aiTranslationFailed": {
-      "before": "Dịch bằng AI thất bại. Vui lòng thử lại.",
-      "after": "Dịch bằng AI 失敗. 𢝙𢚸 thử lại.",
-      "provenance": [
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-phrase",
-          "vui lòng",
-          "𢝙𢚸",
-          1
-        ]
-      ]
-    },
-    "completeTranslationFirst": {
-      "before": "Vui lòng hoàn tất bản dịch trước",
-      "after": "𢝙𢚸完畢 bản dịch 𠓀",
-      "provenance": [
-        [
-          "source-phrase",
-          "vui lòng",
-          "𢝙𢚸",
-          1
-        ],
-        [
-          "source-phrase",
-          "hoàn tất",
-          "完畢",
-          1
-        ],
-        [
-          "source-word",
-          "trước",
-          "𠓀",
-          1
-        ]
-      ]
-    },
-    "translationSavedToNotes": {
-      "before": "Đã lưu bản dịch vào ghi chú",
-      "after": "㐌 lưu bản dịch vào 𥱬註",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ]
-      ]
-    },
-    "saveToNotesFailed": {
-      "before": "Không thể lưu bản dịch vào ghi chú",
-      "after": "空体 lưu bản dịch vào 𥱬註",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ]
-      ]
-    },
-    "languageVersionPublished": {
-      "before": "Đã đăng phiên bản {language}",
-      "after": "㐌 đăng 翻版 {language}",
-      "provenance": [
-        [
-          "source-phrase",
-          "phiên bản",
-          "翻版",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ]
-      ]
-    },
-    "publishTranslationFailed": {
-      "before": "Không thể đăng bản dịch",
-      "after": "空体 đăng bản dịch",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ]
-      ]
-    },
-    "saving": {
-      "before": "Đang lưu...",
-      "after": "當 lưu...",
-      "provenance": [
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ]
-      ]
-    },
-    "saveToNotes": {
-      "before": "Lưu vào ghi chú",
-      "after": "Lưu vào 𥱬註",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ]
-      ]
-    },
-    "publishing": {
-      "before": "Đang đăng...",
-      "after": "當 đăng...",
-      "provenance": [
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ]
-      ]
-    },
-    "aiGeneratingTranslation": {
-      "before": "AI đang tạo bản dịch...",
-      "after": "AI 當造 bản dịch...",
-      "provenance": [
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "tạo",
-          "造",
-          1
-        ]
-      ]
-    },
-    "aiTranslationPreview": {
-      "before": "Xem trước bản dịch AI",
-      "after": "䀡𠓀 bản dịch AI",
-      "provenance": [
-        [
-          "source-word",
-          "xem",
-          "䀡",
-          1
-        ],
-        [
-          "source-word",
-          "trước",
-          "𠓀",
-          1
-        ]
-      ]
-    },
-    "bodyLabel": {
-      "before": "Nội dung",
-      "after": "內容",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ]
-      ]
-    },
-    "originalTitle": {
-      "before": "Tiêu đề gốc",
-      "after": "標題㭲",
-      "provenance": [
-        [
-          "source-phrase",
-          "tiêu đề",
-          "標題",
-          1
-        ],
-        [
-          "source-word",
-          "gốc",
-          "㭲",
-          1
-        ]
-      ]
-    },
-    "editTranslationTitle": {
-      "before": "Sửa tiêu đề bản dịch",
-      "after": "Sửa 標題 bản dịch",
-      "provenance": [
-        [
-          "source-phrase",
-          "tiêu đề",
-          "標題",
-          1
-        ]
-      ]
-    },
-    "translationTitle": {
-      "before": "Tiêu đề bản dịch",
-      "after": "標題 bản dịch",
-      "provenance": [
-        [
-          "source-phrase",
-          "tiêu đề",
-          "標題",
-          1
-        ]
-      ]
-    },
-    "originalText": {
-      "before": "Văn bản gốc",
-      "after": "Văn bản 㭲",
-      "provenance": [
-        [
-          "source-word",
-          "gốc",
-          "㭲",
-          1
-        ]
-      ]
-    },
-    "editTranslationContent": {
-      "before": "Sửa nội dung bản dịch",
-      "after": "Sửa 內容 bản dịch",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ]
-      ]
-    },
-    "translationContent": {
-      "before": "Nội dung bản dịch",
-      "after": "內容 bản dịch",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ]
-      ]
-    },
-    "discardChanges": {
-      "before": "Bỏ thay đổi",
-      "after": "𠬃𠊝𢷮",
-      "provenance": [
-        [
-          "source-phrase",
-          "thay đổi",
-          "𠊝𢷮",
-          1
-        ],
-        [
-          "source-word",
-          "bỏ",
-          "𠬃",
-          1
-        ]
-      ]
-    },
-    "publishLanguageVersion": {
-      "before": "Đăng phiên bản ngôn ngữ",
-      "after": "Đăng 翻版言語",
-      "provenance": [
-        [
-          "source-phrase",
-          "phiên bản",
-          "翻版",
-          1
-        ],
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ]
-      ]
-    },
-    "userNotFound": {
-      "before": "Không tìm thấy người dùng",
-      "after": "Không 尋 thấy người dùng",
-      "provenance": [
-        [
-          "source-word",
-          "tìm",
-          "尋",
-          1
-        ]
-      ]
-    },
-    "viewSharedNotesWithUser": {
-      "before": "Xem ghi chú được chia sẻ với {name}",
-      "after": "䀡𥱬註得𢺹𢩿貝 {name}",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "xem",
-          "䀡",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ],
-        [
-          "source-word",
-          "với",
-          "貝",
-          1
-        ]
-      ]
-    },
-    "friendMessageAction": {
-      "before": "Bạn bè · Nhắn tin",
-      "after": "伴佊 · Nhắn tin",
-      "provenance": [
-        [
-          "source-phrase",
-          "bạn bè",
-          "伴佊",
-          1
-        ]
-      ]
-    },
-    "friendRequestPending": {
-      "before": "Đã gửi lời mời kết bạn",
-      "after": "㐌寄 lời mời kết 伴",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "acceptFriendRequest": {
-      "before": "Chấp nhận lời mời kết bạn",
-      "after": "Chấp nhận lời mời kết 伴",
-      "provenance": [
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "categoryName14": {
-      "before": "Y học",
-      "after": "Y 學",
-      "provenance": [
-        [
-          "source-word",
-          "học",
-          "學",
-          1
-        ]
-      ]
-    },
-    "categoryMedicine": {
-      "before": "Y học",
-      "after": "Y 學",
-      "provenance": [
-        [
-          "source-word",
-          "học",
-          "學",
-          1
-        ]
-      ]
-    },
-    "categoryMobileDevelopment": {
-      "before": "Phát triển di động",
-      "after": "發展 di động",
-      "provenance": [
-        [
-          "source-phrase",
-          "phát triển",
-          "發展",
-          1
-        ]
-      ]
-    },
-    "categoryWebDevelopment": {
-      "before": "Phát triển Web",
-      "after": "發展 Web",
-      "provenance": [
-        [
-          "source-phrase",
-          "phát triển",
-          "發展",
-          1
-        ]
-      ]
-    },
-    "categoryBackendDevelopment": {
-      "before": "Phát triển backend",
-      "after": "發展 backend",
-      "provenance": [
-        [
-          "source-phrase",
-          "phát triển",
-          "發展",
-          1
-        ]
-      ]
-    },
-    "categoryDatabaseDevelopment": {
-      "before": "Cơ sở dữ liệu",
-      "after": "Cơ sở 與料",
-      "provenance": [
-        [
-          "source-phrase",
-          "dữ liệu",
-          "與料",
-          1
-        ]
-      ]
-    },
-    "categoryFilm": {
-      "before": "Điện ảnh",
-      "after": "Điện 影",
-      "provenance": [
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "categoryPediatrics": {
-      "before": "Nhi khoa",
-      "after": "兒科",
-      "provenance": [
-        [
-          "source-phrase",
-          "nhi khoa",
-          "兒科",
-          1
-        ]
-      ]
-    },
-    "categoryPsychiatry": {
-      "before": "Tâm thần học",
-      "after": "Tâm thần 學",
-      "provenance": [
-        [
-          "source-word",
-          "học",
-          "學",
-          1
-        ]
-      ]
-    },
-    "allLanguages": {
-      "before": "Tất cả ngôn ngữ",
-      "after": "悉𪥘󠄁 言語",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-phrase",
-          "tất cả",
-          "悉𪥘󠄁",
-          1
-        ]
-      ]
-    },
-    "unspecifiedLanguage": {
-      "before": "Chưa chỉ định ngôn ngữ",
-      "after": "𣗓只 định 言語",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "chỉ",
-          "只",
-          1
-        ]
-      ]
-    },
-    "notSelected": {
-      "before": "Chưa chọn",
-      "after": "𣗓譔",
-      "provenance": [
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "allCategories": {
-      "before": "Tất cả danh mục",
-      "after": "悉𪥘󠄁 danh mục",
-      "provenance": [
-        [
-          "source-phrase",
-          "tất cả",
-          "悉𪥘󠄁",
-          1
-        ]
-      ]
-    },
-    "uncategorized": {
-      "before": "Chưa phân loại",
-      "after": "𣗓分類",
-      "provenance": [
-        [
-          "source-phrase",
-          "phân loại",
-          "分類",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ]
-      ]
-    },
-    "selectCategory": {
-      "before": "Chọn danh mục",
-      "after": "譔 danh mục",
-      "provenance": [
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "noteLanguage": {
-      "before": "Ngôn ngữ ghi chú",
-      "after": "言語𥱬註",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ]
-      ]
-    },
-    "noteCategory": {
-      "before": "Danh mục ghi chú",
-      "after": "Danh mục 𥱬註",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ]
-      ]
-    },
-    "sharing": {
-      "before": "Chia sẻ",
-      "after": "𢺹𢩿",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ]
-      ]
-    },
-    "onlyMe": {
-      "before": "Chỉ mình tôi",
-      "after": "只 mình tôi",
-      "provenance": [
-        [
-          "source-word",
-          "chỉ",
-          "只",
-          1
-        ]
-      ]
-    },
-    "selectedPeople": {
-      "before": "Đã chọn {count} người",
-      "after": "㐌譔 {count} người",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "newNoteConfigDescription": {
-      "before": "Bạn có thể đặt thông tin ghi chú ngay bây giờ hoặc thay đổi sau.",
-      "after": "伴固体撻 thông tin 𥱬註 ngay 𣊾𣇞或𠊝𢷮𢖖󠄁.",
-      "provenance": [
-        [
-          "source-phrase",
-          "thay đổi",
-          "𠊝𢷮",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-phrase",
-          "bây giờ",
-          "𣊾𣇞",
-          1
-        ],
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ],
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ],
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ],
-        [
-          "source-word",
-          "sau",
-          "𢖖󠄁",
-          1
-        ]
-      ]
-    },
-    "createNote": {
-      "before": "Tạo ghi chú",
-      "after": "造𥱬註",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "tạo",
-          "造",
-          1
-        ]
-      ]
-    },
-    "myNotes": {
-      "before": "Ghi chú của tôi",
-      "after": "𥱬註 của tôi",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ]
-      ]
-    },
-    "noMatchingNotes": {
-      "before": "Không có ghi chú phù hợp với bộ lọc",
-      "after": "空固𥱬註符合貝 bộ lọc",
-      "provenance": [
-        [
-          "source-phrase",
-          "không có",
-          "空固",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-phrase",
-          "phù hợp",
-          "符合",
-          1
-        ],
-        [
-          "source-word",
-          "với",
-          "貝",
-          1
-        ]
-      ]
-    },
-    "noNotesYet": {
-      "before": "Chưa có ghi chú",
-      "after": "𣗓固𥱬註",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ]
-      ]
-    },
-    "tapFabToCreateNote": {
-      "before": "Nhấn nút góc dưới bên phải để tạo ghi chú",
-      "after": "扨𨨷 góc dưới 邊沛抵造𥱬註",
-      "provenance": [
-        [
-          "source-phrase",
-          "bên phải",
-          "邊沛",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "nhấn",
-          "扨",
-          1
-        ],
-        [
-          "source-word",
-          "nút",
-          "𨨷",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ],
-        [
-          "source-word",
-          "tạo",
-          "造",
-          1
-        ]
-      ]
-    },
-    "privateNote": {
-      "before": "Chỉ bạn có thể xem",
-      "after": "只伴固体䀡",
-      "provenance": [
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-word",
-          "chỉ",
-          "只",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ],
-        [
-          "source-word",
-          "xem",
-          "䀡",
-          1
-        ]
-      ]
-    },
-    "sharedWithUser": {
-      "before": "Chia sẻ với {name}",
-      "after": "𢺹𢩿貝 {name}",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-word",
-          "với",
-          "貝",
-          1
-        ]
-      ]
-    },
-    "sharedWithUsers": {
-      "before": "Chia sẻ với {names}",
-      "after": "𢺹𢩿貝 {names}",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-word",
-          "với",
-          "貝",
-          1
-        ]
-      ]
-    },
-    "sharedWithMany": {
-      "before": "Chia sẻ với {names} và tổng cộng {count} người",
-      "after": "𢺹𢩿貝 {names} và 總共 {count} người",
-      "provenance": [
-        [
-          "source-phrase",
-          "tổng cộng",
-          "總共",
-          1
-        ],
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-word",
-          "với",
-          "貝",
-          1
-        ]
-      ]
-    },
-    "sharedMembers": {
-      "before": "Thành viên được chia sẻ",
-      "after": "Thành viên 得𢺹𢩿",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ]
-      ]
-    },
-    "searchNicknameOrUsername": {
-      "before": "Tìm biệt danh hoặc tên người dùng",
-      "after": "尋 biệt danh 或𠸜 người dùng",
-      "provenance": [
-        [
-          "source-word",
-          "tìm",
-          "尋",
-          1
-        ],
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ],
-        [
-          "source-word",
-          "tên",
-          "𠸜",
-          1
-        ]
-      ]
-    },
-    "noUsersFound": {
-      "before": "Không tìm thấy người dùng",
-      "after": "Không 尋 thấy người dùng",
-      "provenance": [
-        [
-          "source-word",
-          "tìm",
-          "尋",
-          1
-        ]
-      ]
-    },
-    "chatPeerNotFound": {
-      "before": "Không tìm thấy người trò chuyện",
-      "after": "Không 尋 thấy người trò chuyện",
-      "provenance": [
-        [
-          "source-word",
-          "tìm",
-          "尋",
-          1
-        ]
-      ]
-    },
-    "editingNotAllowed": {
-      "before": "Người tạo chưa cho phép chỉnh sửa",
-      "after": "Người 造𣗓朱法 chỉnh sửa",
-      "provenance": [
-        [
-          "source-phrase",
-          "cho phép",
-          "朱法",
-          1
-        ],
-        [
-          "source-word",
-          "tạo",
-          "造",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ]
-      ]
-    },
-    "noteImageLimit": {
-      "before": "Mỗi ghi chú có thể chứa tối đa 9 ảnh",
-      "after": "Mỗi 𥱬註固体貯最多 9 影",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-phrase",
-          "tối đa",
-          "最多",
-          1
-        ],
-        [
-          "source-word",
-          "chứa",
-          "貯",
-          1
-        ],
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "selectPostCategory": {
-      "before": "Chọn danh mục bài viết",
-      "after": "譔 danh mục bài 𢪏",
-      "provenance": [
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "choosePrimaryLanguage": {
-      "before": "Chọn ngôn ngữ chính",
-      "after": "譔言語 chính",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "notePublishedAsPost": {
-      "before": "Đã đăng ghi chú thành bài viết",
-      "after": "㐌 đăng 𥱬註 thành bài 𢪏",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "deleteSharedNote": {
-      "before": "Xóa ghi chú được chia sẻ?",
-      "after": "Xóa 𥱬註得𢺹𢩿?",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ]
-      ]
-    },
-    "deleteSharedNoteDescription": {
-      "before": "Sau khi xóa, ghi chú này sẽ biến mất khỏi danh sách ghi chú của cả hai bên.",
-      "after": "𢖖󠄁 khi xóa, 𥱬註 này sẽ 變𠅒 khỏi danh sách 𥱬註 của cả hai bên.",
-      "provenance": [
-        [
-          "source-phrase",
-          "biến mất",
-          "變𠅒",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          2
-        ],
-        [
-          "source-word",
-          "sau",
-          "𢖖󠄁",
-          1
-        ]
-      ]
-    },
-    "publishAsPost": {
-      "before": "Đăng thành bài viết",
-      "after": "Đăng thành bài 𢪏",
-      "provenance": [
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "publishAsPostDescription": {
-      "before": "Dùng danh mục của ghi chú, chọn ngôn ngữ chính rồi chuyển sang màn hình đăng bài",
-      "after": "Dùng danh mục của 𥱬註, 譔言語 chính rồi chuyển sang màn hình đăng bài",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "postCategory": {
-      "before": "Danh mục bài viết",
-      "after": "Danh mục bài 𢪏",
-      "provenance": [
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "sharedWithCount": {
-      "before": "Đã chia sẻ với {count} người",
-      "after": "㐌𢺹𢩿貝 {count} người",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "với",
-          "貝",
-          1
-        ]
-      ]
-    },
-    "membersCount": {
-      "before": "Tổng {count} người",
-      "after": "總 {count} người",
-      "provenance": [
-        [
-          "source-word",
-          "tổng",
-          "總",
-          1
-        ]
-      ]
-    },
-    "allowSharedMembersEdit": {
-      "before": "Cho phép thành viên được chia sẻ chỉnh sửa",
-      "after": "朱法 thành viên 得𢺹𢩿 chỉnh sửa",
-      "provenance": [
-        [
-          "source-phrase",
-          "cho phép",
-          "朱法",
-          1
-        ],
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ]
-      ]
-    },
-    "sharedMembersCanEdit": {
-      "before": "Thành viên được chia sẻ có thể sửa văn bản và hình ảnh",
-      "after": "Thành viên 得𢺹𢩿固体 sửa văn bản và 形影",
-      "provenance": [
-        [
-          "source-phrase",
-          "hình ảnh",
-          "形影",
-          1
-        ],
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ]
-      ]
-    },
-    "sharedMembersViewOnly": {
-      "before": "Thành viên được chia sẻ chỉ có thể xem ghi chú này",
-      "after": "Thành viên 得𢺹𢩿只固体䀡𥱬註 này",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ],
-        [
-          "source-word",
-          "chỉ",
-          "只",
-          1
-        ],
-        [
-          "source-word",
-          "xem",
-          "䀡",
-          1
-        ]
-      ]
-    },
-    "canEditThisNote": {
-      "before": "Bạn có thể chỉnh sửa ghi chú này",
-      "after": "伴固体 chỉnh sửa 𥱬註 này",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "readOnlyNote": {
-      "before": "Ghi chú này chỉ có thể xem",
-      "after": "𥱬註 này 只固体䀡",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-word",
-          "chỉ",
-          "只",
-          1
-        ],
-        [
-          "source-word",
-          "xem",
-          "䀡",
-          1
-        ]
-      ]
-    },
-    "deleteNote": {
-      "before": "Xóa ghi chú",
-      "after": "Xóa 𥱬註",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ]
-      ]
-    },
-    "sharedNote": {
-      "before": "Ghi chú được chia sẻ",
-      "after": "𥱬註得𢺹𢩿",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ]
-      ]
-    },
-    "noteDeleted": {
-      "before": "Ghi chú này đã bị xóa",
-      "after": "𥱬註 này 㐌 bị xóa",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ]
-      ]
-    },
-    "insertImage": {
-      "before": "Chèn ảnh",
-      "after": "Chèn 影",
-      "provenance": [
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "noteSettings": {
-      "before": "Cài đặt ghi chú",
-      "after": "掑撻𥱬註",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-phrase",
-          "cài đặt",
-          "掑撻",
-          1
-        ]
-      ]
-    },
-    "noteTitle": {
-      "before": "Tiêu đề ghi chú",
-      "after": "標題𥱬註",
-      "provenance": [
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-phrase",
-          "tiêu đề",
-          "標題",
-          1
-        ]
-      ]
-    },
-    "noteContentHint": {
-      "before": "Nhập nội dung ghi chú…",
-      "after": "入內容𥱬註…",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "bookmarksLoadFailed": {
-      "before": "Không thể tải dấu trang",
-      "after": "空体載 dấu trang",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "reload": {
-      "before": "Tải lại",
-      "after": "載 lại",
-      "provenance": [
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "noBookmarks": {
-      "before": "Chưa có dấu trang",
-      "after": "𣗓固 dấu trang",
-      "provenance": [
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ]
-      ]
-    },
-    "noBookmarksDescription": {
-      "before": "Các bài viết bạn đánh dấu từ trang chi tiết sẽ xuất hiện ở đây.",
-      "after": "Các bài 𢪏伴 đánh dấu từ trang 枝節 sẽ xuất hiện ở đây.",
-      "provenance": [
-        [
-          "source-phrase",
-          "chi tiết",
-          "枝節",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "postImageLimit": {
-      "before": "Mỗi bài viết có thể chứa tối đa 9 ảnh",
-      "after": "Mỗi bài 𢪏固体貯最多 9 影",
-      "provenance": [
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-phrase",
-          "tối đa",
-          "最多",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ],
-        [
-          "source-word",
-          "chứa",
-          "貯",
-          1
-        ],
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "imagePlacement": {
-      "before": "Đặt ảnh ở đâu?",
-      "after": "撻影 ở đâu?",
-      "provenance": [
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ],
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "imagesAtTop": {
-      "before": "Ở đầu bài viết",
-      "after": "Ở đầu bài 𢪏",
-      "provenance": [
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "imagesAtTopDescription": {
-      "before": "Giữ cách hiển thị ảnh ở đầu bài như hiện tại",
-      "after": "Giữ cách 顯示影 ở đầu bài như hiện tại",
-      "provenance": [
-        [
-          "source-phrase",
-          "hiển thị",
-          "顯示",
-          1
-        ],
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "insertIntoBody": {
-      "before": "Chèn vào nội dung",
-      "after": "Chèn vào 內容",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ]
-      ]
-    },
-    "insertIntoBodyDescription": {
-      "before": "Chèn tại vị trí con trỏ văn bản hiện tại",
-      "after": "Chèn tại 位置𡥵𢸫 văn bản hiện tại",
-      "provenance": [
-        [
-          "source-phrase",
-          "con trỏ",
-          "𡥵𢸫",
-          1
-        ],
-        [
-          "source-phrase",
-          "vị trí",
-          "位置",
-          1
-        ]
-      ]
-    },
-    "fillTitleAndContent": {
-      "before": "Hãy nhập tiêu đề và nội dung",
-      "after": "唉入標題 và 內容",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-phrase",
-          "tiêu đề",
-          "標題",
-          1
-        ],
-        [
-          "source-word",
-          "hãy",
-          "唉",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "postBodyLimit": {
-      "before": "Nội dung tối đa 5000 ký tự",
-      "after": "內容最多 5000 ký tự",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-phrase",
-          "tối đa",
-          "最多",
-          1
-        ]
-      ]
-    },
-    "publishedInChannel": {
-      "before": "Đã đăng trong kênh {language}",
-      "after": "㐌 đăng 𥪝涇 {language}",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "trong",
-          "𥪝",
-          1
-        ],
-        [
-          "source-word",
-          "kênh",
-          "涇",
-          1
-        ]
-      ]
-    },
-    "deleteImage": {
-      "before": "Xóa ảnh",
-      "after": "Xóa 影",
-      "provenance": [
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "deleteImageConfirm": {
-      "before": "Xóa ảnh này?",
-      "after": "Xóa 影 này?",
-      "provenance": [
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "postTitleHint": {
-      "before": "Nhập tiêu đề bài viết…",
-      "after": "入標題 bài 𢪏…",
-      "provenance": [
-        [
-          "source-phrase",
-          "tiêu đề",
-          "標題",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "postContentHint": {
-      "before": "Nhập nội dung bài viết…",
-      "after": "入內容 bài 𢪏…",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "optionalImages": {
-      "before": "Ảnh (không bắt buộc)",
-      "after": "影 (không bắt buộc)",
-      "provenance": [
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "insertingImage": {
-      "before": "Đang chèn ảnh…",
-      "after": "當 chèn 影…",
-      "provenance": [
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "limitReached": {
-      "before": "Đã đạt giới hạn",
-      "after": "㐌 đạt 界限",
-      "provenance": [
-        [
-          "source-phrase",
-          "giới hạn",
-          "界限",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ]
-      ]
-    },
-    "uploadingInlineImage": {
-      "before": "Đang tải lên và chèn ảnh vào nội dung…",
-      "after": "當載 lên và chèn 影 vào 內容…",
-      "provenance": [
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ],
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "uploadProgress": {
-      "before": "Đang tải lên {percent}%",
-      "after": "當載 lên {percent}%",
-      "provenance": [
-        [
-          "source-word",
-          "đang",
-          "當",
-          1
-        ],
-        [
-          "source-word",
-          "tải",
-          "載",
-          1
-        ]
-      ]
-    },
-    "postDetail": {
-      "before": "Chi tiết bài viết",
-      "after": "枝節 bài 𢪏",
-      "provenance": [
-        [
-          "source-phrase",
-          "chi tiết",
-          "枝節",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "postNotFound": {
-      "before": "Không tìm thấy bài viết",
-      "after": "Không 尋 thấy bài 𢪏",
-      "provenance": [
-        [
-          "source-word",
-          "tìm",
-          "尋",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "currentLanguageUnavailable": {
-      "before": "Không thể xác định ngôn ngữ hiện tại",
-      "after": "空体 xác định 言語 hiện tại",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ]
-      ]
-    },
-    "postUpdated": {
-      "before": "Đã cập nhật bài viết ✨",
-      "after": "㐌及日 bài 𢪏 ✨",
-      "provenance": [
-        [
-          "source-phrase",
-          "cập nhật",
-          "及日",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "bookmarkActionFailed": {
-      "before": "Thao tác dấu trang thất bại",
-      "after": "操作 dấu trang 失敗",
-      "provenance": [
-        [
-          "source-phrase",
-          "thất bại",
-          "失敗",
-          1
-        ],
-        [
-          "source-phrase",
-          "thao tác",
-          "操作",
-          1
-        ]
-      ]
-    },
-    "sharePost": {
-      "before": "Chia sẻ bài viết",
-      "after": "𢺹𢩿 bài 𢪏",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "postLinkCopied": {
-      "before": "Đã sao chép liên kết bài viết",
-      "after": "㐌抄劄連結 bài 𢪏",
-      "provenance": [
-        [
-          "source-phrase",
-          "liên kết",
-          "連結",
-          1
-        ],
-        [
-          "source-phrase",
-          "sao chép",
-          "抄劄",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "languageVersionAvailable": {
-      "before": "Đã có phiên bản ngôn ngữ · Nhấn để xem",
-      "after": "㐌固翻版言語 · 扨抵䀡",
-      "provenance": [
-        [
-          "source-phrase",
-          "phiên bản",
-          "翻版",
-          1
-        ],
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "nhấn",
-          "扨",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ],
-        [
-          "source-word",
-          "xem",
-          "䀡",
-          1
-        ]
-      ]
-    },
-    "noLanguageVersion": {
-      "before": "Chưa có phiên bản ngôn ngữ · Nhấn để dịch",
-      "after": "𣗓固翻版言語 · 扨抵 dịch",
-      "provenance": [
-        [
-          "source-phrase",
-          "phiên bản",
-          "翻版",
-          1
-        ],
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "nhấn",
-          "扨",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ]
-      ]
-    },
-    "chooseTranslationMethod": {
-      "before": "Chọn cách dịch",
-      "after": "譔 cách dịch",
-      "provenance": [
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "aiTranslationDescription": {
-      "before": "Bạn có thể chỉnh sửa bản dịch do AI tạo trước khi đăng",
-      "after": "伴固体 chỉnh sửa bản dịch 由 AI 造𠓀 khi đăng",
-      "provenance": [
-        [
-          "source-phrase",
-          "có thể",
-          "固体",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ],
-        [
-          "source-word",
-          "do",
-          "由",
-          1
-        ],
-        [
-          "source-word",
-          "tạo",
-          "造",
-          1
-        ],
-        [
-          "source-word",
-          "trước",
-          "𠓀",
-          1
-        ]
-      ]
-    },
-    "manualTranslationDescription": {
-      "before": "Bắt đầu từ bản dịch trống và tự nhập",
-      "after": "Bắt đầu từ bản dịch trống và tự 入",
-      "provenance": [
-        [
-          "source-word",
-          "nhập",
-          "入",
-          1
-        ]
-      ]
-    },
-    "deletePost": {
-      "before": "Xóa bài viết",
-      "after": "Xóa bài 𢪏",
-      "provenance": [
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "deletePostConfirm": {
-      "before": "Xóa bài viết này? Thao tác này không thể hoàn tác.",
-      "after": "Xóa bài 𢪏 này? 操作 này 空体 hoàn tác.",
-      "provenance": [
-        [
-          "source-phrase",
-          "không thể",
-          "空体",
-          1
-        ],
-        [
-          "source-phrase",
-          "thao tác",
-          "操作",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "postDeleted": {
-      "before": "Đã xóa bài viết",
-      "after": "㐌 xóa bài 𢪏",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "deleteThisImage": {
-      "before": "Xóa ảnh này",
-      "after": "Xóa 影 này",
-      "provenance": [
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "appendMoreImages": {
-      "before": "Thêm ảnh",
-      "after": "添影",
-      "provenance": [
-        [
-          "source-word",
-          "thêm",
-          "添",
-          1
-        ],
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "reportSubmitted": {
-      "before": "Đã gửi báo cáo. Cảm ơn phản hồi của bạn.",
-      "after": "㐌寄 báo cáo. Cảm ơn phản hồi của 伴.",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "gửi",
-          "寄",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "details": {
-      "before": "Chi tiết",
-      "after": "枝節",
-      "provenance": [
-        [
-          "source-phrase",
-          "chi tiết",
-          "枝節",
-          1
-        ]
-      ]
-    },
-    "finishSorting": {
-      "before": "Hoàn tất sắp xếp",
-      "after": "完畢 sắp xếp",
-      "provenance": [
-        [
-          "source-phrase",
-          "hoàn tất",
-          "完畢",
-          1
-        ]
-      ]
-    },
-    "reorderImages": {
-      "before": "Sắp xếp lại ảnh",
-      "after": "Sắp xếp lại 影",
-      "provenance": [
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "editPost": {
-      "before": "Chỉnh sửa bài viết",
-      "after": "Chỉnh sửa bài 𢪏",
-      "provenance": [
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ]
-      ]
-    },
-    "holdDragToReorder": {
-      "before": "Nhấn giữ tay cầm bên phải rồi kéo để sắp xếp",
-      "after": "扨 giữ tay cầm 邊沛 rồi kéo 抵 sắp xếp",
-      "provenance": [
-        [
-          "source-phrase",
-          "bên phải",
-          "邊沛",
-          1
-        ],
-        [
-          "source-word",
-          "nhấn",
-          "扨",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ]
-      ]
-    },
-    "imageNumber": {
-      "before": "Ảnh {index}",
-      "after": "影 {index}",
-      "provenance": [
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "translationVersion": {
-      "before": "Phiên bản dịch",
-      "after": "翻版 dịch",
-      "provenance": [
-        [
-          "source-phrase",
-          "phiên bản",
-          "翻版",
-          1
-        ]
-      ]
-    },
-    "translationPublishedAt": {
-      "before": "Bản dịch được đăng lúc {time}",
-      "after": "Bản dịch 得 đăng lúc {time}",
-      "provenance": [
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ]
-      ]
-    },
-    "modifiedAt": {
-      "before": "Đã sửa lúc {time}",
-      "after": "㐌 sửa lúc {time}",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ]
-      ]
-    },
-    "mainLanguage": {
-      "before": "Ngôn ngữ chính",
-      "after": "言語 chính",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ]
-      ]
-    },
-    "titleRequired": {
-      "before": "Tiêu đề không được để trống",
-      "after": "標題空得抵 trống",
-      "provenance": [
-        [
-          "source-phrase",
-          "không được",
-          "空得",
-          1
-        ],
-        [
-          "source-phrase",
-          "tiêu đề",
-          "標題",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ]
-      ]
-    },
-    "contentRequired": {
-      "before": "Nội dung không được để trống",
-      "after": "內容空得抵 trống",
-      "provenance": [
-        [
-          "source-phrase",
-          "không được",
-          "空得",
-          1
-        ],
-        [
-          "source-phrase",
-          "nội dung",
-          "內容",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ]
-      ]
-    },
-    "topImages": {
-      "before": "Ảnh đầu bài",
-      "after": "影 đầu bài",
-      "provenance": [
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "noTopImages": {
-      "before": "Chưa có ảnh đầu bài",
-      "after": "𣗓固影 đầu bài",
-      "provenance": [
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "có",
-          "固",
-          1
-        ],
-        [
-          "source-word",
-          "ảnh",
-          "影",
-          1
-        ]
-      ]
-    },
-    "close": {
-      "before": "Đóng",
-      "after": "㨂",
-      "provenance": [
-        [
-          "source-word",
-          "đóng",
-          "㨂",
-          1
-        ]
-      ]
-    },
-    "myNotesDescription": {
-      "before": "Xem và quản lý tất cả ghi chú được chia sẻ",
-      "after": "䀡 và quản lý 悉𪥘󠄁 𥱬註得𢺹𢩿",
-      "provenance": [
-        [
-          "source-phrase",
-          "chia sẻ",
-          "𢺹𢩿",
-          1
-        ],
-        [
-          "source-phrase",
-          "ghi chú",
-          "𥱬註",
-          1
-        ],
-        [
-          "source-phrase",
-          "tất cả",
-          "悉𪥘󠄁",
-          1
-        ],
-        [
-          "source-word",
-          "xem",
-          "䀡",
-          1
-        ],
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ]
-      ]
-    },
-    "bookmarksDescription": {
-      "before": "Xem các bài viết đã đánh dấu",
-      "after": "䀡 các bài 𢪏㐌 đánh dấu",
-      "provenance": [
-        [
-          "source-word",
-          "xem",
-          "䀡",
-          1
-        ],
-        [
-          "source-word",
-          "viết",
-          "𢪏",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ]
-      ]
-    },
-    "selectedCount": {
-      "before": "Đã chọn ({count})",
-      "after": "㐌譔 ({count})",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "chooseKnownLanguages": {
-      "before": "Chọn các ngôn ngữ bạn biết",
-      "after": "譔 các 言語伴 biết",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ],
-        [
-          "source-word",
-          "bạn",
-          "伴",
-          1
-        ]
-      ]
-    },
-    "languageCount": {
-      "before": "Đã chọn {count} ngôn ngữ",
-      "after": "㐌譔 {count} 言語",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "searchResults": {
-      "before": "Kết quả tìm kiếm",
-      "after": "結果尋 kiếm",
-      "provenance": [
-        [
-          "source-phrase",
-          "kết quả",
-          "結果",
-          1
-        ],
-        [
-          "source-word",
-          "tìm",
-          "尋",
-          1
-        ]
-      ]
-    },
-    "remove": {
-      "before": "Gỡ",
-      "after": "攑",
-      "provenance": [
-        [
-          "source-word",
-          "gỡ",
-          "攑",
-          1
-        ]
-      ]
-    },
-    "currentNativeLanguage": {
-      "before": "Hiện được đặt là tiếng mẹ đẻ",
-      "after": "Hiện 得撻 là tiếng mẹ đẻ",
-      "provenance": [
-        [
-          "source-word",
-          "được",
-          "得",
-          1
-        ],
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ]
-      ]
-    },
-    "changeToProficiency": {
-      "before": "Đổi sang mức độ thành thạo",
-      "after": "𢷮 sang mức độ thành thạo",
-      "provenance": [
-        [
-          "source-word",
-          "đổi",
-          "𢷮",
-          1
-        ]
-      ]
-    },
-    "setAsNativeLanguage": {
-      "before": "Đặt làm tiếng mẹ đẻ",
-      "after": "撻𫜵 tiếng mẹ đẻ",
-      "provenance": [
-        [
-          "source-word",
-          "đặt",
-          "撻",
-          1
-        ],
-        [
-          "source-word",
-          "làm",
-          "𫜵",
-          1
-        ]
-      ]
-    },
-    "noLanguagesSelected": {
-      "before": "Chưa chọn ngôn ngữ nào",
-      "after": "𣗓譔言語 nào",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "chưa",
-          "𣗓",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "addLanguagePrompt": {
-      "before": "Vào “Thêm ngôn ngữ” để tìm và chọn",
-      "after": "Vào “添言語” 抵尋 và 譔",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "thêm",
-          "添",
-          1
-        ],
-        [
-          "source-word",
-          "để",
-          "抵",
-          1
-        ],
-        [
-          "source-word",
-          "tìm",
-          "尋",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "searchOtherLanguagePrompt": {
-      "before": "Thử tên khác, mã ngôn ngữ hoặc hệ chữ",
-      "after": "Thử 𠸜恪, 碼言語或 hệ chữ",
-      "provenance": [
-        [
-          "source-phrase",
-          "ngôn ngữ",
-          "言語",
-          1
-        ],
-        [
-          "source-word",
-          "tên",
-          "𠸜",
-          1
-        ],
-        [
-          "source-word",
-          "khác",
-          "恪",
-          1
-        ],
-        [
-          "source-word",
-          "mã",
-          "碼",
-          1
-        ],
-        [
-          "source-word",
-          "hoặc",
-          "或",
-          1
-        ]
-      ]
-    },
-    "showMore": {
-      "before": "Xem thêm",
-      "after": "䀡添",
-      "provenance": [
-        [
-          "source-word",
-          "xem",
-          "䀡",
-          1
-        ],
-        [
-          "source-word",
-          "thêm",
-          "添",
-          1
-        ]
-      ]
-    },
-    "selectedTagsCount": {
-      "before": "Thẻ đã chọn ({count}/10)",
-      "after": "Thẻ 㐌譔 ({count}/10)",
-      "provenance": [
-        [
-          "source-word",
-          "đã",
-          "㐌",
-          1
-        ],
-        [
-          "source-word",
-          "chọn",
-          "譔",
-          1
-        ]
-      ]
-    },
-    "copyLink": {
-      "before": "Sao chép liên kết",
-      "after": "抄劄連結",
-      "provenance": [
-        [
-          "source-phrase",
-          "liên kết",
-          "連結",
-          1
-        ],
-        [
-          "source-phrase",
-          "sao chép",
-          "抄劄",
-          1
-        ]
-      ]
-    }
-  },
+  "method": "source phrase/readings first; app-domain composites are explicitly editorial",
+  "changed_count_this_run": 260,
+  "remaining_count": 171,
+  "remaining_word_counts": [
+    [
+      "lại",
+      29
+    ],
+    [
+      "mật",
+      29
+    ],
+    [
+      "khẩu",
+      29
+    ],
+    [
+      "bài",
+      26
+    ],
+    [
+      "này",
+      24
+    ],
+    [
+      "đăng",
+      21
+    ],
+    [
+      "thử",
+      12
+    ],
+    [
+      "kết",
+      9
+    ],
+    [
+      "sẽ",
+      8
+    ],
+    [
+      "các",
+      7
+    ],
+    [
+      "bắt",
+      7
+    ],
+    [
+      "tự",
+      6
+    ],
+    [
+      "thấy",
+      5
+    ],
+    [
+      "ký",
+      5
+    ],
+    [
+      "ở",
+      5
+    ],
+    [
+      "chèn",
+      5
+    ],
+    [
+      "đánh",
+      3
+    ],
+    [
+      "lý",
+      3
+    ],
+    [
+      "là",
+      3
+    ],
+    [
+      "buộc",
+      3
+    ],
+    [
+      "khi",
+      3
+    ],
+    [
+      "rồi",
+      3
+    ],
+    [
+      "ít",
+      3
+    ],
+    [
+      "nhất",
+      3
+    ],
+    [
+      "thành",
+      3
+    ],
+    [
+      "quản",
+      2
+    ],
+    [
+      "quay",
+      2
+    ],
+    [
+      "sách",
+      2
+    ],
+    [
+      "rõ",
+      2
+    ],
+    [
+      "nào",
+      2
+    ],
+    [
+      "ngay",
+      2
+    ],
+    [
+      "theo",
+      2
+    ],
+    [
+      "mỗi",
+      2
+    ],
+    [
+      "sang",
+      2
+    ],
+    [
+      "tiếng",
+      2
+    ],
+    [
+      "duyệt",
+      1
+    ],
+    [
+      "bằng",
+      1
+    ],
+    [
+      "mà",
+      1
+    ],
+    [
+      "đa",
+      1
+    ],
+    [
+      "viện",
+      1
+    ],
+    [
+      "lấy",
+      1
+    ],
+    [
+      "biểu",
+      1
+    ],
+    [
+      "tượng",
+      1
+    ],
+    [
+      "trái",
+      1
+    ],
+    [
+      "xuống",
+      1
+    ],
+    [
+      "tới",
+      1
+    ],
+    [
+      "hán",
+      1
+    ],
+    [
+      "gạch",
+      1
+    ],
+    [
+      "công",
+      1
+    ],
+    [
+      "nhận",
+      1
+    ],
+    [
+      "xác",
+      1
+    ],
+    [
+      "minh",
+      1
+    ],
+    [
+      "bởi",
+      1
+    ],
+    [
+      "hợp",
+      1
+    ],
+    [
+      "lệ",
+      1
+    ],
+    [
+      "thiếu",
+      1
+    ],
+    [
+      "hóa",
+      1
+    ],
+    [
+      "kia",
+      1
+    ],
+    [
+      "vẫn",
+      1
+    ],
+    [
+      "thần",
+      1
+    ],
+    [
+      "chuyển",
+      1
+    ],
+    [
+      "xuất",
+      1
+    ],
+    [
+      "đây",
+      1
+    ],
+    [
+      "đâu",
+      1
+    ],
+    [
+      "như",
+      1
+    ],
+    [
+      "đạt",
+      1
+    ],
+    [
+      "biết",
+      1
+    ],
+    [
+      "kiếm",
+      1
+    ],
+    [
+      "thu",
+      1
+    ],
+    [
+      "gọn",
+      1
+    ]
+  ],
   "remaining": {
-    "selectWritingSystem": {
-      "value": "譔 hệ chữ",
-      "latin_words": [
-        "hệ",
-        "chữ"
-      ]
-    },
-    "nomWritingSystem": {
-      "value": "Chữ Nôm",
-      "latin_words": [
-        "Chữ",
-        "Nôm"
-      ]
-    },
     "recommendedOnlyInterests": {
-      "value": "只顯示內容伴㐌 chủ động đánh dấu quan tâm",
+      "value": "只顯示內容伴㐌主動 đánh 𨁪關心",
       "latin_words": [
-        "chủ",
-        "động",
-        "đánh",
-        "dấu",
-        "quan",
-        "tâm"
-      ]
-    },
-    "interestHomeTitle": {
-      "value": "Bảng tin 所適",
-      "latin_words": [
-        "Bảng",
-        "tin"
+        "đánh"
       ]
     },
     "interestHomeDesc": {
-      "value": "譔 chủ đề quan tâm 𥪝 các 涇 danh mục 抵 định hình bảng tin này",
+      "value": "譔主題關心𥪝 các 涇名目抵定形榜信 này",
       "latin_words": [
-        "chủ",
-        "đề",
-        "quan",
-        "tâm",
         "các",
-        "danh",
-        "mục",
-        "định",
-        "hình",
-        "bảng",
-        "tin",
         "này"
       ]
     },
-    "languageCommunity": {
-      "value": "Cộng đồng 言語",
-      "latin_words": [
-        "Cộng",
-        "đồng"
-      ]
-    },
-    "languageCommunityTagline": {
-      "value": "結綏言語, 所適 và 𤗆𠊛",
-      "latin_words": [
-        "và"
-      ]
-    },
-    "categoryChannels": {
-      "value": "涇 danh mục",
-      "latin_words": [
-        "danh",
-        "mục"
-      ]
-    },
     "categoryChannelsDesc": {
-      "value": "譔言語, duyệt chủ đề và 撻所適",
+      "value": "譔言語, duyệt 主題吧撻所適",
       "latin_words": [
-        "duyệt",
-        "chủ",
-        "đề",
-        "và"
+        "duyệt"
       ]
     },
     "exploreLanguageContent": {
-      "value": "Khám phá 內容 bằng nhiều 言語",
+      "value": "勘破內容 bằng 𡗉言語",
       "latin_words": [
-        "Khám",
-        "phá",
-        "bằng",
-        "nhiều"
-      ]
-    },
-    "selectTopics": {
-      "value": "Khám phá chủ đề",
-      "latin_words": [
-        "Khám",
-        "phá",
-        "chủ",
-        "đề"
+        "bằng"
       ]
     },
     "signInFirst": {
@@ -7321,55 +318,10 @@
         "lý"
       ]
     },
-    "interestCardLabel": {
-      "value": "chủ đề 當 định hình 份提出",
-      "latin_words": [
-        "chủ",
-        "đề",
-        "định",
-        "hình"
-      ]
-    },
-    "following": {
-      "value": "當 quan tâm",
-      "latin_words": [
-        "quan",
-        "tâm"
-      ]
-    },
-    "addInterest": {
-      "value": "添 vào 所適",
-      "latin_words": [
-        "vào"
-      ]
-    },
-    "removeInterest": {
-      "value": "𠬃 khỏi 所適",
-      "latin_words": [
-        "khỏi"
-      ]
-    },
-    "interestSummary": {
-      "value": "{selected}/{total} chủ đề 當影響 đến 提出",
-      "latin_words": [
-        "chủ",
-        "đề",
-        "đến"
-      ]
-    },
     "publishGeneralLanguageLearning": {
-      "value": "Đăng chủ đề 學言語終",
+      "value": "Đăng 主題學言語終",
       "latin_words": [
-        "Đăng",
-        "chủ",
-        "đề"
-      ]
-    },
-    "publishPost": {
-      "value": "Đăng bài",
-      "latin_words": [
-        "Đăng",
-        "bài"
+        "Đăng"
       ]
     },
     "noLanguagePosts": {
@@ -7379,228 +331,104 @@
       ]
     },
     "languageLearningRootEmpty": {
-      "value": "伴固体 đăng chủ đề 學言語終,\n或譔𠬠言語具體𠓀.",
+      "value": "伴固体 đăng 主題學言語終,\n或譔𠬠言語具體𠓀.",
       "latin_words": [
-        "đăng",
-        "chủ",
-        "đề"
+        "đăng"
       ]
     },
     "firstPostInCategory": {
-      "value": "唉 là người 頭先 đăng bài {language}\n𥪝 “{category}”.",
+      "value": "唉 là 𠊛頭先登排 {language}\n𥪝 “{category}”.",
       "latin_words": [
-        "là",
-        "người",
-        "đăng",
-        "bài"
-      ]
-    },
-    "publishLanguagePost": {
-      "value": "Đăng bài {language}",
-      "latin_words": [
-        "Đăng",
-        "bài"
+        "là"
       ]
     },
     "selectLearningLanguageOptional": {
-      "value": "譔言語當學 (không bắt buộc)",
+      "value": "譔言語當學 (空 bắt buộc)",
       "latin_words": [
-        "không",
         "bắt",
         "buộc"
       ]
     },
     "learningLanguageOptionalDesc": {
-      "value": "伴固体 đăng mà không 譔言語具體 nếu chủ đề là 方法學, 言語學或 đa 言語.",
+      "value": "伴固体 đăng mà 空譔言語具體裊主題 là 方法學, 言語學或 đa 言語.",
       "latin_words": [
         "đăng",
         "mà",
-        "không",
-        "nếu",
-        "chủ",
-        "đề",
         "là",
         "đa"
       ]
     },
     "chooseFromLanguageLibrary": {
-      "value": "譔 từ thư viện · {count} 言語",
+      "value": "譔詞書 viện · {count} 言語",
       "latin_words": [
-        "từ",
-        "thư",
         "viện"
       ]
     },
     "languageLibraryDesc": {
-      "value": "言語 lấy từ Glyphora Language Core. Quay lại 抵接續 dưới dạng chủ đề 學言語終.",
+      "value": "言語 lấy 詞 Glyphora Language Core. Quay lại 抵接續𨑜樣主題學言語終.",
       "latin_words": [
         "lấy",
-        "từ",
         "Quay",
-        "lại",
-        "dưới",
-        "dạng",
-        "chủ",
-        "đề"
+        "lại"
       ]
     },
     "noLanguagesFound": {
-      "value": "Không 尋 thấy 言語",
+      "value": "空尋 thấy 言語",
       "latin_words": [
-        "Không",
         "thấy"
       ]
     },
-    "continueSelectCategory": {
-      "value": "接續譔 danh mục",
-      "latin_words": [
-        "danh",
-        "mục"
-      ]
-    },
-    "unknownUser": {
-      "value": "Người dùng không xác định",
-      "latin_words": [
-        "Người",
-        "dùng",
-        "không",
-        "xác",
-        "định"
-      ]
-    },
     "friendRequests": {
-      "value": "Lời mời kết 伴",
+      "value": "𠳒𫬱 kết 伴",
       "latin_words": [
-        "Lời",
-        "mời",
         "kết"
       ]
     },
-    "chats": {
-      "value": "Trò chuyện",
-      "latin_words": [
-        "Trò",
-        "chuyện"
-      ]
-    },
-    "noChats": {
-      "value": "𣗓固 cuộc trò chuyện",
-      "latin_words": [
-        "cuộc",
-        "trò",
-        "chuyện"
-      ]
-    },
     "startConversation": {
-      "value": "唉 bắt đầu trò chuyện 貝埃妬.",
+      "value": "唉 bắt 頭𠻀𡀯貝埃妬.",
       "latin_words": [
-        "bắt",
-        "đầu",
-        "trò",
-        "chuyện"
-      ]
-    },
-    "findFriendsPrompt": {
-      "value": "Khám phá người dùng và 添伴㵋.",
-      "latin_words": [
-        "Khám",
-        "phá",
-        "người",
-        "dùng",
-        "và"
+        "bắt"
       ]
     },
     "noFriendRequests": {
-      "value": "空固 lời mời kết 伴",
+      "value": "空固𠳒𫬱 kết 伴",
       "latin_words": [
-        "lời",
-        "mời",
         "kết"
       ]
     },
     "friendRequestDescription": {
-      "value": "Muốn kết 伴貝伴",
+      "value": "㦖 kết 伴貝伴",
       "latin_words": [
-        "Muốn",
         "kết"
       ]
     },
     "friendRequestAccepted": {
-      "value": "㐌 chấp nhận lời mời kết 伴 của {name}",
+      "value": "㐌執認𠳒𫬱 kết 伴𧵑 {name}",
       "latin_words": [
-        "chấp",
-        "nhận",
-        "lời",
-        "mời",
-        "kết",
-        "của"
-      ]
-    },
-    "accept": {
-      "value": "Chấp nhận",
-      "latin_words": [
-        "Chấp",
-        "nhận"
-      ]
-    },
-    "reject": {
-      "value": "Từ chối",
-      "latin_words": [
-        "Từ",
-        "chối"
-      ]
-    },
-    "friendRequestRejected": {
-      "value": "㐌 từ chối lời mời kết 伴",
-      "latin_words": [
-        "từ",
-        "chối",
-        "lời",
-        "mời",
         "kết"
       ]
     },
-    "myFriends": {
-      "value": "伴佊 của tôi",
+    "friendRequestRejected": {
+      "value": "㐌辭挃𠳒𫬱 kết 伴",
       "latin_words": [
-        "của",
-        "tôi"
+        "kết"
       ]
     },
     "userList": {
-      "value": "Danh sách người dùng",
+      "value": "名 sách 𠊛用",
       "latin_words": [
-        "Danh",
-        "sách",
-        "người",
-        "dùng"
+        "sách"
       ]
     },
     "unknownTime": {
-      "value": "Không rõ 時間",
+      "value": "空 rõ 時間",
       "latin_words": [
-        "Không",
         "rõ"
       ]
     },
-    "postEditHistory": {
-      "value": "歷史 chỉnh sửa",
-      "latin_words": [
-        "chỉnh",
-        "sửa"
-      ]
-    },
-    "noEditHistory": {
-      "value": "𣗓固歷史 chỉnh sửa",
-      "latin_words": [
-        "chỉnh",
-        "sửa"
-      ]
-    },
     "unknownLanguage": {
-      "value": "Không rõ 言語",
+      "value": "空 rõ 言語",
       "latin_words": [
-        "Không",
         "rõ"
       ]
     },
@@ -7617,103 +445,29 @@
         "lại"
       ]
     },
-    "replyHint": {
-      "value": "𢪏 trả lời...",
-      "latin_words": [
-        "trả",
-        "lời"
-      ]
-    },
     "reportPost": {
-      "value": "Báo cáo bài 𢪏",
+      "value": "報告 bài 𢪏",
       "latin_words": [
-        "Báo",
-        "cáo",
         "bài"
       ]
     },
     "chooseReportReason": {
-      "value": "譔 lý 由 báo cáo",
+      "value": "譔 lý 由報告",
       "latin_words": [
-        "lý",
-        "báo",
-        "cáo"
-      ]
-    },
-    "reportReasonHate": {
-      "value": "Ngôn từ 讎恄",
-      "latin_words": [
-        "Ngôn",
-        "từ"
-      ]
-    },
-    "reportReasonViolence": {
-      "value": "暴力或內容 nguy hiểm",
-      "latin_words": [
-        "nguy",
-        "hiểm"
-      ]
-    },
-    "reportReasonMisinformation": {
-      "value": "Thông tin 差或 gây hiểu lầm",
-      "latin_words": [
-        "Thông",
-        "tin",
-        "gây",
-        "hiểu",
-        "lầm"
-      ]
-    },
-    "reportReasonCopyright": {
-      "value": "Vi phạm bản quyền",
-      "latin_words": [
-        "Vi",
-        "phạm",
-        "bản",
-        "quyền"
+        "lý"
       ]
     },
     "reportDetailsLabel": {
-      "value": "Thông tin 補充 (không bắt buộc)",
+      "value": "通信補充 (空 bắt buộc)",
       "latin_words": [
-        "Thông",
-        "tin",
-        "không",
         "bắt",
         "buộc"
       ]
     },
-    "reportDetailsHint": {
-      "value": "添枝節 nếu cần",
-      "latin_words": [
-        "nếu",
-        "cần"
-      ]
-    },
     "reportReviewNotice": {
-      "value": "Báo cáo 㐌寄 sẽ 得 đưa vào hàng đợi 檢閱.",
+      "value": "報告㐌寄 sẽ 得迻𠓨行待檢閱.",
       "latin_words": [
-        "Báo",
-        "cáo",
-        "sẽ",
-        "đưa",
-        "vào",
-        "hàng",
-        "đợi"
-      ]
-    },
-    "submitReport": {
-      "value": "寄 báo cáo",
-      "latin_words": [
-        "báo",
-        "cáo"
-      ]
-    },
-    "profileLoadFailed": {
-      "value": "空体載糊疏 người dùng",
-      "latin_words": [
-        "người",
-        "dùng"
+        "sẽ"
       ]
     },
     "noSharedNotesWithUser": {
@@ -7723,60 +477,38 @@
       ]
     },
     "tapFabToCreate": {
-      "value": "Dùng 𨨷造抵 bắt đầu 𥱬註㵋.",
+      "value": "用𨨷造抵 bắt 頭𥱬註㵋.",
       "latin_words": [
-        "Dùng",
-        "bắt",
-        "đầu"
-      ]
-    },
-    "untitledNote": {
-      "value": "𥱬註 không 標題",
-      "latin_words": [
-        "không"
+        "bắt"
       ]
     },
     "recommendedLoginTitle": {
-      "value": "Đăng 入抵 dùng mục 提出",
+      "value": "Đăng 入抵用目提出",
       "latin_words": [
-        "Đăng",
-        "dùng",
-        "mục"
+        "Đăng"
       ]
     },
     "recommendedLoginDescription": {
-      "value": "𢖖󠄁 khi đăng 入, 伴固体譔涇言語 và chủ đề mình quan tâm.",
+      "value": "𢖖󠄁 khi đăng 入, 伴固体譔涇言語吧主題𨉟關心.",
       "latin_words": [
         "khi",
-        "đăng",
-        "và",
-        "chủ",
-        "đề",
-        "mình",
-        "quan",
-        "tâm"
+        "đăng"
       ]
     },
     "interestsLoadFailedDescription": {
-      "value": "空体載掑撻所適. 唉檢查結綏 và thử lại.",
+      "value": "空体載掑撻所適. 唉檢查結綏吧 thử lại.",
       "latin_words": [
-        "và",
         "thử",
         "lại"
       ]
     },
     "noInterestsDescription": {
-      "value": "𢲫 Danh mục, 譔𠬠言語 rồi 扨 biểu tượng trái tim 邊𧣲 chủ đề.",
+      "value": "𢲫名目, 譔𠬠言語 rồi 扨 biểu tượng trái 心邊𧣲主題.",
       "latin_words": [
-        "Danh",
-        "mục",
         "rồi",
         "biểu",
         "tượng",
-        "trái",
-        "tim",
-        "chủ",
-        "đề"
+        "trái"
       ]
     },
     "postsLoadFailed": {
@@ -7794,49 +526,29 @@
       ]
     },
     "noRecommendedPostsDescription": {
-      "value": "Hiện 𣗓固內容𥪝 các 涇言語 và chủ đề 㐌譔. Kéo xuống 抵載 lại.",
+      "value": "現𣗓固內容𥪝 các 涇言語吧主題㐌譔. 捁 xuống 抵載 lại.",
       "latin_words": [
-        "Hiện",
         "các",
-        "và",
-        "chủ",
-        "đề",
-        "Kéo",
         "xuống",
         "lại"
       ]
     },
     "friendRequestSentTo": {
-      "value": "㐌寄 lời mời kết 伴 tới {name}",
+      "value": "㐌寄𠳒𫬱 kết 伴 tới {name}",
       "latin_words": [
-        "lời",
-        "mời",
         "kết",
         "tới"
       ]
     },
     "friendRequestSendFailed": {
-      "value": "寄 lời mời kết 伴失敗",
+      "value": "寄𠳒𫬱 kết 伴失敗",
       "latin_words": [
-        "lời",
-        "mời",
         "kết"
       ]
     },
-    "inviteFriendsPrompt": {
-      "value": "𣗓固 người dùng 恪. 唉 mời 伴佊 tham gia.",
-      "latin_words": [
-        "người",
-        "dùng",
-        "mời",
-        "tham",
-        "gia"
-      ]
-    },
     "enterEmailAndPassword": {
-      "value": "入 email và mật khẩu",
+      "value": "入 email 吧 mật khẩu",
       "latin_words": [
-        "và",
         "mật",
         "khẩu"
       ]
@@ -7847,60 +559,22 @@
         "đăng"
       ]
     },
-    "useAnotherAccount": {
-      "value": "Dùng 財款恪",
-      "latin_words": [
-        "Dùng"
-      ]
-    },
     "forgotPasswordQuestion": {
-      "value": "Quên mật khẩu?",
+      "value": "悁 mật khẩu?",
       "latin_words": [
-        "Quên",
         "mật",
         "khẩu"
       ]
     },
     "noAccountRegisterNow": {
-      "value": "𣗓固財款? Đăng ký ngay",
+      "value": "𣗓固財款? 登記 ngay",
       "latin_words": [
-        "Đăng",
-        "ký",
         "ngay"
       ]
     },
-    "usernameUniqueId": {
-      "value": "𠸜 người dùng (ID duy nhất)",
-      "latin_words": [
-        "người",
-        "dùng",
-        "duy",
-        "nhất"
-      ]
-    },
-    "usernameSetupHint": {
-      "value": "撻𠸜 người dùng duy nhất của 伴",
-      "latin_words": [
-        "người",
-        "dùng",
-        "duy",
-        "nhất",
-        "của"
-      ]
-    },
-    "enterUsername": {
-      "value": "入𠸜 người dùng",
-      "latin_words": [
-        "người",
-        "dùng"
-      ]
-    },
     "usernameMinLength": {
-      "value": "𠸜 người dùng phải 固 ít nhất 2 ký tự",
+      "value": "𠸜𠊛用沛固 ít nhất 2 ký tự",
       "latin_words": [
-        "người",
-        "dùng",
-        "phải",
         "ít",
         "nhất",
         "ký",
@@ -7908,25 +582,17 @@
       ]
     },
     "usernameMaxLength": {
-      "value": "𠸜 người dùng 最多 20 ký tự",
+      "value": "𠸜𠊛用最多 20 ký tự",
       "latin_words": [
-        "người",
-        "dùng",
         "ký",
         "tự"
       ]
     },
     "usernameAllowedCharacters": {
-      "value": "𠸜 người dùng 固体貯𡨸𡣨, chữ Hán, 數 và dấu gạch dưới",
+      "value": "𠸜𠊛用固体貯𡨸𡣨, 𡨸 Hán, 數吧𨁪 gạch 𨑜",
       "latin_words": [
-        "người",
-        "dùng",
-        "chữ",
         "Hán",
-        "và",
-        "dấu",
-        "gạch",
-        "dưới"
+        "gạch"
       ]
     },
     "enterPassword": {
@@ -7937,11 +603,10 @@
       ]
     },
     "passwordMinLength": {
-      "value": "Mật khẩu phải 固 ít nhất 6 ký tự",
+      "value": "Mật khẩu 沛固 ít nhất 6 ký tự",
       "latin_words": [
         "Mật",
         "khẩu",
-        "phải",
         "ít",
         "nhất",
         "ký",
@@ -7949,10 +614,8 @@
       ]
     },
     "confirmPassword": {
-      "value": "Xác nhận mật khẩu",
+      "value": "確認 mật khẩu",
       "latin_words": [
-        "Xác",
-        "nhận",
         "mật",
         "khẩu"
       ]
@@ -7966,11 +629,10 @@
       ]
     },
     "passwordsDoNotMatch": {
-      "value": "Mật khẩu không 𨨤",
+      "value": "Mật khẩu 空𨨤",
       "latin_words": [
         "Mật",
-        "khẩu",
-        "không"
+        "khẩu"
       ]
     },
     "alreadyHaveAccountSignIn": {
@@ -7980,10 +642,8 @@
       ]
     },
     "registrationSuccess": {
-      "value": "Đăng ký thành công",
+      "value": "登記 thành công",
       "latin_words": [
-        "Đăng",
-        "ký",
         "thành",
         "công"
       ]
@@ -7995,43 +655,30 @@
         "khẩu"
       ]
     },
-    "checkYourEmail": {
-      "value": "檢查 email của 伴",
-      "latin_words": [
-        "của"
-      ]
-    },
     "resetPasswordByEmail": {
-      "value": "撻 lại mật khẩu qua email",
+      "value": "撻 lại mật khẩu 過 email",
       "latin_words": [
         "lại",
         "mật",
-        "khẩu",
-        "qua"
+        "khẩu"
       ]
     },
     "resetEmailSentDescription": {
-      "value": "Nếu email này 㐌 đăng ký, 連結撻 lại mật khẩu sẽ 得寄. 唉𢲫 email và 𫜵 theo 向引抵撻 mật khẩu 㵋.",
+      "value": "裊 email này 㐌登記, 連結撻 lại mật khẩu sẽ 得寄. 唉𢲫 email 吧𫜵 theo 向引抵撻 mật khẩu 㵋.",
       "latin_words": [
-        "Nếu",
         "này",
-        "đăng",
-        "ký",
         "lại",
         "mật",
         "khẩu",
         "sẽ",
-        "và",
         "theo",
         "mật",
         "khẩu"
       ]
     },
     "resetEmailDescription": {
-      "value": "入 email 㐌 đăng ký 抵 nhận 連結撻 lại mật khẩu 安全.",
+      "value": "入 email 㐌登記抵 nhận 連結撻 lại mật khẩu 安全.",
       "latin_words": [
-        "đăng",
-        "ký",
         "nhận",
         "lại",
         "mật",
@@ -8062,12 +709,10 @@
       ]
     },
     "currentPassword": {
-      "value": "Mật khẩu hiện tại",
+      "value": "Mật khẩu 現在",
       "latin_words": [
         "Mật",
-        "khẩu",
-        "hiện",
-        "tại"
+        "khẩu"
       ]
     },
     "newPassword": {
@@ -8078,21 +723,17 @@
       ]
     },
     "confirmNewPassword": {
-      "value": "Xác nhận mật khẩu 㵋",
+      "value": "確認 mật khẩu 㵋",
       "latin_words": [
-        "Xác",
-        "nhận",
         "mật",
         "khẩu"
       ]
     },
     "enterCurrentPassword": {
-      "value": "入 mật khẩu hiện tại",
+      "value": "入 mật khẩu 現在",
       "latin_words": [
         "mật",
-        "khẩu",
-        "hiện",
-        "tại"
+        "khẩu"
       ]
     },
     "enterNewPassword": {
@@ -8110,13 +751,6 @@
         "khẩu"
       ]
     },
-    "confirmChange": {
-      "value": "Xác nhận 𠊝𢷮",
-      "latin_words": [
-        "Xác",
-        "nhận"
-      ]
-    },
     "passwordChangedSuccess": {
       "value": "㐌𢷮 mật khẩu",
       "latin_words": [
@@ -8131,38 +765,21 @@
       ]
     },
     "resetEmailSent": {
-      "value": "㐌寄 email 撻 lại mật khẩu. 唉檢查 hộp thư.",
+      "value": "㐌寄 email 撻 lại mật khẩu. 唉檢查𪡄書.",
       "latin_words": [
         "lại",
         "mật",
-        "khẩu",
-        "hộp",
-        "thư"
+        "khẩu"
       ]
     },
     "passwordRecoveryPrivacyDescription": {
-      "value": "恢復 mật khẩu 得 thực hiện qua email 㐌 đăng ký. Ứng dụng không lưu 或 xác minh câu trả lời 保密 ở dạng văn bản 純.",
+      "value": "恢復 mật khẩu 得寔現過 email 㐌登記. 應用空留或 xác minh 句㨋𠳒保密 ở 樣文版純.",
       "latin_words": [
         "mật",
         "khẩu",
-        "thực",
-        "hiện",
-        "qua",
-        "đăng",
-        "ký",
-        "Ứng",
-        "dụng",
-        "không",
-        "lưu",
         "xác",
         "minh",
-        "câu",
-        "trả",
-        "lời",
-        "ở",
-        "dạng",
-        "văn",
-        "bản"
+        "ở"
       ]
     },
     "passwordRecovery": {
@@ -8173,46 +790,39 @@
       ]
     },
     "passwordResetTechnicalNote": {
-      "value": "連結撻 lại 得造 bởi Firebase Authentication; mật khẩu 空得 lưu 𥪝 Firestore.",
+      "value": "連結撻 lại 得造 bởi Firebase Authentication; mật khẩu 空得留𥪝 Firestore.",
       "latin_words": [
         "lại",
         "bởi",
         "mật",
-        "khẩu",
-        "lưu"
+        "khẩu"
       ]
     },
     "authInvalidCredentials": {
-      "value": "Email 或 mật khẩu không 倲",
+      "value": "Email 或 mật khẩu 空倲",
       "latin_words": [
         "mật",
-        "khẩu",
-        "không"
+        "khẩu"
       ]
     },
     "authInvalidEmail": {
-      "value": "地址 email không hợp lệ",
+      "value": "地址 email 空 hợp lệ",
       "latin_words": [
-        "không",
         "hợp",
         "lệ"
       ]
     },
     "authEmailAlreadyInUse": {
-      "value": "Email này 㐌得 đăng ký",
+      "value": "Email này 㐌得登記",
       "latin_words": [
-        "này",
-        "đăng",
-        "ký"
+        "này"
       ]
     },
     "authWeakPassword": {
-      "value": "Mật khẩu quá 𪽳; 唉 dùng ít nhất 6 ký tự",
+      "value": "Mật khẩu 過𪽳; 唉用 ít nhất 6 ký tự",
       "latin_words": [
         "Mật",
         "khẩu",
-        "quá",
-        "dùng",
         "ít",
         "nhất",
         "ký",
@@ -8220,57 +830,43 @@
       ]
     },
     "authUsernameTaken": {
-      "value": "𠸜 người dùng này 㐌得使用",
+      "value": "𠸜𠊛用 này 㐌得使用",
       "latin_words": [
-        "người",
-        "dùng",
         "này"
       ]
     },
     "authUserDataMissing": {
-      "value": "Thiếu 與料糊疏財款. 唉聯繫互助或 đăng ký lại.",
+      "value": "Thiếu 與料糊疏財款. 唉聯繫互助或登記 lại.",
       "latin_words": [
         "Thiếu",
-        "đăng",
-        "ký",
         "lại"
       ]
     },
     "authAccountBanned": {
-      "value": "財款 này 㐌 bị cấm",
+      "value": "財款 này 㐌被禁",
       "latin_words": [
-        "này",
-        "bị",
-        "cấm"
+        "này"
       ]
     },
     "authAccountDisabled": {
-      "value": "財款 này 㐌 bị vô hiệu hóa",
+      "value": "財款 này 㐌被無效 hóa",
       "latin_words": [
         "này",
-        "bị",
-        "vô",
-        "hiệu",
         "hóa"
       ]
     },
     "authTooManyRequests": {
-      "value": "固 quá nhiều 要求. 唉 thử lại 𢖖󠄁.",
+      "value": "固過𡗉要求. 唉 thử lại 𢖖󠄁.",
       "latin_words": [
-        "quá",
-        "nhiều",
         "thử",
         "lại"
       ]
     },
     "authWrongCurrentPassword": {
-      "value": "Mật khẩu hiện tại không 倲",
+      "value": "Mật khẩu 現在空倲",
       "latin_words": [
         "Mật",
-        "khẩu",
-        "hiện",
-        "tại",
-        "không"
+        "khẩu"
       ]
     },
     "authLoginFailed": {
@@ -8282,10 +878,8 @@
       ]
     },
     "authRegisterFailed": {
-      "value": "Đăng ký 失敗. 唉 thử lại 𢖖󠄁.",
+      "value": "登記失敗. 唉 thử lại 𢖖󠄁.",
       "latin_words": [
-        "Đăng",
-        "ký",
         "thử",
         "lại"
       ]
@@ -8310,216 +904,68 @@
       ]
     },
     "authUnexpectedError": {
-      "value": "㐌 xảy ra lỗi. 唉 thử lại.",
+      "value": "㐌侈𫥨纇. 唉 thử lại.",
       "latin_words": [
-        "xảy",
-        "ra",
-        "lỗi",
         "thử",
         "lại"
       ]
     },
-    "followActionFailed": {
-      "value": "空体及日 trạng thái 蹺𠼲",
-      "latin_words": [
-        "trạng",
-        "thái"
-      ]
-    },
-    "followers": {
-      "value": "Người 蹺𠼲",
-      "latin_words": [
-        "Người"
-      ]
-    },
-    "chatTitle": {
-      "value": "Trò chuyện",
-      "latin_words": [
-        "Trò",
-        "chuyện"
-      ]
-    },
-    "chatLoadFailed": {
-      "value": "空体載 cuộc trò chuyện",
-      "latin_words": [
-        "cuộc",
-        "trò",
-        "chuyện"
-      ]
-    },
     "chatLoadFailedDescription": {
-      "value": "空体載 cuộc trò chuyện này. 𢝙𢚸 thử lại.",
+      "value": "空体載局𠻀𡀯 này. 𢝙𢚸 thử lại.",
       "latin_words": [
-        "cuộc",
-        "trò",
-        "chuyện",
         "này",
         "thử",
         "lại"
       ]
     },
-    "groupChat": {
-      "value": "Trò chuyện 𡖡",
-      "latin_words": [
-        "Trò",
-        "chuyện"
-      ]
-    },
-    "editMessage": {
-      "value": "Chỉnh sửa 信𠴍",
-      "latin_words": [
-        "Chỉnh",
-        "sửa"
-      ]
-    },
-    "deleteMessage": {
-      "value": "Xóa 信𠴍",
-      "latin_words": [
-        "Xóa"
-      ]
-    },
-    "messageEdited": {
-      "value": "㐌 chỉnh sửa 信𠴍",
-      "latin_words": [
-        "chỉnh",
-        "sửa"
-      ]
-    },
-    "editMessageFailed": {
-      "value": "空体 chỉnh sửa 信𠴍",
-      "latin_words": [
-        "chỉnh",
-        "sửa"
-      ]
-    },
-    "deleteForMe": {
-      "value": "只 xóa 貝 tôi",
-      "latin_words": [
-        "xóa",
-        "tôi"
-      ]
-    },
-    "deleteForMeDescription": {
-      "value": "信𠴍只變𠅒 khỏi 歷史 trò chuyện của 伴",
-      "latin_words": [
-        "khỏi",
-        "trò",
-        "chuyện",
-        "của"
-      ]
-    },
-    "deleteForEveryone": {
-      "value": "Xóa 貝𤗆𠊛",
-      "latin_words": [
-        "Xóa"
-      ]
-    },
-    "deleteForBoth": {
-      "value": "Xóa 朱 cả hai",
-      "latin_words": [
-        "Xóa",
-        "cả",
-        "hai"
-      ]
-    },
     "deleteForEveryoneDescription": {
-      "value": "信𠴍 sẽ bị xóa khỏi cuộc trò chuyện của 悉𪥘󠄁 thành viên 𡖡",
+      "value": "信𠴍 sẽ 被𠚢𠺌局𠻀𡀯𧵑悉𪥘󠄁 成員𡖡",
       "latin_words": [
-        "sẽ",
-        "bị",
-        "xóa",
-        "khỏi",
-        "cuộc",
-        "trò",
-        "chuyện",
-        "của",
-        "thành",
-        "viên"
+        "sẽ"
       ]
     },
     "deleteForBothDescription": {
-      "value": "信𠴍 sẽ bị xóa khỏi 歷史 trò chuyện của cả hai bên",
+      "value": "信𠴍 sẽ 被𠚢𠺌歷史𠻀𡀯𧵑𪥘󠄁 𠄩邊",
       "latin_words": [
-        "sẽ",
-        "bị",
-        "xóa",
-        "khỏi",
-        "trò",
-        "chuyện",
-        "của",
-        "cả",
-        "hai",
-        "bên"
-      ]
-    },
-    "deleteMessageFailed": {
-      "value": "空体 xóa 信𠴍",
-      "latin_words": [
-        "xóa"
+        "sẽ"
       ]
     },
     "deleteForEveryoneTitle": {
-      "value": "Xóa 信𠴍 này 貝𤗆𠊛?",
+      "value": "𠚢信𠴍 này 貝𤗆𠊛?",
       "latin_words": [
-        "Xóa",
         "này"
       ]
     },
     "deleteForBothTitle": {
-      "value": "Xóa 信𠴍 này 朱 cả hai?",
+      "value": "𠚢信𠴍 này 朱𪥘󠄁 𠄩?",
       "latin_words": [
-        "Xóa",
-        "này",
-        "cả",
-        "hai"
+        "này"
       ]
     },
     "deleteForEveryoneConfirm": {
-      "value": "信𠴍 này sẽ bị xóa khỏi cuộc trò chuyện của 悉𪥘󠄁 thành viên 𡖡.",
+      "value": "信𠴍 này sẽ 被𠚢𠺌局𠻀𡀯𧵑悉𪥘󠄁 成員𡖡.",
       "latin_words": [
         "này",
-        "sẽ",
-        "bị",
-        "xóa",
-        "khỏi",
-        "cuộc",
-        "trò",
-        "chuyện",
-        "của",
-        "thành",
-        "viên"
+        "sẽ"
       ]
     },
     "deleteForBothConfirm": {
-      "value": "信𠴍 này sẽ bị xóa khỏi 歷史 trò chuyện của cả hai bên.",
+      "value": "信𠴍 này sẽ 被𠚢𠺌歷史𠻀𡀯𧵑𪥘󠄁 𠄩邊.",
       "latin_words": [
         "này",
-        "sẽ",
-        "bị",
-        "xóa",
-        "khỏi",
-        "trò",
-        "chuyện",
-        "của",
-        "cả",
-        "hai",
-        "bên"
+        "sẽ"
       ]
     },
     "shareLiveTypingDescription": {
-      "value": "Các thành viên 恪固体䀡內容伴當入 theo 時間 thực.",
+      "value": "Các 成員恪固体䀡內容伴當入 theo 時間寔.",
       "latin_words": [
         "Các",
-        "thành",
-        "viên",
-        "theo",
-        "thực"
+        "theo"
       ]
     },
     "settingsSaveFailed": {
-      "value": "空体 lưu 掑撻. 𢝙𢚸 thử lại.",
+      "value": "空体留掑撻. 𢝙𢚸 thử lại.",
       "latin_words": [
-        "lưu",
         "thử",
         "lại"
       ]
@@ -8531,113 +977,29 @@
       ]
     },
     "peerProfileNotReady": {
-      "value": "糊疏 của người kia vẫn 當得載",
+      "value": "糊疏𧵑𠊛 kia vẫn 當得載",
       "latin_words": [
-        "của",
-        "người",
         "kia",
         "vẫn"
       ]
     },
-    "morePeopleTyping": {
-      "value": "固添 {count} người 當入",
-      "latin_words": [
-        "người"
-      ]
-    },
-    "voiceCallComingSoon": {
-      "value": "Tính năng gọi thoại 當得發展",
-      "latin_words": [
-        "Tính",
-        "năng",
-        "gọi",
-        "thoại"
-      ]
-    },
-    "videoCallComingSoon": {
-      "value": "Tính năng gọi video 當得發展",
-      "latin_words": [
-        "Tính",
-        "năng",
-        "gọi"
-      ]
-    },
     "noMessagesStartChat": {
-      "value": "𣗓固信𠴍. 唉 bắt đầu trò chuyện!",
+      "value": "𣗓固信𠴍. 唉 bắt 頭𠻀𡀯!",
       "latin_words": [
-        "bắt",
-        "đầu",
-        "trò",
-        "chuyện"
+        "bắt"
       ]
     },
     "messageDeleted": {
-      "value": "信𠴍 này 㐌 bị xóa",
+      "value": "信𠴍 này 㐌被𠚢",
       "latin_words": [
-        "này",
-        "bị",
-        "xóa"
-      ]
-    },
-    "editedAt": {
-      "value": "㐌 sửa · {time}",
-      "latin_words": [
-        "sửa"
-      ]
-    },
-    "aiTranslation": {
-      "value": "Dịch bằng AI",
-      "latin_words": [
-        "Dịch",
-        "bằng"
-      ]
-    },
-    "manualTranslation": {
-      "value": "Tự dịch",
-      "latin_words": [
-        "Tự",
-        "dịch"
-      ]
-    },
-    "translateToLanguage": {
-      "value": "Dịch sang {language}",
-      "latin_words": [
-        "Dịch",
-        "sang"
+        "này"
       ]
     },
     "aiTranslationFailed": {
-      "value": "Dịch bằng AI 失敗. 𢝙𢚸 thử lại.",
+      "value": "譯憑 AI 失敗. 𢝙𢚸 thử lại.",
       "latin_words": [
-        "Dịch",
-        "bằng",
         "thử",
         "lại"
-      ]
-    },
-    "completeTranslationFirst": {
-      "value": "𢝙𢚸完畢 bản dịch 𠓀",
-      "latin_words": [
-        "bản",
-        "dịch"
-      ]
-    },
-    "translationSavedToNotes": {
-      "value": "㐌 lưu bản dịch vào 𥱬註",
-      "latin_words": [
-        "lưu",
-        "bản",
-        "dịch",
-        "vào"
-      ]
-    },
-    "saveToNotesFailed": {
-      "value": "空体 lưu bản dịch vào 𥱬註",
-      "latin_words": [
-        "lưu",
-        "bản",
-        "dịch",
-        "vào"
       ]
     },
     "languageVersionPublished": {
@@ -8647,24 +1009,9 @@
       ]
     },
     "publishTranslationFailed": {
-      "value": "空体 đăng bản dịch",
+      "value": "空体 đăng 版譯",
       "latin_words": [
-        "đăng",
-        "bản",
-        "dịch"
-      ]
-    },
-    "saving": {
-      "value": "當 lưu...",
-      "latin_words": [
-        "lưu"
-      ]
-    },
-    "saveToNotes": {
-      "value": "Lưu vào 𥱬註",
-      "latin_words": [
-        "Lưu",
-        "vào"
+        "đăng"
       ]
     },
     "publishing": {
@@ -8674,71 +1021,9 @@
       ]
     },
     "publishTranslation": {
-      "value": "Đăng bản dịch",
+      "value": "Đăng 版譯",
       "latin_words": [
-        "Đăng",
-        "bản",
-        "dịch"
-      ]
-    },
-    "aiGeneratingTranslation": {
-      "value": "AI 當造 bản dịch...",
-      "latin_words": [
-        "bản",
-        "dịch"
-      ]
-    },
-    "aiTranslationPreview": {
-      "value": "䀡𠓀 bản dịch AI",
-      "latin_words": [
-        "bản",
-        "dịch"
-      ]
-    },
-    "editTranslation": {
-      "value": "Chỉnh sửa bản dịch",
-      "latin_words": [
-        "Chỉnh",
-        "sửa",
-        "bản",
-        "dịch"
-      ]
-    },
-    "editTranslationTitle": {
-      "value": "Sửa 標題 bản dịch",
-      "latin_words": [
-        "Sửa",
-        "bản",
-        "dịch"
-      ]
-    },
-    "translationTitle": {
-      "value": "標題 bản dịch",
-      "latin_words": [
-        "bản",
-        "dịch"
-      ]
-    },
-    "originalText": {
-      "value": "Văn bản 㭲",
-      "latin_words": [
-        "Văn",
-        "bản"
-      ]
-    },
-    "editTranslationContent": {
-      "value": "Sửa 內容 bản dịch",
-      "latin_words": [
-        "Sửa",
-        "bản",
-        "dịch"
-      ]
-    },
-    "translationContent": {
-      "value": "內容 bản dịch",
-      "latin_words": [
-        "bản",
-        "dịch"
+        "Đăng"
       ]
     },
     "publishLanguageVersion": {
@@ -8748,333 +1033,51 @@
       ]
     },
     "userNotFound": {
-      "value": "Không 尋 thấy người dùng",
+      "value": "空尋 thấy 𠊛用",
       "latin_words": [
-        "Không",
-        "thấy",
-        "người",
-        "dùng"
-      ]
-    },
-    "ageYears": {
-      "value": "{age} tuổi",
-      "latin_words": [
-        "tuổi"
-      ]
-    },
-    "myActivity": {
-      "value": "Hoạt động của tôi",
-      "latin_words": [
-        "Hoạt",
-        "động",
-        "của",
-        "tôi"
-      ]
-    },
-    "theirActivity": {
-      "value": "Hoạt động của người dùng",
-      "latin_words": [
-        "Hoạt",
-        "động",
-        "của",
-        "người",
-        "dùng"
-      ]
-    },
-    "friendMessageAction": {
-      "value": "伴佊 · Nhắn tin",
-      "latin_words": [
-        "Nhắn",
-        "tin"
+        "thấy"
       ]
     },
     "friendRequestPending": {
-      "value": "㐌寄 lời mời kết 伴",
+      "value": "㐌寄𠳒𫬱 kết 伴",
       "latin_words": [
-        "lời",
-        "mời",
         "kết"
       ]
     },
     "acceptFriendRequest": {
-      "value": "Chấp nhận lời mời kết 伴",
+      "value": "執認𠳒𫬱 kết 伴",
       "latin_words": [
-        "Chấp",
-        "nhận",
-        "lời",
-        "mời",
         "kết"
       ]
     },
-    "categoryName14": {
-      "value": "Y 學",
-      "latin_words": [
-        "Y"
-      ]
-    },
-    "categoryMedicine": {
-      "value": "Y 學",
-      "latin_words": [
-        "Y"
-      ]
-    },
-    "categoryMobileDevelopment": {
-      "value": "發展 di động",
-      "latin_words": [
-        "di",
-        "động"
-      ]
-    },
-    "categoryDatabaseDevelopment": {
-      "value": "Cơ sở 與料",
-      "latin_words": [
-        "Cơ",
-        "sở"
-      ]
-    },
-    "categoryStrategyGames": {
-      "value": "Game chiến thuật",
-      "latin_words": [
-        "Game",
-        "chiến",
-        "thuật"
-      ]
-    },
-    "categorySimulationGames": {
-      "value": "Game mô phỏng",
-      "latin_words": [
-        "Game",
-        "mô",
-        "phỏng"
-      ]
-    },
-    "categoryFilm": {
-      "value": "Điện 影",
-      "latin_words": [
-        "Điện"
-      ]
-    },
-    "categoryTvSeries": {
-      "value": "Phim truyền hình",
-      "latin_words": [
-        "Phim",
-        "truyền",
-        "hình"
-      ]
-    },
-    "categoryAnimation": {
-      "value": "Hoạt hình",
-      "latin_words": [
-        "Hoạt",
-        "hình"
-      ]
-    },
-    "categoryDocumentary": {
-      "value": "Phim tài liệu",
-      "latin_words": [
-        "Phim",
-        "tài",
-        "liệu"
-      ]
-    },
-    "categoryInternalMedicine": {
-      "value": "Nội khoa",
-      "latin_words": [
-        "Nội",
-        "khoa"
-      ]
-    },
-    "categorySurgery": {
-      "value": "Ngoại khoa",
-      "latin_words": [
-        "Ngoại",
-        "khoa"
-      ]
-    },
-    "categoryDermatology": {
-      "value": "Da liễu",
-      "latin_words": [
-        "Da",
-        "liễu"
-      ]
-    },
     "categoryPsychiatry": {
-      "value": "Tâm thần 學",
+      "value": "心 thần 學",
       "latin_words": [
-        "Tâm",
         "thần"
       ]
     },
-    "categoryCardiology": {
-      "value": "Tim mạch",
-      "latin_words": [
-        "Tim",
-        "mạch"
-      ]
-    },
-    "unspecifiedLanguage": {
-      "value": "𣗓只 định 言語",
-      "latin_words": [
-        "định"
-      ]
-    },
-    "category": {
-      "value": "Danh mục",
-      "latin_words": [
-        "Danh",
-        "mục"
-      ]
-    },
-    "allCategories": {
-      "value": "悉𪥘󠄁 danh mục",
-      "latin_words": [
-        "danh",
-        "mục"
-      ]
-    },
-    "selectCategory": {
-      "value": "譔 danh mục",
-      "latin_words": [
-        "danh",
-        "mục"
-      ]
-    },
-    "noteCategory": {
-      "value": "Danh mục 𥱬註",
-      "latin_words": [
-        "Danh",
-        "mục"
-      ]
-    },
-    "onlyMe": {
-      "value": "只 mình tôi",
-      "latin_words": [
-        "mình",
-        "tôi"
-      ]
-    },
-    "selectedPeople": {
-      "value": "㐌譔 {count} người",
-      "latin_words": [
-        "người"
-      ]
-    },
     "newNoteConfigDescription": {
-      "value": "伴固体撻 thông tin 𥱬註 ngay 𣊾𣇞或𠊝𢷮𢖖󠄁.",
+      "value": "伴固体撻通信𥱬註 ngay 𣊾𣇞或𠊝𢷮𢖖󠄁.",
       "latin_words": [
-        "thông",
-        "tin",
         "ngay"
       ]
     },
-    "myNotes": {
-      "value": "𥱬註 của tôi",
-      "latin_words": [
-        "của",
-        "tôi"
-      ]
-    },
-    "clear": {
-      "value": "Xóa",
-      "latin_words": [
-        "Xóa"
-      ]
-    },
-    "noMatchingNotes": {
-      "value": "空固𥱬註符合貝 bộ lọc",
-      "latin_words": [
-        "bộ",
-        "lọc"
-      ]
-    },
-    "clearFilters": {
-      "value": "Xóa bộ lọc",
-      "latin_words": [
-        "Xóa",
-        "bộ",
-        "lọc"
-      ]
-    },
-    "tapFabToCreateNote": {
-      "value": "扨𨨷 góc dưới 邊沛抵造𥱬註",
-      "latin_words": [
-        "góc",
-        "dưới"
-      ]
-    },
-    "user": {
-      "value": "Người dùng",
-      "latin_words": [
-        "Người",
-        "dùng"
-      ]
-    },
-    "sharedWithMany": {
-      "value": "𢺹𢩿貝 {names} và 總共 {count} người",
-      "latin_words": [
-        "và",
-        "người"
-      ]
-    },
-    "sharedMembers": {
-      "value": "Thành viên 得𢺹𢩿",
-      "latin_words": [
-        "Thành",
-        "viên"
-      ]
-    },
-    "searchNicknameOrUsername": {
-      "value": "尋 biệt danh 或𠸜 người dùng",
-      "latin_words": [
-        "biệt",
-        "danh",
-        "người",
-        "dùng"
-      ]
-    },
     "noUsersFound": {
-      "value": "Không 尋 thấy người dùng",
+      "value": "空尋 thấy 𠊛用",
       "latin_words": [
-        "Không",
-        "thấy",
-        "người",
-        "dùng"
+        "thấy"
       ]
     },
     "currentUserNotChatMember": {
-      "value": "Người dùng hiện tại không phải thành viên của cuộc trò chuyện này",
+      "value": "𠊛用現在空沛成員𧵑局𠻀𡀯 này",
       "latin_words": [
-        "Người",
-        "dùng",
-        "hiện",
-        "tại",
-        "không",
-        "phải",
-        "thành",
-        "viên",
-        "của",
-        "cuộc",
-        "trò",
-        "chuyện",
         "này"
       ]
     },
     "chatPeerNotFound": {
-      "value": "Không 尋 thấy người trò chuyện",
+      "value": "空尋 thấy 𠊛𠻀𡀯",
       "latin_words": [
-        "Không",
-        "thấy",
-        "người",
-        "trò",
-        "chuyện"
-      ]
-    },
-    "editingNotAllowed": {
-      "value": "Người 造𣗓朱法 chỉnh sửa",
-      "latin_words": [
-        "Người",
-        "chỉnh",
-        "sửa"
+        "thấy"
       ]
     },
     "noteImageLimit": {
@@ -9084,17 +1087,9 @@
       ]
     },
     "selectPostCategory": {
-      "value": "譔 danh mục bài 𢪏",
+      "value": "譔名目 bài 𢪏",
       "latin_words": [
-        "danh",
-        "mục",
         "bài"
-      ]
-    },
-    "choosePrimaryLanguage": {
-      "value": "譔言語 chính",
-      "latin_words": [
-        "chính"
       ]
     },
     "notePublishedAsPost": {
@@ -9105,26 +1100,13 @@
         "bài"
       ]
     },
-    "deleteSharedNote": {
-      "value": "Xóa 𥱬註得𢺹𢩿?",
-      "latin_words": [
-        "Xóa"
-      ]
-    },
     "deleteSharedNoteDescription": {
-      "value": "𢖖󠄁 khi xóa, 𥱬註 này sẽ 變𠅒 khỏi danh sách 𥱬註 của cả hai bên.",
+      "value": "𢖖󠄁 khi 𠚢, 𥱬註 này sẽ 變𠅒𠺌名 sách 𥱬註𧵑𪥘󠄁 𠄩邊.",
       "latin_words": [
         "khi",
-        "xóa",
         "này",
         "sẽ",
-        "khỏi",
-        "danh",
-        "sách",
-        "của",
-        "cả",
-        "hai",
-        "bên"
+        "sách"
       ]
     },
     "publishAsPost": {
@@ -9136,75 +1118,28 @@
       ]
     },
     "publishAsPostDescription": {
-      "value": "Dùng danh mục của 𥱬註, 譔言語 chính rồi chuyển sang màn hình đăng bài",
+      "value": "用名目𧵑𥱬註, 譔言語正 rồi chuyển sang 幔形登排",
       "latin_words": [
-        "Dùng",
-        "danh",
-        "mục",
-        "của",
-        "chính",
         "rồi",
         "chuyển",
-        "sang",
-        "màn",
-        "hình",
-        "đăng",
-        "bài"
+        "sang"
       ]
     },
     "postCategory": {
-      "value": "Danh mục bài 𢪏",
+      "value": "名目 bài 𢪏",
       "latin_words": [
-        "Danh",
-        "mục",
         "bài"
       ]
     },
-    "sharedWithCount": {
-      "value": "㐌𢺹𢩿貝 {count} người",
-      "latin_words": [
-        "người"
-      ]
-    },
-    "membersCount": {
-      "value": "總 {count} người",
-      "latin_words": [
-        "người"
-      ]
-    },
-    "allowSharedMembersEdit": {
-      "value": "朱法 thành viên 得𢺹𢩿 chỉnh sửa",
-      "latin_words": [
-        "thành",
-        "viên",
-        "chỉnh",
-        "sửa"
-      ]
-    },
-    "sharedMembersCanEdit": {
-      "value": "Thành viên 得𢺹𢩿固体 sửa văn bản và 形影",
-      "latin_words": [
-        "Thành",
-        "viên",
-        "sửa",
-        "văn",
-        "bản",
-        "và"
-      ]
-    },
     "sharedMembersViewOnly": {
-      "value": "Thành viên 得𢺹𢩿只固体䀡𥱬註 này",
+      "value": "成員得𢺹𢩿只固体䀡𥱬註 này",
       "latin_words": [
-        "Thành",
-        "viên",
         "này"
       ]
     },
     "canEditThisNote": {
-      "value": "伴固体 chỉnh sửa 𥱬註 này",
+      "value": "伴固体整𢯢𥱬註 này",
       "latin_words": [
-        "chỉnh",
-        "sửa",
         "này"
       ]
     },
@@ -9214,18 +1149,10 @@
         "này"
       ]
     },
-    "deleteNote": {
-      "value": "Xóa 𥱬註",
-      "latin_words": [
-        "Xóa"
-      ]
-    },
     "noteDeleted": {
-      "value": "𥱬註 này 㐌 bị xóa",
+      "value": "𥱬註 này 㐌被𠚢",
       "latin_words": [
-        "này",
-        "bị",
-        "xóa"
+        "này"
       ]
     },
     "insertImage": {
@@ -9234,47 +1161,20 @@
         "Chèn"
       ]
     },
-    "bookmarksTitle": {
-      "value": "Dấu trang của tôi",
-      "latin_words": [
-        "Dấu",
-        "trang",
-        "của",
-        "tôi"
-      ]
-    },
-    "bookmarksLoadFailed": {
-      "value": "空体載 dấu trang",
-      "latin_words": [
-        "dấu",
-        "trang"
-      ]
-    },
     "reload": {
       "value": "載 lại",
       "latin_words": [
         "lại"
       ]
     },
-    "noBookmarks": {
-      "value": "𣗓固 dấu trang",
-      "latin_words": [
-        "dấu",
-        "trang"
-      ]
-    },
     "noBookmarksDescription": {
-      "value": "Các bài 𢪏伴 đánh dấu từ trang 枝節 sẽ xuất hiện ở đây.",
+      "value": "Các bài 𢪏伴 đánh 𨁪詞張枝節 sẽ xuất 現 ở đây.",
       "latin_words": [
         "Các",
         "bài",
         "đánh",
-        "dấu",
-        "từ",
-        "trang",
         "sẽ",
         "xuất",
-        "hiện",
         "ở",
         "đây"
       ]
@@ -9294,48 +1194,30 @@
       ]
     },
     "imagesAtTop": {
-      "value": "Ở đầu bài 𢪏",
+      "value": "Ở 頭 bài 𢪏",
       "latin_words": [
         "Ở",
-        "đầu",
         "bài"
       ]
     },
     "imagesAtTopDescription": {
-      "value": "Giữ cách 顯示影 ở đầu bài như hiện tại",
+      "value": "𡨺格顯示影 ở 頭 bài như 現在",
       "latin_words": [
-        "Giữ",
-        "cách",
         "ở",
-        "đầu",
         "bài",
-        "như",
-        "hiện",
-        "tại"
+        "như"
       ]
     },
     "insertIntoBody": {
-      "value": "Chèn vào 內容",
+      "value": "Chèn 𠓨內容",
       "latin_words": [
-        "Chèn",
-        "vào"
+        "Chèn"
       ]
     },
     "insertIntoBodyDescription": {
-      "value": "Chèn tại 位置𡥵𢸫 văn bản hiện tại",
+      "value": "Chèn 在位置𡥵𢸫文版現在",
       "latin_words": [
-        "Chèn",
-        "tại",
-        "văn",
-        "bản",
-        "hiện",
-        "tại"
-      ]
-    },
-    "fillTitleAndContent": {
-      "value": "唉入標題 và 內容",
-      "latin_words": [
-        "và"
+        "Chèn"
       ]
     },
     "postBodyLimit": {
@@ -9351,16 +1233,9 @@
         "đăng"
       ]
     },
-    "deleteImage": {
-      "value": "Xóa 影",
-      "latin_words": [
-        "Xóa"
-      ]
-    },
     "deleteImageConfirm": {
-      "value": "Xóa 影 này?",
+      "value": "𠚢影 này?",
       "latin_words": [
-        "Xóa",
         "này"
       ]
     },
@@ -9377,9 +1252,8 @@
       ]
     },
     "optionalImages": {
-      "value": "影 (không bắt buộc)",
+      "value": "影 (空 bắt buộc)",
       "latin_words": [
-        "không",
         "bắt",
         "buộc"
       ]
@@ -9397,18 +1271,9 @@
       ]
     },
     "uploadingInlineImage": {
-      "value": "當載 lên và chèn 影 vào 內容…",
+      "value": "當載𬨠吧 chèn 影𠓨內容…",
       "latin_words": [
-        "lên",
-        "và",
-        "chèn",
-        "vào"
-      ]
-    },
-    "uploadProgress": {
-      "value": "當載 lên {percent}%",
-      "latin_words": [
-        "lên"
+        "chèn"
       ]
     },
     "postDetail": {
@@ -9418,33 +1283,16 @@
       ]
     },
     "postNotFound": {
-      "value": "Không 尋 thấy bài 𢪏",
+      "value": "空尋 thấy bài 𢪏",
       "latin_words": [
-        "Không",
         "thấy",
         "bài"
-      ]
-    },
-    "currentLanguageUnavailable": {
-      "value": "空体 xác định 言語 hiện tại",
-      "latin_words": [
-        "xác",
-        "định",
-        "hiện",
-        "tại"
       ]
     },
     "postUpdated": {
       "value": "㐌及日 bài 𢪏 ✨",
       "latin_words": [
         "bài"
-      ]
-    },
-    "bookmarkActionFailed": {
-      "value": "操作 dấu trang 失敗",
-      "latin_words": [
-        "dấu",
-        "trang"
       ]
     },
     "sharePost": {
@@ -9459,212 +1307,95 @@
         "bài"
       ]
     },
-    "noLanguageVersion": {
-      "value": "𣗓固翻版言語 · 扨抵 dịch",
-      "latin_words": [
-        "dịch"
-      ]
-    },
-    "chooseTranslationMethod": {
-      "value": "譔 cách dịch",
-      "latin_words": [
-        "cách",
-        "dịch"
-      ]
-    },
     "aiTranslationDescription": {
-      "value": "伴固体 chỉnh sửa bản dịch 由 AI 造𠓀 khi đăng",
+      "value": "伴固体整𢯢版譯由 AI 造𠓀 khi đăng",
       "latin_words": [
-        "chỉnh",
-        "sửa",
-        "bản",
-        "dịch",
         "khi",
         "đăng"
       ]
     },
     "manualTranslationDescription": {
-      "value": "Bắt đầu từ bản dịch trống và tự 入",
+      "value": "Bắt 頭詞版譯𤿰吧 tự 入",
       "latin_words": [
         "Bắt",
-        "đầu",
-        "từ",
-        "bản",
-        "dịch",
-        "trống",
-        "và",
         "tự"
       ]
     },
     "deletePost": {
-      "value": "Xóa bài 𢪏",
+      "value": "𠚢 bài 𢪏",
       "latin_words": [
-        "Xóa",
         "bài"
       ]
     },
     "deletePostConfirm": {
-      "value": "Xóa bài 𢪏 này? 操作 này 空体 hoàn tác.",
+      "value": "𠚢 bài 𢪏 này? 操作 này 空体完作.",
       "latin_words": [
-        "Xóa",
         "bài",
         "này",
-        "này",
-        "hoàn",
-        "tác"
-      ]
-    },
-    "confirmDelete": {
-      "value": "Xác nhận xóa",
-      "latin_words": [
-        "Xác",
-        "nhận",
-        "xóa"
+        "này"
       ]
     },
     "postDeleted": {
-      "value": "㐌 xóa bài 𢪏",
+      "value": "㐌𠚢 bài 𢪏",
       "latin_words": [
-        "xóa",
         "bài"
       ]
     },
     "deleteThisImage": {
-      "value": "Xóa 影 này",
+      "value": "𠚢影 này",
       "latin_words": [
-        "Xóa",
         "này"
       ]
     },
-    "reportSubmitted": {
-      "value": "㐌寄 báo cáo. Cảm ơn phản hồi của 伴.",
-      "latin_words": [
-        "báo",
-        "cáo",
-        "Cảm",
-        "ơn",
-        "phản",
-        "hồi",
-        "của"
-      ]
-    },
-    "finishSorting": {
-      "value": "完畢 sắp xếp",
-      "latin_words": [
-        "sắp",
-        "xếp"
-      ]
-    },
     "reorderImages": {
-      "value": "Sắp xếp lại 影",
+      "value": "𢯛攝 lại 影",
       "latin_words": [
-        "Sắp",
-        "xếp",
         "lại"
       ]
     },
     "editPost": {
-      "value": "Chỉnh sửa bài 𢪏",
+      "value": "整𢯢 bài 𢪏",
       "latin_words": [
-        "Chỉnh",
-        "sửa",
         "bài"
       ]
     },
     "holdDragToReorder": {
-      "value": "扨 giữ tay cầm 邊沛 rồi kéo 抵 sắp xếp",
+      "value": "扨𡨺𢬣擒邊沛 rồi 捁抵𢯛攝",
       "latin_words": [
-        "giữ",
-        "tay",
-        "cầm",
-        "rồi",
-        "kéo",
-        "sắp",
-        "xếp"
-      ]
-    },
-    "translationVersion": {
-      "value": "翻版 dịch",
-      "latin_words": [
-        "dịch"
+        "rồi"
       ]
     },
     "translationPublishedAt": {
-      "value": "Bản dịch 得 đăng lúc {time}",
+      "value": "版譯得 đăng 𣅶 {time}",
       "latin_words": [
-        "Bản",
-        "dịch",
-        "đăng",
-        "lúc"
-      ]
-    },
-    "modifiedAt": {
-      "value": "㐌 sửa lúc {time}",
-      "latin_words": [
-        "sửa",
-        "lúc"
-      ]
-    },
-    "bookmark": {
-      "value": "Dấu trang",
-      "latin_words": [
-        "Dấu",
-        "trang"
-      ]
-    },
-    "translate": {
-      "value": "Dịch",
-      "latin_words": [
-        "Dịch"
-      ]
-    },
-    "mainLanguage": {
-      "value": "言語 chính",
-      "latin_words": [
-        "chính"
-      ]
-    },
-    "titleRequired": {
-      "value": "標題空得抵 trống",
-      "latin_words": [
-        "trống"
-      ]
-    },
-    "contentRequired": {
-      "value": "內容空得抵 trống",
-      "latin_words": [
-        "trống"
+        "đăng"
       ]
     },
     "topImages": {
-      "value": "影 đầu bài",
+      "value": "影頭 bài",
       "latin_words": [
-        "đầu",
         "bài"
       ]
     },
     "noTopImages": {
-      "value": "𣗓固影 đầu bài",
+      "value": "𣗓固影頭 bài",
       "latin_words": [
-        "đầu",
         "bài"
       ]
     },
     "myNotesDescription": {
-      "value": "䀡 và quản lý 悉𪥘󠄁 𥱬註得𢺹𢩿",
+      "value": "䀡吧 quản lý 悉𪥘󠄁 𥱬註得𢺹𢩿",
       "latin_words": [
-        "và",
         "quản",
         "lý"
       ]
     },
     "bookmarksDescription": {
-      "value": "䀡 các bài 𢪏㐌 đánh dấu",
+      "value": "䀡 các bài 𢪏㐌 đánh 𨁪",
       "latin_words": [
         "các",
         "bài",
-        "đánh",
-        "dấu"
+        "đánh"
       ]
     },
     "chooseKnownLanguages": {
@@ -9681,40 +1412,22 @@
       ]
     },
     "currentNativeLanguage": {
-      "value": "Hiện 得撻 là tiếng mẹ đẻ",
+      "value": "現得撻 là tiếng 媄𤯰",
       "latin_words": [
-        "Hiện",
         "là",
-        "tiếng",
-        "mẹ",
-        "đẻ"
+        "tiếng"
       ]
     },
     "changeToProficiency": {
-      "value": "𢷮 sang mức độ thành thạo",
+      "value": "𢷮 sang 𣞪度成繰",
       "latin_words": [
-        "sang",
-        "mức",
-        "độ",
-        "thành",
-        "thạo"
-      ]
-    },
-    "proficiency": {
-      "value": "Mức độ thành thạo",
-      "latin_words": [
-        "Mức",
-        "độ",
-        "thành",
-        "thạo"
+        "sang"
       ]
     },
     "setAsNativeLanguage": {
-      "value": "撻𫜵 tiếng mẹ đẻ",
+      "value": "撻𫜵 tiếng 媄𤯰",
       "latin_words": [
-        "tiếng",
-        "mẹ",
-        "đẻ"
+        "tiếng"
       ]
     },
     "noLanguagesSelected": {
@@ -9723,19 +1436,10 @@
         "nào"
       ]
     },
-    "addLanguagePrompt": {
-      "value": "Vào “添言語” 抵尋 và 譔",
-      "latin_words": [
-        "Vào",
-        "và"
-      ]
-    },
     "searchOtherLanguagePrompt": {
-      "value": "Thử 𠸜恪, 碼言語或 hệ chữ",
+      "value": "Thử 𠸜恪, 碼言語或系𡨸",
       "latin_words": [
-        "Thử",
-        "hệ",
-        "chữ"
+        "Thử"
       ]
     },
     "collapse": {
@@ -9743,12 +1447,6 @@
       "latin_words": [
         "Thu",
         "gọn"
-      ]
-    },
-    "selectedTagsCount": {
-      "value": "Thẻ 㐌譔 ({count}/10)",
-      "latin_words": [
-        "Thẻ"
       ]
     }
   }
