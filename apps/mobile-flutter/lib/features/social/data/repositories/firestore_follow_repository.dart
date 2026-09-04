@@ -34,6 +34,18 @@ final class FirestoreFollowRepository implements FollowRepository {
     return _follows.doc('${followerId}_$followingId');
   }
 
+  Future<bool> _isInteractionBlocked(String otherUserId) async {
+    final userId = _currentUserId;
+    final blocks = _firestore.collection('blocks');
+    final snapshots = await Future.wait([
+      blocks.doc(userId).get(),
+      blocks.doc(otherUserId).get(),
+    ]);
+
+    return snapshots[0].data()?[otherUserId] == true ||
+        snapshots[1].data()?[userId] == true;
+  }
+
   @override
   Stream<bool> watchIsFollowing(String otherUserId) {
     final userId = _currentUserId;
@@ -102,6 +114,10 @@ final class FirestoreFollowRepository implements FollowRepository {
         'otherUserId',
         'Cannot follow self.',
       );
+    }
+
+    if (await _isInteractionBlocked(otherUserId)) {
+      throw StateError('INTERACTION_BLOCKED');
     }
 
     await _relationshipDoc(userId, otherUserId).set({
