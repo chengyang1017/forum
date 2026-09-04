@@ -381,23 +381,15 @@ def patch_gitignore() -> None:
 def write_l10n_yaml() -> None:
     (PROJECT / "l10n.yaml").write_text(
         """arb-dir: lib/l10n
-"
-        "template-arb-file: app_en.arb
-"
-        "output-dir: lib/app/l10n/generated
-"
-        "output-localization-file: app_localizations.dart
-"
-        "output-class: AppLocalizations
-"
-        "synthetic-package: false
-"
-        "preferred-supported-locales: [zh]
-"
-        "relax-syntax: true
-"
-        "format: true
-""".replace('"\n        "', ''),
+template-arb-file: app_en.arb
+output-dir: lib/app/l10n/generated
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+synthetic-package: false
+preferred-supported-locales: [zh]
+relax-syntax: true
+format: true
+""",
         encoding="utf-8",
     )
 
