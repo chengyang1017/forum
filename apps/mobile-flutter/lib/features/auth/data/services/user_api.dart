@@ -94,6 +94,11 @@ class UserApi implements UserBackendRepository {
     return _readInterests(response['interests']);
   }
 
+  @override
+  Future<void> deleteCurrentAccount() async {
+    await _client.delete('/account');
+  }
+
   Set<String> _readInterests(Object? value) {
     if (value is! Iterable) {
       return <String>{};
