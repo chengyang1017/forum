@@ -93,9 +93,6 @@ final class FirebaseAuthRepository implements AuthRepository {
     try {
       await _authService.saveUserData(uid, newUserMap);
     } catch (error) {
-      // Avoid leaving an unusable Firebase Auth account behind when the
-      // profile write fails. Otherwise retrying registration reports that the
-      // email is already in use even though the account was never completed.
       try {
         await credential.user?.delete();
       } catch (cleanupError) {
@@ -140,6 +137,30 @@ final class FirebaseAuthRepository implements AuthRepository {
     }
 
     return UserModelMapper.fromMap(updatedMap);
+  }
+
+  @override
+  Future<void> reauthenticate(String password) async {
+    try {
+      await _authService.reauthenticate(password);
+    } on FirebaseAuthException catch (error) {
+      switch (error.code) {
+        case 'wrong-password':
+        case 'invalid-credential':
+          throw const AuthFailure(AuthFailureCode.wrongCurrentPassword);
+        case 'too-many-requests':
+          throw const AuthFailure(AuthFailureCode.tooManyRequests);
+        case 'user-disabled':
+          throw const AuthFailure(AuthFailureCode.accountDisabled);
+        default:
+          throw AuthFailure(AuthFailureCode.loginFailed, cause: error);
+      }
+    } catch (error) {
+      if (error is AuthFailure) {
+        rethrow;
+      }
+      throw AuthFailure(AuthFailureCode.loginFailed, cause: error);
+    }
   }
 
   @override
