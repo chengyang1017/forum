@@ -126,21 +126,25 @@ function postWhereById(
       .safeParse(id)
       .success;
 
-  if (isDatabaseId) {
-    return {
-      OR: [
-        {
-          id,
-        },
-        {
-          firestoreId: id,
-        },
-      ],
-    };
-  }
+  const identity: Prisma.PostWhereInput =
+    isDatabaseId
+      ? {
+          OR: [
+            { id },
+            { firestoreId: id },
+          ],
+        }
+      : { firestoreId: id };
 
   return {
-    firestoreId: id,
+    AND: [
+      identity,
+      {
+        reports: {
+          none: { status: 'actioned' },
+        },
+      },
+    ],
   };
 }
 
@@ -391,6 +395,11 @@ userBookmarkRouter.get(
         await prisma.postBookmark.findMany({
           where: {
             userId: user.id,
+            post: {
+              reports: {
+                none: { status: 'actioned' },
+              },
+            },
           },
 
           orderBy: {

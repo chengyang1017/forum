@@ -27,17 +27,25 @@ type PostRecord = Prisma.PostGetPayload<{
 
 function postWhereById(id: string): Prisma.PostWhereInput {
   const databaseId = z.string().uuid().safeParse(id);
+  const identity: Prisma.PostWhereInput = databaseId.success
+    ? {
+        OR: [
+          { firestoreId: id },
+          { id },
+        ],
+      }
+    : { firestoreId: id };
 
-  if (databaseId.success) {
-    return {
-      OR: [
-        { firestoreId: id },
-        { id },
-      ],
-    };
-  }
-
-  return { firestoreId: id };
+  return {
+    AND: [
+      identity,
+      {
+        reports: {
+          none: { status: 'actioned' },
+        },
+      },
+    ],
+  };
 }
 
 function serializePost(
@@ -108,6 +116,9 @@ postDataRouter.get(
         where: {
           author: {
             firebaseUid,
+          },
+          reports: {
+            none: { status: 'actioned' },
           },
         },
         include: {

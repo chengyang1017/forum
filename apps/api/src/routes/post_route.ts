@@ -390,21 +390,25 @@ function postWhereById(
   const isDatabaseId =
     z.string().uuid().safeParse(id).success;
 
-  if (isDatabaseId) {
-    return {
-      OR: [
-        {
-          firestoreId: id,
-        },
-        {
-          id,
-        },
-      ],
-    };
-  }
+  const identity: Prisma.PostWhereInput =
+    isDatabaseId
+      ? {
+          OR: [
+            { firestoreId: id },
+            { id },
+          ],
+        }
+      : { firestoreId: id };
 
   return {
-    firestoreId: id,
+    AND: [
+      identity,
+      {
+        reports: {
+          none: { status: 'actioned' },
+        },
+      },
+    ],
   };
 }
 
@@ -1357,6 +1361,12 @@ postRouter.get(
             versions: {
               some: {
                 languageCode,
+              },
+            },
+
+            reports: {
+              none: {
+                status: 'actioned',
               },
             },
           },
