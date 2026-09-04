@@ -247,6 +247,29 @@ class AuthCubit extends Cubit<AuthState> {
     return _authRepository.sendPasswordResetEmail(email);
   }
 
+  Future<void> deleteAccount(String currentPassword) async {
+    emit(state.copyWith(isLoading: true));
+
+    try {
+      await _authRepository.reauthenticate(currentPassword);
+      await _userRepository.deleteCurrentAccount();
+      await _authRepository.logout();
+
+      emit(
+        AuthState(
+          user: null,
+          isInitialized: true,
+          interests: const <String>{},
+          interestsLoaded: false,
+          interestsError: null,
+        ),
+      );
+    } catch (_) {
+      emit(state.copyWith(isLoading: false));
+      rethrow;
+    }
+  }
+
   Future<void> logout() async {
     await _authRepository.logout();
 
