@@ -24,6 +24,7 @@ import '../../features/post/presentation/screens/create_post_screen.dart';
 import '../../features/post/presentation/screens/post_detail_screen.dart';
 import '../../features/post/presentation/screens/post_edit_history_screen.dart';
 import '../../features/profile/presentation/screens/user_profile_screen.dart';
+import '../../features/social/presentation/screens/blocked_users_screen.dart';
 import '../../features/social/presentation/screens/friend_requests_screen.dart';
 import 'app_routes.dart';
 import 'auth_route_guard.dart';
@@ -70,6 +71,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.changePassword,
       builder: (context, state) => const ChangePasswordScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.blockedUsers,
+      builder: (context, state) => const BlockedUsersScreen(),
     ),
     GoRoute(
       path: AppRoutes.allNotes,
