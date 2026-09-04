@@ -319,8 +319,15 @@ def build_wrapper(
 def patch_pubspec() -> None:
     path = PROJECT / "pubspec.yaml"
     text = path.read_text(encoding="utf-8")
-    if not re.search(r"(?m)^flutter:\n(?:  .*\n)*?  generate: true$", text):
-        text = text.replace("flutter:\n", "flutter:\n  generate: true\n", 1)
+    if not re.search(r"(?m)^  generate: true$", text):
+        text, count = re.subn(
+            r"(?m)^flutter:\s*$",
+            "flutter:\n  generate: true",
+            text,
+            count=1,
+        )
+        if count != 1:
+            raise RuntimeError("Could not locate the root-level flutter: section")
 
     lines = text.splitlines()
     lines = [line for line in lines if line.strip() != "- assets/l10n/"]
