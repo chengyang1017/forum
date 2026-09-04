@@ -1,0 +1,34 @@
+name: One-time production l10n
+
+on:
+  push:
+    branches:
+      - feat/production-readiness
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/production-readiness
+
+      - name: Update localization files
+        working-directory: apps/mobile-flutter
+        run: python tool/add_production_l10n.py
+
+      - name: Commit localization files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/mobile-flutter/lib/l10n/app_*.arb
+          if git diff --cached --quiet; then
+            echo "No localization changes to commit."
+            exit 0
+          fi
+          git commit -m "feat(l10n): add production-readiness UI translations"
+          git push origin HEAD:feat/production-readiness
