@@ -1,47 +1,150 @@
 #!/usr/bin/env python3
-import base64
 import json
 import re
 import unicodedata
-import zlib
 from pathlib import Path
 
-PHRASES = json.loads(
-    zlib.decompress(
-        base64.b64decode(
-            ''.join(
-                p.read_text()
-                for p in sorted(Path('tool/vi_hani_lexicon').glob('ph_*.txt'))
-            )
-        )
-    )
-)
+# Exact phrase mappings found in the user's Bảng Chữ Hán Nôm Chuẩn / extracted
+# phrase-example database. Phrase matches always win over single-word readings.
+PHRASES = {
+    'ngôn ngữ': '言語',
+    'nội dung': '內容',
+    'sở thích': '所適',
+    'đề xuất': '提出',
+    'hiển thị': '顯示',
+    'kết nối': '結綏',
+    'mọi người': '𤗆𠊛',
+    'ảnh hưởng': '影響',
+    'phương pháp': '方法',
+    'tiếp tục': '接續',
+    'cụ thể': '具體',
+    'thời gian': '時間',
+    'bình luận': '評論',
+    'quảng cáo': '廣告',
+    'quấy rối': '撌𦇒',
+    'bắt nạt': '扒㖏',
+    'thù ghét': '讎恄',
+    'tình dục': '情欲',
+    'bạo lực': '暴力',
+    'bổ sung': '補充',
+    'kiểm duyệt': '檢閱',
+    'chia sẻ': '𢺹𢩿',
+    'hồ sơ': '糊疏',
+    'thất bại': '失敗',
+    'không thể': '空体',
+    'ghi chú': '𥱬註',
+    'cài đặt': '掑撻',
+    'tài khoản': '財款',
+    'liên kết': '連結',
+    'hướng dẫn': '向引',
+    'an toàn': '安全',
+    'thay đổi': '𠊝𢷮',
+    'bảo mật': '保密',
+    'địa chỉ': '地址',
+    'sử dụng': '使用',
+    'liên hệ': '聯繫',
+    'hỗ trợ': '互助',
+    'theo dõi': '蹺𠼲',
+    'lịch sử': '歷史',
+    'phát triển': '發展',
+    'phiên bản': '翻版',
+    'bạn bè': '伴佊',
+    'ai đó': '埃妬',
+    'nhi khoa': '兒科',
+    'dữ liệu': '與料',
+    'kết quả': '結果',
+    'chi tiết': '枝節',
+    'sao chép': '抄劄',
+    'giới hạn': '界限',
+    'phân loại': '分類',
+    'vui lòng': '𢝙𢚸',
+    'không có': '空固',
+    'bây giờ': '𣊾𣇞',
+    'cho phép': '朱法',
+    'có thể': '固体',
+    'không được': '空得',
+    'đầu tiên': '頭先',
+    'tổng cộng': '總共',
+    'tối đa': '最多',
+    'bên phải': '邊沛',
+    'bên cạnh': '邊𧣲',
+    'cập nhật': '及日',
+    'khôi phục': '恢復',
+    'kiểm tra': '檢查',
+    'chữ cái': '𡨸𡣨',
+    'yêu cầu': '要求',
+    'thao tác': '操作',
+    'tin nhắn': '信𠴍',
+    'hoàn tất': '完畢',
+    'tiêu đề': '標題',
+    'tất cả': '悉𪥘󠄁',
+    'không chỉ': '空只',
+    'phù hợp': '符合',
+    'biến mất': '變𠅒',
+    'hình ảnh': '形影',
+    'vị trí': '位置',
+    'con trỏ': '𡥵𢸫',
+}
 
-# Contextual single-word choices used only when an exact source phrase is unavailable.
-# These are kept deliberately small so ambiguous words remain visible in the review.
+# Single readings below are also source-backed. They are only used after no exact
+# phrase match exists, which prevents e.g. a common syllable from overriding a
+# documented multi-word expression.
 WORDS = {
     'bạn': '伴',
-    'lý': '理',
-    'xóa': '𠚢',
-    'lưu': '留',
-    'dịch': '譯',
-    'mới': '𡤓',
-    'danh': '名',
-    'mục': '目',
-    'đề': '題',
-    'thành': '成',
-    'viên': '員',
-    'mật': '密',
-    'khẩu': '口',
-    'ngữ': '語',
-    'tài': '財',
-    'bản': '版',
-    'hồ': '糊',
-    'sơ': '疏',
-    'thông': '通',
-    'tin': '信',
-    'xác': '確',
-    'nhận': '認',
+    'cho': '朱',
+    'chỉ': '只',
+    'đã': '㐌',
+    'kênh': '涇',
+    'đang': '當',
+    'tải': '載',
+    'hãy': '唉',
+    'để': '抵',
+    'phần': '份',
+    'học': '學',
+    'chung': '終',
+    'chưa': '𣗓',
+    'có': '固',
+    'hoặc': '或',
+    'chọn': '譔',
+    'một': '𠬠',
+    'trước': '𠓀',
+    'trong': '𥪝',
+    'tìm': '尋',
+    'tên': '𠸜',
+    'mã': '碼',
+    'khác': '恪',
+    'gửi': '寄',
+    'xem': '䀡',
+    'viết': '𢪏',
+    'tạo': '造',
+    'nút': '𨨷',
+    'mới': '㵋',
+    'do': '由',
+    'yếu': '𪽳',
+    'sai': '差',
+    'nhóm': '𡖡',
+    'gốc': '㭲',
+    'được': '得',
+    'sau': '𢖖󠄁',
+    'với': '貝',
+    'nhấn': '扨',
+    'nhập': '入',
+    'mở': '𢲫',
+    'đóng': '㨂',
+    'thêm': '添',
+    'bỏ': '𠬃',
+    'gỡ': '攑',
+    'đổi': '𢷮',
+    'đặt': '撻',
+    'làm': '𫜵',
+    'thuần': '純',
+    'chứa': '貯',
+    'số': '數',
+    'khớp': '𨨤',
+    'đúng': '倲',
+    'ảnh': '影',
+    'tổng': '總',
+    'dành': '𧶄',
 }
 
 ARB = Path('lib/l10n/app_vi_Hani.arb')
@@ -49,10 +152,11 @@ REVIEW = Path('tool/vi_hani_conversion_review.json')
 TECH = {
     'ai', 'email', 'id', 'oled', 'glyphora', 'language', 'core', 'firebase',
     'authentication', 'firestore', 'web', 'backend', 'flutter', 'react',
-    'native', 'rpg', 'fps', 'spam', 'video', 'chat',
+    'native', 'rpg', 'fps', 'spam', 'video', 'chat', 'hindi',
 }
 WORD_RE = re.compile(r'[A-Za-zÀ-ỹĐđ]+', re.UNICODE)
 PLACEHOLDER_RE = re.compile(r'\{[^{}]+\}')
+CJK = r'\u3400-\u9fff\U00020000-\U000323af'
 
 
 def norm(value):
@@ -63,73 +167,47 @@ def convert_value(text):
     placeholders = {}
 
     def protect(match):
-        key = f'§PH{len(placeholders)}§'
-        placeholders[key] = match.group(0)
-        return key
+        marker = f'§PH{len(placeholders)}§'
+        placeholders[marker] = match.group(0)
+        return marker
 
     work = PLACEHOLDER_RE.sub(protect, text)
-    tokens = re.findall(r'§PH\d+§|[A-Za-zÀ-ỹĐđ]+|[^A-Za-zÀ-ỹĐđ§]+|§', work)
-    out = []
     provenance = []
-    unresolved = []
-    i = 0
 
-    while i < len(tokens):
-        token = tokens[i]
-        if token in placeholders:
-            out.append(token)
-            i += 1
-            continue
-        if not WORD_RE.fullmatch(token):
-            out.append(token)
-            i += 1
-            continue
+    # Longest phrase first. Flexible whitespace allows matches across normal UI spacing.
+    for source in sorted(PHRASES, key=lambda s: (-len(s.split()), -len(s))):
+        pattern = r'(?<![A-Za-zÀ-ỹĐđ])' + r'\s+'.join(
+            re.escape(part) for part in source.split()
+        ) + r'(?![A-Za-zÀ-ỹĐđ])'
+        replacement = PHRASES[source]
+        work, count = re.subn(pattern, replacement, work, flags=re.IGNORECASE)
+        if count:
+            provenance.append(['source-phrase', source, replacement, count])
 
-        run_words = []
-        j = i
-        while j < len(tokens):
-            if WORD_RE.fullmatch(tokens[j]):
-                run_words.append(tokens[j])
-                j += 1
-                if j < len(tokens) and tokens[j].isspace():
-                    j += 1
-                    continue
-                break
-            break
+    def replace_word(match):
+        raw = match.group(0)
+        word = norm(raw)
+        if word in TECH:
+            return raw
+        if word in WORDS:
+            replacement = WORDS[word]
+            provenance.append(['source-word', word, replacement, 1])
+            return replacement
+        return raw
 
-        k = 0
-        run_out = []
-        while k < len(run_words):
-            matched = False
-            for size in range(min(8, len(run_words) - k), 1, -1):
-                key = ' '.join(norm(word) for word in run_words[k:k + size])
-                if key in PHRASES:
-                    run_out.append(PHRASES[key])
-                    provenance.append(['source-phrase', key, PHRASES[key]])
-                    k += size
-                    matched = True
-                    break
-            if matched:
-                continue
+    work = WORD_RE.sub(replace_word, work)
 
-            word = norm(run_words[k])
-            if word in TECH:
-                run_out.append(run_words[k])
-            elif word in WORDS:
-                run_out.append(WORDS[word])
-                provenance.append(['manual-word', word, WORDS[word]])
-            else:
-                run_out.append(run_words[k])
-                unresolved.append(run_words[k])
-            k += 1
+    # Traditional Nôm prose does not need spaces between adjacent Han/Nôm characters.
+    work = re.sub(rf'(?<=[{CJK}])\s+(?=[{CJK}])', '', work)
 
-        out.append(''.join(run_out))
-        i = j
+    for marker, value in placeholders.items():
+        work = work.replace(marker, value)
 
-    result = ''.join(out)
-    for key, value in placeholders.items():
-        result = result.replace(key, value)
-    return result, provenance, unresolved
+    unresolved = [
+        word for word in WORD_RE.findall(PLACEHOLDER_RE.sub('', work))
+        if norm(word) not in TECH
+    ]
+    return work, provenance, unresolved
 
 
 data = json.loads(ARB.read_text(encoding='utf-8'))
@@ -142,10 +220,6 @@ for key, value in list(data.items()):
     if not WORD_RE.search(value):
         continue
 
-    words = [norm(word) for word in WORD_RE.findall(PLACEHOLDER_RE.sub('', value))]
-    if words and all(word in TECH or (word.isascii() and word.upper() == word) for word in words):
-        continue
-
     converted, provenance, unresolved = convert_value(value)
     if converted != value:
         data[key] = converted
@@ -155,35 +229,25 @@ for key, value in list(data.items()):
             'provenance': provenance,
         }
 
-    latin_words = [
-        word
-        for word in WORD_RE.findall(PLACEHOLDER_RE.sub('', converted))
-        if norm(word) not in TECH
-    ]
-    if latin_words:
+    if unresolved:
         remaining[key] = {
             'value': converted,
-            'latin_words': latin_words,
-            'unresolved': unresolved,
+            'latin_words': unresolved,
         }
 
 ARB.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 REVIEW.parent.mkdir(parents=True, exist_ok=True)
 REVIEW.write_text(
-    json.dumps(
-        {
-            'method': 'phrase-first; source phrase matches before contextual manual words',
-            'changed_count': len(changed),
-            'remaining_count': len(remaining),
-            'changed': changed,
-            'remaining': remaining,
-        },
-        ensure_ascii=False,
-        indent=2,
-    ) + '\n',
+    json.dumps({
+        'method': 'phrase-first; mappings are source-backed; unresolved text is retained for review',
+        'changed_count': len(changed),
+        'remaining_count': len(remaining),
+        'changed': changed,
+        'remaining': remaining,
+    }, ensure_ascii=False, indent=2) + '\n',
     encoding='utf-8',
 )
 
 print(f'Changed {len(changed)} values; remaining Latin-review keys: {len(remaining)}')
-for key, value in list(remaining.items())[:120]:
+for key, value in list(remaining.items())[:160]:
     print(f"REMAIN {key}: {value['value']} :: {value['latin_words']}")
