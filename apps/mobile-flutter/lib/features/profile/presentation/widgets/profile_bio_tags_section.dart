@@ -23,7 +23,6 @@ class ProfileBioTagsSection extends StatelessWidget {
     return Container(
       margin: EdgeInsets.zero,
       padding: const EdgeInsets.all(20),
-      color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -43,7 +42,7 @@ class ProfileBioTagsSection extends StatelessWidget {
                     child: Text(
                       bio,
                       style: TextStyle(
-                        color: Colors.grey.shade700,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 14,
                         height: 1.5,
                         fontStyle: FontStyle.italic,
@@ -71,32 +70,33 @@ class ProfileBioTagsSection extends StatelessWidget {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade50.withValues(alpha: 0.5),
+                        color: Theme.of(context).colorScheme.outlineVariant,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         '# $tag',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.blue.shade700,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
+                  //添加标签按钮
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
+                      color: Theme.of(context).colorScheme.outlineVariant,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Icon(
                       Icons.add,
                       size: 14,
-                      color: Colors.grey.shade500,
+                      color: Theme.of(context).colorScheme.onSurface
                     ),
                   ),
                 ],

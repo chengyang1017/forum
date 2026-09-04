@@ -514,7 +514,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         Icon(
                           Icons.dynamic_feed_rounded,
                           size: 20,
-                          color: theme.primaryColor,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -613,7 +613,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         return Divider(
                           height: 1,
                           thickness: 1,
-                          color: Colors.grey.shade100,
                         );
                       }
 

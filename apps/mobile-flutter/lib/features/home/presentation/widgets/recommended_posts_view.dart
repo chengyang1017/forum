@@ -227,9 +227,9 @@ class _InterestedPostListState extends State<_InterestedPostList> {
       onRefresh: _refresh,
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
+        padding: EdgeInsets.zero,
         itemCount: posts.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
+        separatorBuilder: (_, _) => Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
         itemBuilder: (context, index) {
           return PostItemCard(
             post: posts[index],
