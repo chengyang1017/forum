@@ -61,22 +61,25 @@ void main() {
     }
   });
 
-  test('base locale category-name messages match current root category count', () {
-    final categoryNamePattern = RegExp(r'^categoryName\d+$');
+  test(
+    'base locale category-name messages match current root category count',
+    () {
+      final categoryNamePattern = RegExp(r'^categoryName\d+$');
 
-    for (final code in <String>['en', 'zh', 'ja', 'ko', 'ms', 'vi', 'th']) {
-      final data = readLocale(code);
-      final categoryNameKeys = messageKeys(
-        data,
-      ).where(categoryNamePattern.hasMatch).toList();
+      for (final code in <String>['en', 'zh', 'ja', 'ko', 'ms', 'vi', 'th']) {
+        final data = readLocale(code);
+        final categoryNameKeys = messageKeys(
+          data,
+        ).where(categoryNamePattern.hasMatch).toList();
 
-      expect(
-        categoryNameKeys.length,
-        ForumCategories.roots.length,
-        reason: 'app_$code.arb categoryName messages are stale',
-      );
-    }
-  });
+        expect(
+          categoryNameKeys.length,
+          ForumCategories.roots.length,
+          reason: 'app_$code.arb categoryName messages are stale',
+        );
+      }
+    },
+  );
 
   test('base locale category messages cover every static forum category', () {
     for (final code in <String>['en', 'zh', 'ja', 'ko', 'ms', 'vi', 'th']) {

@@ -37,10 +37,7 @@ void main() {
     test('interests cannot be mutated outside the state', () {
       final state = AuthState(interests: {'flutter'});
 
-      expect(
-        () => state.interests.add('firebase'),
-        throwsUnsupportedError,
-      );
+      expect(() => state.interests.add('firebase'), throwsUnsupportedError);
     });
   });
 
@@ -146,54 +143,63 @@ void main() {
       },
     );
 
-    test('loadUser merges backend profile into authenticated identity', () async {
-      const authUser = UserModel(
-        id: 'user-1',
-        username: 'alice',
-        email: 'alice@example.com',
-      );
-      const backendUser = UserModel(
-        id: 'user-1',
-        username: 'alice-new',
-        email: 'alice@example.com',
-        nickname: 'Alice',
-      );
-      authRepository.currentUser = authUser;
-      userRepository.currentUser = backendUser;
+    test(
+      'loadUser merges backend profile into authenticated identity',
+      () async {
+        const authUser = UserModel(
+          id: 'user-1',
+          username: 'alice',
+          email: 'alice@example.com',
+        );
+        const backendUser = UserModel(
+          id: 'user-1',
+          username: 'alice-new',
+          email: 'alice@example.com',
+          nickname: 'Alice',
+        );
+        authRepository.currentUser = authUser;
+        userRepository.currentUser = backendUser;
 
-      await cubit.loadUser();
+        await cubit.loadUser();
 
-      expect(cubit.state.user, backendUser);
-      expect(cubit.state.isAuthenticated, isTrue);
-      expect(cubit.state.isInitialized, isTrue);
-    });
+        expect(cubit.state.user, backendUser);
+        expect(cubit.state.isAuthenticated, isTrue);
+        expect(cubit.state.isInitialized, isTrue);
+      },
+    );
 
-    test('loadUser migrates legacy interests when backend state is legacy', () async {
-      authRepository.currentUser = user;
-      userRepository.currentUser = user;
-      userRepository.interests = <String>{};
-      userRepository.interestsSource = 'legacy';
-      userRepository.legacyInterests = <String>{'flutter', 'dart'};
+    test(
+      'loadUser migrates legacy interests when backend state is legacy',
+      () async {
+        authRepository.currentUser = user;
+        userRepository.currentUser = user;
+        userRepository.interests = <String>{};
+        userRepository.interestsSource = 'legacy';
+        userRepository.legacyInterests = <String>{'flutter', 'dart'};
 
-      await cubit.loadUser();
+        await cubit.loadUser();
 
-      expect(userRepository.updatedInterests, <String>{'flutter', 'dart'});
-      expect(cubit.state.interests, <String>{'flutter', 'dart'});
-      expect(cubit.state.interestsSource, 'db');
-    });
+        expect(userRepository.updatedInterests, <String>{'flutter', 'dart'});
+        expect(cubit.state.interests, <String>{'flutter', 'dart'});
+        expect(cubit.state.interestsSource, 'db');
+      },
+    );
 
-    test('toggleInterest rolls back optimistic state when persistence fails', () async {
-      cubit.seedInterestsForTest(<String>{'flutter'});
-      userRepository.updateInterestsError = StateError('save failed');
+    test(
+      'toggleInterest rolls back optimistic state when persistence fails',
+      () async {
+        cubit.seedInterestsForTest(<String>{'flutter'});
+        userRepository.updateInterestsError = StateError('save failed');
 
-      await expectLater(
-        cubit.toggleInterest('dart'),
-        throwsA(isA<StateError>()),
-      );
+        await expectLater(
+          cubit.toggleInterest('dart'),
+          throwsA(isA<StateError>()),
+        );
 
-      expect(cubit.state.interests, <String>{'flutter'});
-      expect(cubit.state.interestsError, isNotNull);
-    });
+        expect(cubit.state.interests, <String>{'flutter'});
+        expect(cubit.state.interestsError, isNotNull);
+      },
+    );
 
     test('password reset delegates to repository', () async {
       await cubit.sendPasswordResetEmail('alice@example.com');
@@ -319,10 +325,7 @@ class _FakeUserBackendRepository implements UserBackendRepository {
 
   @override
   Future<UserInterestsSnapshot> getInterests() async {
-    return UserInterestsSnapshot(
-      interests: interests,
-      source: interestsSource,
-    );
+    return UserInterestsSnapshot(interests: interests, source: interestsSource);
   }
 
   @override
