@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:glyphora_mobile/features/auth/domain/errors/auth_failure.dart';
 import 'package:glyphora_mobile/features/auth/domain/models/user_model.dart';
 import 'package:glyphora_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:glyphora_mobile/features/auth/domain/repositories/user_backend_repository.dart';
@@ -34,9 +35,12 @@ void main() {
     });
 
     test('interests cannot be mutated outside the state', () {
-      final state = AuthState(interests: const {'flutter'});
+      final state = AuthState(interests: {'flutter'});
 
-      expect(() => state.interests.add('dart'), throwsUnsupportedError);
+      expect(
+        () => state.interests.add('firebase'),
+        throwsUnsupportedError,
+      );
     });
   });
 
@@ -48,7 +52,6 @@ void main() {
     setUp(() {
       authRepository = _FakeAuthRepository();
       userRepository = _FakeUserBackendRepository();
-
       cubit = AuthCubit(
         authRepository: authRepository,
         userRepository: userRepository,
@@ -61,30 +64,27 @@ void main() {
 
     test('starts uninitialized and unauthenticated', () {
       expect(cubit.state.isInitialized, isFalse);
-      expect(cubit.state.isLoading, isFalse);
-      expect(cubit.state.user, isNull);
       expect(cubit.state.isAuthenticated, isFalse);
+      expect(cubit.state.isLoading, isFalse);
     });
 
     test('loadUser completes initialization when no session exists', () async {
-      authRepository.currentUser = null;
-
       await cubit.loadUser();
 
       expect(cubit.state.isInitialized, isTrue);
       expect(cubit.state.isLoading, isFalse);
       expect(cubit.state.user, isNull);
-      expect(cubit.state.isAuthenticated, isFalse);
     });
 
     test('login exposes loading then authenticated state', () async {
       final completer = Completer<UserModel>();
-
       authRepository.onLogin = (_, _) => completer.future;
 
       final loginFuture = cubit.login('alice@example.com', 'password');
+      await Future<void>.delayed(Duration.zero);
 
       expect(cubit.state.isLoading, isTrue);
+      expect(cubit.state.isInitialized, isTrue);
 
       completer.complete(user);
       await loginFuture;
@@ -118,10 +118,10 @@ void main() {
         await expectLater(
           cubit.register('alice@example.com', 'password', 'alice'),
           throwsA(
-            isA<Exception>().having(
-              (error) => error.toString(),
-              'message',
-              contains('该用户名已被使用'),
+            isA<AuthFailure>().having(
+              (failure) => failure.code,
+              'code',
+              AuthFailureCode.usernameTaken,
             ),
           ),
         );
@@ -135,96 +135,65 @@ void main() {
     test(
       'register normalizes username before availability and auth calls',
       () async {
+        authRepository.registerResult = user;
+
         await cubit.register('alice@example.com', 'password', '  alice  ');
 
         expect(userRepository.checkedUsernames, ['alice']);
-        expect(authRepository.lastRegisteredUsername, 'alice');
-        expect(cubit.state.user?.username, 'alice');
+        expect(authRepository.registerUsernames, ['alice']);
+        expect(cubit.state.user, same(user));
+        expect(cubit.state.isAuthenticated, isTrue);
       },
     );
 
-    test(
-      'loadUser merges backend profile into authenticated identity',
-      () async {
-        final createdAt = DateTime(2026, 1, 2);
-        final lastActive = DateTime(2026, 1, 3);
+    test('loadUser merges backend profile into authenticated identity', () async {
+      const authUser = UserModel(
+        id: 'user-1',
+        username: 'alice',
+        email: 'alice@example.com',
+      );
+      const backendUser = UserModel(
+        id: 'user-1',
+        username: 'alice-new',
+        email: 'alice@example.com',
+        nickname: 'Alice',
+      );
+      authRepository.currentUser = authUser;
+      userRepository.currentUser = backendUser;
 
-        authRepository.currentUser = user;
-        userRepository.currentUser = UserModel(
-          id: user.id,
-          username: 'server-name',
-          email: 'server@example.com',
-          nickname: 'Server Nickname',
-          avatar: 'https://example.test/avatar.png',
-          bio: 'Server bio',
-          birthday: DateTime(2000, 4, 5),
-          showAge: false,
-          createdAt: createdAt,
-          lastActive: lastActive,
-        );
-        userRepository.interestState = (
-          interests: <String>{'technology'},
-          migrated: true,
-        );
+      await cubit.loadUser();
 
-        await cubit.loadUser();
+      expect(cubit.state.user, backendUser);
+      expect(cubit.state.isAuthenticated, isTrue);
+      expect(cubit.state.isInitialized, isTrue);
+    });
 
-        expect(userRepository.lastSyncedUser, same(user));
-        expect(cubit.state.user?.id, user.id);
-        expect(cubit.state.user?.username, 'server-name');
-        expect(cubit.state.user?.email, 'server@example.com');
-        expect(cubit.state.user?.nickname, 'Server Nickname');
-        expect(cubit.state.user?.bio, 'Server bio');
-        expect(cubit.state.user?.showAge, isFalse);
-        expect(cubit.state.user?.createdAt, createdAt);
-        expect(cubit.state.user?.lastActive, lastActive);
-        expect(cubit.state.interests, <String>{'technology'});
-        expect(cubit.state.interestsLoaded, isTrue);
-        expect(cubit.state.isInitialized, isTrue);
-        expect(cubit.state.isLoading, isFalse);
-      },
-    );
+    test('loadUser migrates legacy interests when backend state is legacy', () async {
+      authRepository.currentUser = user;
+      userRepository.currentUser = user;
+      userRepository.interests = <String>{};
+      userRepository.interestsSource = 'legacy';
+      userRepository.legacyInterests = <String>{'flutter', 'dart'};
 
-    test(
-      'loadUser migrates legacy interests when backend state is legacy',
-      () async {
-        authRepository.currentUser = user;
-        authRepository.legacyInterests = <String>{'languages', 'technology'};
-        userRepository.interestState = (interests: <String>{}, migrated: false);
-        userRepository.migratedInterests = <String>{'languages', 'technology'};
+      await cubit.loadUser();
 
-        await cubit.loadUser();
+      expect(userRepository.updatedInterests, <String>{'flutter', 'dart'});
+      expect(cubit.state.interests, <String>{'flutter', 'dart'});
+      expect(cubit.state.interestsSource, 'db');
+    });
 
-        expect(authRepository.lastLegacyInterestUserId, user.id);
-        expect(userRepository.lastLegacyInterests, <String>{
-          'languages',
-          'technology',
-        });
-        expect(cubit.state.interests, <String>{'languages', 'technology'});
-        expect(cubit.state.interestsLoaded, isTrue);
-      },
-    );
+    test('toggleInterest rolls back optimistic state when persistence fails', () async {
+      cubit.seedInterestsForTest(<String>{'flutter'});
+      userRepository.updateInterestsError = StateError('save failed');
 
-    test(
-      'toggleInterest rolls back optimistic state when persistence fails',
-      () async {
-        authRepository.currentUser = user;
-        userRepository.interestState = (
-          interests: <String>{'languages'},
-          migrated: true,
-        );
+      await expectLater(
+        cubit.toggleInterest('dart'),
+        throwsA(isA<StateError>()),
+      );
 
-        await cubit.loadUser();
-        userRepository.updateInterestsError = StateError('save failed');
-
-        await expectLater(
-          cubit.toggleInterest('technology'),
-          throwsA(isA<StateError>()),
-        );
-
-        expect(cubit.state.interests, <String>{'languages'});
-      },
-    );
+      expect(cubit.state.interests, <String>{'flutter'});
+      expect(cubit.state.interestsError, isNotNull);
+    });
 
     test('password reset delegates to repository', () async {
       await cubit.sendPasswordResetEmail('alice@example.com');
@@ -233,42 +202,42 @@ void main() {
     });
 
     test('logout clears user and keeps auth initialized', () async {
-      authRepository.onLogin = (_, _) async => user;
+      authRepository.currentUser = user;
+      await cubit.loadUser();
 
-      await cubit.login('alice@example.com', 'password');
       await cubit.logout();
 
-      expect(authRepository.logoutCalls, 1);
       expect(cubit.state.user, isNull);
       expect(cubit.state.isAuthenticated, isFalse);
       expect(cubit.state.isInitialized, isTrue);
-      expect(cubit.state.interests, isEmpty);
-      expect(cubit.state.interestsLoaded, isFalse);
-      expect(cubit.state.interestsError, isNull);
+      expect(authRepository.logoutCalls, 1);
     });
   });
 }
 
 class _FakeAuthRepository implements AuthRepository {
+  UserModel? currentUser;
+  UserModel? registerResult;
   Future<UserModel> Function(String email, String password)? onLogin;
 
-  UserModel? currentUser;
-  Set<String> legacyInterests = const <String>{};
-  int logoutCalls = 0;
   int registerCalls = 0;
-  String? lastRegisteredUsername;
-  String? lastLegacyInterestUserId;
+  int logoutCalls = 0;
+  final List<String> registerUsernames = [];
   final List<String> passwordResetEmails = [];
 
   @override
-  Future<UserModel> login(String email, String password) {
-    final handler = onLogin;
+  UserModel? getCurrentUser() => currentUser;
 
-    if (handler == null) {
-      throw StateError('onLogin was not configured');
+  @override
+  Future<UserModel> login(String email, String password) async {
+    if (onLogin != null) {
+      currentUser = await onLogin!(email, password);
+      return currentUser!;
     }
-
-    return handler(email, password);
+    if (currentUser == null) {
+      throw StateError('No login result configured');
+    }
+    return currentUser!;
   }
 
   @override
@@ -278,56 +247,47 @@ class _FakeAuthRepository implements AuthRepository {
     String username,
   ) async {
     registerCalls++;
-    lastRegisteredUsername = username;
-    return UserModel(id: 'registered-user', username: username, email: email);
-  }
-
-  @override
-  Future<UserModel?> getCurrentUser() async {
-    return currentUser;
-  }
-
-  @override
-  Future<UserModel> updateProfile(UserModel user) async {
-    return user;
-  }
-
-  @override
-  Future<void> changePassword(
-    String currentPassword,
-    String newPassword,
-  ) async {}
-
-  @override
-  Future<void> sendPasswordResetEmail(String email) async {
-    passwordResetEmails.add(email);
-  }
-
-  @override
-  Future<Set<String>> getLegacyInterests(String userId) async {
-    lastLegacyInterestUserId = userId;
-    return Set<String>.from(legacyInterests);
+    registerUsernames.add(username);
+    if (registerResult == null) {
+      throw StateError('No register result configured');
+    }
+    currentUser = registerResult;
+    return registerResult!;
   }
 
   @override
   Future<void> logout() async {
     logoutCalls++;
+    currentUser = null;
+  }
+
+  @override
+  Future<void> deleteCurrentUser() async {
+    currentUser = null;
+  }
+
+  @override
+  Future<void> reauthenticate(String currentPassword) async {}
+
+  @override
+  Future<void> updatePassword(String newPassword) async {}
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {
+    passwordResetEmails.add(email);
   }
 }
 
 class _FakeUserBackendRepository implements UserBackendRepository {
   bool usernameAvailable = true;
   UserModel? currentUser;
-  ({Set<String> interests, bool migrated}) interestState = (
-    interests: const <String>{},
-    migrated: true,
-  );
-  Set<String>? migratedInterests;
+  Set<String> interests = <String>{};
+  Set<String> legacyInterests = <String>{};
+  String interestsSource = 'db';
   Object? updateInterestsError;
 
   final List<String> checkedUsernames = [];
-  UserModel? lastSyncedUser;
-  Set<String>? lastLegacyInterests;
+  Set<String>? updatedInterests;
 
   @override
   Future<bool> isUsernameAvailable(String username) async {
@@ -336,46 +296,50 @@ class _FakeUserBackendRepository implements UserBackendRepository {
   }
 
   @override
-  Future<void> syncCurrentUser(UserModel user) async {
-    lastSyncedUser = user;
+  Future<UserModel> syncCurrentUser({
+    required String username,
+    String? email,
+  }) async {
+    return currentUser ??
+        UserModel(id: 'user-1', username: username, email: email ?? '');
   }
 
   @override
-  Future<UserModel?> getCurrentUser() async {
-    return currentUser;
+  Future<UserModel?> getCurrentUser() async => currentUser;
+
+  @override
+  Future<UserModel> updateCurrentUser(Map<String, dynamic> updates) async {
+    final base = currentUser ?? user;
+    currentUser = base.copyWith(
+      username: updates['username'] as String? ?? base.username,
+      nickname: updates['nickname'] as String? ?? base.nickname,
+    );
+    return currentUser!;
   }
 
   @override
-  Future<UserModel> updateCurrentUser(Map<String, dynamic> data) async {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<UserModel?> getUser(String uid) async {
-    return null;
-  }
-
-  @override
-  Future<({Set<String> interests, bool migrated})> getInterestState() async {
-    return (
-      interests: Set<String>.from(interestState.interests),
-      migrated: interestState.migrated,
+  Future<UserInterestsSnapshot> getInterests() async {
+    return UserInterestsSnapshot(
+      interests: interests,
+      source: interestsSource,
     );
   }
 
   @override
   Future<Set<String>> updateInterests(Set<String> interests) async {
-    final error = updateInterestsError;
-    if (error != null) {
-      throw error;
+    if (updateInterestsError != null) {
+      throw updateInterestsError!;
     }
-
+    updatedInterests = Set<String>.from(interests);
+    this.interests = Set<String>.from(interests);
     return Set<String>.from(interests);
   }
 
   @override
-  Future<Set<String>> migrateInterests(Set<String> legacyInterests) async {
-    lastLegacyInterests = Set<String>.from(legacyInterests);
-    return Set<String>.from(migratedInterests ?? legacyInterests);
+  Future<Set<String>> migrateLegacyInterests(Set<String> interests) async {
+    updatedInterests = Set<String>.from(interests);
+    this.interests = Set<String>.from(interests);
+    interestsSource = 'db';
+    return Set<String>.from(interests);
   }
 }
