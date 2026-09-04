@@ -52,11 +52,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> _loadPageData() async {
-    await Future.wait([
-      _loadProfile(),
-      _loadBlockState(),
-      _loadRelationship(),
-    ]);
+    await Future.wait([_loadProfile(), _loadBlockState(), _loadRelationship()]);
   }
 
   Future<void> _loadProfile() async {
@@ -112,7 +108,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.get('blockedInteraction')),
+          content: Text(
+            AppLocalizations.of(context)!.get('blockedInteraction'),
+          ),
         ),
       );
       return;
@@ -176,7 +174,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.get('blockedInteraction')),
+          content: Text(
+            AppLocalizations.of(context)!.get('blockedInteraction'),
+          ),
         ),
       );
       return;
@@ -209,14 +209,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         });
         await _loadRelationship();
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.get('userUnblocked'))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.get('userUnblocked'))));
       } catch (_) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.get('operationFailed'))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.get('operationFailed'))));
       }
       return;
     }
@@ -251,14 +251,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         _interactionBlocked = true;
         _relationshipStatus = FriendRelationshipStatus.none;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.get('userBlocked'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.get('userBlocked'))));
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.get('operationFailed'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.get('operationFailed'))));
     }
   }
 

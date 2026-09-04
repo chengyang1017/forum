@@ -233,36 +233,42 @@ void main() {
       expect(authRepository.passwordResetEmails, ['alice@example.com']);
     });
 
-    test('deleteAccount reauthenticates, deletes backend account and logs out', () async {
-      authRepository.onLogin = (_, _) async => user;
-      await cubit.login('alice@example.com', 'password');
+    test(
+      'deleteAccount reauthenticates, deletes backend account and logs out',
+      () async {
+        authRepository.onLogin = (_, _) async => user;
+        await cubit.login('alice@example.com', 'password');
 
-      await cubit.deleteAccount('current-password');
+        await cubit.deleteAccount('current-password');
 
-      expect(authRepository.reauthenticatedPasswords, ['current-password']);
-      expect(userRepository.deleteCurrentAccountCalls, 1);
-      expect(authRepository.logoutCalls, 1);
-      expect(cubit.state.user, isNull);
-      expect(cubit.state.isAuthenticated, isFalse);
-      expect(cubit.state.isInitialized, isTrue);
-      expect(cubit.state.isLoading, isFalse);
-    });
+        expect(authRepository.reauthenticatedPasswords, ['current-password']);
+        expect(userRepository.deleteCurrentAccountCalls, 1);
+        expect(authRepository.logoutCalls, 1);
+        expect(cubit.state.user, isNull);
+        expect(cubit.state.isAuthenticated, isFalse);
+        expect(cubit.state.isInitialized, isTrue);
+        expect(cubit.state.isLoading, isFalse);
+      },
+    );
 
-    test('deleteAccount stops before deletion when reauthentication fails', () async {
-      authRepository.onLogin = (_, _) async => user;
-      authRepository.reauthenticateError = StateError('wrong password');
-      await cubit.login('alice@example.com', 'password');
+    test(
+      'deleteAccount stops before deletion when reauthentication fails',
+      () async {
+        authRepository.onLogin = (_, _) async => user;
+        authRepository.reauthenticateError = StateError('wrong password');
+        await cubit.login('alice@example.com', 'password');
 
-      await expectLater(
-        cubit.deleteAccount('bad-password'),
-        throwsA(isA<StateError>()),
-      );
+        await expectLater(
+          cubit.deleteAccount('bad-password'),
+          throwsA(isA<StateError>()),
+        );
 
-      expect(userRepository.deleteCurrentAccountCalls, 0);
-      expect(authRepository.logoutCalls, 0);
-      expect(cubit.state.user, same(user));
-      expect(cubit.state.isLoading, isFalse);
-    });
+        expect(userRepository.deleteCurrentAccountCalls, 0);
+        expect(authRepository.logoutCalls, 0);
+        expect(cubit.state.user, same(user));
+        expect(cubit.state.isLoading, isFalse);
+      },
+    );
 
     test('logout clears user and keeps auth initialized', () async {
       authRepository.onLogin = (_, _) async => user;

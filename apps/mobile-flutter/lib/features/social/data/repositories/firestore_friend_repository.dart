@@ -251,28 +251,24 @@ final class FirestoreFriendRepository implements FriendRepository {
   Future<void> blockUser(String otherUserId) async {
     final userId = _currentUserId;
     if (otherUserId == userId) {
-      throw ArgumentError.value(otherUserId, 'otherUserId', 'Cannot block self.');
+      throw ArgumentError.value(
+        otherUserId,
+        'otherUserId',
+        'Cannot block self.',
+      );
     }
 
     final batch = _firestore.batch();
 
-    batch.set(
-      _blocksDoc(userId),
-      {otherUserId: true},
-      SetOptions(merge: true),
-    );
+    batch.set(_blocksDoc(userId), {otherUserId: true}, SetOptions(merge: true));
 
     // Blocking severs all normal social edges in both directions.
-    batch.set(
-      _firestore.collection('friends').doc(userId),
-      {otherUserId: FieldValue.delete()},
-      SetOptions(merge: true),
-    );
-    batch.set(
-      _firestore.collection('friends').doc(otherUserId),
-      {userId: FieldValue.delete()},
-      SetOptions(merge: true),
-    );
+    batch.set(_firestore.collection('friends').doc(userId), {
+      otherUserId: FieldValue.delete(),
+    }, SetOptions(merge: true));
+    batch.set(_firestore.collection('friends').doc(otherUserId), {
+      userId: FieldValue.delete(),
+    }, SetOptions(merge: true));
     batch.delete(
       _firestore.collection('friend_requests').doc('${userId}_$otherUserId'),
     );
@@ -293,9 +289,8 @@ final class FirestoreFriendRepository implements FriendRepository {
   Future<void> unblockUser(String otherUserId) async {
     final userId = _currentUserId;
 
-    await _blocksDoc(userId).set(
-      {otherUserId: FieldValue.delete()},
-      SetOptions(merge: true),
-    );
+    await _blocksDoc(
+      userId,
+    ).set({otherUserId: FieldValue.delete()}, SetOptions(merge: true));
   }
 }

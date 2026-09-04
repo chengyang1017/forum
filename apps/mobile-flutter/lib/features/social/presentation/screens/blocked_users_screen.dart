@@ -19,10 +19,7 @@ class BlockedUsersScreen extends StatelessWidget {
     final profileRepository = context.read<ProfileRepository>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.blockList),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.blockList), centerTitle: true),
       body: StreamBuilder<List<String>>(
         stream: friendRepository.watchBlockedUsers(),
         builder: (context, snapshot) {
