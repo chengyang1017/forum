@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.flutter_application_3"
+    namespace = "com.glyphora.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -18,25 +18,23 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.flutter_application_3"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        applicationId = "com.glyphora.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
         ndk {
-        abiFilters.clear()
-        abiFilters.addAll(listOf("arm64-v8a", "x86_64",))
-    }
+            abiFilters.clear()
+            abiFilters.addAll(listOf("arm64-v8a", "x86_64"))
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Release signing is intentionally configured separately from the
+            // package identity. Replace this with the production upload key
+            // before publishing the Play Store AAB.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
