@@ -1517,28 +1517,10 @@ postRouter.get(
       response.locals.auth;
 
     try {
-      const validDatabaseId =
-        z.string()
-          .uuid()
-          .safeParse(id);
-
       const post =
-        await prisma.post.findFirst({
-          where:
-            validDatabaseId.success
-              ? {
-                  OR: [
-                    {
-                      firestoreId: id,
-                    },
-                    {
-                      id,
-                    },
-                  ],
-                }
-              : {
-                  firestoreId: id,
-                },
+      await prisma.post.findFirst({
+        where:
+          postWhereById(id),
 
           include: {
             ...postInclude,
