@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
@@ -64,15 +65,16 @@ class BlockedUsersScreen extends StatelessWidget {
                       : displayName;
                   final username = user?.username.trim() ?? '';
                   final avatarUrl = user?.avatarUrl ?? '';
+                  final avatarText = title.runes.isEmpty
+                      ? '?'
+                      : String.fromCharCode(title.runes.first);
 
                   return ListTile(
                     leading: CircleAvatar(
                       backgroundImage: avatarUrl.isNotEmpty
                           ? CachedNetworkImageProvider(avatarUrl)
                           : null,
-                      child: avatarUrl.isEmpty
-                          ? Text(title.characters.firstOrNull ?? '?')
-                          : null,
+                      child: avatarUrl.isEmpty ? Text(avatarText) : null,
                     ),
                     title: Text(title),
                     subtitle: username.isEmpty ? null : Text('@$username'),
