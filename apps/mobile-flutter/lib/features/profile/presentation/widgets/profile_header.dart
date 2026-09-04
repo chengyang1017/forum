@@ -116,7 +116,7 @@ class ProfileHeader extends StatelessWidget {
                       Icon(Icons.cake, size: 16, color: Colors.pink[300]),
                       const SizedBox(width: 4),
                       Text(
-                        '${_calculateAge(birthday!)} 岁',
+                        context.l10n.ageYears('${_calculateAge(birthday!)}'),
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[700],

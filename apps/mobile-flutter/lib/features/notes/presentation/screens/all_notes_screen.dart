@@ -75,7 +75,10 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
       }
 
       setState(() {
-        _usersById[userId] = _SharedUser.fromUserModel(user);
+        _usersById[userId] = _SharedUser.fromUserModel(
+          user,
+          fallbackName: context.l10n.user,
+        );
       });
     } catch (error) {
       debugPrint('加载共享用户失败：$userId，$error');
@@ -134,11 +137,11 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
   String _languageLabel(String? languageCode) {
     if (languageCode == null) {
-      return '全部语言';
+      return context.l10n.allLanguages;
     }
 
     if (languageCode == _unspecifiedLanguage) {
-      return '未指定语言';
+      return context.l10n.unspecifiedLanguage;
     }
 
     final uiLanguageCode = Localizations.localeOf(context).languageCode;
@@ -160,7 +163,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
   String _newNoteLanguageLabel(String? languageCode) {
     if (languageCode == null || languageCode.isEmpty) {
-      return '未选择';
+      return context.l10n.notSelected;
     }
 
     return _languageLabel(languageCode);
@@ -172,11 +175,11 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
   String _categoryName(String? category) {
     if (category == null) {
-      return '全部分类';
+      return context.l10n.allCategories;
     }
 
     if (category == _uncategorized) {
-      return '未分类';
+      return context.l10n.uncategorized;
     }
 
     final l10n = AppLocalizations.of(context)!;
@@ -189,7 +192,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
   String _newNoteCategoryLabel(String? category) {
     if (category == null || category.isEmpty) {
-      return '未选择';
+      return context.l10n.notSelected;
     }
 
     return _categoryName(category);
@@ -212,14 +215,14 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
             height: MediaQuery.sizeOf(context).height * 0.72,
             child: Column(
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(20, 4, 20, 14),
                   child: Row(
                     children: [
                       Icon(Icons.language),
                       SizedBox(width: 10),
                       Text(
-                        '选择语言',
+                        context.l10n.selectLanguage,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -236,7 +239,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                     children: [
                       ListTile(
                         leading: const Icon(Icons.public),
-                        title: const Text('全部语言'),
+                        title: Text(context.l10n.allLanguages),
                         trailing: _selectedLanguageCode == null
                             ? const Icon(Icons.check)
                             : null,
@@ -247,7 +250,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
                       ListTile(
                         leading: const Icon(Icons.help_outline),
-                        title: const Text('未指定语言'),
+                        title: Text(context.l10n.unspecifiedLanguage),
                         trailing: _selectedLanguageCode == _unspecifiedLanguage
                             ? const Icon(Icons.check)
                             : null,
@@ -314,14 +317,14 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
             height: MediaQuery.sizeOf(context).height * 0.72,
             child: Column(
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(20, 4, 20, 14),
                   child: Row(
                     children: [
                       Icon(Icons.category_outlined),
                       SizedBox(width: 10),
                       Text(
-                        '选择分类',
+                        context.l10n.selectCategory,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -338,7 +341,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                     children: [
                       ListTile(
                         leading: const Icon(Icons.apps_outlined),
-                        title: const Text('全部分类'),
+                        title: Text(context.l10n.allCategories),
                         trailing: _selectedCategory == null
                             ? const Icon(Icons.check)
                             : null,
@@ -349,7 +352,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
                       ListTile(
                         leading: const Icon(Icons.label_off_outlined),
-                        title: const Text('未分类'),
+                        title: Text(context.l10n.uncategorized),
                         trailing: _selectedCategory == _uncategorized
                             ? const Icon(Icons.check)
                             : null,
@@ -412,14 +415,14 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
             height: MediaQuery.sizeOf(context).height * 0.72,
             child: Column(
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(20, 4, 20, 14),
                   child: Row(
                     children: [
                       Icon(Icons.language),
                       SizedBox(width: 10),
                       Text(
-                        '笔记语言',
+                        context.l10n.noteLanguage,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -436,7 +439,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                     children: [
                       ListTile(
                         leading: const Icon(Icons.remove_circle_outline),
-                        title: const Text('未选择'),
+                        title: Text(context.l10n.notSelected),
                         trailing: currentLanguageCode == null
                             ? const Icon(Icons.check)
                             : null,
@@ -501,14 +504,14 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
             height: MediaQuery.sizeOf(context).height * 0.72,
             child: Column(
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(20, 4, 20, 14),
                   child: Row(
                     children: [
                       Icon(Icons.category_outlined),
                       SizedBox(width: 10),
                       Text(
-                        '笔记分类',
+                        context.l10n.noteCategory,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -525,7 +528,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                     children: [
                       ListTile(
                         leading: const Icon(Icons.remove_circle_outline),
-                        title: const Text('未选择'),
+                        title: Text(context.l10n.notSelected),
                         trailing: currentCategory == null
                             ? const Icon(Icons.check)
                             : null,
@@ -585,7 +588,12 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
       final users = discoverUsers
           .where((user) => user.id != currentUserId)
-          .map(_SharedUser.fromDiscoverUser)
+          .map(
+            (user) => _SharedUser.fromDiscoverUser(
+              user,
+              fallbackName: context.l10n.user,
+            ),
+          )
           .toList();
 
       users.sort((first, second) {
@@ -613,7 +621,10 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('加载用户失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('${context.l10n.loadFailed}: $error'),
+          backgroundColor: Colors.red,
+        ),
       );
 
       return null;
@@ -643,10 +654,10 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        '新建笔记',
+                        context.l10n.newNote,
                         style: TextStyle(
                           fontSize: 21,
                           fontWeight: FontWeight.w700,
@@ -656,10 +667,10 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
                     const SizedBox(height: 4),
 
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        '可以先设置笔记信息，也可以以后再修改。',
+                        context.l10n.newNoteConfigDescription,
                         style: TextStyle(fontSize: 13, color: Colors.grey),
                       ),
                     ),
@@ -675,7 +686,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                         children: [
                           _NewNoteConfigTile(
                             icon: Icons.language,
-                            title: '语言',
+                            title: context.l10n.currentLanguage,
                             value: _newNoteLanguageLabel(languageCode),
                             selected: languageCode != null,
                             onTap: () async {
@@ -697,7 +708,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
                           _NewNoteConfigTile(
                             icon: Icons.category_outlined,
-                            title: '分类',
+                            title: context.l10n.category,
                             value: _newNoteCategoryLabel(category),
                             selected: category != null,
                             onTap: () async {
@@ -719,11 +730,12 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
                           _NewNoteConfigTile(
                             icon: Icons.group_outlined,
-                            title: '共享',
+                            title: context.l10n.sharing,
                             value: sharedUserIds.isEmpty
-                                ? '仅自己'
-                                : '已选择 '
-                                      '${sharedUserIds.length} 人',
+                                ? context.l10n.onlyMe
+                                : context.l10n.selectedPeople(
+                                    '${sharedUserIds.length}',
+                                  ),
                             selected: sharedUserIds.isNotEmpty,
                             onTap: () async {
                               final result = await _pickSharedUsersForNewNote(
@@ -763,7 +775,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                               );
                             },
                             icon: const Icon(Icons.note_add_outlined),
-                            label: const Text('创建笔记'),
+                            label: Text(context.l10n.createNote),
                           ),
                         ),
                       ],
@@ -818,7 +830,10 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('创建笔记失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('${context.l10n.createNoteFailed}: $error'),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       if (mounted) {
@@ -839,8 +854,8 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
     if (currentUserId == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('我的笔记')),
-        body: const Center(child: Text('请先登录')),
+        appBar: AppBar(title: Text(context.l10n.myNotes)),
+        body: Center(child: Text(context.l10n.pleaseSignIn)),
       );
     }
 
@@ -850,11 +865,14 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
-        title: const Text('我的笔记'),
+        title: Text(context.l10n.myNotes),
 
         actions: [
           if (_hasActiveFilter)
-            TextButton(onPressed: _clearFilters, child: const Text('清除')),
+            TextButton(
+              onPressed: _clearFilters,
+              child: Text(context.l10n.clear),
+            ),
         ],
       ),
 
@@ -881,8 +899,8 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
                     const SizedBox(height: 12),
 
-                    const Text(
-                      '笔记加载失败',
+                    Text(
+                      context.l10n.notesLoadFailed,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -934,7 +952,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
               )
             : const Icon(Icons.add),
 
-        label: Text(_isCreating ? '正在创建' : '新建笔记'),
+        label: Text(_isCreating ? context.l10n.creating : context.l10n.newNote),
       ),
     );
   }
@@ -958,8 +976,8 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
                   const SizedBox(width: 12),
 
-                  const Text(
-                    '语言',
+                  Text(
+                    context.l10n.currentLanguage,
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
 
@@ -999,8 +1017,8 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
                   const SizedBox(width: 12),
 
-                  const Text(
-                    '分类',
+                  Text(
+                    context.l10n.category,
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
 
@@ -1054,19 +1072,24 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
             const SizedBox(height: 12),
 
             Text(
-              _hasActiveFilter ? '没有符合条件的笔记' : '还没有笔记',
+              _hasActiveFilter
+                  ? context.l10n.noMatchingNotes
+                  : context.l10n.noNotesYet,
               style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
 
             if (_hasActiveFilter) ...[
               const SizedBox(height: 10),
 
-              TextButton(onPressed: _clearFilters, child: const Text('清除筛选')),
+              TextButton(
+                onPressed: _clearFilters,
+                child: Text(context.l10n.clearFilters),
+              ),
             ] else ...[
               const SizedBox(height: 6),
 
-              const Text(
-                '点击右下角新建',
+              Text(
+                context.l10n.tapFabToCreateNote,
                 style: TextStyle(fontSize: 13, color: Colors.grey),
               ),
             ],
@@ -1143,7 +1166,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            title.isEmpty ? '无标题笔记' : title,
+                            title.isEmpty ? context.l10n.untitledNote : title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -1166,7 +1189,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                     const SizedBox(height: 6),
 
                     Text(
-                      content.isEmpty ? '暂无内容' : content,
+                      content.isEmpty ? context.l10n.noContent : content,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -1269,23 +1292,25 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
   String _buildSharedLabel(List<String> userIds) {
     if (userIds.isEmpty) {
-      return '仅自己可见';
+      return context.l10n.privateNote;
     }
 
     final names = userIds
-        .map((userId) => _usersById[userId]?.name ?? '用户')
+        .map((userId) => _usersById[userId]?.name ?? context.l10n.user)
         .toList();
 
     if (names.length == 1) {
-      return '与 ${names.first} 共享';
+      return context.l10n.sharedWithUser(names.first);
     }
 
     if (names.length == 2) {
-      return '与 ${names.join('、')} 共享';
+      return context.l10n.sharedWithUsers(names.join('、'));
     }
 
-    return '与 ${names.take(2).join('、')} 等 '
-        '${names.length} 人共享';
+    return context.l10n.sharedWithMany(
+      names.take(2).join('、'),
+      '${names.length}',
+    );
   }
 
   Widget _buildAvatar(_SharedUser user, {required double radius}) {
@@ -1474,9 +1499,9 @@ class _NewNoteSharedUsersPickerState extends State<_NewNoteSharedUsersPicker> {
               padding: const EdgeInsets.fromLTRB(20, 0, 12, 12),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      '共享成员',
+                      context.l10n.sharedMembers,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -1488,7 +1513,7 @@ class _NewNoteSharedUsersPickerState extends State<_NewNoteSharedUsersPicker> {
                     onPressed: () {
                       Navigator.pop(context, _selectedUserIds);
                     },
-                    child: const Text('完成'),
+                    child: Text(context.l10n.done),
                   ),
                 ],
               ),
@@ -1504,7 +1529,7 @@ class _NewNoteSharedUsersPickerState extends State<_NewNoteSharedUsersPicker> {
                   });
                 },
                 decoration: InputDecoration(
-                  hintText: '搜索昵称或用户名',
+                  hintText: context.l10n.searchNicknameOrUsername,
                   prefixIcon: const Icon(Icons.search),
                   filled: true,
                   border: OutlineInputBorder(
@@ -1519,7 +1544,7 @@ class _NewNoteSharedUsersPickerState extends State<_NewNoteSharedUsersPicker> {
 
             Expanded(
               child: users.isEmpty
-                  ? const Center(child: Text('没有找到用户'))
+                  ? Center(child: Text(context.l10n.noUsersFound))
                   : ListView.builder(
                       itemCount: users.length,
                       itemBuilder: (context, index) {
@@ -1582,25 +1607,31 @@ class _SharedUser {
     this.avatarUrl,
   });
 
-  factory _SharedUser.fromUserModel(UserModel user) {
+  factory _SharedUser.fromUserModel(
+    UserModel user, {
+    required String fallbackName,
+  }) {
     final name = user.profileDisplayName.trim();
     final avatarUrl = user.avatarUrl.trim();
 
     return _SharedUser(
       id: user.id,
-      name: name.isEmpty ? '用户' : name,
+      name: name.isEmpty ? fallbackName : name,
       username: user.username.trim(),
       avatarUrl: avatarUrl.isEmpty ? null : avatarUrl,
     );
   }
 
-  factory _SharedUser.fromDiscoverUser(DiscoverUser user) {
+  factory _SharedUser.fromDiscoverUser(
+    DiscoverUser user, {
+    required String fallbackName,
+  }) {
     final name = user.displayName.trim();
     final avatarUrl = user.avatarUrl.trim();
 
     return _SharedUser(
       id: user.id,
-      name: name.isEmpty ? '用户' : name,
+      name: name.isEmpty ? fallbackName : name,
       username: user.username.trim(),
       avatarUrl: avatarUrl.isEmpty ? null : avatarUrl,
     );

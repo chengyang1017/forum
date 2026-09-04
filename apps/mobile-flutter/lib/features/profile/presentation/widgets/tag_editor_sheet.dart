@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glyphora_mobile/app/l10n/app_localizations.dart';
 
 Future<List<String>?> showTagEditorSheet({
   required BuildContext context,
@@ -32,8 +33,8 @@ Future<List<String>?> showTagEditorSheet({
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      '编辑个性标签',
+                    Text(
+                      context.l10n.editTagsTitle,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -41,8 +42,8 @@ Future<List<String>?> showTagEditorSheet({
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(ctx, selected),
-                      child: const Text(
-                        '完成',
+                      child: Text(
+                        context.l10n.done,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -54,7 +55,7 @@ Future<List<String>?> showTagEditorSheet({
                 const SizedBox(height: 12),
                 if (selected.isNotEmpty) ...[
                   Text(
-                    '已选标签 (${selected.length}/10)',
+                    context.l10n.selectedTagsCount('${selected.length}'),
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                   ),
                   const SizedBox(height: 10),
@@ -93,7 +94,7 @@ Future<List<String>?> showTagEditorSheet({
                       child: TextField(
                         controller: customController,
                         decoration: InputDecoration(
-                          hintText: '输入自定义标签',
+                          hintText: context.l10n.customTagHint,
                           fillColor: Colors.grey.shade50,
                           filled: true,
                           border: OutlineInputBorder(
@@ -133,7 +134,7 @@ Future<List<String>?> showTagEditorSheet({
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('添加'),
+                      child: Text(context.l10n.add),
                     ),
                   ],
                 ),
@@ -141,7 +142,7 @@ Future<List<String>?> showTagEditorSheet({
                 const Divider(),
                 const SizedBox(height: 16),
                 Text(
-                  '推荐标签',
+                  context.l10n.recommendTags,
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                 ),
                 const SizedBox(height: 12),
@@ -215,8 +216,8 @@ void _addTag(
 
   if (selected.contains(tag)) {
     ScaffoldMessenger.of(ctx).showSnackBar(
-      const SnackBar(
-        content: Text('该标签已经添加过了'),
+      SnackBar(
+        content: Text(ctx.l10n.tagExists),
         duration: Duration(seconds: 1),
       ),
     );
@@ -225,10 +226,7 @@ void _addTag(
 
   if (selected.length >= 10) {
     ScaffoldMessenger.of(ctx).showSnackBar(
-      const SnackBar(
-        content: Text('最多只能添加10个标签'),
-        duration: Duration(seconds: 1),
-      ),
+      SnackBar(content: Text(ctx.l10n.tagMax), duration: Duration(seconds: 1)),
     );
     return;
   }

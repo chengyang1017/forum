@@ -15,15 +15,16 @@ abstract final class AppTheme {
     const raisedSurface = Color(0xFF111111);
     const border = Color(0xFF242424);
 
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF5B8CFF),
-      brightness: Brightness.dark,
-    ).copyWith(
-      surface: surface,
-      onSurface: const Color(0xFFF2F2F2),
-      outline: const Color(0xFF5D5D5D),
-      outlineVariant: border,
-    );
+    final colorScheme =
+        ColorScheme.fromSeed(
+          seedColor: const Color(0xFF5B8CFF),
+          brightness: Brightness.dark,
+        ).copyWith(
+          surface: surface,
+          onSurface: const Color(0xFFF2F2F2),
+          outline: const Color(0xFF5D5D5D),
+          outlineVariant: border,
+        );
 
     return ThemeData(
       useMaterial3: true,

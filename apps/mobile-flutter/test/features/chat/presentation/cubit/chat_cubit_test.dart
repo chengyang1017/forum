@@ -113,24 +113,24 @@ void main() {
       expect(mediaRepository.lastDeletedUrl, isNull);
     });
 
-    test('deletes uploaded image when image message persistence fails', () async {
-      mediaRepository.uploadResult = 'https://example.test/chat.png';
-      repository.sendImageError = StateError('send failed');
+    test(
+      'deletes uploaded image when image message persistence fails',
+      () async {
+        mediaRepository.uploadResult = 'https://example.test/chat.png';
+        repository.sendImageError = StateError('send failed');
 
-      await expectLater(
-        cubit.sendImageMessage(
-          chatId: 'chat-1',
-          senderId: 'user-1',
-          imageBytes: Uint8List.fromList(const [7, 8, 9]),
-        ),
-        throwsA(isA<StateError>()),
-      );
+        await expectLater(
+          cubit.sendImageMessage(
+            chatId: 'chat-1',
+            senderId: 'user-1',
+            imageBytes: Uint8List.fromList(const [7, 8, 9]),
+          ),
+          throwsA(isA<StateError>()),
+        );
 
-      expect(
-        mediaRepository.lastDeletedUrl,
-        'https://example.test/chat.png',
-      );
-    });
+        expect(mediaRepository.lastDeletedUrl, 'https://example.test/chat.png');
+      },
+    );
   });
 }
 

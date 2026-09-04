@@ -1,0 +1,28 @@
+name: Flutter i18n audit
+
+on:
+  pull_request:
+    paths:
+      - 'apps/mobile-flutter/lib/**'
+      - 'apps/mobile-flutter/lib/l10n/**'
+      - 'apps/mobile-flutter/tool/audit_hardcoded_ui.py'
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/mobile-flutter/lib/**'
+      - 'apps/mobile-flutter/lib/l10n/**'
+      - 'apps/mobile-flutter/tool/audit_hardcoded_ui.py'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reject hard-coded localized UI strings
+        run: python apps/mobile-flutter/tool/audit_hardcoded_ui.py

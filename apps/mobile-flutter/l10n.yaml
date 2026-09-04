@@ -3,7 +3,6 @@ template-arb-file: app_en.arb
 output-dir: lib/app/l10n/generated
 output-localization-file: app_localizations.dart
 output-class: AppLocalizations
-synthetic-package: false
 preferred-supported-locales: [zh]
 relax-syntax: true
 format: true

@@ -6,88 +6,104 @@ import 'package:glyphora_mobile/app/l10n/app_localizations.dart';
 import 'package:glyphora_mobile/core/constants/forum_categories.dart';
 
 void main() {
-  final assetDirectory = Directory('assets/l10n');
+  final arbDirectory = Directory('lib/l10n');
 
-  String assetCodeForLocale(locale) {
+  String arbCodeForLocale(locale) {
     if (locale.languageCode == 'vi' && locale.scriptCode == 'Hani') {
-      return 'chunom';
+      return 'vi_Hani';
     }
     return locale.languageCode;
   }
 
   Map<String, dynamic> readLocale(String code) {
-    final file = File('${assetDirectory.path}/$code.json');
+    final file = File('${arbDirectory.path}/app_$code.arb');
     return Map<String, dynamic>.from(
       jsonDecode(file.readAsStringSync()) as Map,
     );
   }
 
-  test('every supported interface locale has an asset', () {
+  Set<String> messageKeys(Map<String, dynamic> data) {
+    return data.keys.where((key) => !key.startsWith('@')).toSet();
+  }
+
+  String categoryMessageKey(String categoryId) {
+    final parts = categoryId
+        .split(RegExp(r'[^A-Za-z0-9]+'))
+        .where((part) => part.isNotEmpty);
+    final suffix = parts
+        .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+        .join();
+    return 'category$suffix';
+  }
+
+  test('every supported interface locale has an ARB source', () {
     for (final locale in AppLocalizations.supportedLocales) {
-      final code = assetCodeForLocale(locale);
+      final code = arbCodeForLocale(locale);
       expect(
-        File('${assetDirectory.path}/$code.json').existsSync(),
+        File('${arbDirectory.path}/app_$code.arb').existsSync(),
         isTrue,
-        reason: 'missing localization asset for $locale ($code.json)',
+        reason: 'missing localization ARB for $locale (app_$code.arb)',
       );
     }
   });
 
-  test('base interface locale files cover every English scalar key', () {
+  test('base interface ARB files cover every English message key', () {
     final english = readLocale('en');
-    final englishScalarKeys = english.entries
-        .where((entry) => entry.value is! List && entry.value is! Map)
-        .map((entry) => entry.key)
-        .toSet();
+    final englishKeys = messageKeys(english);
 
     for (final code in <String>['zh', 'ja', 'ko', 'ms', 'vi', 'th']) {
       final data = readLocale(code);
-      final scalarKeys = data.entries
-          .where((entry) => entry.value is! List && entry.value is! Map)
-          .map((entry) => entry.key)
-          .toSet();
       expect(
-        scalarKeys,
-        containsAll(englishScalarKeys),
-        reason: '$code.json is missing interface strings',
+        messageKeys(data),
+        containsAll(englishKeys),
+        reason: 'app_$code.arb is missing interface strings',
       );
     }
   });
 
-  test('base locale category arrays match current root category count', () {
-    for (final code in <String>['en', 'zh', 'ja', 'ko', 'ms', 'vi', 'th']) {
-      final data = readLocale(code);
-      final names = List<dynamic>.from(data['categoryNames'] as List);
-      expect(
-        names.length,
-        ForumCategories.roots.length,
-        reason: '$code.json categoryNames is stale',
-      );
-    }
-  });
+  test(
+    'base locale category-name messages match current root category count',
+    () {
+      final categoryNamePattern = RegExp(r'^categoryName\d+$');
 
-  test('base locale category maps cover every static forum category', () {
-    for (final code in <String>['en', 'zh', 'ja', 'ko', 'ms', 'vi', 'th']) {
-      final data = readLocale(code);
-      final categories = Map<String, dynamic>.from(
-        data['categoryTranslations'] as Map,
-      );
-      for (final category in ForumCategories.all) {
+      for (final code in <String>['en', 'zh', 'ja', 'ko', 'ms', 'vi', 'th']) {
+        final data = readLocale(code);
+        final categoryNameKeys = messageKeys(
+          data,
+        ).where(categoryNamePattern.hasMatch).toList();
+
         expect(
-          categories.containsKey(category.id),
+          categoryNameKeys.length,
+          ForumCategories.roots.length,
+          reason: 'app_$code.arb categoryName messages are stale',
+        );
+      }
+    },
+  );
+
+  test('base locale category messages cover every static forum category', () {
+    for (final code in <String>['en', 'zh', 'ja', 'ko', 'ms', 'vi', 'th']) {
+      final data = readLocale(code);
+      final keys = messageKeys(data);
+
+      for (final category in ForumCategories.all) {
+        final key = categoryMessageKey(category.id);
+        expect(
+          keys.contains(key),
           isTrue,
-          reason: '$code.json is missing category ${category.id}',
+          reason: 'app_$code.arb is missing category ${category.id} ($key)',
         );
       }
     }
   });
 
-  test('Chữ Nôm remains a partial overlay with Vietnamese fallback', () {
-    final nom = readLocale('chunom');
+  test('Chữ Nôm ARB keeps Nôm overrides and Vietnamese fallback coverage', () {
+    final nom = readLocale('vi_Hani');
     final vietnamese = readLocale('vi');
 
-    expect(nom['selectWritingSystem'], isNull);
-    expect(vietnamese['selectWritingSystem'], isNotNull);
-    expect(nom['categoryTranslations'], isA<Map>());
+    expect(messageKeys(nom), containsAll(messageKeys(vietnamese)));
+    expect(nom['appTitle'], '演壇');
+    expect(nom['appTitle'], isNot(vietnamese['appTitle']));
+    expect(nom['selectWritingSystem'], isNotNull);
   });
 }

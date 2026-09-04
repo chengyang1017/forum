@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glyphora_mobile/app/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -84,14 +85,14 @@ class _BookmarkedPostsScreenState extends State<BookmarkedPostsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          '我的收藏',
+        title: Text(
+          context.l10n.bookmarksTitle,
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            tooltip: '刷新',
+            tooltip: context.l10n.refresh,
             onPressed: _loading ? null : _loadBookmarks,
             icon: const Icon(Icons.refresh_rounded),
           ),
@@ -109,9 +110,9 @@ class _BookmarkedPostsScreenState extends State<BookmarkedPostsScreen> {
     if (_error != null && _posts.isEmpty) {
       return _BookmarksMessage(
         icon: Icons.error_outline_rounded,
-        title: '收藏加载失败',
+        title: context.l10n.bookmarksLoadFailed,
         description: '$_error',
-        actionText: '重新加载',
+        actionText: context.l10n.reload,
         onAction: _loadBookmarks,
       );
     }
@@ -121,12 +122,12 @@ class _BookmarkedPostsScreenState extends State<BookmarkedPostsScreen> {
         onRefresh: _loadBookmarks,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          children: const [
+          children: [
             SizedBox(height: 120),
             _BookmarksMessage(
               icon: Icons.bookmark_border_rounded,
-              title: '还没有收藏',
-              description: '在帖子详情页点击收藏后，会出现在这里。',
+              title: context.l10n.noBookmarks,
+              description: context.l10n.noBookmarksDescription,
             ),
           ],
         ),

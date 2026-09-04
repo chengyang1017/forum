@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:glyphora_mobile/app/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
@@ -161,7 +162,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     final remaining = 9 - _totalImageCount;
 
     if (remaining <= 0) {
-      _showMessage('每篇帖子最多添加 9 张图片');
+      _showMessage(context.l10n.postImageLimit);
       return;
     }
 
@@ -178,7 +179,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   Future<void> _showImagePlacementOptions() async {
     if (_totalImageCount >= 9) {
-      _showMessage('每篇帖子最多添加 9 张图片');
+      _showMessage(context.l10n.postImageLimit);
       return;
     }
 
@@ -190,20 +191,20 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    '图片放在哪里？',
+                    context.l10n.imagePlacement,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library_outlined),
-                title: const Text('放在文章顶部'),
-                subtitle: const Text('保持原来的图片展示方式'),
+                title: Text(context.l10n.imagesAtTop),
+                subtitle: Text(context.l10n.imagesAtTopDescription),
                 onTap: () {
                   Navigator.pop(sheetContext);
                   pickImages();
@@ -211,8 +212,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.article_outlined),
-                title: const Text('插入正文'),
-                subtitle: const Text('插入到当前文字光标的位置'),
+                title: Text(context.l10n.insertIntoBody),
+                subtitle: Text(context.l10n.insertIntoBodyDescription),
                 onTap: () {
                   Navigator.pop(sheetContext);
                   _pickInlineImage();
@@ -263,7 +264,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         return;
       }
 
-      _showMessage('插入图片失败: $error', isError: true);
+      _showMessage('${context.l10n.updateFailed}: $error', isError: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -339,7 +340,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             newInsert['image'] = newUrl;
             operation['insert'] = newInsert;
           } catch (error) {
-            throw Exception('复制笔记正文图片失败：$error');
+            throw Exception('${context.l10n.updateFailed}: $error');
           }
         }
       }
@@ -383,12 +384,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
     if (title.text.trim().isEmpty ||
         (plainContent.isEmpty && _countInlineImages() == 0)) {
-      _showMessage('请填写标题和内容');
+      _showMessage(context.l10n.fillTitleAndContent);
       return;
     }
 
     if (plainContent.length > 5000) {
-      _showMessage('正文最多 5000 字');
+      _showMessage(context.l10n.postBodyLimit);
       return;
     }
 
@@ -430,7 +431,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('在${widget.languageName}频道发布成功'),
+          content: Text(context.l10n.publishedInChannel(widget.languageName)),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 2),
         ),
@@ -440,7 +441,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       debugPrint('UPLOAD ERROR: $error');
 
       if (mounted) {
-        _showMessage('上传失败: $error', isError: true);
+        _showMessage('${context.l10n.updateFailed}: $error', isError: true);
       }
     } finally {
       if (mounted) {
@@ -465,19 +466,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('删除图片'),
-        content: const Text('确定要删除这张图片吗？'),
+        title: Text(context.l10n.deleteImage),
+        content: Text(context.l10n.deleteImageConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('取消'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () {
               setState(() => images.removeAt(index));
               Navigator.pop(dialogContext);
             },
-            child: const Text('删除', style: TextStyle(color: Colors.red)),
+            child: Text(
+              context.l10n.delete,
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -498,7 +502,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('发帖'),
+        title: Text(context.l10n.publishPost),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
@@ -619,8 +623,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       controller: title,
       maxLength: 100,
       decoration: InputDecoration(
-        labelText: '标题',
-        hintText: '输入帖子标题...',
+        labelText: context.l10n.title,
+        hintText: context.l10n.postTitleHint,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -653,7 +657,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               focusNode: _bodyFocusNode,
               scrollController: _bodyScrollController,
               config: quill.QuillEditorConfig(
-                placeholder: '输入帖子内容……',
+                placeholder: context.l10n.postContentHint,
                 padding: const EdgeInsets.all(14),
                 embedBuilders: FlutterQuillEmbeds.editorBuilders(),
               ),
@@ -712,8 +716,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             children: [
               const Icon(Icons.image, color: Colors.blue, size: 20),
               const SizedBox(width: 8),
-              const Text(
-                '图片（可选）',
+              Text(
+                context.l10n.optionalImages,
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
               ),
               const Spacer(),
@@ -743,18 +747,18 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 : const Icon(Icons.add_photo_alternate, size: 20),
             label: Text(
               _isUploadingInlineImage
-                  ? '正在插入图片...'
+                  ? context.l10n.insertingImage
                   : _totalImageCount >= 9
-                  ? '已达上限'
-                  : '添加图片',
+                  ? context.l10n.limitReached
+                  : context.l10n.addMoreImages,
             ),
           ),
           if (_isUploadingInlineImage) ...[
             const SizedBox(height: 12),
             const LinearProgressIndicator(),
             const SizedBox(height: 8),
-            const Text(
-              '正在上传并插入正文图片...',
+            Text(
+              context.l10n.uploadingInlineImage,
               style: TextStyle(fontSize: 13, color: Colors.grey),
             ),
           ],
@@ -829,7 +833,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          '上传中 ${(progress * 100).toStringAsFixed(0)}%',
+          context.l10n.uploadProgress((progress * 100).toStringAsFixed(0)),
           style: TextStyle(
             color: Colors.grey.shade600,
             fontSize: 14,
@@ -867,7 +871,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             const Icon(Icons.send_rounded, size: 20),
           const SizedBox(width: 8),
           Text(
-            isUploading ? '发布中...' : '发布帖子',
+            isUploading ? context.l10n.publishing : context.l10n.publishPost,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
         ],

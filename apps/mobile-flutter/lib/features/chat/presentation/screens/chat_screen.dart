@@ -64,14 +64,14 @@ class _ChatRouteScreenState extends State<ChatRouteScreen> {
   Future<String> _resolveOtherUserName() async {
     final currentUserId = context.read<auth_cubit.AuthCubit>().user?.id;
     if (currentUserId == null) {
-      throw StateError('未登录');
+      throw StateError(context.l10n.notLoggedIn);
     }
 
     final participants = await context.read<ChatCubit>().getChatParticipants(
       widget.chatId,
     );
     if (!participants.contains(currentUserId)) {
-      throw StateError('当前用户不是聊天室成员');
+      throw StateError(context.l10n.currentUserNotChatMember);
     }
 
     final otherUserId = participants.firstWhere(
@@ -79,14 +79,14 @@ class _ChatRouteScreenState extends State<ChatRouteScreen> {
       orElse: () => '',
     );
     if (otherUserId.isEmpty) {
-      throw StateError('找不到聊天对象');
+      throw StateError(context.l10n.chatPeerNotFound);
     }
 
     final user = await context.read<ProfileRepository>().getProfile(
       otherUserId,
     );
     if (user == null) {
-      return '未知用户';
+      return context.l10n.unknownUser;
     }
 
     final displayName = user.profileDisplayName.trim();
@@ -95,7 +95,7 @@ class _ChatRouteScreenState extends State<ChatRouteScreen> {
     }
 
     final email = user.email?.trim() ?? '';
-    return email.isNotEmpty ? email : '未知用户';
+    return email.isNotEmpty ? email : context.l10n.unknownUser;
   }
 
   void _retry() {

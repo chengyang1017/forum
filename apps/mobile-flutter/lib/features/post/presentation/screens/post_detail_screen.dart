@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glyphora_mobile/app/l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:share_plus/share_plus.dart';
@@ -93,7 +94,7 @@ class _PostDetailRouteScreenState extends State<PostDetailRouteScreen> {
 
         if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: const Text('帖子详情')),
+            appBar: AppBar(title: Text(context.l10n.postDetail)),
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(32),
@@ -102,8 +103,8 @@ class _PostDetailRouteScreenState extends State<PostDetailRouteScreen> {
                   children: [
                     const Icon(Icons.error_outline_rounded, size: 52),
                     const SizedBox(height: 16),
-                    const Text(
-                      '帖子加载失败',
+                    Text(
+                      context.l10n.postsLoadFailed,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -115,7 +116,7 @@ class _PostDetailRouteScreenState extends State<PostDetailRouteScreen> {
                     FilledButton.icon(
                       onPressed: _retry,
                       icon: const Icon(Icons.refresh_rounded),
-                      label: const Text('重试'),
+                      label: Text(context.l10n.retry),
                     ),
                   ],
                 ),
@@ -128,8 +129,8 @@ class _PostDetailRouteScreenState extends State<PostDetailRouteScreen> {
 
         if (post == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('帖子详情')),
-            body: const Center(child: Text('帖子不存在')),
+            appBar: AppBar(title: Text(context.l10n.postDetail)),
+            body: Center(child: Text(context.l10n.postNotFound)),
           );
         }
 
@@ -260,10 +261,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     if (dateTime == null) return '';
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    if (difference.inMinutes < 1) return '刚刚';
-    if (difference.inHours < 1) return '${difference.inMinutes} 分钟前';
-    if (difference.inDays < 1) return '${difference.inHours} 小时前';
-    if (difference.inDays < 7) return '${difference.inDays} 天前';
+    if (difference.inMinutes < 1) return context.l10n.justNow;
+    if (difference.inHours < 1)
+      return '${difference.inMinutes}${context.l10n.minutesAgo}';
+    if (difference.inDays < 1)
+      return '${difference.inHours}${context.l10n.hoursAgo}';
+    if (difference.inDays < 7)
+      return '${difference.inDays}${context.l10n.daysAgo}';
     return '${dateTime.year}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.day.toString().padLeft(2, '0')}';
   }
 
@@ -274,9 +278,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     final currentLanguageCode = _post.languageCode ?? _post.primaryLanguageCode;
 
     if (currentLanguageCode == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('无法确定当前语言')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.currentLanguageUnavailable)),
+      );
 
       return;
     }
@@ -320,8 +324,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('帖子已更新 ✨'),
+      SnackBar(
+        content: Text(context.l10n.postUpdated),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
       ),
@@ -375,7 +379,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('操作失败: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('${context.l10n.operationFailed}: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -432,7 +439,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('收藏操作失败: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('${context.l10n.bookmarkActionFailed}: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -457,7 +467,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       _postLink,
     ].join('\n\n');
 
-    await Share.share(shareText, subject: title.isNotEmpty ? title : '分享帖子');
+    await Share.share(
+      shareText,
+      subject: title.isNotEmpty ? title : context.l10n.sharePost,
+    );
   }
 
   Future<void> _copyPostLink() async {
@@ -466,8 +479,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('帖子链接已复制'),
+      SnackBar(
+        content: Text(context.l10n.postLinkCopied),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -496,7 +509,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.ios_share_rounded),
-                title: const Text('分享帖子'),
+                title: Text(context.l10n.sharePost),
                 onTap: () {
                   Navigator.pop(bottomSheetContext);
                   _sharePost();
@@ -504,7 +517,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.link_rounded),
-                title: const Text('复制链接'),
+                title: Text(context.l10n.copyLink),
                 onTap: () {
                   Navigator.pop(bottomSheetContext);
                   _copyPostLink();
@@ -522,7 +535,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     if (_currentUserId == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('请先登录')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.pleaseSignIn)));
       return;
     }
 
@@ -555,12 +568,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             height: MediaQuery.sizeOf(context).height * 0.75,
             child: Column(
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      '选择语言',
+                      context.l10n.selectLanguage,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -583,7 +596,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         leading: const Icon(Icons.language_rounded),
                         title: Text(language.nameOf(uiLanguageCode)),
                         subtitle: Text(
-                          hasVersion ? '已有语言版本 · 点击查看' : '尚无语言版本 · 点击翻译',
+                          hasVersion
+                              ? context.l10n.languageVersionAvailable
+                              : context.l10n.noLanguageVersion,
                         ),
                         trailing: Icon(
                           hasVersion
@@ -629,12 +644,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.fromLTRB(20, 8, 20, 12),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    '选择翻译方式',
+                    context.l10n.chooseTranslationMethod,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -642,8 +657,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
               ListTile(
                 leading: const Icon(Icons.auto_awesome_rounded),
-                title: const Text('AI 翻译'),
-                subtitle: const Text('AI 生成译文后可以继续修改'),
+                title: Text(context.l10n.aiTranslation),
+                subtitle: Text(context.l10n.aiTranslationDescription),
                 onTap: () {
                   Navigator.pop(sheetContext, TranslationMode.ai);
                 },
@@ -651,8 +666,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
               ListTile(
                 leading: const Icon(Icons.edit_rounded),
-                title: const Text('自己翻译'),
-                subtitle: const Text('从空白开始自己填写译文'),
+                title: Text(context.l10n.manualTranslation),
+                subtitle: Text(context.l10n.manualTranslationDescription),
                 onTap: () {
                   Navigator.pop(sheetContext, TranslationMode.manual);
                 },
@@ -742,9 +757,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('切换语言失败: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${context.l10n.updateFailed}: $e')),
+      );
     }
   }
 
@@ -758,23 +773,26 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          '删除帖子',
+        title: Text(
+          context.l10n.deletePost,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        content: const Text(
-          '确定要删除这个帖子吗？此操作不可撤销。',
+        content: Text(
+          context.l10n.deletePostConfirm,
           style: TextStyle(color: Color(0xFF64748B)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消', style: TextStyle(color: Colors.grey)),
+            child: Text(
+              context.l10n.cancel,
+              style: TextStyle(color: Colors.grey),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              '确认删除',
+            child: Text(
+              context.l10n.confirmDelete,
               style: TextStyle(
                 color: Color(0xFFEF4444),
                 fontWeight: FontWeight.bold,
@@ -792,8 +810,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       await postProvider.deletePost(widget.postId);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('帖子已安全删除'),
+        SnackBar(
+          content: Text(context.l10n.postDeleted),
           backgroundColor: Colors.black87,
           behavior: SnackBarBehavior.floating,
         ),
@@ -803,7 +821,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('删除失败: $e'),
+            content: Text('${context.l10n.updateFailed}: $e'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -818,8 +836,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   Future<void> _addImages() async {
     if (_images.length >= 9) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('最多只能添加 9 张图片 📸'),
+        SnackBar(
+          content: Text(context.l10n.postImageLimit),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -852,7 +870,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         setState(() => _isUploadingImage = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('图片上传失败: $e'),
+            content: Text('${context.l10n.updateFailed}: $e'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -866,16 +884,22 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('删除图片'),
-        content: const Text('确定要移除这张图片吗？'),
+        title: Text(context.l10n.deleteImage),
+        content: Text(context.l10n.deleteImageConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消', style: TextStyle(color: Colors.grey)),
+            child: Text(
+              context.l10n.cancel,
+              style: TextStyle(color: Colors.grey),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('删除', style: TextStyle(color: Color(0xFFEF4444))),
+            child: Text(
+              context.l10n.delete,
+              style: TextStyle(color: Color(0xFFEF4444)),
+            ),
           ),
         ],
       ),
@@ -898,7 +922,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('同步失败: $e'),
+            content: Text('${context.l10n.updateFailed}: $e'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -924,7 +948,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('排序失败: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('${context.l10n.updateFailed}: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -955,8 +982,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 Icons.delete_outline_rounded,
                 color: Color(0xFFEF4444),
               ),
-              title: const Text(
-                '删除这张图片',
+              title: Text(
+                context.l10n.deleteThisImage,
                 style: TextStyle(
                   color: Color(0xFFEF4444),
                   fontWeight: FontWeight.w500,
@@ -972,7 +999,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 Icons.add_photo_alternate_outlined,
                 color: Color(0xFF2563EB),
               ),
-              title: const Text('追加更多图片'),
+              title: Text(context.l10n.appendMoreImages),
               onTap: () {
                 Navigator.pop(context);
                 _addImages();
@@ -1050,8 +1077,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('举报已提交，感谢你的反馈'),
+        SnackBar(
+          content: Text(context.l10n.reportSubmitted),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -1110,8 +1137,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   AppBar _buildAppBar(bool isOwner) {
     return AppBar(
-      title: const Text(
-        "详情",
+      title: Text(
+        context.l10n.details,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
       ),
       centerTitle: true,
@@ -1130,7 +1157,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             color: _isEditingImages
                 ? const Color(0xFF10B981)
                 : const Color(0xFF64748B),
-            tooltip: _isEditingImages ? '完成排序' : '重排图片',
+            tooltip: _isEditingImages
+                ? context.l10n.finishSorting
+                : context.l10n.reorderImages,
             onPressed: () =>
                 setState(() => _isEditingImages = !_isEditingImages),
           ),
@@ -1159,17 +1188,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'edit',
                 child: Row(
                   children: [
                     Icon(Icons.edit_outlined, size: 18, color: Colors.blue),
                     SizedBox(width: 8),
-                    Text('编辑帖子'),
+                    Text(context.l10n.editPost),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'history',
                 child: Row(
                   children: [
@@ -1179,11 +1208,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       color: Colors.blueGrey,
                     ),
                     SizedBox(width: 8),
-                    Text('编辑历史'),
+                    Text(context.l10n.postEditHistory),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'delete',
                 child: Row(
                   children: [
@@ -1193,7 +1222,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       color: Colors.red,
                     ),
                     SizedBox(width: 8),
-                    Text('删除帖子', style: TextStyle(color: Colors.red)),
+                    Text(
+                      context.l10n.deletePost,
+                      style: TextStyle(color: Colors.red),
+                    ),
                   ],
                 ),
               ),
@@ -1215,7 +1247,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'report',
                 child: Row(
                   children: [
@@ -1225,7 +1257,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       color: Colors.redAccent,
                     ),
                     SizedBox(width: 8),
-                    Text('举报帖子', style: TextStyle(color: Colors.redAccent)),
+                    Text(
+                      context.l10n.reportPost,
+                      style: TextStyle(color: Colors.redAccent),
+                    ),
                   ],
                 ),
               ),
@@ -1396,16 +1431,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 color: Colors.grey,
               ),
               const SizedBox(width: 4),
-              const Text(
-                '长按右侧控制手柄拖动排序',
+              Text(
+                context.l10n.holdDragToReorder,
                 style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
               ),
               const Spacer(),
               TextButton.icon(
                 onPressed: _addImages,
                 icon: const Icon(Icons.add_a_photo_outlined, size: 16),
-                label: const Text(
-                  '添加图片',
+                label: Text(
+                  context.l10n.addMoreImages,
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 style: TextButton.styleFrom(foregroundColor: Colors.black),
@@ -1450,7 +1485,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: Text(
-                          '第 ${index + 1} 张',
+                          context.l10n.imageNumber('${index + 1}'),
                           style: const TextStyle(
                             fontSize: 14,
                             color: Color(0xFF334155),
@@ -1566,8 +1601,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 isPrimaryLanguage
                     ? _formatTimestamp(_post.createdAt)
                     : _currentVersionCreatedAt == null
-                    ? '翻译版本'
-                    : '译文发布于 ${_formatVersionTimestamp(_currentVersionCreatedAt!)}',
+                    ? context.l10n.translationVersion
+                    : context.l10n.translationPublishedAt(
+                        _formatVersionTimestamp(_currentVersionCreatedAt!),
+                      ),
                 style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
               ),
             ],
@@ -1584,7 +1621,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '修改于 ${_formatTimestamp(_post.updatedAt)}',
+                  context.l10n.modifiedAt(_formatTimestamp(_post.updatedAt)),
                   style: const TextStyle(
                     color: Color(0xFFD97706),
                     fontSize: 12,
@@ -1609,7 +1646,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             )
           else
             Text(
-              content.isNotEmpty ? content : '无内容',
+              content.isNotEmpty ? content : context.l10n.noContent,
               style: const TextStyle(
                 fontSize: 16,
                 height: 1.7,
@@ -1655,7 +1692,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     _isLiked
                         ? Icons.favorite_rounded
                         : Icons.favorite_outline_rounded,
-                    _likeCount > 0 ? '$_likeCount 赞同' : '赞同',
+                    _likeCount > 0
+                        ? '$_likeCount ${context.l10n.like}'
+                        : context.l10n.like,
                     _isLiked,
                   ),
                 ),
@@ -1663,7 +1702,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               Expanded(
                 child: _buildBottomAction(
                   onTap: _openComments,
-                  child: _buildAction(Icons.mode_comment_outlined, '评论', false),
+                  child: _buildAction(
+                    Icons.mode_comment_outlined,
+                    context.l10n.comment,
+                    false,
+                  ),
                 ),
               ),
               Expanded(
@@ -1673,7 +1716,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     globalBookmarked
                         ? Icons.bookmark_rounded
                         : Icons.bookmark_border_rounded,
-                    '收藏',
+                    context.l10n.bookmark,
                     globalBookmarked,
                   ),
                 ),
@@ -1681,13 +1724,21 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               Expanded(
                 child: _buildBottomAction(
                   onTap: _openTranslation,
-                  child: _buildAction(Icons.translate_rounded, '翻译', false),
+                  child: _buildAction(
+                    Icons.translate_rounded,
+                    context.l10n.translate,
+                    false,
+                  ),
                 ),
               ),
               Expanded(
                 child: _buildBottomAction(
                   onTap: _showShareOptions,
-                  child: _buildAction(Icons.ios_share_rounded, '分享', false),
+                  child: _buildAction(
+                    Icons.ios_share_rounded,
+                    context.l10n.share,
+                    false,
+                  ),
                 ),
               ),
             ],
@@ -1759,7 +1810,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           selected: selected,
           label: Text(
             isPrimary
-                ? '${language.nameOf(uiLanguageCode)} · 主语言'
+                ? '${language.nameOf(uiLanguageCode)} · ${context.l10n.mainLanguage}'
                 : language.nameOf(uiLanguageCode),
           ),
           onSelected: selected
@@ -1921,7 +1972,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     if (remaining <= 0) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('每篇帖子最多 9 张图片')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.postImageLimit)));
       return;
     }
 
@@ -1959,7 +2010,10 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('顶部图片上传失败: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('${context.l10n.updateFailed}: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       if (mounted) {
@@ -1999,7 +2053,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     if (_totalImageCount >= 9) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('每篇帖子最多 9 张图片')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.postImageLimit)));
       return;
     }
 
@@ -2055,7 +2109,10 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('图片上传失败: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('${context.l10n.updateFailed}: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       if (mounted) {
@@ -2076,7 +2133,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     if (title.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('标题不能为空')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.titleRequired)));
       return;
     }
 
@@ -2086,7 +2143,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
     if (content.isEmpty && !_hasImage(bodyDelta)) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('内容不能为空')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.contentRequired)));
       return;
     }
 
@@ -2152,7 +2209,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('更新失败: $e'),
+          content: Text('${context.l10n.updateFailed}: $e'),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
         ),
@@ -2207,11 +2264,11 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
       canPop: !_saving,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('编辑帖子'),
+          title: Text(context.l10n.editPost),
           actions: [
             TextButton(
               onPressed: _uploadingImage || _saving ? null : _save,
-              child: Text(_saving ? '保存中…' : '保存'),
+              child: Text(_saving ? context.l10n.saving : context.l10n.save),
             ),
           ],
         ),
@@ -2224,9 +2281,9 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
                 controller: _titleController,
                 maxLength: 100,
                 enabled: !_saving,
-                decoration: const InputDecoration(
-                  labelText: '标题',
-                  hintText: '输入帖子标题',
+                decoration: InputDecoration(
+                  labelText: context.l10n.title,
+                  hintText: context.l10n.postTitleHint,
                   border: OutlineInputBorder(),
                   counterText: '',
                 ),
@@ -2244,8 +2301,8 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
                 children: [
                   Row(
                     children: [
-                      const Text(
-                        '顶部图片',
+                      Text(
+                        context.l10n.topImages,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -2269,15 +2326,15 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
                           Icons.add_photo_alternate_outlined,
                           size: 18,
                         ),
-                        label: const Text('添加'),
+                        label: Text(context.l10n.add),
                       ),
                     ],
                   ),
                   if (_topImages.isEmpty)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Text(
-                        '暂无顶部图片',
+                        context.l10n.noTopImages,
                         style: TextStyle(color: Colors.grey),
                       ),
                     )
@@ -2368,7 +2425,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
                   scrollController: _scrollController,
                   config: quill.QuillEditorConfig(
                     padding: const EdgeInsets.all(16),
-                    placeholder: '输入帖子内容……',
+                    placeholder: context.l10n.postContentHint,
                     embedBuilders: FlutterQuillEmbeds.editorBuilders(),
                   ),
                 ),
@@ -2380,7 +2437,7 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
               child: Column(
                 children: [
                   if (_uploadingImage)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
                       child: Row(
                         children: [
@@ -2390,14 +2447,14 @@ class _PostRichEditPageState extends State<_PostRichEditPage> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           ),
                           SizedBox(width: 8),
-                          Text('正在上传并插入图片...'),
+                          Text(context.l10n.uploadingInlineImage),
                         ],
                       ),
                     ),
                   Row(
                     children: [
                       IconButton(
-                        tooltip: '插入图片',
+                        tooltip: context.l10n.insertImage,
                         onPressed: _uploadingImage || _saving
                             ? null
                             : _insertImage,
@@ -2558,7 +2615,7 @@ class _XhsImagePreviewState extends State<_XhsImagePreview> {
                     child: Row(
                       children: [
                         IconButton(
-                          tooltip: '关闭',
+                          tooltip: context.l10n.close,
                           onPressed: () => Navigator.pop(context),
                           icon: const Icon(
                             Icons.close_rounded,

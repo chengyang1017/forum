@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:glyphora_mobile/app/l10n/app_localizations.dart';
 import 'package:glyphora_language_core/glyphora_language_core.dart';
 
 Future<List<Map<String, dynamic>>?> showLanguageEditorSheet({
@@ -507,7 +508,7 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
                       children: [
                         Expanded(
                           child: Text(
-                            '选择文字系统',
+                            context.l10n.selectWritingSystem,
                             style: const TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
@@ -521,7 +522,7 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
                               Set<String>.from(selectedCodes),
                             );
                           },
-                          child: const Text('完成'),
+                          child: Text(context.l10n.done),
                         ),
                       ],
                     ),
@@ -743,8 +744,12 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerColor: colors.outlineVariant,
                 tabs: [
-                  Tab(text: '已选择 (${_selectedLanguages.length})'),
-                  const Tab(text: '添加语言'),
+                  Tab(
+                    text: context.l10n.selectedCount(
+                      '${_selectedLanguages.length}',
+                    ),
+                  ),
+                  Tab(text: context.l10n.addLanguage),
                 ],
               ),
 
@@ -778,8 +783,8 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '语言能力',
+                Text(
+                  context.l10n.languageAbility,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -791,8 +796,10 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
 
                 Text(
                   _selectedLanguages.isEmpty
-                      ? '选择你掌握的语言'
-                      : '已选择 ${_selectedLanguages.length} 门语言',
+                      ? context.l10n.chooseKnownLanguages
+                      : context.l10n.languageCount(
+                          '${_selectedLanguages.length}',
+                        ),
                   style: TextStyle(
                     fontSize: 13,
                     color: colors.onSurfaceVariant,
@@ -808,8 +815,8 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
               foregroundColor: colors.primary,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             ),
-            child: const Text(
-              '完成',
+            child: Text(
+              context.l10n.done,
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
             ),
           ),
@@ -903,12 +910,12 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
             onChanged: _onSearchChanged,
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
-              hintText: '搜索语言名称或代码',
+              hintText: context.l10n.searchLanguageNameOrCode,
               prefixIcon: const Icon(Icons.search_rounded),
               suffixIcon: _searchController.text.isEmpty
                   ? null
                   : IconButton(
-                      tooltip: '清除',
+                      tooltip: context.l10n.clear,
                       onPressed: () {
                         _searchController.clear();
 
@@ -943,7 +950,9 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
           child: Row(
             children: [
               Text(
-                _searchController.text.trim().isEmpty ? '全部语言' : '搜索结果',
+                _searchController.text.trim().isEmpty
+                    ? context.l10n.allLanguages
+                    : context.l10n.searchResults,
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -953,7 +962,7 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
               const Spacer(),
 
               Text(
-                '${_visibleLanguages.length} 门',
+                context.l10n.languageCount('${_visibleLanguages.length}'),
                 style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
               ),
             ],
@@ -1039,7 +1048,7 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
           : null,
       trailing: hasMultipleScripts
           ? IconButton(
-              tooltip: '选择文字系统',
+              tooltip: context.l10n.selectWritingSystem,
               onPressed: () {
                 _handleAddLanguage(language);
               },
@@ -1052,14 +1061,14 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
             )
           : isSelected
           ? IconButton(
-              tooltip: '移除',
+              tooltip: context.l10n.remove,
               onPressed: () {
                 _removeLanguageByCode(language.code);
               },
               icon: Icon(Icons.check_circle_rounded, color: colors.primary),
             )
           : IconButton(
-              tooltip: '添加',
+              tooltip: context.l10n.add,
               onPressed: () {
                 _handleAddLanguage(language);
               },
@@ -1190,7 +1199,9 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
                       borderRadius: BorderRadius.circular(100),
                     ),
                     child: Text(
-                      isNative ? '母语' : '${levelValue.round()}%',
+                      isNative
+                          ? context.l10n.nativeLanguage
+                          : '${levelValue.round()}%',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -1212,7 +1223,7 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
                   ),
 
                   IconButton(
-                    tooltip: '删除',
+                    tooltip: context.l10n.delete,
                     onPressed: onRemove,
                     visualDensity: VisualDensity.compact,
                     icon: Icon(
@@ -1238,7 +1249,7 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
                         ? Row(
                             children: [
                               Text(
-                                '当前设置为母语',
+                                context.l10n.currentNativeLanguage,
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: colors.onSurfaceVariant,
@@ -1250,7 +1261,7 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
                               OutlinedButton.icon(
                                 onPressed: onUsePercentage,
                                 icon: const Icon(Icons.tune_rounded, size: 16),
-                                label: const Text('改为熟练度'),
+                                label: Text(context.l10n.changeToProficiency),
                                 style: OutlinedButton.styleFrom(
                                   visualDensity: VisualDensity.compact,
                                   padding: const EdgeInsets.symmetric(
@@ -1266,7 +1277,7 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
                               Row(
                                 children: [
                                   Text(
-                                    '熟练度',
+                                    context.l10n.proficiency,
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: colors.onSurfaceVariant,
@@ -1316,7 +1327,7 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
                                     color: Colors.orange.shade700,
                                   ),
                                   label: Text(
-                                    '设为母语',
+                                    context.l10n.setAsNativeLanguage,
                                     style: TextStyle(
                                       color: Colors.orange.shade700,
                                     ),
@@ -1355,13 +1366,13 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
               color: colors.onSurfaceVariant,
             ),
             const SizedBox(height: 12),
-            const Text(
-              '还没有选择语言',
+            Text(
+              context.l10n.noLanguagesSelected,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
             Text(
-              '前往“添加语言”搜索并选择',
+              context.l10n.addLanguagePrompt,
               style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
             ),
           ],
@@ -1385,13 +1396,13 @@ class _LanguageEditorSheetState extends State<_LanguageEditorSheet> {
               color: colors.onSurfaceVariant,
             ),
             const SizedBox(height: 10),
-            const Text(
-              '没有找到相关语言',
+            Text(
+              context.l10n.noLanguagesFound,
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 5),
             Text(
-              '尝试搜索其他名称、语言代码或文字系统',
+              context.l10n.searchOtherLanguagePrompt,
               style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
             ),
           ],
