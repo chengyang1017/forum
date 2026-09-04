@@ -1,0 +1,36 @@
+name: One-time vi_Hani UI conversion
+
+on:
+  push:
+    branches:
+      - fix/complete-vi-hani-ui
+
+permissions:
+  contents: write
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/complete-vi-hani-ui
+
+      - name: Convert vi_Hani fallbacks
+        working-directory: apps/mobile-flutter
+        run: python tool/convert_vi_hani_ui.py
+
+      - name: Commit converted locale and review
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            apps/mobile-flutter/lib/l10n/app_vi_Hani.arb \
+            apps/mobile-flutter/tool/vi_hani_conversion_review.json
+          if git diff --cached --quiet; then
+            echo "No conversion changes to commit."
+            exit 0
+          fi
+          git commit -m "fix(l10n): convert vi_Hani UI fallbacks"
+          git push origin HEAD:fix/complete-vi-hani-ui
