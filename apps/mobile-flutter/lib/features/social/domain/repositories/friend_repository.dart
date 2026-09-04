@@ -20,4 +20,20 @@ abstract interface class FriendRepository {
   Future<void> acceptRequest(String fromUserId);
 
   Future<void> rejectRequest(String fromUserId);
+
+  /// Users explicitly blocked by the current account.
+  Stream<List<String>> watchBlockedUsers();
+
+  Future<List<String>> getBlockedUsers();
+
+  /// Whether the current account has blocked [otherUserId].
+  Future<bool> isBlockedByMe(String otherUserId);
+
+  /// Whether either side has blocked the other, in which case social
+  /// interaction must not be started from the normal client.
+  Future<bool> isInteractionBlocked(String otherUserId);
+
+  Future<void> blockUser(String otherUserId);
+
+  Future<void> unblockUser(String otherUserId);
 }
