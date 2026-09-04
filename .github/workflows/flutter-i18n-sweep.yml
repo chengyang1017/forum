@@ -1,4 +1,4 @@
-name: Flutter i18n sweep
+name: Flutter i18n finalize
 
 on:
   push:
@@ -9,50 +9,77 @@ permissions:
   contents: write
 
 jobs:
-  migrate-and-verify:
+  finalize:
     runs-on: ubuntu-latest
     steps:
       - name: Check out branch
         uses: actions/checkout@v4
         with:
           ref: fix/flutter-i18n-sweep
+          fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Migrate hard-coded UI copy
+      - name: Clean one-time migration artifacts
         run: |
-          python apps/mobile-flutter/tool/migrate_hardcoded_ui_to_arb.py
-          python apps/mobile-flutter/tool/patch_remaining_i18n.py
-          python apps/mobile-flutter/tool/patch_contextless_i18n.py
+          git fetch origin main
+          git checkout origin/main -- \
+            apps/mobile-flutter/lib/app/cubit/app_language_state.dart \
+            apps/mobile-flutter/lib/app/theme/app_theme.dart \
+            apps/mobile-flutter/lib/features/chat/presentation/cubit/chat_state.dart \
+            apps/mobile-flutter/lib/features/discover/presentation/cubit/discover_state.dart \
+            apps/mobile-flutter/lib/features/feed/presentation/cubit/feed_state.dart \
+            apps/mobile-flutter/lib/features/home/presentation/widgets/recommended_posts_view.dart \
+            apps/mobile-flutter/lib/features/profile/presentation/widgets/profile_bio_tags_section.dart \
+            apps/mobile-flutter/lib/features/social/presentation/cubit/friend_state.dart \
+            apps/mobile-flutter/test/features/auth/presentation/cubit/auth_cubit_test.dart \
+            apps/mobile-flutter/test/features/chat/data/repositories/firebase_chat_media_repository_test.dart \
+            apps/mobile-flutter/test/features/chat/presentation/cubit/chat_cubit_test.dart \
+            apps/mobile-flutter/test/features/discover/presentation/cubit/discover_cubit_test.dart \
+            apps/mobile-flutter/test/features/feed/presentation/cubit/feed_cubit_test.dart \
+            apps/mobile-flutter/test/features/profile/data/repositories/profile_repository_impl_test.dart \
+            apps/mobile-flutter/test/features/profile/presentation/cubit/profile_cubit_test.dart
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.44.7'
-          channel: stable
-          cache: true
+          rm -f \
+            apps/mobile-flutter/tool/migrate_hardcoded_ui_to_arb.py \
+            apps/mobile-flutter/tool/patch_remaining_i18n.py \
+            apps/mobile-flutter/tool/patch_contextless_i18n.py
 
-      - name: Generate and verify localizations
-        working-directory: apps/mobile-flutter
-        run: |
-          flutter pub get
-          flutter gen-l10n
-          dart format lib test tool
-          python tool/audit_hardcoded_ui.py
-          flutter analyze --no-fatal-infos --no-fatal-warnings
-          flutter test test/features/profile/birthday_editor_dialog_test.dart
+          sed -i '/^synthetic-package:/d' apps/mobile-flutter/l10n.yaml
 
-      - name: Commit i18n sweep
+          cat > .github/workflows/flutter-i18n-sweep.yml <<'YAML'
+          name: Flutter i18n audit
+
+          on:
+            pull_request:
+              paths:
+                - 'apps/mobile-flutter/lib/**'
+                - 'apps/mobile-flutter/lib/l10n/**'
+                - 'apps/mobile-flutter/tool/audit_hardcoded_ui.py'
+            push:
+              branches:
+                - main
+              paths:
+                - 'apps/mobile-flutter/lib/**'
+                - 'apps/mobile-flutter/lib/l10n/**'
+                - 'apps/mobile-flutter/tool/audit_hardcoded_ui.py'
+
+          jobs:
+            audit:
+              runs-on: ubuntu-latest
+              steps:
+                - name: Check out repository
+                  uses: actions/checkout@v4
+                - name: Set up Python
+                  uses: actions/setup-python@v5
+                  with:
+                    python-version: '3.12'
+                - name: Reject hard-coded localized UI strings
+                  run: python apps/mobile-flutter/tool/audit_hardcoded_ui.py
+          YAML
+
+      - name: Commit cleanup
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add apps/mobile-flutter
-          if git diff --cached --quiet; then
-            echo "No migration changes to commit."
-            exit 0
-          fi
-          git commit -m "fix(i18n): localize remaining Flutter UI copy"
+          git add -A
+          git commit -m "chore(i18n): keep only localization changes and audit guard"
           git push origin HEAD:fix/flutter-i18n-sweep
