@@ -25,6 +25,10 @@ jobs:
         working-directory: apps/api
         run: python tool/patch_moderation_visibility.py
 
+      - name: Apply admin moderation UI
+        working-directory: apps/admin
+        run: python tool/patch_reports_moderation.py
+
       - name: Commit generated source updates
         run: |
           git config user.name "github-actions[bot]"
@@ -33,7 +37,8 @@ jobs:
             apps/mobile-flutter/lib/l10n/app_*.arb \
             apps/api/src/routes/post_route.ts \
             apps/api/src/routes/post_data_route.ts \
-            apps/api/src/routes/bookmark_route.ts
+            apps/api/src/routes/bookmark_route.ts \
+            apps/admin/src/pages/reports/ReportsPage.tsx
           if git diff --cached --quiet; then
             echo "No generated changes to commit."
             exit 0
