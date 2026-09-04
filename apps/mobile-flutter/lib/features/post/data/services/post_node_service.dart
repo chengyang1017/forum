@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -13,6 +14,7 @@ import 'post_api.dart';
 /// handled by the dedicated post-media adapter.
 class PostService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final PostApi _postApi = PostApi();
   final StreamController<void> _refreshController =
@@ -42,13 +44,23 @@ class PostService {
   Future<List<PostModel>> getPosts({
     required String category,
     required String languageCode,
-  }) {
-    return _postApi.getPosts(category: category, languageCode: languageCode);
+  }) async {
+    final posts = await _postApi.getPosts(
+      category: category,
+      languageCode: languageCode,
+    );
+    return _filterBlockedAuthors(posts);
   }
 
   Stream<List<PostModel>> watchUserPosts(String firebaseUid) async* {
     while (true) {
-      yield await _postApi.getPostsByUser(firebaseUid);
+      final blocked = await _blockedUserIds();
+      if (blocked.contains(firebaseUid)) {
+        yield const <PostModel>[];
+      } else {
+        final posts = await _postApi.getPostsByUser(firebaseUid);
+        yield _filterWithBlockedSet(posts, blocked);
+      }
 
       await Future<void>.delayed(const Duration(seconds: 15));
     }
@@ -99,8 +111,13 @@ class PostService {
     );
   }
 
-  Future<PostModel> getPost(String postId) {
-    return _postApi.getPost(postId);
+  Future<PostModel> getPost(String postId) async {
+    final post = await _postApi.getPost(postId);
+    final blocked = await _blockedUserIds();
+    if (post.uid != null && blocked.contains(post.uid)) {
+      throw StateError('BLOCKED_USER_CONTENT');
+    }
+    return post;
   }
 
   Future<void> addLanguageVersion({
@@ -167,8 +184,9 @@ class PostService {
         : _postApi.removeBookmark(postId);
   }
 
-  Future<List<PostModel>> getBookmarkedPosts() {
-    return _postApi.getBookmarkedPosts();
+  Future<List<PostModel>> getBookmarkedPosts() async {
+    final posts = await _postApi.getBookmarkedPosts();
+    return _filterBlockedAuthors(posts);
   }
 
   Future<PostReportResult> reportPost({
@@ -235,5 +253,41 @@ class PostService {
 
   Future<List<Map<String, dynamic>>> getEditHistory(String postId) {
     return _postApi.getEditHistory(postId);
+  }
+
+  Future<Set<String>> _blockedUserIds() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null || userId.isEmpty) {
+      return const <String>{};
+    }
+
+    final snapshot = await _firestore.collection('blocks').doc(userId).get();
+    final data = snapshot.data();
+    if (data == null) {
+      return const <String>{};
+    }
+
+    return data.entries
+        .where((entry) => entry.value == true)
+        .map((entry) => entry.key)
+        .toSet();
+  }
+
+  Future<List<PostModel>> _filterBlockedAuthors(List<PostModel> posts) async {
+    final blocked = await _blockedUserIds();
+    return _filterWithBlockedSet(posts, blocked);
+  }
+
+  List<PostModel> _filterWithBlockedSet(
+    List<PostModel> posts,
+    Set<String> blocked,
+  ) {
+    if (blocked.isEmpty) {
+      return posts;
+    }
+
+    return posts
+        .where((post) => post.uid == null || !blocked.contains(post.uid))
+        .toList(growable: false);
   }
 }
