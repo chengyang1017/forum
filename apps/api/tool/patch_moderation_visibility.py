@@ -1,60 +1,165 @@
 #!/usr/bin/env python3
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1] / 'src' / 'routes'
 
+HIDDEN_FILTER = "status: 'actioned'"
 
-def replace_once(path: Path, old: str, new: str) -> None:
+
+def replace_function(path: Path, next_marker: str, replacement: str) -> None:
     text = path.read_text(encoding='utf-8')
-    count = text.count(old)
+
+    # The generated patch may be evaluated more than once by GitHub Actions.
+    # If this helper already contains the moderation filter, leave it alone.
+    helper_match = re.search(
+        rf"function postWhereById\([\s\S]*?\n}}\n\n(?={re.escape(next_marker)})",
+        text,
+    )
+    if helper_match is None:
+        raise RuntimeError(f'{path}: postWhereById helper not found')
+    if HIDDEN_FILTER in helper_match.group(0):
+        return
+
+    text = text[: helper_match.start()] + replacement + text[helper_match.end() :]
+    path.write_text(text, encoding='utf-8')
+
+
+def replace_once_regex(
+    path: Path,
+    pattern: str,
+    replacement: str,
+    already_present: str,
+) -> None:
+    text = path.read_text(encoding='utf-8')
+    if already_present in text:
+        return
+
+    updated, count = re.subn(pattern, replacement, text, count=1, flags=re.S)
     if count != 1:
-        raise RuntimeError(f'{path}: expected 1 match, found {count}')
-    path.write_text(text.replace(old, new), encoding='utf-8')
+        raise RuntimeError(f'{path}: expected one patch location, found {count}')
+    path.write_text(updated, encoding='utf-8')
 
 
 post_route = ROOT / 'post_route.ts'
-replace_once(
+replace_function(
     post_route,
-    """function postWhereById(\n  id: string,\n): Prisma.PostWhereInput {\n  const isDatabaseId =\n    z.string().uuid().safeParse(id).success;\n\n  if (isDatabaseId) {\n    return {\n      OR: [\n        {\n          firestoreId: id,\n        },\n        {\n          id,\n        },\n      ],\n    };\n  }\n\n  return {\n    firestoreId: id,\n  };\n}\n""",
-    """function postWhereById(\n  id: string,\n): Prisma.PostWhereInput {\n  const isDatabaseId =\n    z.string().uuid().safeParse(id).success;\n\n  const identity: Prisma.PostWhereInput =\n    isDatabaseId\n      ? {\n          OR: [\n            { firestoreId: id },\n            { id },\n          ],\n        }\n      : { firestoreId: id };\n\n  return {\n    AND: [\n      identity,\n      {\n        reports: {\n          none: { status: 'actioned' },\n        },\n      },\n    ],\n  };\n}\n""",
+    'function prismaErrorCode',
+    """function postWhereById(
+  id: string,
+): Prisma.PostWhereInput {
+  const isDatabaseId =
+    z.string().uuid().safeParse(id).success;
+
+  const identity: Prisma.PostWhereInput =
+    isDatabaseId
+      ? {
+          OR: [
+            { firestoreId: id },
+            { id },
+          ],
+        }
+      : { firestoreId: id };
+
+  return {
+    AND: [
+      identity,
+      {
+        reports: {
+          none: { status: 'actioned' },
+        },
+      },
+    ],
+  };
+}
+
+""",
 )
-replace_once(
+replace_once_regex(
     post_route,
-    """          where: {\n            category,\n\n            versions: {\n              some: {\n                languageCode,\n              },\n            },\n          },\n""",
-    """          where: {\n            category,\n\n            versions: {\n              some: {\n                languageCode,\n              },\n            },\n\n            reports: {\n              none: {\n                status: 'actioned',\n              },\n            },\n          },\n""",
+    r"(const posts\s*=\s*await prisma\.post\.findMany\(\{\s*where:\s*\{\s*category,\s*versions:\s*\{\s*some:\s*\{\s*languageCode,\s*\},\s*\},)(\s*\},)",
+    r"\1\n\n            reports: {\n              none: {\n                status: 'actioned',\n              },\n            },\2",
+    "reports: {\n              none: {\n                status: 'actioned',",
 )
 
 post_data = ROOT / 'post_data_route.ts'
-replace_once(
+replace_function(
     post_data,
-    """function postWhereById(id: string): Prisma.PostWhereInput {\n  const databaseId = z.string().uuid().safeParse(id);\n\n  if (databaseId.success) {\n    return {\n      OR: [\n        { firestoreId: id },\n        { id },\n      ],\n    };\n  }\n\n  return { firestoreId: id };\n}\n""",
-    """function postWhereById(id: string): Prisma.PostWhereInput {\n  const databaseId = z.string().uuid().safeParse(id);\n  const identity: Prisma.PostWhereInput = databaseId.success\n    ? {\n        OR: [\n          { firestoreId: id },\n          { id },\n        ],\n      }\n    : { firestoreId: id };\n\n  return {\n    AND: [\n      identity,\n      {\n        reports: {\n          none: { status: 'actioned' },\n        },\n      },\n    ],\n  };\n}\n""",
+    'function serializePost',
+    """function postWhereById(id: string): Prisma.PostWhereInput {
+  const databaseId = z.string().uuid().safeParse(id);
+  const identity: Prisma.PostWhereInput = databaseId.success
+    ? {
+        OR: [
+          { firestoreId: id },
+          { id },
+        ],
+      }
+    : { firestoreId: id };
+
+  return {
+    AND: [
+      identity,
+      {
+        reports: {
+          none: { status: 'actioned' },
+        },
+      },
+    ],
+  };
+}
+
+""",
 )
-replace_once(
+replace_once_regex(
     post_data,
-    """        where: {\n          author: {\n            firebaseUid,\n          },\n        },\n""",
-    """        where: {\n          author: {\n            firebaseUid,\n          },\n          reports: {\n            none: { status: 'actioned' },\n          },\n        },\n""",
+    r"(const posts = await prisma\.post\.findMany\(\{\s*where:\s*\{\s*author:\s*\{\s*firebaseUid,\s*\},)(\s*\},)",
+    r"\1\n          reports: {\n            none: { status: 'actioned' },\n          },\2",
+    "author: {\n            firebaseUid,\n          },\n          reports:",
 )
 
 bookmark = ROOT / 'bookmark_route.ts'
-replace_once(
+replace_function(
     bookmark,
-    """function postWhereById(\n  id: string,\n): Prisma.PostWhereInput {\n  const isDatabaseId =\n    z.string()\n      .uuid()\n      .safeParse(id)\n      .success;\n\n  if (isDatabaseId) {\n    return {\n      OR: [\n        {\n          id,\n        },\n        {\n          firestoreId: id,\n        },\n      ],\n    };\n  }\n\n  return {\n    firestoreId: id,\n  };\n}\n""",
-    """function postWhereById(\n  id: string,\n): Prisma.PostWhereInput {\n  const isDatabaseId =\n    z.string()\n      .uuid()\n      .safeParse(id)\n      .success;\n\n  const identity: Prisma.PostWhereInput =\n    isDatabaseId\n      ? {\n          OR: [\n            { id },\n            { firestoreId: id },\n          ],\n        }\n      : { firestoreId: id };\n\n  return {\n    AND: [\n      identity,\n      {\n        reports: {\n          none: { status: 'actioned' },\n        },\n      },\n    ],\n  };\n}\n""",
-)
-replace_once(
-    bookmark,
-    """          where: {\n            userId: user.id,\n          },\n""",
-    """          where: {\n            userId: user.id,\n            post: {\n              reports: {\n                none: { status: 'actioned' },\n              },\n            },\n          },\n""",
-)
+    'async function findCurrentUser',
+    """function postWhereById(
+  id: string,
+): Prisma.PostWhereInput {
+  const isDatabaseId =
+    z.string()
+      .uuid()
+      .safeParse(id)
+      .success;
 
-report = ROOT / 'report_route.ts'
-text = report.read_text(encoding='utf-8')
-old = """function postWhereById(\n  id: string,\n): Prisma.PostWhereInput {"""
-if old not in text:
-    raise RuntimeError('report_route.ts: postWhereById not found')
-# Keep the report endpoint able to locate a post until it is actioned. No patch
-# is required here because once hidden, repeated public reports are harmless and
-# existing moderation history must remain accessible.
+  const identity: Prisma.PostWhereInput =
+    isDatabaseId
+      ? {
+          OR: [
+            { id },
+            { firestoreId: id },
+          ],
+        }
+      : { firestoreId: id };
+
+  return {
+    AND: [
+      identity,
+      {
+        reports: {
+          none: { status: 'actioned' },
+        },
+      },
+    ],
+  };
+}
+
+""",
+)
+replace_once_regex(
+    bookmark,
+    r"(const bookmarks\s*=\s*await prisma\.postBookmark\.findMany\(\{\s*where:\s*\{\s*userId: user\.id,)(\s*\},\s*orderBy:)",
+    r"\1\n            post: {\n              reports: {\n                none: { status: 'actioned' },\n              },\n            },\2",
+    "const bookmarks =\n        await prisma.postBookmark.findMany({\n          where: {\n            userId: user.id,\n            post:",
+)
 
 print('Moderation visibility filters patched.')
