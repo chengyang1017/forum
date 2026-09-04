@@ -560,5 +560,21 @@
   "collapse": "접기",
   "showMore": "더 보기",
   "selectedTagsCount": "선택된 태그 ({count}/10)",
-  "copyLink": "링크 복사"
+  "copyLink": "링크 복사",
+  "deleteAccount": "계정 삭제",
+  "deleteAccountDesc": "계정과 관련 데이터를 영구적으로 삭제합니다",
+  "deleteAccountConfirmTitle": "계정을 영구 삭제할까요?",
+  "deleteAccountConfirmDesc": "이 작업은 되돌릴 수 없습니다. 확인을 위해 현재 비밀번호를 입력하세요.",
+  "deleteAccountPasswordHint": "현재 비밀번호",
+  "deleteAccountAction": "영구 삭제",
+  "deleteAccountFailed": "계정을 삭제할 수 없습니다. 비밀번호를 확인한 후 다시 시도하세요.",
+  "blockUser": "사용자 차단",
+  "unblockUser": "차단 해제",
+  "blockUserConfirmTitle": "이 사용자를 차단할까요?",
+  "blockUserConfirmDesc": "{name} 님을 차단할까요? 친구 및 팔로우 관계가 해제되고 상대의 콘텐츠가 숨겨집니다.",
+  "userBlocked": "사용자를 차단했습니다",
+  "userUnblocked": "차단을 해제했습니다",
+  "blockedUsersEmpty": "차단한 사용자가 없습니다.",
+  "blockedInteraction": "한쪽이 상대를 차단하여 상호작용할 수 없습니다.",
+  "moreActions": "더보기"
 }

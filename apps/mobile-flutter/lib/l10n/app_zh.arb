@@ -560,5 +560,21 @@
   "collapse": "收起",
   "showMore": "查看更多",
   "selectedTagsCount": "已选标签 ({count}/10)",
-  "copyLink": "复制链接"
+  "copyLink": "复制链接",
+  "deleteAccount": "删除账号",
+  "deleteAccountDesc": "永久删除账号及关联数据",
+  "deleteAccountConfirmTitle": "永久删除账号？",
+  "deleteAccountConfirmDesc": "此操作无法撤销。请输入当前密码确认。",
+  "deleteAccountPasswordHint": "当前密码",
+  "deleteAccountAction": "永久删除",
+  "deleteAccountFailed": "无法删除账号，请检查密码后重试。",
+  "blockUser": "拉黑用户",
+  "unblockUser": "解除拉黑",
+  "blockUserConfirmTitle": "拉黑此用户？",
+  "blockUserConfirmDesc": "要拉黑 {name} 吗？你们将解除好友和关注关系，并隐藏对方的内容。",
+  "userBlocked": "已拉黑用户",
+  "userUnblocked": "已解除拉黑",
+  "blockedUsersEmpty": "你还没有拉黑任何用户。",
+  "blockedInteraction": "由于其中一方已拉黑另一方，无法互动。",
+  "moreActions": "更多操作"
 }

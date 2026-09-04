@@ -560,5 +560,21 @@
   "collapse": "折りたたむ",
   "showMore": "もっと見る",
   "selectedTagsCount": "選択済みタグ ({count}/10)",
-  "copyLink": "リンクをコピー"
+  "copyLink": "リンクをコピー",
+  "deleteAccount": "アカウントを削除",
+  "deleteAccountDesc": "アカウントと関連データを完全に削除します",
+  "deleteAccountConfirmTitle": "アカウントを完全に削除しますか？",
+  "deleteAccountConfirmDesc": "この操作は元に戻せません。確認のため現在のパスワードを入力してください。",
+  "deleteAccountPasswordHint": "現在のパスワード",
+  "deleteAccountAction": "完全に削除",
+  "deleteAccountFailed": "アカウントを削除できませんでした。パスワードを確認してもう一度お試しください。",
+  "blockUser": "ユーザーをブロック",
+  "unblockUser": "ブロックを解除",
+  "blockUserConfirmTitle": "このユーザーをブロックしますか？",
+  "blockUserConfirmDesc": "{name} をブロックしますか？友達・フォロー関係が解除され、相手のコンテンツが非表示になります。",
+  "userBlocked": "ユーザーをブロックしました",
+  "userUnblocked": "ブロックを解除しました",
+  "blockedUsersEmpty": "ブロックしているユーザーはいません。",
+  "blockedInteraction": "どちらかが相手をブロックしているため、交流できません。",
+  "moreActions": "その他の操作"
 }

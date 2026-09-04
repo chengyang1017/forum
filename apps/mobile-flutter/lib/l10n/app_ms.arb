@@ -560,5 +560,21 @@
   "collapse": "Tunjuk kurang",
   "showMore": "Tunjuk lagi",
   "selectedTagsCount": "Tag dipilih ({count}/10)",
-  "copyLink": "Salin pautan"
+  "copyLink": "Salin pautan",
+  "deleteAccount": "Padam akaun",
+  "deleteAccountDesc": "Padam akaun dan data berkaitan secara kekal",
+  "deleteAccountConfirmTitle": "Padam akaun secara kekal?",
+  "deleteAccountConfirmDesc": "Tindakan ini tidak boleh dibuat asal. Masukkan kata laluan semasa untuk mengesahkan.",
+  "deleteAccountPasswordHint": "Kata laluan semasa",
+  "deleteAccountAction": "Padam secara kekal",
+  "deleteAccountFailed": "Akaun tidak dapat dipadam. Semak kata laluan dan cuba lagi.",
+  "blockUser": "Sekat pengguna",
+  "unblockUser": "Nyahsekat",
+  "blockUserConfirmTitle": "Sekat pengguna ini?",
+  "blockUserConfirmDesc": "Sekat {name}? Hubungan rakan dan ikutan akan diputuskan serta kandungan mereka akan disembunyikan.",
+  "userBlocked": "Pengguna disekat",
+  "userUnblocked": "Sekatan pengguna dibuka",
+  "blockedUsersEmpty": "Anda belum menyekat sesiapa.",
+  "blockedInteraction": "Interaksi tidak tersedia kerana salah seorang telah menyekat yang lain.",
+  "moreActions": "Tindakan lain"
 }
