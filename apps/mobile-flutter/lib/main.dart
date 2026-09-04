@@ -10,7 +10,6 @@ import 'app/cubit/app_language_state.dart';
 import 'app/cubit/app_theme_cubit.dart';
 import 'app/di/app_dependencies.dart';
 import 'app/l10n/app_localizations.dart';
-import 'app/l10n/localizations_delegate.dart';
 import 'app/router/app_router.dart';
 import 'app/router/app_routes.dart';
 import 'app/theme/app_theme.dart';
@@ -150,7 +149,7 @@ class MyApp extends StatelessWidget {
                   locale: languageState.locale,
                   supportedLocales: AppLocalizations.supportedLocales,
                   localizationsDelegates: const [
-                    AppLocalizationsDelegate(),
+                    AppLocalizations.delegate,
                     GlobalMaterialLocalizations.delegate,
                     GlobalWidgetsLocalizations.delegate,
                     GlobalCupertinoLocalizations.delegate,
