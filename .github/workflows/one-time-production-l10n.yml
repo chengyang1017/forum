@@ -1,4 +1,4 @@
-name: One-time production l10n
+name: One-time production readiness patch
 
 on:
   push:
@@ -21,14 +21,22 @@ jobs:
         working-directory: apps/mobile-flutter
         run: python tool/add_production_l10n.py
 
-      - name: Commit localization files
+      - name: Apply moderation visibility filters
+        working-directory: apps/api
+        run: python tool/patch_moderation_visibility.py
+
+      - name: Commit generated source updates
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add apps/mobile-flutter/lib/l10n/app_*.arb
+          git add \
+            apps/mobile-flutter/lib/l10n/app_*.arb \
+            apps/api/src/routes/post_route.ts \
+            apps/api/src/routes/post_data_route.ts \
+            apps/api/src/routes/bookmark_route.ts
           if git diff --cached --quiet; then
-            echo "No localization changes to commit."
+            echo "No generated changes to commit."
             exit 0
           fi
-          git commit -m "feat(l10n): add production-readiness UI translations"
+          git commit -m "feat: apply production-readiness generated updates"
           git push origin HEAD:feat/production-readiness
