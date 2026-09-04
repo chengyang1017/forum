@@ -262,9 +262,7 @@ final class FirestoreFriendRepository implements FriendRepository {
       SetOptions(merge: true),
     );
 
-    // Blocking also severs friendship and removes pending requests in both
-    // directions so the blocked account cannot remain in an actionable social
-    // state in the normal app UI.
+    // Blocking severs all normal social edges in both directions.
     batch.set(
       _firestore.collection('friends').doc(userId),
       {otherUserId: FieldValue.delete()},
@@ -280,6 +278,12 @@ final class FirestoreFriendRepository implements FriendRepository {
     );
     batch.delete(
       _firestore.collection('friend_requests').doc('${otherUserId}_$userId'),
+    );
+    batch.delete(
+      _firestore.collection('follows').doc('${userId}_$otherUserId'),
+    );
+    batch.delete(
+      _firestore.collection('follows').doc('${otherUserId}_$userId'),
     );
 
     await batch.commit();
