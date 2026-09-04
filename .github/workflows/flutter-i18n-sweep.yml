@@ -5,15 +5,51 @@ on:
     branches:
       - fix/flutter-i18n-sweep
 
+permissions:
+  contents: write
+
 jobs:
-  audit:
+  migrate-and-verify:
     runs-on: ubuntu-latest
     steps:
       - name: Check out branch
         uses: actions/checkout@v4
+        with:
+          ref: fix/flutter-i18n-sweep
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Audit hard-coded Flutter UI strings
-        run: python apps/mobile-flutter/tool/audit_hardcoded_ui.py
+
+      - name: Migrate hard-coded UI copy
+        run: python apps/mobile-flutter/tool/migrate_hardcoded_ui_to_arb.py
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.7'
+          channel: stable
+          cache: true
+
+      - name: Generate and verify localizations
+        working-directory: apps/mobile-flutter
+        run: |
+          flutter pub get
+          flutter gen-l10n
+          dart format lib test tool
+          python tool/audit_hardcoded_ui.py
+          flutter analyze --no-fatal-infos --no-fatal-warnings
+          flutter test test/features/profile/birthday_editor_dialog_test.dart
+
+      - name: Commit i18n sweep
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/mobile-flutter
+          if git diff --cached --quiet; then
+            echo "No migration changes to commit."
+            exit 0
+          fi
+          git commit -m "fix(i18n): localize remaining Flutter UI copy"
+          git push origin HEAD:fix/flutter-i18n-sweep
