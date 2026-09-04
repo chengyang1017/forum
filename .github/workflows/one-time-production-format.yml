@@ -1,0 +1,41 @@
+name: One-time production Flutter format
+
+on:
+  push:
+    branches:
+      - feat/production-readiness
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/production-readiness
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: stable
+          cache: true
+
+      - name: Format Flutter source and tests
+        working-directory: apps/mobile-flutter
+        run: dart format lib test
+
+      - name: Commit formatting
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/mobile-flutter/lib apps/mobile-flutter/test
+          if git diff --cached --quiet; then
+            echo "No formatting changes."
+            exit 0
+          fi
+          git commit -m "chore: format production-readiness Flutter changes"
+          git push origin HEAD:feat/production-readiness
