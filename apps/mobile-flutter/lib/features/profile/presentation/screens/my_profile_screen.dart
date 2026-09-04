@@ -379,11 +379,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
+        backgroundColor: theme.colorScheme.surface,
+        foregroundColor: theme.colorScheme.onSurface,
         centerTitle: true,
         title: Text(
           profile.displayName,
@@ -393,7 +393,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           IconButton(
             icon: Icon(
               Icons.settings_outlined,
-              color: Theme.of(context).colorScheme.onSurface,
+              color: theme.colorScheme.onSurface,
             ),
             onPressed: () => context.push(AppRoutes.settings),
           ),
@@ -443,7 +443,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 SliverToBoxAdapter(
                   child: Container(
                     margin: const EdgeInsets.only(top: 10),
-                    color: Theme.of(context).colorScheme.surface,
+                    color: theme.colorScheme.surface,
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,
@@ -455,7 +455,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         ).colorScheme.primaryContainer,
                         child: Icon(
                           Icons.note_alt_outlined,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                       title: const Text(
@@ -474,7 +474,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 SliverToBoxAdapter(
                   child: Container(
                     margin: const EdgeInsets.only(top: 10),
-                    color: Theme.of(context).colorScheme.surface,
+                    color: theme.colorScheme.surface,
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,
@@ -486,7 +486,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         ).colorScheme.secondaryContainer,
                         child: Icon(
                           Icons.bookmark_outline_rounded,
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: theme.colorScheme.secondary,
                         ),
                       ),
                       title: const Text(
@@ -504,7 +504,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 ),
                 SliverToBoxAdapter(
                   child: Container(
-                    color: Theme.of(context).colorScheme.surface,
+                    color: theme.colorScheme.surface,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 16,
@@ -514,7 +514,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         Icon(
                           Icons.dynamic_feed_rounded,
                           size: 20,
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: theme.colorScheme.onSurface,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -522,7 +522,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: theme.colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -532,7 +532,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 if (postSnapshot.connectionState == ConnectionState.waiting)
                   SliverToBoxAdapter(
                     child: ColoredBox(
-                      color: Theme.of(context).colorScheme.surface,
+                      color: theme.colorScheme.surface,
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 40),
                         child: Center(
@@ -544,7 +544,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 else if (postSnapshot.hasError)
                   SliverToBoxAdapter(
                     child: ColoredBox(
-                      color: Theme.of(context).colorScheme.surface,
+                      color: theme.colorScheme.surface,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
@@ -583,7 +583,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 else if (posts.isEmpty)
                   SliverToBoxAdapter(
                     child: ColoredBox(
-                      color: Theme.of(context).colorScheme.surface,
+                      color: theme.colorScheme.surface,
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 50),
                         child: Column(
@@ -618,7 +618,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
                       final post = posts[index ~/ 2];
                       return ColoredBox(
-                        color: Theme.of(context).colorScheme.surface,
+                        color: theme.colorScheme.surface,
                         child: PostItemCard(
                           post: post,
                           showUserInfo: false,
