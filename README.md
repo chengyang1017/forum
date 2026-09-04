@@ -1,7 +1,5 @@
 # 万文社 / Glyphora
 
-**English** | [简体中文](README.zh-CN.md)
-
 **Vạn Văn Xã · Glyphora**
 
 A multilingual community platform built around **people, languages, writing systems, conversation, and shared knowledge**.
