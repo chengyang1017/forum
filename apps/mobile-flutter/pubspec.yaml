@@ -52,9 +52,8 @@ dev_dependencies:
   json_serializable: ^6.7.0
 
 flutter:
+  generate: true
   uses-material-design: true
-  assets:
-    - assets/l10n/
 
   fonts:
     - family: NomNaTong

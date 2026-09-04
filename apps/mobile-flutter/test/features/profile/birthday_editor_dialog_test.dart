@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:glyphora_mobile/app/l10n/localizations_delegate.dart';
+import 'package:glyphora_mobile/app/l10n/app_localizations.dart';
 import 'package:glyphora_mobile/features/profile/presentation/widgets/birthday_editor_dialog.dart';
 
 void main() {
@@ -16,7 +16,7 @@ void main() {
           locale: const Locale('zh'),
           supportedLocales: const <Locale>[Locale('zh')],
           localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-            AppLocalizationsDelegate(),
+            AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,

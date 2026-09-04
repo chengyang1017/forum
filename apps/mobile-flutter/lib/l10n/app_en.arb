@@ -1,4 +1,5 @@
 {
+  "@@locale": "en",
   "appTitle": "Forum",
   "forumCategories": "Categories",
   "currentChannel": "Channel",
@@ -123,43 +124,6 @@
   "galleryPermission": "Gallery permission needed",
   "tagUpdated": "Tags updated",
   "tagInputHint": "Enter custom tag",
-  "categoryNames": [
-    "Language Learning",
-    "Programming",
-    "AI",
-    "Technology",
-    "Gaming",
-    "Music",
-    "Film & TV",
-    "Campus",
-    "Startups",
-    "Friends",
-    "Travel",
-    "Chat",
-    "Relationships",
-    "Food",
-    "Medicine"
-  ],
-  "languageTranslations": {
-    "zh": "Chinese",
-    "en": "English",
-    "ja": "Japanese",
-    "ko": "Korean",
-    "fr": "French",
-    "de": "German",
-    "es": "Spanish",
-    "pt": "Portuguese",
-    "ru": "Russian",
-    "it": "Italian",
-    "ar": "Arabic",
-    "th": "Thai",
-    "vi": "Vietnamese",
-    "ms": "Malay",
-    "id": "Indonesian",
-    "hi": "Hindi",
-    "tr": "Turkish",
-    "chunom": "Chữ Nôm"
-  },
   "selectWritingSystem": "Select writing system",
   "nomWritingSystem": "Chữ Nôm",
   "recommendedForYou": "For you",
@@ -182,16 +146,67 @@
   "addInterest": "Add to interests",
   "removeInterest": "Remove from interests",
   "interestSummary": "{selected} of {total} topics shape your recommendations",
+  "@interestSummary": {
+    "placeholders": {
+      "selected": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "publishGeneralLanguageLearning": "Post a general language-learning topic",
   "publishPost": "Publish post",
   "noLanguagePosts": "No {language} posts yet",
+  "@noLanguagePosts": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "languageLearningRootEmpty": "You can post a general language-learning topic,\nor choose a specific language first.",
   "firstPostInCategory": "Be the first to post in “{category}”\nin {language}.",
+  "@firstPostInCategory": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "publishLanguagePost": "Post in {language}",
+  "@publishLanguagePost": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "channelDisplay": "{flag} {language} channel",
+  "@channelDisplay": {
+    "placeholders": {
+      "flag": {
+        "type": "String"
+      },
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "selectLearningLanguageOptional": "Choose a learning language (optional)",
   "learningLanguageOptionalDesc": "You can also post without choosing a language for learning methods, linguistics, or multilingual topics.",
   "chooseFromLanguageLibrary": "Choose from language library · {count} languages",
+  "@chooseFromLanguageLibrary": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "selectLearningLanguage": "Choose a learning language",
   "languageLibraryDesc": "Languages come from Glyphora Language Core. Go back to keep this as a general language-learning topic.",
   "searchLanguageNameOrCode": "Search language name or code",
@@ -200,42 +215,12 @@
   "untitled": "Untitled",
   "otherLanguage": "Other language",
   "channelBadge": "{language} channel",
-  "categoryTranslations": {
-    "language_learning": "Language Learning",
-    "programming": "Programming",
-    "ai": "AI",
-    "technology": "Technology",
-    "gaming": "Gaming",
-    "music": "Music",
-    "movies": "Film & TV",
-    "campus": "Campus",
-    "startup": "Startups",
-    "friends": "Friends",
-    "travel": "Travel",
-    "chat": "Chat",
-    "love": "Relationships",
-    "food": "Food",
-    "medicine": "Medicine",
-    "mobile_development": "Mobile Development",
-    "web_development": "Web Development",
-    "backend_development": "Backend Development",
-    "database_development": "Databases",
-    "flutter": "Flutter",
-    "react_native": "React Native",
-    "rpg": "RPG",
-    "fps": "FPS",
-    "strategy_games": "Strategy Games",
-    "simulation_games": "Simulation Games",
-    "film": "Film",
-    "tv_series": "TV Series",
-    "animation": "Animation",
-    "documentary": "Documentary",
-    "internal_medicine": "Internal Medicine",
-    "surgery": "Surgery",
-    "pediatrics": "Pediatrics",
-    "dermatology": "Dermatology",
-    "psychiatry": "Psychiatry",
-    "cardiology": "Cardiology"
+  "@channelBadge": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
   },
   "unknownUser": "Unknown user",
   "sendMessage": "Send message",
@@ -252,6 +237,13 @@
   "loading": "Loading...",
   "friendRequestDescription": "Wants to add you as a friend",
   "friendRequestAccepted": "Accepted {name}’s friend request",
+  "@friendRequestAccepted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "operationFailed": "Operation failed",
   "accept": "Accept",
   "reject": "Reject",
@@ -263,6 +255,13 @@
   "noEditHistory": "No edit history",
   "unknownLanguage": "Unknown language",
   "languageValue": "Language: {language}",
+  "@languageValue": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "historyVersion": "Historical version",
   "retry": "Retry",
   "sendFailed": "Send failed",
@@ -287,9 +286,23 @@
   "sharedNotes": "Shared notes",
   "profileLoadFailed": "Could not load user profile",
   "notesWithUserTitle": "{name} · Notes",
+  "@notesWithUserTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "createNoteFailed": "Could not create note",
   "notesLoadFailed": "Could not load notes",
   "noSharedNotesWithUser": "No notes shared with {name} yet",
+  "@noSharedNotesWithUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "tapFabToCreate": "Use the create button to start a new note.",
   "creating": "Creating...",
   "newNote": "New note",
@@ -297,6 +310,13 @@
   "noContent": "No content",
   "createdByYou": "Created by you",
   "createdByUser": "Created by {name}",
+  "@createdByUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "recommendedLoginTitle": "Sign in to use recommendations",
   "recommendedLoginDescription": "After signing in, choose the language channels and topics you care about.",
   "interestsLoadFailed": "Could not load interests",
@@ -307,6 +327,13 @@
   "noRecommendedPostsTitle": "No posts for these interests yet",
   "noRecommendedPostsDescription": "There is no content in your selected language channels and topics yet. Pull down to refresh.",
   "friendRequestSentTo": "Friend request sent to {name}",
+  "@friendRequestSentTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "friendRequestSendFailed": "Could not send friend request",
   "inviteFriendsPrompt": "No other users yet. Invite friends to join.",
   "enterEmailAndPassword": "Enter your email and password",
@@ -397,19 +424,47 @@
   "peerProfileNotReady": "The other user’s profile is still loading",
   "typing": "Typing",
   "morePeopleTyping": "{count} more people are typing",
+  "@morePeopleTyping": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "voiceCallComingSoon": "Voice calls are coming soon",
   "videoCallComingSoon": "Video calls are coming soon",
   "noMessagesStartChat": "No messages yet. Start the conversation!",
   "messageDeleted": "This message was deleted",
   "editedAt": "Edited · {time}",
+  "@editedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "aiTranslation": "AI translation",
   "manualTranslation": "Translate manually",
   "translateToLanguage": "Translate to {language}",
+  "@translateToLanguage": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "aiTranslationFailed": "AI translation failed. Please try again.",
   "completeTranslationFirst": "Complete the translation first",
   "translationSavedToNotes": "Translation saved to notes",
   "saveToNotesFailed": "Could not save the translation to notes",
   "languageVersionPublished": "{language} version published",
+  "@languageVersionPublished": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
   "publishTranslationFailed": "Could not publish the translation",
   "saving": "Saving...",
   "saveToNotes": "Save to notes",
@@ -429,10 +484,92 @@
   "publishLanguageVersion": "Publish language version",
   "userNotFound": "User not found",
   "ageYears": "{age} years old",
+  "@ageYears": {
+    "placeholders": {
+      "age": {
+        "type": "String"
+      }
+    }
+  },
   "myActivity": "My activity",
   "theirActivity": "Their activity",
   "viewSharedNotesWithUser": "View notes shared with {name}",
+  "@viewSharedNotesWithUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "friendMessageAction": "Friend · Message",
   "friendRequestPending": "Friend request sent",
-  "acceptFriendRequest": "Accept friend request"
+  "acceptFriendRequest": "Accept friend request",
+  "categoryName0": "Language Learning",
+  "categoryName1": "Programming",
+  "categoryName2": "AI",
+  "categoryName3": "Technology",
+  "categoryName4": "Gaming",
+  "categoryName5": "Music",
+  "categoryName6": "Film & TV",
+  "categoryName7": "Campus",
+  "categoryName8": "Startups",
+  "categoryName9": "Friends",
+  "categoryName10": "Travel",
+  "categoryName11": "Chat",
+  "categoryName12": "Relationships",
+  "categoryName13": "Food",
+  "categoryName14": "Medicine",
+  "categoryLanguageLearning": "Language Learning",
+  "categoryProgramming": "Programming",
+  "categoryAi": "AI",
+  "categoryTechnology": "Technology",
+  "categoryGaming": "Gaming",
+  "categoryMusic": "Music",
+  "categoryMovies": "Film & TV",
+  "categoryCampus": "Campus",
+  "categoryStartup": "Startups",
+  "categoryFriends": "Friends",
+  "categoryTravel": "Travel",
+  "categoryChat": "Chat",
+  "categoryLove": "Relationships",
+  "categoryFood": "Food",
+  "categoryMedicine": "Medicine",
+  "categoryMobileDevelopment": "Mobile Development",
+  "categoryWebDevelopment": "Web Development",
+  "categoryBackendDevelopment": "Backend Development",
+  "categoryDatabaseDevelopment": "Databases",
+  "categoryFlutter": "Flutter",
+  "categoryReactNative": "React Native",
+  "categoryRpg": "RPG",
+  "categoryFps": "FPS",
+  "categoryStrategyGames": "Strategy Games",
+  "categorySimulationGames": "Simulation Games",
+  "categoryFilm": "Film",
+  "categoryTvSeries": "TV Series",
+  "categoryAnimation": "Animation",
+  "categoryDocumentary": "Documentary",
+  "categoryInternalMedicine": "Internal Medicine",
+  "categorySurgery": "Surgery",
+  "categoryPediatrics": "Pediatrics",
+  "categoryDermatology": "Dermatology",
+  "categoryPsychiatry": "Psychiatry",
+  "categoryCardiology": "Cardiology",
+  "languageNameZh": "Chinese",
+  "languageNameEn": "English",
+  "languageNameJa": "Japanese",
+  "languageNameKo": "Korean",
+  "languageNameFr": "French",
+  "languageNameDe": "German",
+  "languageNameEs": "Spanish",
+  "languageNamePt": "Portuguese",
+  "languageNameRu": "Russian",
+  "languageNameIt": "Italian",
+  "languageNameAr": "Arabic",
+  "languageNameTh": "Thai",
+  "languageNameVi": "Vietnamese",
+  "languageNameMs": "Malay",
+  "languageNameId": "Indonesian",
+  "languageNameHi": "Hindi",
+  "languageNameTr": "Turkish",
+  "languageNameChunom": "Chữ Nôm"
 }
