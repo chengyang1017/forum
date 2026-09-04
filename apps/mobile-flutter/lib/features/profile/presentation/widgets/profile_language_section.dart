@@ -244,7 +244,9 @@ class _ProfileLanguageSectionState extends State<ProfileLanguageSection> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          _expanded ? '收起' : '查看更多',
+                          _expanded
+                              ? context.l10n.collapse
+                              : context.l10n.showMore,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,

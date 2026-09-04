@@ -96,7 +96,7 @@ class ProfileBioTagsSection extends StatelessWidget {
                     child: Icon(
                       Icons.add,
                       size: 14,
-                      color: Theme.of(context).colorScheme.onSurface
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],

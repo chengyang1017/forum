@@ -23,6 +23,13 @@ IGNORE_LINE_MARKERS = (
 # Known data/format literals that are intentionally not translated.
 IGNORE_EXACT = {
     "年-月-日",
+    # Language/script self-names should remain in their native form.
+    "简", "繁", "中文", "日本語", "한국어", "ภาษาไทย",
+    # Preset profile tags are stored as content values, not UI chrome. Translating
+    # them in-place would mutate persisted tag identity across locales.
+    "前端", "后端", "全栈", "机器学习", "深度学习", "小程序", "游戏开发",
+    "摄影", "旅行", "美食", "音乐", "电影", "读书", "健身", "篮球",
+    "足球", "跑步", "游泳", "学生", "上班族", "创业者", "自由职业",
 }
 
 findings: list[tuple[Path, int, str]] = []

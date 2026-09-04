@@ -126,9 +126,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
     try {
       await _profileCubit.updateTags(userId, result);
-      _showSuccess('标签更新成功');
+      _showSuccess(context.l10n.tagsUpdated);
     } catch (e) {
-      _showError('更新失败: $e');
+      _showError('${context.l10n.updateFailed}: $e');
     }
   }
 
@@ -145,9 +145,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
     try {
       await _profileCubit.updateLanguages(userId, result);
-      _showSuccess('语言已更新');
+      _showSuccess(context.l10n.languagesUpdated);
     } catch (e) {
-      _showError('更新失败: $e');
+      _showError('${context.l10n.updateFailed}: $e');
     }
   }
 
@@ -170,9 +170,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         result.birthday,
         result.showAge,
       );
-      _showSuccess('生日已更新');
+      _showSuccess(context.l10n.birthdayUpdated);
     } catch (e) {
-      _showError('更新失败: $e');
+      _showError('${context.l10n.updateFailed}: $e');
     }
   }
 
@@ -192,17 +192,17 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       if (image == null) return;
 
       await _profileCubit.updateAvatar(userId, File(image.path));
-      _showSuccess('头像更新成功');
+      _showSuccess(context.l10n.avatarUpdated);
     } on PlatformException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('需要相册权限: ${e.message}'),
+          content: Text('${context.l10n.galleryPermission}: ${e.message}'),
           backgroundColor: Colors.orange,
         ),
       );
     } catch (e) {
-      _showError('头像更新失败: $e');
+      _showError('${context.l10n.avatarFailed}: $e');
     }
   }
 
@@ -216,12 +216,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     final newNickname = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('修改昵称'),
+        title: Text(context.l10n.editNicknameTitle),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: '新的昵称',
-            hintText: '给自己起个好听的名字吧',
+          decoration: InputDecoration(
+            labelText: context.l10n.newNicknameLabel,
+            hintText: context.l10n.nicknameHint,
             border: OutlineInputBorder(),
           ),
           autofocus: true,
@@ -230,11 +230,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('保存'),
+            child: Text(context.l10n.save),
           ),
         ],
       ),
@@ -248,9 +248,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
     try {
       await _profileCubit.updateNickname(userId, newNickname);
-      _showSuccess('昵称修改成功');
+      _showSuccess(context.l10n.nicknameUpdated);
     } catch (e) {
-      _showError('修改失败: $e');
+      _showError('${context.l10n.updateFailed}: $e');
     }
   }
 
@@ -264,12 +264,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     final newUsername = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('修改用户名'),
+        title: Text(context.l10n.editUsernameTitle),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: '新的用户名',
-            hintText: '用户名将作为你的唯一标识',
+          decoration: InputDecoration(
+            labelText: context.l10n.newUsernameLabel,
+            hintText: context.l10n.usernameHint,
             border: OutlineInputBorder(),
           ),
           autofocus: true,
@@ -277,11 +277,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('保存'),
+            child: Text(context.l10n.save),
           ),
         ],
       ),
@@ -295,9 +295,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
     try {
       await _profileCubit.updateUsername(userId, newUsername);
-      _showSuccess('用户名修改成功');
+      _showSuccess(context.l10n.usernameUpdated);
     } catch (e) {
-      _showError('修改失败: $e');
+      _showError('${context.l10n.updateFailed}: $e');
     }
   }
 
@@ -309,11 +309,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     final newBio = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('编辑个人简介'),
+        title: Text(context.l10n.editBioTitle),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            hintText: '介绍一下你自己...',
+          decoration: InputDecoration(
+            hintText: context.l10n.bioHint,
             border: OutlineInputBorder(),
           ),
           maxLines: 3,
@@ -323,11 +323,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('保存'),
+            child: Text(context.l10n.save),
           ),
         ],
       ),
@@ -341,9 +341,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
     try {
       await _profileCubit.updateBio(userId, newBio);
-      _showSuccess('个人简介更新成功');
+      _showSuccess(context.l10n.bioUpdated);
     } catch (e) {
-      _showError('更新失败: $e');
+      _showError('${context.l10n.updateFailed}: $e');
     }
   }
 
@@ -458,14 +458,14 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           color: theme.colorScheme.primary,
                         ),
                       ),
-                      title: const Text(
-                        '我的笔记',
+                      title: Text(
+                        context.l10n.myNotes,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      subtitle: const Text('查看和管理所有共享笔记'),
+                      subtitle: Text(context.l10n.myNotesDescription),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => context.push(AppRoutes.allNotes),
                     ),
@@ -489,14 +489,14 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           color: theme.colorScheme.secondary,
                         ),
                       ),
-                      title: const Text(
-                        '我的收藏',
+                      title: Text(
+                        context.l10n.bookmarksTitle,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      subtitle: const Text('查看收藏的帖子'),
+                      subtitle: Text(context.l10n.bookmarksDescription),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => context.push(AppRoutes.bookmarkedPosts),
                     ),
@@ -558,8 +558,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                               color: Colors.redAccent,
                             ),
                             const SizedBox(height: 12),
-                            const Text(
-                              '帖子加载失败',
+                            Text(
+                              context.l10n.postsLoadFailed,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -595,7 +595,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             ),
                             SizedBox(height: 12),
                             Text(
-                              '暂无帖子',
+                              context.l10n.noPosts,
                               style: TextStyle(
                                 fontSize: 15,
                                 color: Colors.grey,
@@ -610,10 +610,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
                       if (index.isOdd) {
-                        return Divider(
-                          height: 1,
-                          thickness: 1,
-                        );
+                        return Divider(height: 1, thickness: 1);
                       }
 
                       final post = posts[index ~/ 2];

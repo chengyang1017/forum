@@ -571,5 +571,237 @@
   "languageNameId": "Indonesian",
   "languageNameHi": "Hindi",
   "languageNameTr": "Turkish",
-  "languageNameChunom": "Chữ Nôm"
+  "languageNameChunom": "Chữ Nôm",
+  "allLanguages": "All languages",
+  "unspecifiedLanguage": "Unspecified language",
+  "notSelected": "Not selected",
+  "category": "Category",
+  "allCategories": "All categories",
+  "uncategorized": "Uncategorized",
+  "selectCategory": "Select category",
+  "noteLanguage": "Note language",
+  "noteCategory": "Note category",
+  "sharing": "Sharing",
+  "onlyMe": "Only me",
+  "selectedPeople": "{count} selected",
+  "@selectedPeople": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "newNoteConfigDescription": "You can set note details now or change them later.",
+  "createNote": "Create note",
+  "myNotes": "My notes",
+  "clear": "Clear",
+  "noMatchingNotes": "No notes match the current filters",
+  "noNotesYet": "No notes yet",
+  "clearFilters": "Clear filters",
+  "tapFabToCreateNote": "Tap the bottom-right button to create a note",
+  "privateNote": "Only you can see this",
+  "user": "User",
+  "sharedWithUser": "Shared with {name}",
+  "@sharedWithUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedWithUsers": "Shared with {names}",
+  "@sharedWithUsers": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedWithMany": "Shared with {names} and {count} people total",
+  "@sharedWithMany": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedMembers": "Shared members",
+  "searchNicknameOrUsername": "Search nickname or username",
+  "noUsersFound": "No users found",
+  "currentUserNotChatMember": "The current user is not a member of this chat",
+  "chatPeerNotFound": "Chat participant not found",
+  "editingNotAllowed": "The creator has not enabled editing",
+  "noteImageLimit": "Each note can contain up to 9 images",
+  "selectPostCategory": "Select post category",
+  "choosePrimaryLanguage": "Choose primary language",
+  "notePublishedAsPost": "Note published as a post",
+  "deleteSharedNote": "Delete shared note?",
+  "deleteSharedNoteDescription": "After deletion, this note will disappear from both users’ note lists.",
+  "publishAsPost": "Publish as post",
+  "publishAsPostDescription": "Use the note category, choose a primary language, then continue to the post screen",
+  "postCategory": "Post category",
+  "sharedWithCount": "Shared with {count} people",
+  "@sharedWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "membersCount": "{count} people total",
+  "@membersCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "allowSharedMembersEdit": "Allow shared members to edit",
+  "sharedMembersCanEdit": "Shared members can edit text and images",
+  "sharedMembersViewOnly": "Shared members can only view this note",
+  "canEditThisNote": "You can edit this note",
+  "readOnlyNote": "This note is view-only",
+  "deleteNote": "Delete note",
+  "sharedNote": "Shared note",
+  "noteDeleted": "This note has been deleted",
+  "insertImage": "Insert image",
+  "noteSettings": "Note settings",
+  "noteTitle": "Note title",
+  "noteContentHint": "Enter note content…",
+  "bookmarksTitle": "My bookmarks",
+  "bookmarksLoadFailed": "Could not load bookmarks",
+  "reload": "Reload",
+  "noBookmarks": "No bookmarks yet",
+  "noBookmarksDescription": "Posts you bookmark from the post details screen will appear here.",
+  "postImageLimit": "Each post can contain up to 9 images",
+  "imagePlacement": "Where should the image go?",
+  "imagesAtTop": "At the top of the post",
+  "imagesAtTopDescription": "Keep the existing top-image layout",
+  "insertIntoBody": "Insert into body",
+  "insertIntoBodyDescription": "Insert at the current text cursor position",
+  "fillTitleAndContent": "Enter a title and content",
+  "postBodyLimit": "Body text can be at most 5000 characters",
+  "publishedInChannel": "Published in the {language} channel",
+  "@publishedInChannel": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteImage": "Delete image",
+  "deleteImageConfirm": "Delete this image?",
+  "postTitleHint": "Enter post title…",
+  "postContentHint": "Enter post content…",
+  "optionalImages": "Images (optional)",
+  "insertingImage": "Inserting image…",
+  "limitReached": "Limit reached",
+  "uploadingInlineImage": "Uploading and inserting image into the body…",
+  "uploadProgress": "Uploading {percent}%",
+  "@uploadProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "postDetail": "Post details",
+  "postNotFound": "Post not found",
+  "currentLanguageUnavailable": "Could not determine the current language",
+  "postUpdated": "Post updated ✨",
+  "bookmarkActionFailed": "Bookmark action failed",
+  "sharePost": "Share post",
+  "postLinkCopied": "Post link copied",
+  "languageVersionAvailable": "Language version available · Tap to view",
+  "noLanguageVersion": "No language version yet · Tap to translate",
+  "chooseTranslationMethod": "Choose translation method",
+  "aiTranslationDescription": "You can edit the AI-generated translation before publishing",
+  "manualTranslationDescription": "Start from a blank translation and write it yourself",
+  "deletePost": "Delete post",
+  "deletePostConfirm": "Delete this post? This action cannot be undone.",
+  "confirmDelete": "Confirm delete",
+  "postDeleted": "Post deleted safely",
+  "deleteThisImage": "Delete this image",
+  "appendMoreImages": "Add more images",
+  "reportSubmitted": "Report submitted. Thank you for your feedback.",
+  "details": "Details",
+  "finishSorting": "Finish sorting",
+  "reorderImages": "Reorder images",
+  "editPost": "Edit post",
+  "holdDragToReorder": "Press and hold the handle on the right to drag and reorder",
+  "imageNumber": "Image {index}",
+  "@imageNumber": {
+    "placeholders": {
+      "index": {
+        "type": "String"
+      }
+    }
+  },
+  "translationVersion": "Translation version",
+  "translationPublishedAt": "Translation published {time}",
+  "@translationPublishedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "modifiedAt": "Modified {time}",
+  "@modifiedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bookmark": "Bookmark",
+  "translate": "Translate",
+  "mainLanguage": "Primary language",
+  "titleRequired": "Title cannot be empty",
+  "contentRequired": "Content cannot be empty",
+  "topImages": "Top images",
+  "noTopImages": "No top images",
+  "close": "Close",
+  "myNotesDescription": "View and manage all shared notes",
+  "bookmarksDescription": "View bookmarked posts",
+  "selectedCount": "Selected ({count})",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseKnownLanguages": "Choose the languages you know",
+  "languageCount": "{count} languages selected",
+  "@languageCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "searchResults": "Search results",
+  "remove": "Remove",
+  "currentNativeLanguage": "Currently set as native",
+  "changeToProficiency": "Change to proficiency level",
+  "proficiency": "Proficiency",
+  "setAsNativeLanguage": "Set as native language",
+  "noLanguagesSelected": "No languages selected yet",
+  "addLanguagePrompt": "Go to “Add language” to search and select",
+  "searchOtherLanguagePrompt": "Try another name, language code, or writing system",
+  "collapse": "Show less",
+  "showMore": "Show more",
+  "selectedTagsCount": "Selected tags ({count}/10)",
+  "@selectedTagsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "copyLink": "Copy link"
 }

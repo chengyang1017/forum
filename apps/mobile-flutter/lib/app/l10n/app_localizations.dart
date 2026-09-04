@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 // Compatibility facade around Flutter gen_l10n output.
 // New code can use generated typed getters directly; legacy get()/getWithArgs()
 // calls remain supported while the UI code is migrated incrementally.
@@ -891,4 +893,8 @@ extension AppLocalizationsCompatibility on AppLocalizations {
         return get(key);
     }
   }
+}
+
+extension AppLocalizationsBuildContext on BuildContext {
+  AppLocalizations get l10n => AppLocalizations.of(this)!;
 }

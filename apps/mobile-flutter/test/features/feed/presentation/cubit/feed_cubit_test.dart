@@ -171,8 +171,10 @@ final class _FakePostRepository implements PostRepository {
   Future<int> toggleLike(String postId, {required bool liked}) async => 0;
 
   @override
-  Future<bool> toggleBookmark(String postId, {required bool bookmarked}) async =>
-      bookmarked;
+  Future<bool> toggleBookmark(
+    String postId, {
+    required bool bookmarked,
+  }) async => bookmarked;
 
   @override
   Future<List<PostModel>> getBookmarkedPosts() async => const <PostModel>[];
