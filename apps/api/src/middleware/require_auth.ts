@@ -36,8 +36,11 @@ export async function requireAuth(
   }
 
   try {
+    // checkRevoked=true is required for moderation/account enforcement. A
+    // disabled or explicitly revoked account must not keep API access through
+    // an ID token that was issued before the enforcement action.
     const decodedToken =
-      await firebaseAuth.verifyIdToken(idToken);
+      await firebaseAuth.verifyIdToken(idToken, true);
 
     response.locals.auth = {
       firebaseUid: decodedToken.uid,
@@ -48,7 +51,7 @@ export async function requireAuth(
   } catch {
     response.status(401).json({
       error: 'UNAUTHORIZED',
-      message: 'Invalid or expired Firebase ID token',
+      message: 'Invalid, expired or revoked Firebase ID token',
     });
   }
 }
