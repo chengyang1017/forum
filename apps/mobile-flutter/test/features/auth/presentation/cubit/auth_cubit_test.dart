@@ -143,82 +143,88 @@ void main() {
       },
     );
 
-    test('loadUser merges backend profile into authenticated identity', () async {
-      final createdAt = DateTime(2026, 1, 2);
-      final lastActive = DateTime(2026, 1, 3);
+    test(
+      'loadUser merges backend profile into authenticated identity',
+      () async {
+        final createdAt = DateTime(2026, 1, 2);
+        final lastActive = DateTime(2026, 1, 3);
 
-      authRepository.currentUser = user;
-      userRepository.currentUser = UserModel(
-        id: user.id,
-        username: 'server-name',
-        email: 'server@example.com',
-        nickname: 'Server Nickname',
-        avatar: 'https://example.test/avatar.png',
-        bio: 'Server bio',
-        birthday: DateTime(2000, 4, 5),
-        showAge: false,
-        createdAt: createdAt,
-        lastActive: lastActive,
-      );
-      userRepository.interestState = (
-        interests: <String>{'technology'},
-        migrated: true,
-      );
+        authRepository.currentUser = user;
+        userRepository.currentUser = UserModel(
+          id: user.id,
+          username: 'server-name',
+          email: 'server@example.com',
+          nickname: 'Server Nickname',
+          avatar: 'https://example.test/avatar.png',
+          bio: 'Server bio',
+          birthday: DateTime(2000, 4, 5),
+          showAge: false,
+          createdAt: createdAt,
+          lastActive: lastActive,
+        );
+        userRepository.interestState = (
+          interests: <String>{'technology'},
+          migrated: true,
+        );
 
-      await cubit.loadUser();
+        await cubit.loadUser();
 
-      expect(userRepository.lastSyncedUser, same(user));
-      expect(cubit.state.user?.id, user.id);
-      expect(cubit.state.user?.username, 'server-name');
-      expect(cubit.state.user?.email, 'server@example.com');
-      expect(cubit.state.user?.nickname, 'Server Nickname');
-      expect(cubit.state.user?.bio, 'Server bio');
-      expect(cubit.state.user?.showAge, isFalse);
-      expect(cubit.state.user?.createdAt, createdAt);
-      expect(cubit.state.user?.lastActive, lastActive);
-      expect(cubit.state.interests, <String>{'technology'});
-      expect(cubit.state.interestsLoaded, isTrue);
-      expect(cubit.state.isInitialized, isTrue);
-      expect(cubit.state.isLoading, isFalse);
-    });
+        expect(userRepository.lastSyncedUser, same(user));
+        expect(cubit.state.user?.id, user.id);
+        expect(cubit.state.user?.username, 'server-name');
+        expect(cubit.state.user?.email, 'server@example.com');
+        expect(cubit.state.user?.nickname, 'Server Nickname');
+        expect(cubit.state.user?.bio, 'Server bio');
+        expect(cubit.state.user?.showAge, isFalse);
+        expect(cubit.state.user?.createdAt, createdAt);
+        expect(cubit.state.user?.lastActive, lastActive);
+        expect(cubit.state.interests, <String>{'technology'});
+        expect(cubit.state.interestsLoaded, isTrue);
+        expect(cubit.state.isInitialized, isTrue);
+        expect(cubit.state.isLoading, isFalse);
+      },
+    );
 
-    test('loadUser migrates legacy interests when backend state is legacy', () async {
-      authRepository.currentUser = user;
-      authRepository.legacyInterests = <String>{'languages', 'technology'};
-      userRepository.interestState = (
-        interests: <String>{},
-        migrated: false,
-      );
-      userRepository.migratedInterests = <String>{'languages', 'technology'};
+    test(
+      'loadUser migrates legacy interests when backend state is legacy',
+      () async {
+        authRepository.currentUser = user;
+        authRepository.legacyInterests = <String>{'languages', 'technology'};
+        userRepository.interestState = (interests: <String>{}, migrated: false);
+        userRepository.migratedInterests = <String>{'languages', 'technology'};
 
-      await cubit.loadUser();
+        await cubit.loadUser();
 
-      expect(authRepository.lastLegacyInterestUserId, user.id);
-      expect(
-        userRepository.lastLegacyInterests,
-        <String>{'languages', 'technology'},
-      );
-      expect(cubit.state.interests, <String>{'languages', 'technology'});
-      expect(cubit.state.interestsLoaded, isTrue);
-    });
+        expect(authRepository.lastLegacyInterestUserId, user.id);
+        expect(userRepository.lastLegacyInterests, <String>{
+          'languages',
+          'technology',
+        });
+        expect(cubit.state.interests, <String>{'languages', 'technology'});
+        expect(cubit.state.interestsLoaded, isTrue);
+      },
+    );
 
-    test('toggleInterest rolls back optimistic state when persistence fails', () async {
-      authRepository.currentUser = user;
-      userRepository.interestState = (
-        interests: <String>{'languages'},
-        migrated: true,
-      );
+    test(
+      'toggleInterest rolls back optimistic state when persistence fails',
+      () async {
+        authRepository.currentUser = user;
+        userRepository.interestState = (
+          interests: <String>{'languages'},
+          migrated: true,
+        );
 
-      await cubit.loadUser();
-      userRepository.updateInterestsError = StateError('save failed');
+        await cubit.loadUser();
+        userRepository.updateInterestsError = StateError('save failed');
 
-      await expectLater(
-        cubit.toggleInterest('technology'),
-        throwsA(isA<StateError>()),
-      );
+        await expectLater(
+          cubit.toggleInterest('technology'),
+          throwsA(isA<StateError>()),
+        );
 
-      expect(cubit.state.interests, <String>{'languages'});
-    });
+        expect(cubit.state.interests, <String>{'languages'});
+      },
+    );
 
     test('password reset delegates to repository', () async {
       await cubit.sendPasswordResetEmail('alice@example.com');
