@@ -1,0 +1,7 @@
+# Copy this file to key.properties and replace every placeholder.
+# Never commit key.properties or the keystore itself.
+
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=upload
+storeFile=C:/Users/YOUR_NAME/upload-keystore.jks
