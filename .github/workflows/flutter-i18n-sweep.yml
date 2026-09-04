@@ -23,7 +23,9 @@ jobs:
           python-version: '3.12'
 
       - name: Migrate hard-coded UI copy
-        run: python apps/mobile-flutter/tool/migrate_hardcoded_ui_to_arb.py
+        run: |
+          python apps/mobile-flutter/tool/migrate_hardcoded_ui_to_arb.py
+          python apps/mobile-flutter/tool/patch_remaining_i18n.py
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
