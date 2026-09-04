@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { FieldValue } from 'firebase-admin/firestore';
 
-import { firebaseAuth, firebaseFirestore } from '../lib/firebase_admin.js';
+import {
+  firebaseAuth,
+  firebaseFirestore,
+  getFirebaseStorageBucket,
+} from '../lib/firebase_admin.js';
 import { prisma } from '../lib/prisma.js';
 import { requireAuth } from '../middleware/require_auth.js';
 
@@ -11,8 +15,8 @@ export const accountRouter = Router();
  * DELETE /api/v1/account
  *
  * Deletes the authenticated Glyphora account across the authoritative
- * PostgreSQL user store, the legacy Firestore profile/social mirrors and
- * Firebase Authentication.
+ * PostgreSQL user store, the legacy Firestore profile/social mirrors,
+ * Firebase Storage and Firebase Authentication.
  *
  * The Firebase account is disabled first so a partial cleanup can never leave
  * an account active after its application data has started being removed.
@@ -28,7 +32,17 @@ accountRouter.delete(
     try {
       const user = await prisma.user.findUnique({
         where: { firebaseUid },
-        select: { id: true },
+        select: {
+          id: true,
+          avatarUrl: true,
+          posts: {
+            select: {
+              images: {
+                select: { url: true },
+              },
+            },
+          },
+        },
       });
 
       if (user == null) {
@@ -38,6 +52,11 @@ accountRouter.delete(
         });
         return;
       }
+
+      const mediaUrls = [
+        ...(user.avatarUrl == null ? [] : [user.avatarUrl]),
+        ...user.posts.flatMap((post) => post.images.map((image) => image.url)),
+      ];
 
       // Stop new sessions before destructive cleanup begins.
       await firebaseAuth.updateUser(firebaseUid, { disabled: true });
@@ -62,6 +81,7 @@ accountRouter.delete(
       });
 
       await cleanupLegacyFirestoreUser(firebaseUid);
+      await cleanupAccountStorage(mediaUrls);
 
       await firebaseAuth.deleteUser(firebaseUid);
 
@@ -87,7 +107,14 @@ async function cleanupLegacyFirestoreUser(firebaseUid: string) {
   const friendsRef = firebaseFirestore.collection('friends').doc(firebaseUid);
   const blocksRef = firebaseFirestore.collection('blocks').doc(firebaseUid);
 
-  const [sentRequests, receivedRequests, reverseFriends] = await Promise.all([
+  const [
+    sentRequests,
+    receivedRequests,
+    reverseFriends,
+    reverseBlocks,
+    outgoingFollows,
+    incomingFollows,
+  ] = await Promise.all([
     firebaseFirestore
       .collection('friend_requests')
       .where('from', '==', firebaseUid)
@@ -100,27 +127,101 @@ async function cleanupLegacyFirestoreUser(firebaseUid: string) {
       .collection('friends')
       .where(firebaseUid, '==', true)
       .get(),
+    firebaseFirestore
+      .collection('blocks')
+      .where(firebaseUid, '==', true)
+      .get(),
+    firebaseFirestore
+      .collection('follows')
+      .where('followerId', '==', firebaseUid)
+      .get(),
+    firebaseFirestore
+      .collection('follows')
+      .where('followingId', '==', firebaseUid)
+      .get(),
   ]);
 
-  const batch = firebaseFirestore.batch();
+  // BulkWriter avoids the 500-write ceiling of one Firestore WriteBatch for
+  // established accounts with a large social graph.
+  const writer = firebaseFirestore.bulkWriter();
 
-  batch.delete(userRef);
-  batch.delete(friendsRef);
-  batch.delete(blocksRef);
+  writer.delete(userRef);
+  writer.delete(friendsRef);
+  writer.delete(blocksRef);
 
   for (const doc of sentRequests.docs) {
-    batch.delete(doc.ref);
+    writer.delete(doc.ref);
   }
 
   for (const doc of receivedRequests.docs) {
-    batch.delete(doc.ref);
+    writer.delete(doc.ref);
   }
 
   for (const doc of reverseFriends.docs) {
-    batch.update(doc.ref, {
+    writer.update(doc.ref, {
       [firebaseUid]: FieldValue.delete(),
     });
   }
 
-  await batch.commit();
+  for (const doc of reverseBlocks.docs) {
+    writer.update(doc.ref, {
+      [firebaseUid]: FieldValue.delete(),
+    });
+  }
+
+  const followDocs = new Map(
+    [...outgoingFollows.docs, ...incomingFollows.docs].map((doc) => [
+      doc.ref.path,
+      doc,
+    ]),
+  );
+
+  for (const doc of followDocs.values()) {
+    writer.delete(doc.ref);
+  }
+
+  await writer.close();
+}
+
+async function cleanupAccountStorage(urls: string[]) {
+  if (urls.length === 0) {
+    return;
+  }
+
+  try {
+    const bucket = getFirebaseStorageBucket();
+    const paths = new Set(
+      urls
+        .map(storagePathFromDownloadUrl)
+        .filter((path): path is string => path != null),
+    );
+
+    for (const path of paths) {
+      try {
+        await bucket.file(path).delete({ ignoreNotFound: true });
+      } catch (error) {
+        console.warn('Unable to delete account media:', path, error);
+      }
+    }
+  } catch (error) {
+    // Database/auth deletion must not fail because an old Storage bucket is
+    // unavailable. Orphan-file cleanup remains best effort and observable.
+    console.warn('Account Storage cleanup unavailable:', error);
+  }
+}
+
+function storagePathFromDownloadUrl(downloadUrl: string): string | null {
+  try {
+    const url = new URL(downloadUrl);
+    const marker = '/o/';
+    const markerIndex = url.pathname.indexOf(marker);
+
+    if (markerIndex === -1) {
+      return null;
+    }
+
+    return decodeURIComponent(url.pathname.substring(markerIndex + marker.length));
+  } catch {
+    return null;
+  }
 }
