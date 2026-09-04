@@ -1,0 +1,57 @@
+name: One-time Flutter format fix
+
+on:
+  push:
+    branches:
+      - fix/flutter-i18n-sweep
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/flutter-i18n-sweep
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: stable
+          cache: true
+
+      - name: Format files required by quality gate
+        working-directory: apps/mobile-flutter
+        run: |
+          dart format \
+            lib/app/cubit/app_language_state.dart \
+            lib/app/theme/app_theme.dart \
+            lib/features/chat/presentation/cubit/chat_state.dart \
+            lib/features/discover/presentation/cubit/discover_state.dart \
+            lib/features/feed/presentation/cubit/feed_state.dart \
+            lib/features/home/presentation/widgets/recommended_posts_view.dart \
+            lib/features/profile/presentation/widgets/profile_bio_tags_section.dart \
+            lib/features/social/presentation/cubit/friend_state.dart \
+            test/features/auth/presentation/cubit/auth_cubit_test.dart \
+            test/features/chat/data/repositories/firebase_chat_media_repository_test.dart \
+            test/features/chat/presentation/cubit/chat_cubit_test.dart \
+            test/features/discover/presentation/cubit/discover_cubit_test.dart \
+            test/features/feed/presentation/cubit/feed_cubit_test.dart \
+            test/features/profile/data/repositories/profile_repository_impl_test.dart \
+            test/features/profile/presentation/cubit/profile_cubit_test.dart
+
+      - name: Commit formatting
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/mobile-flutter/lib apps/mobile-flutter/test
+          if git diff --cached --quiet; then
+            echo "No formatting changes needed."
+            exit 0
+          fi
+          git commit -m "chore: satisfy Flutter formatting gate"
+          git push origin HEAD:fix/flutter-i18n-sweep
