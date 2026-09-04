@@ -287,9 +287,7 @@ class PostService {
     }
 
     return posts
-        .where(
-          (post) => post.userId == null || !blocked.contains(post.userId),
-        )
+        .where((post) => post.userId == null || !blocked.contains(post.userId))
         .toList(growable: false);
   }
 }
