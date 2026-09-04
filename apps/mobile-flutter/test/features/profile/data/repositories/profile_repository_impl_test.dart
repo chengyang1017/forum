@@ -28,26 +28,23 @@ void main() {
       expect(userRepository.lastUserId, 'user-1');
     });
 
-    test(
-      'updateTags copies payload and returns backend-confirmed user',
-      () async {
-        const confirmed = UserModel(id: 'user-1', username: 'alice');
-        userRepository.updateResult = confirmed;
-        final tags = <String>['flutter', 'nom'];
+    test('updateTags copies payload and returns backend-confirmed user', () async {
+      const confirmed = UserModel(id: 'user-1', username: 'alice');
+      userRepository.updateResult = confirmed;
+      final tags = <String>['flutter', 'nom'];
 
-        final result = await repository.updateTags(
-          userId: 'user-1',
-          tags: tags,
-        );
+      final result = await repository.updateTags(
+        userId: 'user-1',
+        tags: tags,
+      );
 
-        expect(result, same(confirmed));
-        expect(userRepository.lastUpdate, {
-          'tags': ['flutter', 'nom'],
-        });
-        tags.add('changed-after-call');
-        expect(userRepository.lastUpdate!['tags'], ['flutter', 'nom']);
-      },
-    );
+      expect(result, same(confirmed));
+      expect(userRepository.lastUpdate, {
+        'tags': ['flutter', 'nom'],
+      });
+      tags.add('changed-after-call');
+      expect(userRepository.lastUpdate!['tags'], ['flutter', 'nom']);
+    });
 
     test('updateLanguages deep-copies language maps', () async {
       userRepository.updateResult = const UserModel(
@@ -58,7 +55,10 @@ void main() {
         {'name': 'Vietnamese', 'level': 80},
       ];
 
-      await repository.updateLanguages(userId: 'user-1', languages: languages);
+      await repository.updateLanguages(
+        userId: 'user-1',
+        languages: languages,
+      );
 
       expect(userRepository.lastUpdate, {
         'languages': [
@@ -103,22 +103,22 @@ void main() {
         showAge: true,
       );
 
-      expect(userRepository.lastUpdate, {'birthday': null, 'showAge': true});
+      expect(userRepository.lastUpdate, {
+        'birthday': null,
+        'showAge': true,
+      });
     });
 
-    test(
-      'updateNickname converts empty nickname to null for backend',
-      () async {
-        userRepository.updateResult = const UserModel(
-          id: 'user-1',
-          username: 'alice',
-        );
+    test('updateNickname converts empty nickname to null for backend', () async {
+      userRepository.updateResult = const UserModel(
+        id: 'user-1',
+        username: 'alice',
+      );
 
-        await repository.updateNickname(userId: 'user-1', nickname: '');
+      await repository.updateNickname(userId: 'user-1', nickname: '');
 
-        expect(userRepository.lastUpdate, {'nickname': null});
-      },
-    );
+      expect(userRepository.lastUpdate, {'nickname': null});
+    });
 
     test('simple profile mutations send the expected backend fields', () async {
       userRepository.updateResult = const UserModel(
@@ -141,17 +141,14 @@ void main() {
       expect(userRepository.lastUpdate, {'bio': 'hello'});
     });
 
-    test(
-      'backend failure is rethrown instead of being hidden by mirror',
-      () async {
-        userRepository.updateError = StateError('backend failed');
+    test('backend failure is rethrown instead of being hidden by mirror', () async {
+      userRepository.updateError = StateError('backend failed');
 
-        await expectLater(
-          repository.updateBio(userId: 'user-1', bio: 'hello'),
-          throwsA(isA<StateError>()),
-        );
-      },
-    );
+      await expectLater(
+        repository.updateBio(userId: 'user-1', bio: 'hello'),
+        throwsA(isA<StateError>()),
+      );
+    });
   });
 }
 

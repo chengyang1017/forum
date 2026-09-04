@@ -1,5 +1,8 @@
 class DiscoverState {
-  const DiscoverState({this.isLoading = false, this.error});
+  const DiscoverState({
+    this.isLoading = false,
+    this.error,
+  });
 
   final bool isLoading;
   final String? error;

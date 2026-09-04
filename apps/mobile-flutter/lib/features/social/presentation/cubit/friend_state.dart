@@ -1,5 +1,9 @@
 class FriendState {
-  const FriendState({this.friendUids, this.isLoading = false, this.error});
+  const FriendState({
+    this.friendUids,
+    this.isLoading = false,
+    this.error,
+  });
 
   final List<String>? friendUids;
   final bool isLoading;

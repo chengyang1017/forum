@@ -60,20 +60,17 @@ void main() {
       expect(cubit.state.error, isNull);
     });
 
-    test(
-      'sendFriendRequest stores error, returns to idle, and rethrows',
-      () async {
-        friendRepository.sendError = StateError('request failed');
+    test('sendFriendRequest stores error, returns to idle, and rethrows', () async {
+      friendRepository.sendError = StateError('request failed');
 
-        await expectLater(
-          cubit.sendFriendRequest('user-2'),
-          throwsA(isA<StateError>()),
-        );
+      await expectLater(
+        cubit.sendFriendRequest('user-2'),
+        throwsA(isA<StateError>()),
+      );
 
-        expect(cubit.state.isLoading, isFalse);
-        expect(cubit.state.error, contains('request failed'));
-      },
-    );
+      expect(cubit.state.isLoading, isFalse);
+      expect(cubit.state.error, contains('request failed'));
+    });
 
     test('clear restores initial state after an error', () async {
       friendRepository.sendError = StateError('request failed');

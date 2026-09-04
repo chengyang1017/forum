@@ -1,7 +1,11 @@
 import '../../domain/models/chat_thread.dart';
 
 class ChatState {
-  const ChatState({this.chats, this.isLoading = false, this.error});
+  const ChatState({
+    this.chats,
+    this.isLoading = false,
+    this.error,
+  });
 
   final List<ChatThread>? chats;
   final bool isLoading;

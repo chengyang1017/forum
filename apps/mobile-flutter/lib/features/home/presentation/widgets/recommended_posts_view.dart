@@ -231,10 +231,7 @@ class _InterestedPostListState extends State<_InterestedPostList> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.zero,
         itemCount: posts.length,
-        separatorBuilder: (_, _) => Divider(
-          height: 1,
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
+        separatorBuilder: (_, _) => Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
         itemBuilder: (context, index) {
           return PostItemCard(
             post: posts[index],

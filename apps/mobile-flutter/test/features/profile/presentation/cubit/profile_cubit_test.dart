@@ -97,26 +97,23 @@ void main() {
       expect(cubit.state.userProfile, same(confirmed));
     });
 
-    test(
-      'updateNickname rolls back and rethrows when persistence fails',
-      () async {
-        const initial = UserModel(
-          id: 'user-1',
-          username: 'alice',
-          nickname: 'Old',
-        );
-        profileRepository.profile = initial;
-        await cubit.loadProfile('user-1');
-        profileRepository.nicknameError = StateError('save failed');
+    test('updateNickname rolls back and rethrows when persistence fails', () async {
+      const initial = UserModel(
+        id: 'user-1',
+        username: 'alice',
+        nickname: 'Old',
+      );
+      profileRepository.profile = initial;
+      await cubit.loadProfile('user-1');
+      profileRepository.nicknameError = StateError('save failed');
 
-        await expectLater(
-          cubit.updateNickname('user-1', 'New'),
-          throwsA(isA<StateError>()),
-        );
+      await expectLater(
+        cubit.updateNickname('user-1', 'New'),
+        throwsA(isA<StateError>()),
+      );
 
-        expect(cubit.state.userProfile, same(initial));
-      },
-    );
+      expect(cubit.state.userProfile, same(initial));
+    });
   });
 }
 

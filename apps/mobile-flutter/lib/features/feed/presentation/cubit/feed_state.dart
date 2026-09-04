@@ -1,5 +1,8 @@
 class FeedState {
-  const FeedState({this.isLoading = false, this.error});
+  const FeedState({
+    this.isLoading = false,
+    this.error,
+  });
 
   final bool isLoading;
   final String? error;

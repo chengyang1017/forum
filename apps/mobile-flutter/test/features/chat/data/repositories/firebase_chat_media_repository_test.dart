@@ -16,20 +16,17 @@ void main() {
       repository = FirebaseChatMediaRepository(storage: storage);
     });
 
-    test(
-      'uploadImage rejects a blank owner id before touching storage',
-      () async {
-        await expectLater(
-          repository.uploadImage(
-            ownerId: '   ',
-            bytes: Uint8List.fromList([1, 2, 3]),
-          ),
-          throwsA(isA<ArgumentError>()),
-        );
+    test('uploadImage rejects a blank owner id before touching storage', () async {
+      await expectLater(
+        repository.uploadImage(
+          ownerId: '   ',
+          bytes: Uint8List.fromList([1, 2, 3]),
+        ),
+        throwsA(isA<ArgumentError>()),
+      );
 
-        expect(storage.refCalls, 0);
-      },
-    );
+      expect(storage.refCalls, 0);
+    });
 
     test('uploadImage rejects empty bytes before touching storage', () async {
       await expectLater(
