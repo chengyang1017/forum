@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../cubit/chat_cubit.dart';
@@ -105,6 +106,7 @@ class _ChatRouteScreenState extends State<ChatRouteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final initialOtherUserName = widget.initialOtherUserName;
 
     if (initialOtherUserName != null) {
@@ -125,7 +127,7 @@ class _ChatRouteScreenState extends State<ChatRouteScreen> {
 
         if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: const Text('聊天')),
+            appBar: AppBar(title: Text(l10n.get('chatTitle'))),
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(32),
@@ -134,20 +136,23 @@ class _ChatRouteScreenState extends State<ChatRouteScreen> {
                   children: [
                     const Icon(Icons.error_outline_rounded, size: 52),
                     const SizedBox(height: 16),
-                    const Text(
-                      '聊天加载失败',
+                    Text(
+                      l10n.get('chatLoadFailed'),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text('${snapshot.error}', textAlign: TextAlign.center),
+                    Text(
+                      l10n.get('chatLoadFailedDescription'),
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 20),
                     FilledButton.icon(
                       onPressed: _retry,
                       icon: const Icon(Icons.refresh_rounded),
-                      label: const Text('重试'),
+                      label: Text(l10n.get('retry')),
                     ),
                   ],
                 ),
@@ -158,7 +163,9 @@ class _ChatRouteScreenState extends State<ChatRouteScreen> {
 
         return ChatScreen(
           chatId: widget.chatId,
-          otherUserName: snapshot.data ?? '未知用户',
+          otherUserName: (snapshot.data?.trim().isNotEmpty ?? false)
+              ? snapshot.data!.trim()
+              : l10n.get('unknownUser'),
         );
       },
     );
@@ -204,7 +211,9 @@ class _ChatScreenState extends State<ChatScreen> {
     if (widget.isGroupChat) {
       final name = widget.groupName?.trim() ?? '';
 
-      return name.isNotEmpty ? name : '群聊';
+      return name.isNotEmpty
+          ? name
+          : AppLocalizations.of(context)!.get('groupChat');
     }
 
     return widget.otherUserName;
@@ -260,12 +269,15 @@ class _ChatScreenState extends State<ChatScreen> {
               if (canEdit)
                 ListTile(
                   leading: const Icon(Icons.edit_outlined),
-                  title: const Text('编辑消息'),
+                  title: Text(AppLocalizations.of(context)!.get('editMessage')),
                   onTap: () => Navigator.pop(sheetContext, 'edit'),
                 ),
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: Colors.red),
-                title: const Text('删除消息', style: TextStyle(color: Colors.red)),
+                title: Text(
+                  AppLocalizations.of(context)!.get('deleteMessage'),
+                  style: const TextStyle(color: Colors.red),
+                ),
                 onTap: () => Navigator.pop(sheetContext, 'delete'),
               ),
             ],
@@ -294,7 +306,7 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('编辑消息'),
+          title: Text(AppLocalizations.of(context)!.get('editMessage')),
 
           content: TextFormField(
             initialValue: oldContent,
@@ -302,8 +314,8 @@ class _ChatScreenState extends State<ChatScreen> {
             minLines: 1,
             maxLines: 6,
             textInputAction: TextInputAction.newline,
-            decoration: const InputDecoration(
-              hintText: '输入消息内容',
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context)!.get('messageInputHint'),
               border: OutlineInputBorder(),
             ),
             onChanged: (value) {
@@ -316,14 +328,14 @@ class _ChatScreenState extends State<ChatScreen> {
               onPressed: () {
                 Navigator.pop(dialogContext);
               },
-              child: const Text('取消'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
 
             FilledButton(
               onPressed: () {
                 Navigator.pop(dialogContext, editedContent.trim());
               },
-              child: const Text('保存'),
+              child: Text(AppLocalizations.of(context)!.save),
             ),
           ],
         );
@@ -352,14 +364,19 @@ class _ChatScreenState extends State<ChatScreen> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('消息已编辑')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('messageEdited')),
+        ),
+      );
     } catch (error) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('编辑失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('editMessageFailed')),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -377,8 +394,10 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.person_remove_outlined),
-                title: const Text('仅删除自己'),
-                subtitle: const Text('消息只会从你的聊天记录中消失'),
+                title: Text(AppLocalizations.of(context)!.get('deleteForMe')),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.get('deleteForMeDescription'),
+                ),
                 onTap: () {
                   Navigator.pop(sheetContext, 'deleteForMe');
                 },
@@ -391,11 +410,19 @@ class _ChatScreenState extends State<ChatScreen> {
                     color: Colors.red,
                   ),
                   title: Text(
-                    widget.isGroupChat ? '删除所有人' : '双方删除',
+                    widget.isGroupChat
+                        ? AppLocalizations.of(context)!.get('deleteForEveryone')
+                        : AppLocalizations.of(context)!.get('deleteForBoth'),
                     style: const TextStyle(color: Colors.red),
                   ),
                   subtitle: Text(
-                    widget.isGroupChat ? '消息会从所有群成员的聊天中删除' : '消息会从双方聊天中删除',
+                    widget.isGroupChat
+                        ? AppLocalizations.of(
+                            context,
+                          )!.get('deleteForEveryoneDescription')
+                        : AppLocalizations.of(
+                            context,
+                          )!.get('deleteForBothDescription'),
                   ),
                   onTap: () {
                     Navigator.pop(sheetContext, 'deleteForEveryone');
@@ -435,7 +462,12 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('删除失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('deleteMessageFailed'),
+          ),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -445,23 +477,29 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(widget.isGroupChat ? '删除所有人的消息？' : '双方删除消息？'),
+          title: Text(
+            widget.isGroupChat
+                ? AppLocalizations.of(context)!.get('deleteForEveryoneTitle')
+                : AppLocalizations.of(context)!.get('deleteForBothTitle'),
+          ),
           content: Text(
-            widget.isGroupChat ? '这条消息会从所有群成员的聊天中删除。' : '这条消息会从双方的聊天记录中删除。',
+            widget.isGroupChat
+                ? AppLocalizations.of(context)!.get('deleteForEveryoneConfirm')
+                : AppLocalizations.of(context)!.get('deleteForBothConfirm'),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogContext, false);
               },
-              child: const Text('取消'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             FilledButton(
               onPressed: () {
                 Navigator.pop(dialogContext, true);
               },
               style: FilledButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('删除'),
+              child: Text(AppLocalizations.of(context)!.delete),
             ),
           ],
         );
@@ -488,7 +526,12 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('删除失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('deleteMessageFailed'),
+          ),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -501,8 +544,14 @@ class _ChatScreenState extends State<ChatScreen> {
           builder: (context, setModalState) {
             return SafeArea(
               child: SwitchListTile(
-                title: const Text('分享实时输入内容'),
-                subtitle: const Text('开启后，聊天室里的其他成员可以实时看到你正在输入的文字'),
+                title: Text(
+                  AppLocalizations.of(context)!.get('shareLiveTyping'),
+                ),
+                subtitle: Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.get('shareLiveTypingDescription'),
+                ),
                 value: _shareMyLiveDraft,
                 onChanged: (value) async {
                   final userId = _currentUserId;
@@ -546,7 +595,13 @@ class _ChatScreenState extends State<ChatScreen> {
                     if (!mounted) return;
 
                     ScaffoldMessenger.of(this.context).showSnackBar(
-                      const SnackBar(content: Text('设置保存失败，请稍后重试')),
+                      SnackBar(
+                        content: Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.get('settingsSaveFailed'),
+                        ),
+                      ),
                     );
                   }
                 },
@@ -786,7 +841,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (senderId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请先登录'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('pleaseSignIn')),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -805,7 +863,10 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('发送失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('sendFailed')),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -830,7 +891,10 @@ class _ChatScreenState extends State<ChatScreen> {
     final senderId = context.read<auth_cubit.AuthCubit>().user?.id;
     if (senderId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请先登录'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('pleaseSignIn')),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -846,7 +910,10 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('发送失败: $error'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.get('sendFailed')),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -876,9 +943,13 @@ class _ChatScreenState extends State<ChatScreen> {
     final otherUserId = _otherUid;
 
     if (otherUserId == null || otherUserId.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('对方用户资料尚未加载')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('peerProfileNotReady'),
+          ),
+        ),
+      );
 
       return;
     }
@@ -969,7 +1040,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
                       final user = _participantData[draft.userId];
 
-                      final displayName = user?.profileDisplayName ?? '用户';
+                      final displayName =
+                          user?.profileDisplayName ??
+                          AppLocalizations.of(context)!.get('unknownUser');
 
                       final avatar = user?.avatarUrl;
 
@@ -1018,8 +1091,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                         color: const Color(0xFFEAF8F1),
                                         borderRadius: BorderRadius.circular(20),
                                       ),
-                                      child: const Text(
-                                        '正在输入',
+                                      child: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.get('typing'),
                                         style: TextStyle(
                                           fontSize: 10,
                                           color: Color(0xFF24945D),
@@ -1070,7 +1145,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 if (remainingCount > 0) ...[
                   const SizedBox(height: 10),
                   Text(
-                    '另外 $remainingCount 人正在输入',
+                    AppLocalizations.of(context)!.getWithArgs(
+                      'morePeopleTyping',
+                      {'count': '$remainingCount'},
+                    ),
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],
@@ -1099,7 +1177,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       actions: [
         IconButton(
-          tooltip: '共享笔记',
+          tooltip: AppLocalizations.of(context)!.get('sharedNotes'),
           icon: Icon(
             Icons.note_alt_outlined,
             color: Theme.of(context).colorScheme.onSurface,
@@ -1115,7 +1193,9 @@ class _ChatScreenState extends State<ChatScreen> {
           onPressed: _isActionLocked
               ? null
               : () {
-                  _showLockedAction('语音通话功能开发中');
+                  _showLockedAction(
+                    AppLocalizations.of(context)!.get('voiceCallComingSoon'),
+                  );
                 },
         ),
 
@@ -1127,7 +1207,9 @@ class _ChatScreenState extends State<ChatScreen> {
           onPressed: _isActionLocked
               ? null
               : () {
-                  _showLockedAction('视频通话功能开发中');
+                  _showLockedAction(
+                    AppLocalizations.of(context)!.get('videoCallComingSoon'),
+                  );
                 },
         ),
 
@@ -1156,7 +1238,7 @@ class _ChatScreenState extends State<ChatScreen> {
           return const Center(child: LoadingIndicator());
         }
         if (snapshot.hasError) {
-          return Center(child: Text('加载失败: ${snapshot.error}'));
+          return Center(child: Text(AppLocalizations.of(context)!.loadFailed));
         }
 
         final currentUserId = _currentUserId;
@@ -1168,7 +1250,11 @@ class _ChatScreenState extends State<ChatScreen> {
             .toList(growable: false);
 
         if (visibleMessages.isEmpty) {
-          return const Center(child: Text('没有消息，开始聊天吧！'));
+          return Center(
+            child: Text(
+              AppLocalizations.of(context)!.get('noMessagesStartChat'),
+            ),
+          );
         }
 
         return ListView.builder(
@@ -1234,7 +1320,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       color: const Color(0xFFE4E4E4),
                                       borderRadius: BorderRadius.circular(16),
                                     ),
-                                    child: const Row(
+                                    child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(
@@ -1244,7 +1330,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                         ),
                                         SizedBox(width: 6),
                                         Text(
-                                          '此消息已删除',
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.get('messageDeleted'),
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontStyle: FontStyle.italic,
@@ -1281,7 +1369,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                             child: Text(
                               message.isEdited
-                                  ? '已编辑 · $messageTime'
+                                  ? AppLocalizations.of(context)!.getWithArgs(
+                                      'editedAt',
+                                      {'time': messageTime},
+                                    )
                                   : messageTime,
                               style: const TextStyle(
                                 fontSize: 10,

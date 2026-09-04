@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
+import '../../../../core/constants/forum_categories.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../../discover/domain/models/discover_user.dart';
 import '../../../discover/domain/repositories/discover_repository.dart';
@@ -40,22 +41,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   late final NoteMediaRepository _noteMediaRepository;
   late final DiscoverRepository _discoverRepository;
 
-  static const List<String> _publishCategoryIds = [
-    'language_learning',
-    'programming',
-    'ai',
-    'technology',
-    'gaming',
-    'music',
-    'movies',
-    'campus',
-    'startup',
-    'friends',
-    'travel',
-    'chat',
-    'love',
-    'food',
-  ];
+  List<String> get _publishCategoryIds => ForumCategories.roots
+      .map((category) => category.id)
+      .toList(growable: false);
 
   StreamSubscription<NoteModel?>? _noteSubscription;
   Timer? _saveTimer;
@@ -582,9 +570,13 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                     itemCount: _publishCategoryIds.length,
                     itemBuilder: (context, index) {
                       final category = _publishCategoryIds[index];
-                      final categoryName = index < l10n.categoryNames.length
-                          ? l10n.categoryNames[index]
-                          : category;
+                      final categoryName = l10n.categoryName(
+                        category,
+                        fallback: ForumCategories.nameOf(
+                          category,
+                          Localizations.localeOf(context).languageCode,
+                        ),
+                      );
 
                       return ListTile(
                         leading: const Icon(Icons.topic_outlined),
@@ -612,19 +604,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     }
 
     final categoryId = category.trim();
-    final index = _publishCategoryIds.indexOf(categoryId);
-
-    if (index == -1) {
-      return categoryId;
-    }
-
     final l10n = AppLocalizations.of(context)!;
-
-    if (index >= l10n.categoryNames.length) {
-      return categoryId;
-    }
-
-    return l10n.categoryNames[index];
+    return l10n.categoryName(
+      categoryId,
+      fallback: ForumCategories.nameOf(
+        categoryId,
+        Localizations.localeOf(context).languageCode,
+      ),
+    );
   }
 
   Future<void> _changeCategory() async {

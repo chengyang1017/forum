@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
+import 'package:glyphora_language_core/glyphora_language_core.dart';
 import '../../../../core/widgets/user_name_display.dart';
 import '../../domain/models/post_model.dart';
 import '../cubit/post_cubit.dart';
@@ -27,18 +29,24 @@ class PostItemCard extends StatelessWidget {
   static const double imageHeight = 210;
   static const double imageSpacing = 6;
 
-  String _formatTimestamp(DateTime? dateTime) {
+  String _formatTimestamp(BuildContext context, DateTime? dateTime) {
     if (dateTime == null) return '';
 
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
+    final l10n = AppLocalizations.of(context)!;
+    final difference = DateTime.now().difference(dateTime);
 
-    if (difference.inMinutes < 1) return '刚刚';
-    if (difference.inHours < 1) return '${difference.inMinutes} 分钟前';
-    if (difference.inDays < 1) return '${difference.inHours} 小时前';
-    if (difference.inDays < 7) return '${difference.inDays} 天前';
+    if (difference.inMinutes < 1) return l10n.justNow;
+    if (difference.inHours < 1) {
+      return '${difference.inMinutes}${l10n.minutesAgo}';
+    }
+    if (difference.inDays < 1) {
+      return '${difference.inHours}${l10n.hoursAgo}';
+    }
+    if (difference.inDays < 7) {
+      return '${difference.inDays}${l10n.daysAgo}';
+    }
 
-    return '${dateTime.month}月${dateTime.day}日';
+    return MaterialLocalizations.of(context).formatShortDate(dateTime);
   }
 
   @override
@@ -51,7 +59,8 @@ class PostItemCard extends StatelessWidget {
         : languageCode;
 
     return InkWell(
-      onTap: onTap ??
+      onTap:
+          onTap ??
           () {
             final postCubit = context.read<PostCubit>();
             final latestBookmarked = postCubit.bookmarkState(
@@ -76,11 +85,7 @@ class PostItemCard extends StatelessWidget {
             ),
             if (content.isNotEmpty || images.isNotEmpty) ...[
               const SizedBox(height: 8),
-              _buildContentAndImages(
-                context,
-                content: content,
-                images: images,
-              ),
+              _buildContentAndImages(context, content: content, images: images),
             ],
             const SizedBox(height: 14),
             _buildPostMetadata(context),
@@ -97,13 +102,14 @@ class PostItemCard extends StatelessWidget {
     required String postLanguageCode,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: Text(
-            title.isNotEmpty ? title : '无标题',
+            title.isNotEmpty ? title : l10n.get('untitled'),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -127,7 +133,7 @@ class PostItemCard extends StatelessWidget {
               ),
             ),
             child: Text(
-              _getLanguageName(postLanguageCode),
+              _getLanguageName(context, postLanguageCode),
               style: TextStyle(
                 fontSize: 12,
                 color: colorScheme.primary,
@@ -344,7 +350,7 @@ class PostItemCard extends StatelessWidget {
         ] else
           const Spacer(),
         Text(
-          _formatTimestamp(post.createdAt),
+          _formatTimestamp(context, post.createdAt),
           style: TextStyle(
             fontSize: 14,
             color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -354,38 +360,53 @@ class PostItemCard extends StatelessWidget {
     );
   }
 
-  String _getLanguageName(String code) {
-    switch (code) {
-      case 'zh':
-        return '中文频道';
-      case 'en':
-        return '英文频道';
-      case 'ja':
-        return '日文频道';
-      case 'ko':
-        return '韩文频道';
-      case 'es':
-        return '西班牙语频道';
-      case 'fr':
-        return '法语频道';
-      case 'de':
-        return '德语频道';
-      case 'pt':
-        return '葡萄牙语频道';
-      case 'ru':
-        return '俄语频道';
-      case 'ar':
-        return '阿拉伯语频道';
-      case 'th':
-        return '泰语频道';
-      case 'vi':
-        return '越南语频道';
-      case 'id':
-        return '印尼语频道';
-      case 'ms':
-        return '马来语频道';
-      default:
-        return '其他语言频道';
+  String _getLanguageName(BuildContext context, String code) {
+    final l10n = AppLocalizations.of(context)!;
+    final normalized = code.trim();
+    final lower = normalized.replaceAll('_', '-').toLowerCase();
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
+
+    if (lower == 'chunom' ||
+        lower == 'vi-hani' ||
+        lower == 'vi-hnom' ||
+        lower == 'vi-nom') {
+      final vietnamese = LanguageConfig.findByCode('vi');
+      final languageName = l10n.translateLanguage('vi');
+      final scriptName =
+          vietnamese?.scriptNameOf('Hnom', uiLanguageCode) ??
+          l10n.get('nomWritingSystem');
+      return l10n.getWithArgs('channelBadge', <String, String>{
+        'language': '$languageName · $scriptName',
+      });
     }
+
+    if (normalized.contains(':')) {
+      final parts = normalized.split(':');
+      if (parts.length == 2) {
+        final language = LanguageConfig.findByCode(parts.first);
+        final languageName = language == null
+            ? l10n.translateLanguage(parts.first)
+            : l10n.translateLanguage(parts.first) == parts.first
+            ? language.nameOf(uiLanguageCode)
+            : l10n.translateLanguage(parts.first);
+        final scriptName =
+            language?.scriptNameOf(parts.last, uiLanguageCode) ??
+            ScriptConfig.findByCode(parts.last)?.nameOf(uiLanguageCode) ??
+            parts.last;
+        return l10n.getWithArgs('channelBadge', <String, String>{
+          'language': '$languageName · $scriptName',
+        });
+      }
+    }
+
+    final language = LanguageConfig.findByCode(normalized);
+    final translated = l10n.translateLanguage(normalized);
+    final languageName = translated != normalized
+        ? translated
+        : language?.nameOf(uiLanguageCode) ?? l10n.get('otherLanguage');
+
+    return l10n.getWithArgs('channelBadge', <String, String>{
+      'language': languageName,
+    });
   }
 }

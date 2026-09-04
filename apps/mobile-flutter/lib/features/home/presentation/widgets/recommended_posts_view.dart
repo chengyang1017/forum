@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../../post/domain/models/post_model.dart';
 import '../../../post/domain/repositories/post_repository.dart';
@@ -14,12 +15,13 @@ class RecommendedPostsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<auth_cubit.AuthCubit>();
+    final l10n = AppLocalizations.of(context)!;
 
     if (authProvider.user == null) {
-      return const _InterestEmptyState(
+      return _InterestEmptyState(
         icon: Icons.login_rounded,
-        title: '登录后使用推荐主页',
-        description: '登录后可以选择感兴趣的语言频道和分类。',
+        title: l10n.get('recommendedLoginTitle'),
+        description: l10n.get('recommendedLoginDescription'),
       );
     }
 
@@ -27,9 +29,9 @@ class RecommendedPostsView extends StatelessWidget {
       if (authProvider.interestsError != null) {
         return _InterestEmptyState(
           icon: Icons.error_outline_rounded,
-          title: '兴趣加载失败',
-          description: '无法加载你的兴趣设置，请检查网络或后端连接后重试。',
-          actionLabel: '重试',
+          title: l10n.get('interestsLoadFailed'),
+          description: l10n.get('interestsLoadFailedDescription'),
+          actionLabel: l10n.get('retry'),
           onAction: authProvider.retryLoadInterests,
         );
       }
@@ -40,10 +42,10 @@ class RecommendedPostsView extends StatelessWidget {
     final interests = authProvider.interests;
 
     if (interests.isEmpty) {
-      return const _InterestEmptyState(
+      return _InterestEmptyState(
         icon: Icons.favorite_border_rounded,
-        title: '还没有感兴趣的分类',
-        description: '进入分类频道，选择一个语言，再点击分类右侧的心形。',
+        title: l10n.get('noInterestsTitle'),
+        description: l10n.get('noInterestsDescription'),
       );
     }
 
@@ -195,6 +197,8 @@ class _InterestedPostListState extends State<_InterestedPostList> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_isLoading && _posts == null) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -203,7 +207,7 @@ class _InterestedPostListState extends State<_InterestedPostList> {
       return _refreshableState(
         child: _InterestEmptyState(
           icon: Icons.error_outline_rounded,
-          title: '帖子加载失败',
+          title: l10n.get('postsLoadFailed'),
           description: '$_error',
         ),
       );
@@ -213,12 +217,10 @@ class _InterestedPostListState extends State<_InterestedPostList> {
 
     if (posts.isEmpty) {
       return _refreshableState(
-        child: const _InterestEmptyState(
+        child: _InterestEmptyState(
           icon: Icons.inbox_outlined,
-          title: '这些兴趣暂时没有帖子',
-          description:
-              '已选择的语言频道和分类中，目前还没有可显示的内容。\n'
-              '你也可以下拉重新加载。',
+          title: l10n.get('noRecommendedPostsTitle'),
+          description: l10n.get('noRecommendedPostsDescription'),
         ),
       );
     }

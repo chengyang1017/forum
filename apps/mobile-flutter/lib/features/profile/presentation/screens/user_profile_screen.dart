@@ -91,12 +91,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         _relationshipStatus = FriendRelationshipStatus.requestSent;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('已发送好友申请'), backgroundColor: Colors.green),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('friendRequestSent')),
+          backgroundColor: Colors.green,
+        ),
       );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('发送失败: $error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('friendRequestSendFailed'),
+          ),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -110,14 +118,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('已接受 $displayName 的好友申请'),
+          content: Text(
+            AppLocalizations.of(
+              context,
+            )!.getWithArgs('friendRequestAccepted', {'name': displayName}),
+          ),
           backgroundColor: Colors.green,
         ),
       );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('操作失败: $error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('operationFailed')),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -129,9 +144,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       context.push(AppRoutes.chatLocation(chatId: chatId), extra: displayName);
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('创建聊天失败: $error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.get('createChatFailed')),
+        ),
+      );
     }
   }
 
@@ -154,8 +171,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   bool _isDefaultBirthday(DateTime? date) {
-    return date == null ||
-        (date.year == 2000 && date.month == 1 && date.day == 1);
+    return date == null;
   }
 
   @override
@@ -172,14 +188,22 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final user = _userProfile;
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('用户不存在'), centerTitle: true),
-        body: const Center(
-          child: Text('该用户不存在', style: TextStyle(color: Colors.grey)),
+        appBar: AppBar(
+          title: Text(l10n.get('userNotFound')),
+          centerTitle: true,
+        ),
+        body: Center(
+          child: Text(
+            l10n.get('userNotFound'),
+            style: const TextStyle(color: Colors.grey),
+          ),
         ),
       );
     }
 
-    final username = user.username.isNotEmpty ? user.username : '未知用户';
+    final username = user.username.isNotEmpty
+        ? user.username
+        : l10n.get('unknownUser');
     final nickname = user.nicknameText;
     final displayName = user.profileDisplayName.isNotEmpty
         ? user.profileDisplayName
@@ -256,7 +280,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          isMe ? '我的动态' : 'TA 的动态',
+                          isMe
+                              ? l10n.get('myActivity')
+                              : l10n.get('theirActivity'),
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -321,7 +347,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 Icon(Icons.cake, size: 14, color: Colors.pink[300]),
                 const SizedBox(width: 4),
                 Text(
-                  '${_calculateAge(birthday)} 岁',
+                  AppLocalizations.of(context)!.getWithArgs('ageYears', {
+                    'age': '${_calculateAge(birthday)}',
+                  }),
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.grey[600],
@@ -442,8 +470,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         leading: const Icon(Icons.note_alt_outlined),
-        title: const Text('共同笔记'),
-        subtitle: Text('查看与 $displayName 共享的笔记'),
+        title: Text(AppLocalizations.of(context)!.get('sharedNotes')),
+        subtitle: Text(
+          AppLocalizations.of(
+            context,
+          )!.getWithArgs('viewSharedNotesWithUser', {'name': displayName}),
+        ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
           context.push(
@@ -489,7 +521,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           child: OutlinedButton.icon(
             onPressed: () => _startChat(displayName),
             icon: const Icon(Icons.chat_bubble_rounded, size: 18),
-            label: const Text('好友 · 发消息'),
+            label: Text(
+              AppLocalizations.of(context)!.get('friendMessageAction'),
+            ),
             style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
           ),
         );
@@ -499,7 +533,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           child: OutlinedButton.icon(
             onPressed: null,
             icon: const Icon(Icons.schedule_rounded, size: 18),
-            label: const Text('好友申请已发送'),
+            label: Text(
+              AppLocalizations.of(context)!.get('friendRequestPending'),
+            ),
             style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
           ),
         );
@@ -509,7 +545,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           child: FilledButton.icon(
             onPressed: () => _acceptFriendRequest(displayName),
             icon: const Icon(Icons.check_rounded, size: 18),
-            label: const Text('接受好友申请'),
+            label: Text(
+              AppLocalizations.of(context)!.get('acceptFriendRequest'),
+            ),
             style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
           ),
         );
@@ -519,7 +557,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           child: OutlinedButton.icon(
             onPressed: _sendFriendRequest,
             icon: const Icon(Icons.group_add_rounded, size: 18),
-            label: const Text('添加好友'),
+            label: Text(AppLocalizations.of(context)!.addFriend),
             style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
           ),
         );

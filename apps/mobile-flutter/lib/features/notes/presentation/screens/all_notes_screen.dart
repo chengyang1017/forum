@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
+import '../../../../core/constants/forum_categories.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../discover/domain/models/discover_user.dart';
@@ -43,22 +44,9 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
   static const String _noneSelection = '__none__';
 
-  static const List<String> _categoryIds = [
-    'language_learning',
-    'programming',
-    'ai',
-    'technology',
-    'gaming',
-    'music',
-    'movies',
-    'campus',
-    'startup',
-    'friends',
-    'travel',
-    'chat',
-    'love',
-    'food',
-  ];
+  List<String> get _categoryIds => ForumCategories.roots
+      .map((category) => category.id)
+      .toList(growable: false);
 
   String? get _currentUserId {
     return context.read<AuthCubit>().user?.id;
@@ -191,19 +179,12 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
       return '未分类';
     }
 
-    final index = _categoryIds.indexOf(category);
-
-    if (index == -1) {
-      return category;
-    }
-
     final l10n = AppLocalizations.of(context)!;
-
-    if (index >= l10n.categoryNames.length) {
-      return category;
-    }
-
-    return l10n.categoryNames[index];
+    final uiLanguageCode = Localizations.localeOf(context).languageCode;
+    return l10n.categoryName(
+      category,
+      fallback: ForumCategories.nameOf(category, uiLanguageCode),
+    );
   }
 
   String _newNoteCategoryLabel(String? category) {
@@ -323,8 +304,6 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
   // ============================================================
 
   Future<void> _showCategoryPicker() async {
-    final l10n = AppLocalizations.of(context)!;
-
     final selected = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -384,11 +363,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                       for (int index = 0; index < _categoryIds.length; index++)
                         ListTile(
                           leading: const Icon(Icons.topic_outlined),
-                          title: Text(
-                            index < l10n.categoryNames.length
-                                ? l10n.categoryNames[index]
-                                : _categoryIds[index],
-                          ),
+                          title: Text(_categoryName(_categoryIds[index])),
                           subtitle: Text(_categoryIds[index]),
                           trailing: _selectedCategory == _categoryIds[index]
                               ? const Icon(Icons.check)
@@ -516,8 +491,6 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
   // ============================================================
 
   Future<String?> _pickCategoryForNewNote(String? currentCategory) async {
-    final l10n = AppLocalizations.of(context)!;
-
     final selected = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -566,11 +539,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                       for (int index = 0; index < _categoryIds.length; index++)
                         ListTile(
                           leading: const Icon(Icons.topic_outlined),
-                          title: Text(
-                            index < l10n.categoryNames.length
-                                ? l10n.categoryNames[index]
-                                : _categoryIds[index],
-                          ),
+                          title: Text(_categoryName(_categoryIds[index])),
                           subtitle: Text(_categoryIds[index]),
                           trailing: currentCategory == _categoryIds[index]
                               ? const Icon(Icons.check)
@@ -878,7 +847,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
     final noteRepository = context.read<NoteRepository>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
         title: const Text('我的笔记'),
@@ -976,7 +945,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
 
   Widget _buildFilterPanel() {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
           InkWell(
@@ -1147,7 +1116,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
     final category = note.category?.trim();
 
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surfaceContainerLowest,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -1205,7 +1174,9 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                         height: 1.4,
                         color: content.isEmpty
                             ? Colors.grey
-                            : const Color(0xFF666666),
+                            : Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.72),
                       ),
                     ),
 

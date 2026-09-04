@@ -1,100 +1,143 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AppLocalizations {
-  final Locale locale;
-  late Map<String, dynamic> _data;
-  late Map<String, String> _strings;
-  late List<String> _categoryNames;
-  late Map<String, String> _languageTranslations;
+  AppLocalizations(this.locale);
 
-  AppLocalizations(this.locale) {
-    _data = {};
-    _strings = {};
-    _categoryNames = [];
-    _languageTranslations = {};
-  }
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('zh'),
+    Locale('en'),
+    Locale('ja'),
+    Locale('ko'),
+    Locale('ms'),
+    Locale('vi'),
+    Locale('th'),
+    Locale.fromSubtags(languageCode: 'vi', scriptCode: 'Hani'),
+  ];
+
+  final Locale locale;
+
+  Map<String, String> _strings = <String, String>{};
+  List<String> _categoryNames = <String>[];
+  Map<String, String> _categoryTranslations = <String, String>{};
+  Map<String, String> _languageTranslations = <String, String>{};
 
   static AppLocalizations? of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  String get _fileName {
-    if (locale.languageCode == 'vi' && locale.scriptCode == 'Hani') {
-      return 'chunom';
-    }
-    return locale.languageCode;
+  bool get isChunom =>
+      locale.languageCode == 'vi' && locale.scriptCode == 'Hani';
+
+  String get assetCode => isChunom ? 'chunom' : locale.languageCode;
+
+  String get _fallbackAssetCode => isChunom ? 'vi' : 'en';
+
+  Future<Map<String, dynamic>> _readAsset(String code) async {
+    final jsonString = await rootBundle.loadString('assets/l10n/$code.json');
+    return Map<String, dynamic>.from(jsonDecode(jsonString) as Map);
   }
 
-  /// 加载指定语言的 JSON 文件
+  Map<String, String> _stringMap(dynamic value) {
+    if (value is! Map) {
+      return <String, String>{};
+    }
+
+    return value.map<String, String>(
+      (key, item) => MapEntry(key.toString(), item.toString()),
+    );
+  }
+
+  List<String> _stringList(dynamic value) {
+    if (value is! List) {
+      return <String>[];
+    }
+
+    return value.map((item) => item.toString()).toList(growable: true);
+  }
+
+  void _overlayList(List<String> target, List<String> overlay) {
+    for (var index = 0; index < overlay.length; index++) {
+      if (index < target.length) {
+        target[index] = overlay[index];
+      } else {
+        target.add(overlay[index]);
+      }
+    }
+  }
+
+  void _collectStrings(Map<String, dynamic> source) {
+    source.forEach((key, value) {
+      if (key == 'categoryNames' ||
+          key == 'categoryTranslations' ||
+          key == 'languageTranslations') {
+        return;
+      }
+
+      if (value is String || value is num || value is bool) {
+        _strings[key] = value.toString();
+      }
+    });
+  }
+
   Future<bool> load() async {
     try {
-      final String jsonString = await rootBundle.loadString(
-        'assets/l10n/$_fileName.json',
-      );
+      final fallback = await _readAsset(_fallbackAssetCode);
+      Map<String, dynamic> overlay = fallback;
 
-      _data = jsonDecode(jsonString);
+      if (assetCode != _fallbackAssetCode) {
+        overlay = await _readAsset(assetCode);
+      }
 
-      _strings = {};
-      _data.forEach((key, value) {
-        if (key != 'categoryNames' && key != 'languageTranslations') {
-          _strings[key] = value.toString();
-        }
-      });
+      _strings = <String, String>{};
+      _collectStrings(fallback);
+      if (!identical(fallback, overlay)) {
+        _collectStrings(overlay);
+      }
 
-      if (_data['categoryNames'] is List) {
-        _categoryNames = List<String>.from(_data['categoryNames']);
-      } else {
+      _categoryNames = _stringList(fallback['categoryNames']);
+      if (!identical(fallback, overlay)) {
+        _overlayList(_categoryNames, _stringList(overlay['categoryNames']));
+      }
+      if (_categoryNames.isEmpty) {
         _categoryNames = _getDefaultCategoryNames();
       }
 
-      if (_data['languageTranslations'] is Map) {
-        _languageTranslations = Map<String, String>.from(
-          _data['languageTranslations'].map(
-            (k, v) => MapEntry(k, v.toString()),
-          ),
+      _categoryTranslations = _stringMap(fallback['categoryTranslations']);
+      if (!identical(fallback, overlay)) {
+        _categoryTranslations.addAll(
+          _stringMap(overlay['categoryTranslations']),
         );
-      } else {
+      }
+
+      _languageTranslations = _stringMap(fallback['languageTranslations']);
+      if (!identical(fallback, overlay)) {
+        _languageTranslations.addAll(
+          _stringMap(overlay['languageTranslations']),
+        );
+      }
+      if (_languageTranslations.isEmpty) {
         _languageTranslations = _getDefaultLanguageTranslations();
       }
 
       return true;
-    } catch (e) {
+    } catch (error) {
+      debugPrint('加载本地化资源失败: $error');
+
       try {
-        final String jsonString = await rootBundle.loadString(
-          'assets/l10n/en.json',
-        );
-
-        _data = jsonDecode(jsonString);
-
-        _strings = {};
-        _data.forEach((key, value) {
-          if (key != 'categoryNames' && key != 'languageTranslations') {
-            _strings[key] = value.toString();
-          }
-        });
-
-        if (_data['categoryNames'] is List) {
-          _categoryNames = List<String>.from(_data['categoryNames']);
-        } else {
-          _categoryNames = _getDefaultCategoryNames();
-        }
-
-        if (_data['languageTranslations'] is Map) {
-          _languageTranslations = Map<String, String>.from(
-            _data['languageTranslations'].map(
-              (k, v) => MapEntry(k, v.toString()),
-            ),
-          );
-        } else {
-          _languageTranslations = _getDefaultLanguageTranslations();
-        }
-
+        final fallback = await _readAsset('en');
+        _strings = <String, String>{};
+        _collectStrings(fallback);
+        _categoryNames = _stringList(fallback['categoryNames']);
+        _categoryTranslations = _stringMap(fallback['categoryTranslations']);
+        _languageTranslations = _stringMap(fallback['languageTranslations']);
         return true;
       } catch (_) {
-        _strings = {};
+        _strings = <String, String>{};
         _categoryNames = _getDefaultCategoryNames();
+        _categoryTranslations = <String, String>{};
         _languageTranslations = _getDefaultLanguageTranslations();
         return false;
       }
@@ -102,7 +145,7 @@ class AppLocalizations {
   }
 
   List<String> _getDefaultCategoryNames() {
-    return [
+    return <String>[
       '语言学习',
       '编程开发',
       'AI',
@@ -117,11 +160,12 @@ class AppLocalizations {
       '闲聊',
       '爱情',
       '美食',
+      '医学',
     ];
   }
 
   Map<String, String> _getDefaultLanguageTranslations() {
-    return {
+    return <String, String>{
       'zh': '中文',
       'en': 'English',
       'ja': '日本語',
@@ -142,21 +186,15 @@ class AppLocalizations {
     };
   }
 
-  /// 获取翻译字符串
-  String get(String key) {
-    return _strings[key] ?? key;
-  }
+  String get(String key) => _strings[key] ?? key;
 
-  /// 获取带参数的翻译（支持占位符，如 {name}）
   String getWithArgs(String key, Map<String, String> args) {
-    String text = _strings[key] ?? key;
+    var text = _strings[key] ?? key;
     args.forEach((key, value) {
       text = text.replaceAll('{$key}', value);
     });
     return text;
   }
-
-  // ============ 所有 Getter ============
 
   String get appTitle => get('appTitle');
   String get forumCategories => get('forumCategories');
@@ -283,35 +321,22 @@ class AppLocalizations {
   String get tagUpdated => get('tagUpdated');
   String get tagInputHint => get('tagInputHint');
 
-  /// 分类名称列表（从 JSON 读取）
-  List<String> get categoryNames => _categoryNames;
+  List<String> get categoryNames => List<String>.unmodifiable(_categoryNames);
 
-  /// 翻译语言名称（从 JSON 读取）
+  String categoryName(String categoryId, {String? fallback}) {
+    return _categoryTranslations[categoryId] ??
+        fallback ??
+        categoryId.replaceAll('_', ' ');
+  }
+
   String translateLanguage(String code) {
     return _languageTranslations[code] ?? code;
   }
 
-  /// 获取语言名称（显示用）
   String getLanguageName(String code) {
-    switch (code) {
-      case 'zh':
-        return '中文';
-      case 'en':
-        return 'English';
-      case 'ja':
-        return '日本語';
-      case 'ko':
-        return '한국어';
-      case 'ms':
-        return 'Bahasa Melayu';
-      case 'vi':
-        return 'Tiếng Việt';
-      case 'th':
-        return 'ภาษาไทย';
-      case 'chunom':
-        return '喃字';
-      default:
-        return code;
+    if (code == 'chunom') {
+      return get('nomWritingSystem');
     }
+    return translateLanguage(code);
   }
 }

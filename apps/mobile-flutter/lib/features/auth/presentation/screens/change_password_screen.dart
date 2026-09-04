@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../app/l10n/app_localizations.dart';
 import '../cubit/auth_cubit.dart' as auth_cubit;
+import '../utils/auth_failure_message.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -38,21 +41,29 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('密码修改成功'),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.get('passwordChangedSuccess'),
+            ),
             backgroundColor: Colors.green,
           ),
         );
         Navigator.pop(context);
       }
-    } catch (e) {
-      String msg = e.toString();
-      if (msg.contains('Exception:')) {
-        msg = msg.replaceFirst('Exception:', '').trim();
-      }
+    } catch (error) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(
+              authFailureMessage(
+                error,
+                l10n,
+                fallbackKey: 'authChangePasswordFailed',
+              ),
+            ),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -62,8 +73,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('修改密码'), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.changePassword), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -75,25 +88,28 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               TextFormField(
                 controller: _currentPasswordController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: '当前密码',
-                  prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.get('currentPassword'),
+                  prefixIcon: const Icon(Icons.lock),
+                  border: const OutlineInputBorder(),
                 ),
-                validator: (v) => v == null || v.isEmpty ? '请输入当前密码' : null,
+                validator: (v) => v == null || v.isEmpty
+                    ? l10n.get('enterCurrentPassword')
+                    : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _newPasswordController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: '新密码',
-                  prefixIcon: Icon(Icons.lock_open),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.get('newPassword'),
+                  prefixIcon: const Icon(Icons.lock_open),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return '请输入新密码';
-                  if (v.length < 6) return '密码至少6位';
+                  if (v == null || v.isEmpty)
+                    return l10n.get('enterNewPassword');
+                  if (v.length < 6) return l10n.get('passwordMinLength');
                   return null;
                 },
               ),
@@ -101,14 +117,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               TextFormField(
                 controller: _confirmPasswordController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: '确认新密码',
-                  prefixIcon: Icon(Icons.lock_open),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.get('confirmNewPassword'),
+                  prefixIcon: const Icon(Icons.lock_open),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return '请再次输入新密码';
-                  if (v != _newPasswordController.text) return '两次密码不一致';
+                  if (v == null || v.isEmpty)
+                    return l10n.get('enterNewPasswordAgain');
+                  if (v != _newPasswordController.text)
+                    return l10n.get('passwordsDoNotMatch');
                   return null;
                 },
               ),
@@ -134,7 +152,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text('确认修改', style: TextStyle(fontSize: 16)),
+                      : Text(
+                          l10n.get('confirmChange'),
+                          style: const TextStyle(fontSize: 16),
+                        ),
                 ),
               ),
             ],

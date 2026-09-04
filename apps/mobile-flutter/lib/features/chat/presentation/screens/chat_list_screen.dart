@@ -53,14 +53,16 @@ class _ChatListScreenState extends State<ChatListScreen>
     return user;
   }
 
-  String _displayNameOf(UserModel? user) {
+  String _displayNameOf(BuildContext context, UserModel? user) {
     final displayName = user?.profileDisplayName.trim() ?? '';
     if (displayName.isNotEmpty) {
       return displayName;
     }
 
     final email = user?.email?.trim() ?? '';
-    return email.isNotEmpty ? email : '未知用户';
+    return email.isNotEmpty
+        ? email
+        : AppLocalizations.of(context)!.get('unknownUser');
   }
 
   String _formatTime(DateTime? date, AppLocalizations l10n) {
@@ -91,7 +93,7 @@ class _ChatListScreenState extends State<ChatListScreen>
             }
 
             final user = snapshot.data;
-            final displayName = _displayNameOf(user);
+            final displayName = _displayNameOf(context, user);
             final username = user?.username ?? '';
             final avatarUrl = user?.avatarUrl ?? '';
             final bio = user?.bioText ?? '';
@@ -197,7 +199,9 @@ class _ChatListScreenState extends State<ChatListScreen>
                         children: [
                           _buildAction(
                             icon: Icons.chat_bubble_outline_rounded,
-                            label: '发送消息',
+                            label: AppLocalizations.of(
+                              context,
+                            )!.get('sendMessage'),
                             onTap: () async {
                               Navigator.pop(sheetContext);
                               await _openChat(userId, displayName);
@@ -205,7 +209,9 @@ class _ChatListScreenState extends State<ChatListScreen>
                           ),
                           _buildAction(
                             icon: Icons.person_outline_rounded,
-                            label: '查看主页',
+                            label: AppLocalizations.of(
+                              context,
+                            )!.get('viewProfile'),
                             onTap: () {
                               Navigator.pop(sheetContext);
                               context.push(
@@ -268,9 +274,13 @@ class _ChatListScreenState extends State<ChatListScreen>
       context.push(AppRoutes.chatLocation(chatId: chatId), extra: displayName);
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('创建聊天失败: $error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${AppLocalizations.of(context)!.createChatFailed}: $error',
+          ),
+        ),
+      );
     }
   }
 
@@ -283,7 +293,7 @@ class _ChatListScreenState extends State<ChatListScreen>
     if (currentUserId == null) {
       return Scaffold(
         appBar: AppBar(title: Text(l10n.messages), centerTitle: true),
-        body: const Center(child: Text('请先登录')),
+        body: Center(child: Text(l10n.notLoggedIn)),
       );
     }
 
@@ -310,7 +320,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                     size: 26,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  tooltip: l10n.reply,
+                  tooltip: l10n.get('friendRequests'),
                   onPressed: () => context.push(AppRoutes.friendRequests),
                 ),
                 StreamBuilder<int>(
@@ -367,8 +377,8 @@ class _ChatListScreenState extends State<ChatListScreen>
             fontWeight: FontWeight.w600,
           ),
           tabs: [
-            Tab(text: l10n.comment),
-            Tab(text: l10n.reply),
+            Tab(text: l10n.get('chats')),
+            Tab(text: l10n.get('friends')),
           ],
         ),
       ),
@@ -397,8 +407,8 @@ class _ChatListScreenState extends State<ChatListScreen>
         if (chats.isEmpty) {
           return EmptyState(
             icon: Icons.chat_bubble_outline,
-            title: l10n.noPosts,
-            subtitle: '还没有聊天，开始对话吧',
+            title: l10n.get('noChats'),
+            subtitle: l10n.get('startConversation'),
           );
         }
 
@@ -423,7 +433,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                 }
 
                 final user = userSnapshot.data;
-                final displayName = _displayNameOf(user);
+                final displayName = _displayNameOf(context, user);
                 final avatarUrl = user?.avatarUrl ?? '';
                 final hasMessage = chat.lastMessage.trim().isNotEmpty;
 
@@ -466,7 +476,9 @@ class _ChatListScreenState extends State<ChatListScreen>
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                hasMessage ? chat.lastMessage : l10n.noPosts,
+                                hasMessage
+                                    ? chat.lastMessage
+                                    : l10n.get('noMessagesYet'),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -529,10 +541,11 @@ class _ChatListScreenState extends State<ChatListScreen>
 
         final friendIds = snapshot.data ?? const <String>[];
         if (friendIds.isEmpty) {
-          return const EmptyState(
+          final l10n = AppLocalizations.of(context)!;
+          return EmptyState(
             icon: Icons.people_alt_outlined,
-            title: '暂无好友',
-            subtitle: '去发现页面添加好友吧',
+            title: l10n.get('noFriends'),
+            subtitle: l10n.get('findFriendsPrompt'),
           );
         }
 
@@ -555,7 +568,7 @@ class _ChatListScreenState extends State<ChatListScreen>
                 }
 
                 final user = userSnapshot.data;
-                final displayName = _displayNameOf(user);
+                final displayName = _displayNameOf(context, user);
                 final email = user?.email ?? '';
                 final avatarUrl = user?.avatarUrl ?? '';
 

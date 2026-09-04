@@ -9,6 +9,7 @@ import 'app/cubit/app_language_cubit.dart';
 import 'app/cubit/app_language_state.dart';
 import 'app/cubit/app_theme_cubit.dart';
 import 'app/di/app_dependencies.dart';
+import 'app/l10n/app_localizations.dart';
 import 'app/l10n/localizations_delegate.dart';
 import 'app/router/app_router.dart';
 import 'app/router/app_routes.dart';
@@ -56,11 +57,6 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key, required this.dependencies});
 
   final AppDependencies dependencies;
-
-  static const Locale chunomLocale = Locale.fromSubtags(
-    languageCode: 'vi',
-    scriptCode: 'Nom',
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -149,21 +145,10 @@ class MyApp extends StatelessWidget {
                 },
                 child: MaterialApp.router(
                   debugShowCheckedModeBanner: false,
-                  title: '论坛App',
+                  onGenerateTitle: (context) =>
+                      AppLocalizations.of(context)?.appTitle ?? 'Glyphora',
                   locale: languageState.locale,
-                  supportedLocales: const [
-                    Locale('zh'),
-                    Locale('en'),
-                    Locale('ja'),
-                    Locale('ko'),
-                    Locale('ms'),
-                    Locale('vi'),
-                    Locale('th'),
-                    Locale.fromSubtags(
-                      languageCode: 'vi',
-                      scriptCode: 'Hani',
-                    ),
-                  ],
+                  supportedLocales: AppLocalizations.supportedLocales,
                   localizationsDelegates: const [
                     AppLocalizationsDelegate(),
                     GlobalMaterialLocalizations.delegate,

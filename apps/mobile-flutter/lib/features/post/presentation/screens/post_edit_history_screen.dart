@@ -3,6 +3,7 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../domain/models/post_edit_history_entry.dart';
 import '../../domain/repositories/post_repository.dart';
 
@@ -43,9 +44,9 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
     await future;
   }
 
-  String _formatTime(DateTime? time) {
+  String _formatTime(DateTime? time, AppLocalizations l10n) {
     if (time == null) {
-      return '时间未知';
+      return l10n.get('unknownTime');
     }
 
     final month = time.month.toString().padLeft(2, '0');
@@ -58,8 +59,10 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('编辑历史')),
+      appBar: AppBar(title: Text(l10n.get('postEditHistory'))),
       body: FutureBuilder<List<PostEditHistoryEntry>>(
         future: _historyFuture,
         builder: (context, snapshot) {
@@ -68,13 +71,13 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('加载失败：${snapshot.error}'));
+            return Center(child: Text('${l10n.loadFailed}: ${snapshot.error}'));
           }
 
           final history = snapshot.data ?? const <PostEditHistoryEntry>[];
 
           if (history.isEmpty) {
-            return const Center(child: Text('暂无编辑历史'));
+            return Center(child: Text(l10n.get('noEditHistory')));
           }
 
           return RefreshIndicator(
@@ -88,15 +91,19 @@ class _PostEditHistoryScreenState extends State<PostEditHistoryScreen> {
 
                 return ListTile(
                   leading: const Icon(Icons.history_rounded),
-                  title: Text(_formatTime(entry.editedAt)),
+                  title: Text(_formatTime(entry.editedAt, l10n)),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (entry.title.isNotEmpty) Text(entry.title),
                       Text(
                         entry.languageCode.isEmpty
-                            ? '语言未知'
-                            : '语言：${entry.languageCode}',
+                            ? l10n.get('unknownLanguage')
+                            : l10n.getWithArgs('languageValue', {
+                                'language': l10n.getLanguageName(
+                                  entry.languageCode,
+                                ),
+                              }),
                       ),
                     ],
                   ),
@@ -158,9 +165,10 @@ class _PostHistoryDetailScreenState extends State<_PostHistoryDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final entry = widget.entry;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('历史版本')),
+      appBar: AppBar(title: Text(l10n.get('historyVersion'))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../app/l10n/app_localizations.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart' as auth_cubit;
 import '../../../profile/domain/repositories/profile_repository.dart';
@@ -60,12 +61,13 @@ class _UserNotesRouteScreenState extends State<UserNotesRouteScreen> {
   }
 
   Future<String> _resolveOtherUserName() async {
+    final unknownUser = AppLocalizations.of(context)!.get('unknownUser');
     final user = await context.read<ProfileRepository>().getProfile(
       widget.otherUserId,
     );
 
     if (user == null) {
-      return '未知用户';
+      return unknownUser;
     }
 
     final nickname = user.nickname?.trim() ?? '';
@@ -84,7 +86,7 @@ class _UserNotesRouteScreenState extends State<UserNotesRouteScreen> {
       return email;
     }
 
-    return '未知用户';
+    return unknownUser;
   }
 
   void _retry() {
@@ -95,6 +97,7 @@ class _UserNotesRouteScreenState extends State<UserNotesRouteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final initialName = widget.initialOtherUserName?.trim();
 
     if (initialName != null && initialName.isNotEmpty) {
@@ -109,21 +112,24 @@ class _UserNotesRouteScreenState extends State<UserNotesRouteScreen> {
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return Scaffold(
-            appBar: AppBar(title: const Text('共享笔记')),
+            appBar: AppBar(title: Text(l10n.get('sharedNotes'))),
             body: const Center(child: CircularProgressIndicator()),
           );
         }
 
         if (snapshot.hasError) {
           return Scaffold(
-            appBar: AppBar(title: const Text('共享笔记')),
+            appBar: AppBar(title: Text(l10n.get('sharedNotes'))),
             body: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('无法加载用户资料'),
+                  Text(l10n.get('profileLoadFailed')),
                   const SizedBox(height: 12),
-                  FilledButton(onPressed: _retry, child: const Text('重试')),
+                  FilledButton(
+                    onPressed: _retry,
+                    child: Text(l10n.get('retry')),
+                  ),
                 ],
               ),
             ),
@@ -132,7 +138,7 @@ class _UserNotesRouteScreenState extends State<UserNotesRouteScreen> {
 
         return UserNotesScreen(
           otherUserId: widget.otherUserId,
-          otherUserName: snapshot.data ?? '未知用户',
+          otherUserName: snapshot.data ?? l10n.get('unknownUser'),
         );
       },
     );
@@ -192,7 +198,12 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('创建笔记失败：$error'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(
+            '${AppLocalizations.of(context)!.get('createNoteFailed')}: $error',
+          ),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       if (mounted) {
@@ -205,20 +216,23 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final currentUserId = _currentUserId;
 
     if (currentUserId == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('共享笔记')),
-        body: const Center(child: Text('请先登录')),
+        appBar: AppBar(title: Text(l10n.get('sharedNotes'))),
+        body: Center(child: Text(l10n.notLoggedIn)),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
       appBar: AppBar(
         title: Text(
-          '${widget.otherUserName} · 笔记',
+          l10n.getWithArgs('notesWithUserTitle', {
+            'name': widget.otherUserName,
+          }),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -239,7 +253,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Text(
-                  '加载笔记失败：${snapshot.error}',
+                  '${l10n.get('notesLoadFailed')}: ${snapshot.error}',
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -260,14 +274,16 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    '还没有与 ${widget.otherUserName} 共享的笔记',
+                    l10n.getWithArgs('noSharedNotesWithUser', {
+                      'name': widget.otherUserName,
+                    }),
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    '点击右下角新建',
-                    style: TextStyle(fontSize: 13, color: Colors.grey),
+                  Text(
+                    l10n.get('tapFabToCreate'),
+                    style: const TextStyle(fontSize: 13, color: Colors.grey),
                   ),
                 ],
               ),
@@ -298,7 +314,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : const Icon(Icons.add),
-        label: Text(_isCreating ? '正在创建' : '新建笔记'),
+        label: Text(_isCreating ? l10n.get('creating') : l10n.get('newNote')),
       ),
     );
   }
@@ -307,6 +323,8 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
     required NoteModel note,
     required String currentUserId,
   }) {
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
     final title = note.title.trim();
     final content = note.content.trim();
     final canEdit = note.canEdit(currentUserId);
@@ -328,7 +346,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      title.isEmpty ? '无标题笔记' : title,
+                      title.isEmpty ? l10n.get('untitledNote') : title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -347,7 +365,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
               ),
               const SizedBox(height: 7),
               Text(
-                content.isEmpty ? '暂无内容' : content,
+                content.isEmpty ? l10n.get('noContent') : content,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -355,7 +373,7 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
                   height: 1.4,
                   color: content.isEmpty
                       ? Colors.grey
-                      : const Color(0xFF666666),
+                      : colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 10),
@@ -364,8 +382,10 @@ class _UserNotesScreenState extends State<UserNotesScreen> {
                   Expanded(
                     child: Text(
                       note.ownerId == currentUserId
-                          ? '由你创建'
-                          : '由 ${widget.otherUserName} 创建',
+                          ? l10n.get('createdByYou')
+                          : l10n.getWithArgs('createdByUser', {
+                              'name': widget.otherUserName,
+                            }),
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ),
