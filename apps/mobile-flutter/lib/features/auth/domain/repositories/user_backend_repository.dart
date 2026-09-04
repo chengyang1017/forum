@@ -17,4 +17,7 @@ abstract interface class UserBackendRepository {
   Future<Set<String>> updateInterests(Set<String> interests);
 
   Future<Set<String>> migrateInterests(Set<String> legacyInterests);
+
+  /// Permanently removes the current application account from the backend.
+  Future<void> deleteCurrentAccount();
 }
