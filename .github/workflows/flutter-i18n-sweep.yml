@@ -1,0 +1,19 @@
+name: Flutter i18n sweep
+
+on:
+  push:
+    branches:
+      - fix/flutter-i18n-sweep
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Audit hard-coded Flutter UI strings
+        run: python apps/mobile-flutter/tool/audit_hardcoded_ui.py
