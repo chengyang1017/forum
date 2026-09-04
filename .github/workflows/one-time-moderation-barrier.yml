@@ -20,80 +20,52 @@ jobs:
       - name: Patch direct post and comment reads
         run: |
           python - <<'PY'
+          import re
           from pathlib import Path
 
           post_path = Path('apps/api/src/routes/post_route.ts')
           post_text = post_path.read_text(encoding='utf-8')
-          old = '''      const validDatabaseId =
-                z.string()
-                  .uuid()
-                  .safeParse(id);
+          get_marker = '// GET /api/v1/posts/:id'
+          marker_index = post_text.find(get_marker)
+          if marker_index == -1:
+              raise SystemExit('single-post route marker not found')
 
-              const post =
+          prefix = post_text[:marker_index]
+          tail = post_text[marker_index:]
+          if 'where:\n            postWhereById(id),' not in tail:
+              pattern = re.compile(
+                  r"const validDatabaseId\s*=\s*"
+                  r"z\.string\(\)\s*\.uuid\(\)\s*\.safeParse\(id\);\s*"
+                  r"const post\s*=\s*await prisma\.post\.findFirst\(\{\s*"
+                  r"where:\s*validDatabaseId\.success\s*\?\s*\{\s*"
+                  r"OR:\s*\[\s*\{\s*firestoreId:\s*id,\s*\},\s*"
+                  r"\{\s*id,\s*\},\s*\],\s*\}\s*:\s*"
+                  r"\{\s*firestoreId:\s*id,\s*\},",
+                  re.DOTALL,
+              )
+              replacement = '''const post =
                 await prisma.post.findFirst({
                   where:
-                    validDatabaseId.success
-                      ? {
-                          OR: [
-                            {
-                              firestoreId: id,
-                            },
-                            {
-                              id,
-                            },
-                          ],
-                        }
-                      : {
-                          firestoreId: id,
-                        },
-          '''
-          new = '''      const post =
-                await prisma.post.findFirst({
-                  where:
-                    postWhereById(id),
-          '''
-          if old in post_text:
-              post_path.write_text(post_text.replace(old, new, 1), encoding='utf-8')
-          elif 'const validDatabaseId' in post_text:
-              raise SystemExit('single-post moderation patch did not match expected source')
+                    postWhereById(id),'''
+              tail, count = pattern.subn(replacement, tail, count=1)
+              if count != 1:
+                  raise SystemExit(f'single-post moderation patch matched {count} blocks')
+              post_path.write_text(prefix + tail, encoding='utf-8')
 
           comment_path = Path('apps/api/src/routes/comment_route.ts')
           comment_text = comment_path.read_text(encoding='utf-8')
-          old = '''async function findPost(
-            id: string,
-          ) {
-            const byFirestoreId =
-              await prisma.post.findUnique({
-                where: {
-                  firestoreId: id,
-                },
-                select: {
-                  id: true,
-                },
-              });
+          helper_pattern = re.compile(
+              r"async function findPost\(\s*id: string,\s*\)\s*\{.*?\n\}\s*\n\s*"
+              r"async function findCurrentUser",
+              re.DOTALL,
+          )
+          helper_match = helper_pattern.search(comment_text)
+          if helper_match is None:
+              raise SystemExit('comment findPost helper boundary not found')
 
-            if (byFirestoreId != null) {
-              return byFirestoreId;
-            }
-
-            const isDatabaseId =
-              z.string().uuid().safeParse(id).success;
-
-            if (!isDatabaseId) {
-              return null;
-            }
-
-            return prisma.post.findUnique({
-              where: {
-                id,
-              },
-              select: {
-                id: true,
-              },
-            });
-          }
-          '''
-          new = '''async function findPost(
+          helper_text = helper_match.group(0)
+          if "status: 'actioned'" not in helper_text:
+              replacement = '''async function findPost(
             id: string,
           ) {
             const isDatabaseId =
@@ -120,11 +92,16 @@ jobs:
               },
             });
           }
-          '''
-          if old in comment_text:
-              comment_path.write_text(comment_text.replace(old, new, 1), encoding='utf-8')
-          elif "reports: {\n          none: {\n            status: 'actioned'" not in comment_text:
-              raise SystemExit('comment moderation patch did not match expected source')
+
+          async function findCurrentUser'''
+              comment_text, count = helper_pattern.subn(
+                  replacement,
+                  comment_text,
+                  count=1,
+              )
+              if count != 1:
+                  raise SystemExit(f'comment moderation patch matched {count} helpers')
+              comment_path.write_text(comment_text, encoding='utf-8')
           PY
 
       - name: Commit barriers
