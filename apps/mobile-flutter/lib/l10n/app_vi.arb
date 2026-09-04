@@ -560,5 +560,21 @@
   "collapse": "Thu gọn",
   "showMore": "Xem thêm",
   "selectedTagsCount": "Thẻ đã chọn ({count}/10)",
-  "copyLink": "Sao chép liên kết"
+  "copyLink": "Sao chép liên kết",
+  "deleteAccount": "Xóa tài khoản",
+  "deleteAccountDesc": "Xóa vĩnh viễn tài khoản và dữ liệu liên quan",
+  "deleteAccountConfirmTitle": "Xóa tài khoản vĩnh viễn?",
+  "deleteAccountConfirmDesc": "Không thể hoàn tác thao tác này. Hãy nhập mật khẩu hiện tại để xác nhận.",
+  "deleteAccountPasswordHint": "Mật khẩu hiện tại",
+  "deleteAccountAction": "Xóa vĩnh viễn",
+  "deleteAccountFailed": "Không thể xóa tài khoản. Hãy kiểm tra mật khẩu rồi thử lại.",
+  "blockUser": "Chặn người dùng",
+  "unblockUser": "Bỏ chặn",
+  "blockUserConfirmTitle": "Chặn người dùng này?",
+  "blockUserConfirmDesc": "Chặn {name}? Quan hệ bạn bè/theo dõi sẽ bị gỡ và nội dung của họ sẽ được ẩn.",
+  "userBlocked": "Đã chặn người dùng",
+  "userUnblocked": "Đã bỏ chặn người dùng",
+  "blockedUsersEmpty": "Bạn chưa chặn ai.",
+  "blockedInteraction": "Không thể tương tác vì một trong hai người đã chặn người kia.",
+  "moreActions": "Thao tác khác"
 }

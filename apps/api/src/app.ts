@@ -4,6 +4,7 @@ import helmet from 'helmet';
 
 import { prisma } from './lib/prisma.js';
 
+import { accountRouter } from './routes/account_route.js';
 import { authRouter } from './routes/auth_route.js';
 
 import { interestRouter } from './routes/interest_route.js';
@@ -23,12 +24,10 @@ import {
   userReportRouter,
 } from './routes/report_route.js';
 
-
-import {
-  translationRouter,
-} from './routes/translation_route.js';
+import { translationRouter } from './routes/translation_route.js';
 
 import { adminRouter } from './routes/admin_route.js';
+import { moderationRouter } from './routes/moderation_route.js';
 
 export const app = express();
 
@@ -36,63 +35,31 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/v1/account', accountRouter);
 app.use('/api/v1/auth', authRouter);
 
-app.use(
-  '/api/v1/translations',
-  translationRouter,
-);
+app.use('/api/v1/translations', translationRouter);
 
+app.use('/api/v1/admin/moderation', moderationRouter);
+app.use('/api/v1/admin', adminRouter);
 
-app.use(
-  '/api/v1/admin',
-  adminRouter,
-);
+app.use('/api/v1/users/me/interests', interestRouter);
 
-app.use(
-  '/api/v1/users/me/interests',
-  interestRouter,
-);
+app.use('/api/v1/users/me/bookmarks', userBookmarkRouter);
 
-app.use(
-  '/api/v1/users/me/bookmarks',
-  userBookmarkRouter,
-);
+app.use('/api/v1/users/me/reports', userReportRouter);
 
-app.use(
-  '/api/v1/users/me/reports',
-  userReportRouter,
-);
+app.use('/api/v1/users', userRouter);
 
-app.use(
-  '/api/v1/users',
-  userRouter,
-);
+app.use('/api/v1/posts', postDataRouter);
 
-app.use(
-  '/api/v1/posts',
-  postDataRouter,
-);
+app.use('/api/v1/posts', postBookmarkRouter);
 
-app.use(
-  '/api/v1/posts',
-  postBookmarkRouter,
-);
+app.use('/api/v1/posts', postReportRouter);
 
-app.use(
-  '/api/v1/posts',
-  postReportRouter,
-);
+app.use('/api/v1/posts', postRouter);
 
-app.use(
-  '/api/v1/posts',
-  postRouter,
-);
-
-app.use(
-  '/api/v1/posts',
-  commentRouter,
-);
+app.use('/api/v1/posts', commentRouter);
 
 app.get('/health', async (_request, response) => {
   try {
@@ -103,10 +70,7 @@ app.get('/health', async (_request, response) => {
       database: 'connected',
     });
   } catch (error) {
-    console.error(
-      'Database health check failed:',
-      error,
-    );
+    console.error('Database health check failed:', error);
 
     response.status(503).json({
       status: 'error',

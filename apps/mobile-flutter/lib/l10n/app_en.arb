@@ -803,5 +803,28 @@
       }
     }
   },
-  "copyLink": "Copy link"
+  "copyLink": "Copy link",
+  "deleteAccount": "Delete account",
+  "deleteAccountDesc": "Permanently delete your account and associated data",
+  "deleteAccountConfirmTitle": "Permanently delete account?",
+  "deleteAccountConfirmDesc": "This cannot be undone. Enter your current password to confirm.",
+  "deleteAccountPasswordHint": "Current password",
+  "deleteAccountAction": "Delete permanently",
+  "deleteAccountFailed": "Unable to delete account. Check your password and try again.",
+  "blockUser": "Block user",
+  "unblockUser": "Unblock",
+  "blockUserConfirmTitle": "Block this user?",
+  "blockUserConfirmDesc": "Block {name}? You will stop being friends/following and their content will be hidden.",
+  "userBlocked": "User blocked",
+  "userUnblocked": "User unblocked",
+  "blockedUsersEmpty": "You haven't blocked anyone.",
+  "blockedInteraction": "Interaction is unavailable because one of you has blocked the other.",
+  "moreActions": "More actions",
+  "@blockUserConfirmDesc": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -1,7 +1,11 @@
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
+  DeleteOutlined,
+  EyeInvisibleOutlined,
   EyeOutlined,
+  StopOutlined,
+  UndoOutlined,
 } from '@ant-design/icons';
 import {
   Alert,
@@ -12,6 +16,7 @@ import {
   Drawer,
   Empty,
   Flex,
+  Modal,
   Space,
   Table,
   Tabs,
@@ -28,7 +33,11 @@ import {
 } from '@tanstack/react-query';
 
 import {
+  banReportedPostAuthor,
+  deleteReportedPost,
   getAdminReports,
+  hideReportedPost,
+  restoreReportedPost,
   updateAdminReport,
 } from '../../api/adminApi';
 import type {
@@ -214,6 +223,86 @@ export function ReportsPage() {
         );
       },
     });
+
+  const moderationMutation =
+    useMutation({
+      mutationFn: async ({
+        action,
+        reportId,
+      }: {
+        action:
+          | 'hide'
+          | 'restore'
+          | 'delete'
+          | 'ban';
+        reportId: string;
+      }) => {
+        switch (action) {
+          case 'hide':
+            await hideReportedPost(reportId);
+            return 'Post hidden';
+          case 'restore':
+            await restoreReportedPost(reportId);
+            return 'Post restored';
+          case 'delete':
+            await deleteReportedPost(reportId);
+            return 'Post permanently deleted';
+          case 'ban':
+            await banReportedPostAuthor(reportId);
+            return 'Author banned and post hidden';
+        }
+      },
+      onSuccess: async (successMessage) => {
+        await queryClient.invalidateQueries({
+          queryKey: ['admin', 'reports'],
+        });
+        messageApi.success(successMessage);
+        setSelectedReport(null);
+      },
+      onError: () => {
+        messageApi.error('Moderation action failed');
+      },
+    });
+
+  const runModerationAction = (
+    action: 'hide' | 'restore' | 'delete' | 'ban',
+  ) => {
+    if (selectedReport == null) {
+      return;
+    }
+
+    const execute = () =>
+      moderationMutation.mutate({
+        action,
+        reportId: selectedReport.id,
+      });
+
+    if (action === 'delete') {
+      Modal.confirm({
+        title: 'Permanently delete this post?',
+        content:
+          'The post, versions, comments, reports and database relations will be deleted. This cannot be undone.',
+        okText: 'Delete post',
+        okButtonProps: { danger: true },
+        onOk: execute,
+      });
+      return;
+    }
+
+    if (action === 'ban') {
+      Modal.confirm({
+        title: 'Ban this author?',
+        content:
+          'The Firebase account will be disabled, active sessions will be revoked and this reported post will be hidden.',
+        okText: 'Ban author',
+        okButtonProps: { danger: true },
+        onOk: execute,
+      });
+      return;
+    }
+
+    execute();
+  };
 
   const reports =
     reportsQuery.data?.reports ?? [];
@@ -735,8 +824,8 @@ export function ReportsPage() {
             <Alert
               type="warning"
               showIcon
-              message="Actioned records a moderation decision only."
-              description="It does not delete or hide the post."
+              message="Actioned posts are hidden from normal app reads."
+              description="Use Restore to publish the post again, Delete for permanent removal, or Ban author for account enforcement."
             />
 
             <Flex
@@ -775,20 +864,45 @@ export function ReportsPage() {
                 Dismiss
               </Button>
 
+              {selectedReport.status === 'actioned' ? (
+                <Button
+                  icon={<UndoOutlined />}
+                  loading={moderationMutation.isPending}
+                  onClick={() => runModerationAction('restore')}
+                >
+                  Restore post
+                </Button>
+              ) : (
+                <Button
+                  danger
+                  icon={<EyeInvisibleOutlined />}
+                  loading={moderationMutation.isPending}
+                  onClick={() => runModerationAction('hide')}
+                >
+                  Hide post
+                </Button>
+              )}
+
               <Button
                 danger
-                type="primary"
-                loading={
-                  updateMutation.isPending
-                }
-                onClick={() =>
-                  submitStatus(
-                    'actioned',
-                  )
-                }
+                icon={<DeleteOutlined />}
+                loading={moderationMutation.isPending}
+                onClick={() => runModerationAction('delete')}
               >
-                Mark actioned
+                Delete post
               </Button>
+
+              {selectedReport.post.author != null && (
+                <Button
+                  danger
+                  type="primary"
+                  icon={<StopOutlined />}
+                  loading={moderationMutation.isPending}
+                  onClick={() => runModerationAction('ban')}
+                >
+                  Ban author
+                </Button>
+              )}
             </Flex>
           </Space>
         )}

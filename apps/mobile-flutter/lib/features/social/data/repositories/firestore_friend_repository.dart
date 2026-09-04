@@ -5,7 +5,8 @@ import '../../domain/models/friend_relationship_status.dart';
 import '../../domain/models/friend_request.dart';
 import '../../domain/repositories/friend_repository.dart';
 
-/// Firestore adapter for friendship data during the current migration phase.
+/// Firestore adapter for friendship and user-block data during the current
+/// migration phase.
 final class FirestoreFriendRepository implements FriendRepository {
   FirestoreFriendRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
     : _firestore = firestore ?? FirebaseFirestore.instance,
@@ -20,6 +21,10 @@ final class FirestoreFriendRepository implements FriendRepository {
       throw StateError('An authenticated user is required.');
     }
     return userId;
+  }
+
+  DocumentReference<Map<String, dynamic>> _blocksDoc(String userId) {
+    return _firestore.collection('blocks').doc(userId);
   }
 
   @override
@@ -61,6 +66,10 @@ final class FirestoreFriendRepository implements FriendRepository {
   Future<FriendRelationshipStatus> getRelationship(String otherUserId) async {
     final userId = _currentUserId;
     if (otherUserId == userId) {
+      return FriendRelationshipStatus.none;
+    }
+
+    if (await isInteractionBlocked(otherUserId)) {
       return FriendRelationshipStatus.none;
     }
 
@@ -127,6 +136,10 @@ final class FirestoreFriendRepository implements FriendRepository {
       throw ArgumentError.value(otherUserId, 'otherUserId', 'Cannot add self.');
     }
 
+    if (await isInteractionBlocked(otherUserId)) {
+      throw StateError('INTERACTION_BLOCKED');
+    }
+
     await _firestore
         .collection('friend_requests')
         .doc('${userId}_$otherUserId')
@@ -141,6 +154,11 @@ final class FirestoreFriendRepository implements FriendRepository {
   @override
   Future<void> acceptRequest(String fromUserId) async {
     final userId = _currentUserId;
+
+    if (await isInteractionBlocked(fromUserId)) {
+      throw StateError('INTERACTION_BLOCKED');
+    }
+
     final batch = _firestore.batch();
 
     batch.update(
@@ -164,5 +182,115 @@ final class FirestoreFriendRepository implements FriendRepository {
         .collection('friend_requests')
         .doc('${fromUserId}_$userId')
         .update({'status': 'rejected'});
+  }
+
+  @override
+  Stream<List<String>> watchBlockedUsers() {
+    final userId = _currentUserId;
+
+    return _blocksDoc(userId).snapshots().map((snapshot) {
+      final data = snapshot.data();
+      if (data == null) {
+        return const <String>[];
+      }
+
+      final blocked = data.entries
+          .where((entry) => entry.value == true)
+          .map((entry) => entry.key)
+          .toList(growable: false);
+      blocked.sort();
+      return blocked;
+    });
+  }
+
+  @override
+  Future<List<String>> getBlockedUsers() async {
+    final userId = _currentUserId;
+    final snapshot = await _blocksDoc(userId).get();
+    final data = snapshot.data();
+    if (data == null) {
+      return const <String>[];
+    }
+
+    final blocked = data.entries
+        .where((entry) => entry.value == true)
+        .map((entry) => entry.key)
+        .toList(growable: false);
+    blocked.sort();
+    return blocked;
+  }
+
+  @override
+  Future<bool> isBlockedByMe(String otherUserId) async {
+    final userId = _currentUserId;
+    if (otherUserId == userId) {
+      return false;
+    }
+
+    final snapshot = await _blocksDoc(userId).get();
+    return snapshot.data()?[otherUserId] == true;
+  }
+
+  @override
+  Future<bool> isInteractionBlocked(String otherUserId) async {
+    final userId = _currentUserId;
+    if (otherUserId == userId) {
+      return false;
+    }
+
+    final snapshots = await Future.wait([
+      _blocksDoc(userId).get(),
+      _blocksDoc(otherUserId).get(),
+    ]);
+
+    return snapshots[0].data()?[otherUserId] == true ||
+        snapshots[1].data()?[userId] == true;
+  }
+
+  @override
+  Future<void> blockUser(String otherUserId) async {
+    final userId = _currentUserId;
+    if (otherUserId == userId) {
+      throw ArgumentError.value(
+        otherUserId,
+        'otherUserId',
+        'Cannot block self.',
+      );
+    }
+
+    final batch = _firestore.batch();
+
+    batch.set(_blocksDoc(userId), {otherUserId: true}, SetOptions(merge: true));
+
+    // Blocking severs all normal social edges in both directions.
+    batch.set(_firestore.collection('friends').doc(userId), {
+      otherUserId: FieldValue.delete(),
+    }, SetOptions(merge: true));
+    batch.set(_firestore.collection('friends').doc(otherUserId), {
+      userId: FieldValue.delete(),
+    }, SetOptions(merge: true));
+    batch.delete(
+      _firestore.collection('friend_requests').doc('${userId}_$otherUserId'),
+    );
+    batch.delete(
+      _firestore.collection('friend_requests').doc('${otherUserId}_$userId'),
+    );
+    batch.delete(
+      _firestore.collection('follows').doc('${userId}_$otherUserId'),
+    );
+    batch.delete(
+      _firestore.collection('follows').doc('${otherUserId}_$userId'),
+    );
+
+    await batch.commit();
+  }
+
+  @override
+  Future<void> unblockUser(String otherUserId) async {
+    final userId = _currentUserId;
+
+    await _blocksDoc(
+      userId,
+    ).set({otherUserId: FieldValue.delete()}, SetOptions(merge: true));
   }
 }

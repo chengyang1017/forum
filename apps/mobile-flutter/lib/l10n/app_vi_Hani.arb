@@ -560,5 +560,21 @@
   "collapse": "收袞",
   "showMore": "䀡添",
   "selectedTagsCount": "𥮋㐌譔 ({count}/10)",
-  "copyLink": "抄劄連結"
+  "copyLink": "抄劄連結",
+  "deleteAccount": "刪財款",
+  "deleteAccountDesc": "永久刪財款吧與料連關",
+  "deleteAccountConfirmTitle": "確定永久刪財款?",
+  "deleteAccountConfirmDesc": "操作尼空体恢復. 入密口現在抵確認.",
+  "deleteAccountPasswordHint": "密口現在",
+  "deleteAccountAction": "永久刪",
+  "deleteAccountFailed": "空体刪財款. 檢查密口吧試徠.",
+  "blockUser": "禁𠊛用",
+  "unblockUser": "𠬃禁",
+  "blockUserConfirmTitle": "禁𠊛用尼?",
+  "blockUserConfirmDesc": "禁 {name}? 關系伴佊吧關心仕得𠬃, 內容𧵑𠊛尼仕得隱.",
+  "userBlocked": "㐌禁𠊛用",
+  "userUnblocked": "㐌𠬃禁𠊛用",
+  "blockedUsersEmpty": "伴𣗓禁埃.",
+  "blockedInteraction": "空体互動由𠬠邊㐌禁邊恪.",
+  "moreActions": "操作恪"
 }

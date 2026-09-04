@@ -13,6 +13,8 @@ abstract interface class AuthRepository {
 
   Future<UserModel> updateProfile(UserModel user);
 
+  Future<void> reauthenticate(String password);
+
   Future<void> changePassword(String currentPassword, String newPassword);
 
   Future<void> sendPasswordResetEmail(String email);

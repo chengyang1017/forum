@@ -390,21 +390,25 @@ function postWhereById(
   const isDatabaseId =
     z.string().uuid().safeParse(id).success;
 
-  if (isDatabaseId) {
-    return {
-      OR: [
-        {
-          firestoreId: id,
-        },
-        {
-          id,
-        },
-      ],
-    };
-  }
+  const identity: Prisma.PostWhereInput =
+    isDatabaseId
+      ? {
+          OR: [
+            { firestoreId: id },
+            { id },
+          ],
+        }
+      : { firestoreId: id };
 
   return {
-    firestoreId: id,
+    AND: [
+      identity,
+      {
+        reports: {
+          none: { status: 'actioned' },
+        },
+      },
+    ],
   };
 }
 
@@ -1359,6 +1363,12 @@ postRouter.get(
                 languageCode,
               },
             },
+
+            reports: {
+              none: {
+                status: 'actioned',
+              },
+            },
           },
 
           include: {
@@ -1507,28 +1517,10 @@ postRouter.get(
       response.locals.auth;
 
     try {
-      const validDatabaseId =
-        z.string()
-          .uuid()
-          .safeParse(id);
-
       const post =
-        await prisma.post.findFirst({
-          where:
-            validDatabaseId.success
-              ? {
-                  OR: [
-                    {
-                      firestoreId: id,
-                    },
-                    {
-                      id,
-                    },
-                  ],
-                }
-              : {
-                  firestoreId: id,
-                },
+      await prisma.post.findFirst({
+        where:
+          postWhereById(id),
 
           include: {
             ...postInclude,

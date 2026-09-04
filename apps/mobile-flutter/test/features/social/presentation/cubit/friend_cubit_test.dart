@@ -64,6 +64,7 @@ void main() {
 
 final class _FakeFriendRepository implements FriendRepository {
   List<String> friends = const <String>[];
+  List<String> blockedUsers = const <String>[];
   Object? getFriendsError;
   int getFriendsCalls = 0;
   int watchFriendsCalls = 0;
@@ -100,4 +101,28 @@ final class _FakeFriendRepository implements FriendRepository {
 
   @override
   Future<void> rejectRequest(String fromUserId) async {}
+
+  @override
+  Stream<List<String>> watchBlockedUsers() => Stream.value(blockedUsers);
+
+  @override
+  Future<List<String>> getBlockedUsers() async => blockedUsers;
+
+  @override
+  Future<bool> isBlockedByMe(String otherUserId) async =>
+      blockedUsers.contains(otherUserId);
+
+  @override
+  Future<bool> isInteractionBlocked(String otherUserId) async =>
+      blockedUsers.contains(otherUserId);
+
+  @override
+  Future<void> blockUser(String otherUserId) async {
+    blockedUsers = <String>{...blockedUsers, otherUserId}.toList();
+  }
+
+  @override
+  Future<void> unblockUser(String otherUserId) async {
+    blockedUsers = blockedUsers.where((id) => id != otherUserId).toList();
+  }
 }

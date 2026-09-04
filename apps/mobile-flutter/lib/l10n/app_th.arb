@@ -560,5 +560,21 @@
   "collapse": "ย่อ",
   "showMore": "ดูเพิ่มเติม",
   "selectedTagsCount": "แท็กที่เลือก ({count}/10)",
-  "copyLink": "คัดลอกลิงก์"
+  "copyLink": "คัดลอกลิงก์",
+  "deleteAccount": "ลบบัญชี",
+  "deleteAccountDesc": "ลบบัญชีและข้อมูลที่เกี่ยวข้องอย่างถาวร",
+  "deleteAccountConfirmTitle": "ลบบัญชีอย่างถาวรหรือไม่?",
+  "deleteAccountConfirmDesc": "การดำเนินการนี้ย้อนกลับไม่ได้ โปรดป้อนรหัสผ่านปัจจุบันเพื่อยืนยัน",
+  "deleteAccountPasswordHint": "รหัสผ่านปัจจุบัน",
+  "deleteAccountAction": "ลบถาวร",
+  "deleteAccountFailed": "ไม่สามารถลบบัญชีได้ โปรดตรวจสอบรหัสผ่านแล้วลองอีกครั้ง",
+  "blockUser": "บล็อกผู้ใช้",
+  "unblockUser": "เลิกบล็อก",
+  "blockUserConfirmTitle": "บล็อกผู้ใช้นี้หรือไม่?",
+  "blockUserConfirmDesc": "บล็อก {name} หรือไม่? ความเป็นเพื่อนและการติดตามจะถูกยกเลิก และเนื้อหาของผู้ใช้นี้จะถูกซ่อน",
+  "userBlocked": "บล็อกผู้ใช้แล้ว",
+  "userUnblocked": "เลิกบล็อกผู้ใช้แล้ว",
+  "blockedUsersEmpty": "คุณยังไม่ได้บล็อกใคร",
+  "blockedInteraction": "ไม่สามารถโต้ตอบได้ เนื่องจากฝ่ายหนึ่งบล็อกอีกฝ่าย",
+  "moreActions": "การดำเนินการเพิ่มเติม"
 }

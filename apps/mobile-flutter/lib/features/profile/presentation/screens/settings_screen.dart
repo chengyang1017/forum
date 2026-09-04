@@ -67,6 +67,33 @@ class SettingsScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _deleteAccount(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final password = await showDialog<String>(
+      context: context,
+      builder: (_) => _DeleteAccountDialog(l10n: l10n),
+    );
+
+    if (password == null || password.isEmpty || !context.mounted) {
+      return;
+    }
+
+    try {
+      await context.read<auth_cubit.AuthCubit>().deleteAccount(password);
+      if (context.mounted) {
+        context.go(AppRoutes.login);
+      }
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.get('deleteAccountFailed')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -131,13 +158,16 @@ class SettingsScreen extends StatelessWidget {
             icon: Icons.block,
             title: l10n.blockList,
             subtitle: l10n.blockListDesc,
-            onTap: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(l10n.developing)));
-            },
+            onTap: () => context.push(AppRoutes.blockedUsers),
           ),
           const Divider(height: 32, thickness: 1),
+          _buildDangerItem(
+            context,
+            icon: Icons.delete_forever_outlined,
+            title: l10n.get('deleteAccount'),
+            subtitle: l10n.get('deleteAccountDesc'),
+            onTap: () => _deleteAccount(context),
+          ),
           _buildLogoutItem(context, l10n),
         ],
       ),
@@ -481,6 +511,31 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildDangerItem(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return ListTile(
+      leading: Icon(icon, color: colorScheme.error),
+      title: Text(
+        title,
+        style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.error),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          fontSize: 12,
+          color: colorScheme.onSurface.withValues(alpha: 0.62),
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
   Widget _buildLogoutItem(BuildContext context, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
     return ListTile(
@@ -497,6 +552,84 @@ class SettingsScreen extends StatelessWidget {
         ),
       ),
       onTap: () => _logout(context),
+    );
+  }
+}
+
+class _DeleteAccountDialog extends StatefulWidget {
+  const _DeleteAccountDialog({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  State<_DeleteAccountDialog> createState() => _DeleteAccountDialogState();
+}
+
+class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
+  final TextEditingController _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = widget.l10n;
+
+    return AlertDialog(
+      title: Text(l10n.get('deleteAccountConfirmTitle')),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.get('deleteAccountConfirmDesc')),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _passwordController,
+            obscureText: _obscurePassword,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: l10n.password,
+              hintText: l10n.get('deleteAccountPasswordHint'),
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() => _obscurePassword = !_obscurePassword);
+                },
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                ),
+              ),
+            ),
+            onSubmitted: (value) {
+              final password = value.trim();
+              if (password.isNotEmpty) {
+                Navigator.pop(context, password);
+              }
+            },
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+          onPressed: () {
+            final password = _passwordController.text.trim();
+            if (password.isNotEmpty) {
+              Navigator.pop(context, password);
+            }
+          },
+          child: Text(l10n.get('deleteAccountAction')),
+        ),
+      ],
     );
   }
 }

@@ -106,30 +106,24 @@ function serializeComment(
 async function findPost(
   id: string,
 ) {
-  const byFirestoreId =
-    await prisma.post.findUnique({
-      where: {
-        firestoreId: id,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-  if (byFirestoreId != null) {
-    return byFirestoreId;
-  }
-
   const isDatabaseId =
     z.string().uuid().safeParse(id).success;
 
-  if (!isDatabaseId) {
-    return null;
-  }
-
-  return prisma.post.findUnique({
+  return prisma.post.findFirst({
     where: {
-      id,
+      ...(isDatabaseId
+        ? {
+            OR: [
+              { firestoreId: id },
+              { id },
+            ],
+          }
+        : { firestoreId: id }),
+      reports: {
+        none: {
+          status: 'actioned',
+        },
+      },
     },
     select: {
       id: true,

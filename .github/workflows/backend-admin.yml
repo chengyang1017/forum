@@ -1,0 +1,74 @@
+name: Backend and Admin Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - 'apps/api/**'
+      - 'apps/admin/**'
+      - '.github/workflows/backend-admin.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/api/**'
+      - 'apps/admin/**'
+      - '.github/workflows/backend-admin.yml'
+
+jobs:
+  api:
+    name: API typecheck, test and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  admin:
+    name: Admin lint, test and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/admin
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: apps/admin/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build

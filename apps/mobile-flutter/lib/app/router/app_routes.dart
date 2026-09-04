@@ -12,6 +12,7 @@ abstract final class AppRoutes {
   static const settings = '/settings';
   static const securitySettings = '/settings/security';
   static const changePassword = '/settings/change-password';
+  static const blockedUsers = '/settings/blocked-users';
 
   static const allNotes = '/notes';
   static const noteEditor = '/notes/:noteId';

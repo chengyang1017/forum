@@ -36,6 +36,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   String? _currentUserId;
   UserModel? _userProfile;
   bool _isLoading = true;
+  bool _isBlockedByMe = false;
+  bool _interactionBlocked = false;
   FriendRelationshipStatus _relationshipStatus = FriendRelationshipStatus.none;
 
   @override
@@ -50,7 +52,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> _loadPageData() async {
-    await Future.wait([_loadProfile(), _loadRelationship()]);
+    await Future.wait([_loadProfile(), _loadBlockState(), _loadRelationship()]);
   }
 
   Future<void> _loadProfile() async {
@@ -71,6 +73,24 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
+  Future<void> _loadBlockState() async {
+    if (_currentUserId == null || _currentUserId == widget.uid) return;
+
+    try {
+      final results = await Future.wait([
+        _friendRepository.isBlockedByMe(widget.uid),
+        _friendRepository.isInteractionBlocked(widget.uid),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _isBlockedByMe = results[0];
+        _interactionBlocked = results[1];
+      });
+    } catch (error) {
+      debugPrint('Block state load failed: $error');
+    }
+  }
+
   Future<void> _loadRelationship() async {
     if (_currentUserId == null || _currentUserId == widget.uid) return;
 
@@ -84,6 +104,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> _sendFriendRequest() async {
+    if (await _friendRepository.isInteractionBlocked(widget.uid)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('blockedInteraction'),
+          ),
+        ),
+      );
+      return;
+    }
+
     try {
       await _friendRepository.sendRequest(widget.uid);
       if (!mounted) return;
@@ -138,6 +170,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> _startChat(String displayName) async {
+    if (await _friendRepository.isInteractionBlocked(widget.uid)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.get('blockedInteraction'),
+          ),
+        ),
+      );
+      return;
+    }
+
     try {
       final chatId = await _chatCubit.getOrCreateChat(widget.uid);
       if (!mounted) return;
@@ -149,6 +193,72 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           content: Text(AppLocalizations.of(context)!.get('createChatFailed')),
         ),
       );
+    }
+  }
+
+  Future<void> _toggleBlock(String displayName) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    if (_isBlockedByMe) {
+      try {
+        await _friendRepository.unblockUser(widget.uid);
+        if (!mounted) return;
+        setState(() {
+          _isBlockedByMe = false;
+          _interactionBlocked = false;
+        });
+        await _loadRelationship();
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.get('userUnblocked'))));
+      } catch (_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.get('operationFailed'))));
+      }
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.get('blockUserConfirmTitle')),
+        content: Text(
+          l10n.getWithArgs('blockUserConfirmDesc', {'name': displayName}),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(l10n.get('blockUser')),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await _friendRepository.blockUser(widget.uid);
+      if (!mounted) return;
+      setState(() {
+        _isBlockedByMe = true;
+        _interactionBlocked = true;
+        _relationshipStatus = FriendRelationshipStatus.none;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.get('userBlocked'))));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.get('operationFailed'))));
     }
   }
 
@@ -225,13 +335,41 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           nickname.isNotEmpty ? nickname : '@$username',
           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
         ),
+        actions: [
+          if (!isMe)
+            PopupMenuButton<String>(
+              tooltip: l10n.get('moreActions'),
+              onSelected: (_) => _toggleBlock(displayName),
+              itemBuilder: (_) => [
+                PopupMenuItem<String>(
+                  value: _isBlockedByMe ? 'unblock' : 'block',
+                  child: Row(
+                    children: [
+                      Icon(
+                        _isBlockedByMe ? Icons.lock_open : Icons.block,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        _isBlockedByMe
+                            ? l10n.get('unblockUser')
+                            : l10n.get('blockUser'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _loadPageData,
         child: StreamBuilder<List<PostModel>>(
           stream: _watchUserPosts(),
           builder: (context, postSnapshot) {
-            final posts = postSnapshot.data ?? const <PostModel>[];
+            final posts = _interactionBlocked
+                ? const <PostModel>[]
+                : postSnapshot.data ?? const <PostModel>[];
             return CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
@@ -260,7 +398,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       onTap: null,
                     ),
                   ),
-                if (_currentUserId != null && !isMe)
+                if (_currentUserId != null && !isMe && !_interactionBlocked)
                   SliverToBoxAdapter(
                     child: _buildSharedNotesEntry(displayName),
                   ),
@@ -292,7 +430,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ),
                   ),
                 ),
-                ProfilePostSliverList(snapshot: postSnapshot, l10n: l10n),
+                if (_interactionBlocked)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Text(
+                        l10n.get('blockedInteraction'),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  )
+                else
+                  ProfilePostSliverList(snapshot: postSnapshot, l10n: l10n),
               ],
             );
           },
@@ -367,7 +516,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ),
           if (!isMe) ...[
             const SizedBox(height: 20),
-            _buildActionButtons(displayName),
+            if (_interactionBlocked)
+              OutlinedButton.icon(
+                onPressed: _isBlockedByMe
+                    ? () => _toggleBlock(displayName)
+                    : null,
+                icon: const Icon(Icons.block, size: 18),
+                label: Text(
+                  _isBlockedByMe
+                      ? AppLocalizations.of(context)!.get('unblockUser')
+                      : AppLocalizations.of(context)!.get('blockedInteraction'),
+                ),
+              )
+            else
+              _buildActionButtons(displayName),
           ],
         ],
       ),
